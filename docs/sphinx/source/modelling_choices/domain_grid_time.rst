@@ -61,16 +61,13 @@ The subroutines for ISMIP HEINO (Calov et al. :cite:`calov_etal_2010`) are avail
 Spatial grid
 ============
 
-In principle, SICOPOLIS allows using any orthogonal coordinates on the Earth's surface, provided that the two components :math:`g_{11}` and :math:`g_{22}` of the metric tensor are known (see ":ref:`orthog_coord`"). They are computed in the module ``metric_m``. Three options are currently implemented and can be selected in the run-specs header\:
+In principle, SICOPOLIS allows using any orthogonal coordinates on the Earth's surface, provided that the two components :math:`g_{11}` and :math:`g_{22}` of the metric tensor are known (see ":ref:`orthog_coord`"). They are computed in the module ``metric_m``. Three options are currently implemented and can be selected in the run-specs header by the parameter ``GRID``\:
 
-.. code-block:: fortran
+* ``0``: Cartesian coordinates in the stereographic plane without distortion correction.
 
-  #define GRID 1
-  !                0 : Cartesian coordinates in the stereographic plane
-  !                    without distortion correction
-  !                1 : Cartesian coordinates in the stereographic plane
-  !                    with distortion correction
-  !                2 : Geographical coordinates (longitude/latitude)
+* ``1``: Cartesian coordinates in the stereographic plane with distortion correction.
+
+* ``2``: Geographical coordinates (longitude/latitude).
 
 For the most common case of Cartesian coordinates :math:`x` and :math:`y` in the stereographic plane (or any other projection plane), let the domain be the rectangle described by :math:`[x_0,x_\mathrm{max}]`, :math:`[y_0,y_\mathrm{max}]`. It is discretized by a regular (structured) grid with horizontal resolution :math:`\Delta{x}`, which is the same for the :math:`x`- and :math:`y`-directions. The location of the grid points :math:`x_i` and :math:`y_j` is then given by
 

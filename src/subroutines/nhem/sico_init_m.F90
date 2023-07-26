@@ -650,8 +650,11 @@ if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
    write(10, fmt=trim(fmt1)) ' '
 end if
 #endif
-#if (ANF_DAT==1 && defined(TEMP_INIT))
+#if (ANF_DAT==1)
 write(10, fmt=trim(fmt2)) 'TEMP_INIT = ', TEMP_INIT
+#if (TEMP_INIT==1 && defined(TEMP_INIT_VAL))
+write(10, fmt=trim(fmt3)) 'temp_init_val =', TEMP_INIT_VAL
+#endif
 #endif
 #if (ANF_DAT==3 || (ANF_DAT==1 && TEMP_INIT==5))
 write(10, fmt=trim(fmt1)) 'Initial-value file = '//ANFDATNAME

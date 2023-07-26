@@ -653,8 +653,11 @@ if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
    write(10, fmt=trim(fmt1)) ' '
 end if
 #endif
-#if (ANF_DAT==1 && defined(TEMP_INIT))
+#if (ANF_DAT==1)
 write(10, fmt=trim(fmt2)) 'TEMP_INIT = ', TEMP_INIT
+#if (TEMP_INIT==1 && defined(TEMP_INIT_VAL))
+write(10, fmt=trim(fmt3)) 'temp_init_val =', TEMP_INIT_VAL
+#endif
 #endif
 #if (ANF_DAT==3 || (ANF_DAT==1 && TEMP_INIT==5))
 write(10, fmt=trim(fmt1)) 'Initial-value file = '//ANFDATNAME
@@ -1588,7 +1591,7 @@ Q_b_tot = 0.0_dp
 p_b_w   = 0.0_dp
 H_w     = 0.0_dp
 
-#if (!defined(TEMP_INIT) || TEMP_INIT==1)
+#if (TEMP_INIT==1)
   call init_temp_water_age_1_1()
 #elif (TEMP_INIT==2)
   call init_temp_water_age_1_2()

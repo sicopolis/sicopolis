@@ -49,28 +49,40 @@ module init_temp_water_age_m
 #if defined(ALLOW_TAPENADE)
   public :: my_erf
 #endif
+
 contains
 
 #if defined(ALLOW_TAPENADE)
+
   function my_erf(x)
+
     implicit none
-    real(dp), INTENT(IN) :: x
+
+    real(dp), intent(in) :: x
     real(dp) :: my_erf
     real(dp) :: t, z
-    if (x .GE. 0.) then
+
+    if (x >= 0.0_dp) then
       z = x
     else
       z = -x
     end if
+
     t = 1.0_dp/(1.0_dp+0.5_dp*z)
-    my_erf = t*EXP(-(z*z)-1.26551223_dp+t*(1.00002368_dp+t*(&
-&     0.37409196_dp+t*(0.09678418_dp+t*(-0.18628806_dp+t*(0.27886807_dp+&
-&     t*(-1.13520398_dp+t*(1.48851587_dp+t*(-0.82215223_dp+t*&
-&     0.17087277_dp)))))))))
-    if (x .LT. 0.0_dp) my_erf = 2.0_dp - my_erf
-    my_erf = 1.0_dp -my_erf
+
+    my_erf = t*exp(-(z*z)-1.26551223_dp+t*(1.00002368_dp+t*( &
+       0.37409196_dp+t*(0.09678418_dp+t*(-0.18628806_dp+t*(0.27886807_dp+ &
+       t*(-1.13520398_dp+t*(1.48851587_dp+t*(-0.82215223_dp+t* &
+       0.17087277_dp)))))))))
+
+    if (x < 0.0_dp) my_erf = 2.0_dp - my_erf
+
+    my_erf = 1.0_dp - my_erf
+
   end function my_erf
+
 #endif 
+
 !-------------------------------------------------------------------------------
 !> Initial temperature, water content and age
 !! (case ANF_DAT==1, TEMP_INIT==1:
@@ -81,25 +93,44 @@ contains
   implicit none
 
   integer(i4b) :: i, j, kc
+  real(dp) :: z_above_base, temp_pmp
 
 !-------- Initial ice temperature --------
+
+#if (defined(TEMP_INIT_VAL))
+
+  temp_c = real(TEMP_INIT_VAL,dp)
+
+#else
+
+#if (defined(NMARS) || defined(SMARS))   /* Polar caps of Mars */
+
+  temp_c = -100.0_dp   ! default value -100 C
+
+#else   /* all other domains */
+
+  temp_c = -10.0_dp   ! default value -10 C
+
+#endif
+
+#endif
 
   do i=0, IMAX
   do j=0, JMAX
 
-#if (defined(NMARS) || defined(SMARS))   /* Polar caps of Mars */
+     do kc=0, KCMAX-1
 
-     do kc=0, KCMAX
-        temp_c(kc,j,i) = -100.0_dp
+        z_above_base = H_c(j,i)*eaz_c_quotient(kc)
+        temp_pmp     = -BETA*(H_c(j,i)-z_above_base)
+
+        if (temp_c(kc,j,i) > temp_pmp) temp_c(kc,j,i) = temp_pmp
+                            ! Cut-off of englacial temperatures above PMP
+
      end do
 
-#else   /* all other domains */
-
-     do kc=0, KCMAX
-        temp_c(kc,j,i) =  -10.0_dp
-     end do
-
-#endif
+     kc = KCMAX
+        if (temp_c(kc,j,i) > -0.001_dp) temp_c(kc,j,i) = -0.001_dp
+                            ! Cut-off of non-negative surface temperatures
 
   end do
   end do
@@ -123,6 +154,7 @@ contains
   implicit none
 
   integer(i4b) :: i, j, kc
+  real(dp) :: z_above_base, temp_pmp
 
 !-------- Initial ice temperature --------
 
@@ -132,6 +164,26 @@ contains
      do kc=0, KCMAX
         temp_c(kc,j,i) = temp_s(j,i)
      end do
+
+  end do
+  end do
+
+  do i=0, IMAX
+  do j=0, JMAX
+
+     do kc=0, KCMAX-1
+
+        z_above_base = H_c(j,i)*eaz_c_quotient(kc)
+        temp_pmp     = -BETA*(H_c(j,i)-z_above_base)
+
+        if (temp_c(kc,j,i) > temp_pmp) temp_c(kc,j,i) = temp_pmp
+                            ! Cut-off of englacial temperatures above PMP
+
+     end do
+
+     kc = KCMAX
+        if (temp_c(kc,j,i) > -0.001_dp) temp_c(kc,j,i) = -0.001_dp
+                            ! Cut-off of non-negative surface temperatures
 
   end do
   end do

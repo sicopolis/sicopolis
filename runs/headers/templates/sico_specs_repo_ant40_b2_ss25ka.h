@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-07-06'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-07-26'
 !                      Date of last change
 
 !-------- Domain --------
@@ -461,6 +461,10 @@
 !                             under the assumption of linearly varying vz
 !                             [Robin (1955) solution]
 !                         5 : Ice temperature from previous simulation
+
+#define TEMP_INIT_VAL -10.0d0
+!                         Prescribed initial temperature (in deg C)
+!                         (only for ANF_DAT==1 and TEMP_INIT==1)
 
 #define ANFDATNAME 'none'
 !                             Initial-value file (only for ANF_DAT==3,

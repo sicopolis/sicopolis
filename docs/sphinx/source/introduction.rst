@@ -12,7 +12,7 @@ The coding is based on a low-tech, ease-of-use philosophy. All structures are ke
 Resources
 =========
 
-* Model website: http://www.sicopolis.net/
+* Model website: https://www.sicopolis.net/
 * This user manual: https://sicopolis.readthedocs.io/
 * GitLab repository: https://gitlab.awi.de/sicopolis/sicopolis/
 * SICOPOLIS community @ Zenodo: https://zenodo.org/communities/sicopolis/

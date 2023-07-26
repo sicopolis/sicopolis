@@ -31,6 +31,7 @@ Authors
    test_simulations
    plotting_and_tools
    modelling_choices/index
+   climate_forcing/index
    AD/index
    technical_notes/index
    how_to_contribute

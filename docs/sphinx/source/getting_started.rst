@@ -144,6 +144,8 @@ A header consists of a pretty large number of preprocessor directives of the for
 
 These allow specifying many aspects of a simulation and are documented in the headers themselves. See also the ":ref:`modelling_choices`" section.
 
+For a number of :ref:`test simulations <test_simulations>`, the run-specs header files are contained in the SICOPOLIS repository. Further examples can be found in the several paper-accompanying datasets on `Zenodo <https://zenodo.org/communities/sicopolis/>`__.
+
 .. _getting_started-phys_para:
 
 Physical-parameter files

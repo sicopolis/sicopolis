@@ -23,21 +23,21 @@ Sub-melt sliding (Sato and Greve :cite:`sato_greve_2012`), water-film-enhanced s
 Geothermal heat flux
 ====================
 
-The geothermal heat flux, assumed to be time-independent, can be specified in the run-specs header as either a constant value or a spatially varying distribution via the parameter ``Q_GEO_MOD``\:
+The geothermal heat flux (GHF), assumed to be time-independent, can be specified in the run-specs headers as either a constant value or a spatially varying distribution via the parameters ``Q_GEO`` and ``Q_GEO_FILE``\:
 
-* ``1``: Constant geothermal heat flux defined by parameter ``Q_GEO``.
+* If ``Q_GEO_FILE = 'none'`` (or undefined): Constant GHF defined by parameter ``Q_GEO``.
 
-* ``2``: Spatially varying geothermal heat flux read from file (specified by parameter ``Q_GEO_FILE``).
+* Otherwise: Spatially varying GHF read from file specified by ``Q_GEO_FILE``.
 
-If a file with gridded data is provided (case ``2``), it must match the chosen horizontal grid (see ":ref:`spatial_grid`"). The format can either be NetCDF (:file:`*.nc`) or ASCII (any other file extension).
+If a file with gridded data is provided (second case), it must match the chosen horizontal grid (see ":ref:`spatial_grid`"). The format can either be NetCDF (``*.nc``) or ASCII (any other file extension).
 
-A further, relevant parameter is ``Q_LITHO`` from the "Lithosphere (bedrock) modelling" section in the run-specs header:
+A further, relevant parameter is ``Q_LITHO``\:
 
 * ``0``: No coupled heat-conducting bedrock.
 
 * ``1``: Coupled heat-conducting bedrock.
 
-If set to ``0``, the geothermal heat flux is imposed directly at the grounded ice base, which is suitable for steady-state simulations because it reduces the time required to reach the steady state. However, for transient simulations, ``1`` is the preferred setting. The geothermal heat flux is then imposed at the base of the lithosphere layer (thickness defined by variable ``H_R`` in the physical-parameter file, see ":ref:`getting_started-phys_para`"), so that the thermal inertia of the lithosphere is properly accounted for.
+If set to ``0``, the GHF is imposed directly at the grounded ice base, which is suitable for steady-state simulations because it reduces the time required to reach the steady state. However, for transient simulations, ``1`` is the preferred setting. The GHF is then imposed at the base of the lithosphere layer (thickness defined by variable ``H_R`` in the physical-parameter file, see ":ref:`getting_started-phys_para`"), so that the thermal inertia of the lithosphere is properly accounted for.
 
 .. _basal_hydrology:
 
@@ -67,10 +67,11 @@ These models are described by Le Meur and Huybrechts :cite:`lemeur_huy_1996` and
 
 The detailed settings are controlled by additional parameters (``FRAC_LLRA``, ``TIME_LAG_MOD``, ``TIME_LAG``, ``TIME_LAG_FILE``, ``FLEX_RIG_MOD``, ``FLEX_RIG``, ``FLEX_RIG_FILE``, ``DTIME_WSS0``) as described in the run-specs headers.
 
-The isostatically relaxed lithosphere surface topography (parameter ``ZL0_FILE``, see ":ref:`topography`") is required for the isostasy models. A special setting for generating this topography can be enabled by
+.. note::
+  The isostatically relaxed lithosphere surface topography (parameter ``ZL0_FILE``, see ":ref:`topography`") is required for the isostasy models. A special setting for generating this topography can be enabled by
 
-.. code-block:: fortran
+  .. code-block:: fortran
 
-  #define EXEC_MAKE_ZL0
+    #define EXEC_MAKE_ZL0
 
-It should be used together with ``ANF_DAT 1`` (present-day topography used as initial topography), computes the isostatically relaxed lithosphere surface topography, writes it on file and then stops the simulation (irrespective of the setting for the final time :math:`t_\mathrm{final}`). The underlying assumption is that the present-day bed topography is approximately in equilibrium with the present-day ice load.
+  It should be used together with ``ANF_DAT 1`` (present-day topography used as initial topography), computes the isostatically relaxed lithosphere surface topography, writes it on file and then stops the simulation (irrespective of the setting for the final time :math:`t_\mathrm{final}`). The underlying assumption is that the present-day bed topography is approximately in equilibrium with the present-day ice load.

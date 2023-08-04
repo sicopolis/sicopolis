@@ -6,7 +6,7 @@ Test simulations
 These are a number of computationally rather inexpensive test simulations, of which the :ref:`run-specs header files <getting_started-run_specs_headers>` are contained in the SICOPOLIS repository.
 
 Run ``repo_vialov3d25``
-  | 3-d version of the 2-d Vialov profile (Vialov :cite:`vialov_1958`),
+  | 3D version of the 2D Vialov profile (Vialov :cite:`vialov_1958`),
   | SIA, resolution 25 km, :math:`t=0\ldots{}100\,\mathrm{ka}`.
   | Similar to the EISMINT Phase 1 fixed-margin experiment (Huybrechts et al. :cite:`huybrechts_etal_1996`), but without thermodynamics. Instead, isothermal conditions with :math:`T=-10^{\circ}\mathrm{C}` everywhere are assumed.
 

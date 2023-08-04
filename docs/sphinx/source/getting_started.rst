@@ -115,8 +115,9 @@ Directory ``sico_in``
 
   Subdirectory ``xyz``: For :ref:`creating new domains <new_domain>`.
 
-  NOTE: These subdirectories also contain README files that describe the input data and provide the corresponding references.
-
+  .. note::
+    These subdirectories also contain README files that describe the input data and provide the corresponding references.
+  
 Directory ``sico_out``
   Directory into which output files of SICOPOLIS simulations are written by default.
 
@@ -159,6 +160,8 @@ In these files, a number of physical parameters (densities, acceleration due to 
 
 The physical-parameter files can be provided in either ASCII or NetCDF format. The file type is recognized automatically by the extension (``*.nc`` for NetCDF, otherwise ASCII is assumed).
 
+.. _getting_started-run_simulation:
+
 How to run a simulation
 =======================
 
@@ -166,17 +169,22 @@ For example, to run the EISMINT Phase 2 Simplified Geometry Experiment A (Payne 
 
   (./sico.sh -m repo_emtp2sge25_expA) >out_001.dat 2>&1
 
-(from directory ``runs``, bash required). Accordingly for any other simulations.
+(from directory ``runs``, bash required). Accordingly for any other simulation.
 
-For further options, try ``./sico.sh -h``.
+To list further options, execute ``./sico.sh -h``.
 
-WARNING: Do not use out\_\<run\_name\>.dat for the redirected output of ``sico.sh``. This name is reserved for the runtime output of SICOPOLIS itself. (Both are very useful in case of compilation or runtime errors!)
+.. warning::
+  The name ``out_<run_name>.dat`` must not be used for the redirected output of ``sico.sh``. This name is reserved for the runtime output of SICOPOLIS itself. (Both are very useful in case of compilation or runtime errors!)
 
-Alternatively, if you prefer to run :ref:`all EISMINT, Antarctica and Greenland simulations <test_simulations>` consecutively, execute the script ``multi_sico_1.sh``::
+If you prefer to run :ref:`all EISMINT, Antarctica and Greenland simulations <test_simulations>` consecutively, execute the script ``multi_sico_1.sh``::
 
   (./multi_sico_1.sh) >out_multi_100.dat 2>&1 &
 
-For further options, try ``./multi_sico_1.sh -h``.
+To list further options, execute ``./multi_sico_1.sh -h``.
+
+Alternatively, :ref:`all other test simulations (Austfonna etc.) <test_simulations>` can be run with the script ``multi_sico_2.sh``::
+
+  (./multi_sico_2.sh) >out_multi_200.dat 2>&1 &
 
 Approximate computing times are listed in the ":ref:`Test simulations <test_simulations>`" section.
 
@@ -185,7 +193,7 @@ Approximate computing times are listed in the ":ref:`Test simulations <test_simu
 Output files
 ============
 
-Output files are written by default to the directory ``sico_out/<run_name>`` (this can be changed with the ``-d /path/to/output/directory`` option). Four types are produced:
+Output files are written by default to the directory ``sico_out/<run_name>``. This can be changed by executing ``sico.sh`` (or ``multi_sico_*.sh``) with the option ``-d /path/to/output/directory``. Four types are produced:
 
 ``<run_name>.log``:
   ASCII file that lists the main specifications of simulation ``<run_name>``.
@@ -210,7 +218,7 @@ Output files are written by default to the directory ``sico_out/<run_name>`` (th
   * Maximum surface elevation, zs\_max
   * Maximum surface speed, vs\_max
   * Maximum basal temperature (relative to pmp), Tbh\_max
-  * (Some more in the NetCDF file, try ``ncdump -h <run_name>_ser.nc``)
+  * (Some more in the NetCDF file, execute ``ncdump -h <run_name>_ser.nc`` for a listing)
 
 ``<run_name>.core``, ``<run_name>_core.nc``:
   Time-series files (ASCII, NetCDF) that contain for selected locations xxx:
@@ -221,7 +229,7 @@ Output files are written by default to the directory ``sico_out/<run_name>`` (th
   * Thickness, H\_xxx
   * Surface velocity, v\_xxx
   * Basal temperature, T\_xxx
-  * (Some more in the NetCDF file, try ``ncdump -h <run_name>_core.nc``)
+  * (Some more in the NetCDF file, execute ``ncdump -h <run_name>_core.nc`` for a listing)
 
   | For the Greenland ice sheet, these data are written for seven locations:
   | GRIP (xxx=GR), GISP2 (xxx=G2), Dye 3 (xxx=D3), Camp Century (xxx=CC), NorthGRIP (xxx=NG), NEEM (xxx=NE), EastGRIP (xxx=EG).
@@ -230,6 +238,12 @@ Output files are written by default to the directory ``sico_out/<run_name>`` (th
   | Vostok (xxx=Vo), Dome A (xxx=DA), Dome C (xxx=DC), Dome F (xxx=DF), Kohnen (xxx=Ko), Byrd (xxx=By).
 
 ``<run_name>0001.nc``, ``<run_name>0002.nc``, ...:
-  Complete set of fields (topography, velocity, temperature etc., written in NetCDF format) for selected time slices defined in the run-specs header file.
+  Complete set of fields (topography, velocity, temperature etc., written in NetCDF format) for selected time slices.
 
-  For example, simulation ``repo_emtp2sge25_expA`` produces three files ``repo_emtp2sge25_expA0001.nc``, ``repo_emtp2sge25_expA0002.nc`` and ``repo_emtp2sge25_expA0003.nc``, which correspond to the times :math:`t=5\,\mathrm{ka}`, :math:`50\,\mathrm{ka}` and :math:`200\,\mathrm{ka}`, respectively.
+Writing of output files can be controlled by the several parameters in the "Data output" section of the run-specs headers. For example, simulation ``repo_emtp2sge25_expA`` writes scalar variables into the time-series files ``repo_emtp2sge25_expA{.ser,.core,_ser.nc,_core.nc}`` every 100 years. In addition, it produces three time-slice files ``repo_emtp2sge25_expA0001.nc``, ``repo_emtp2sge25_expA0002.nc`` and ``repo_emtp2sge25_expA0003.nc``, which correspond to the times :math:`t=5\,\mathrm{ka}`, :math:`50\,\mathrm{ka}` and :math:`200\,\mathrm{ka}`, respectively.
+
+.. note::
+  By default, when trying to re-run a simulation, already existing output will not be overwritten, and an error message will be produced in that case. However, overwriting can be enforced by executing ``sico.sh`` (or ``multi_sico_*.sh``) with the option ``-f``.
+
+.. note::
+  If a time-slice file of the initial state of a simulation is written, not all variables will already be defined (because SICOPOLIS has not done any proper computation yet). For instance, "diagnosed" 2D fields like the basal temparatures ``temp_b`` and ``temph_b`` (relative to pressure melting) or the thermal state mask ``n_cts`` will contain only default values. They will be filled with meaningful values after the first time step.

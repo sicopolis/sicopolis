@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-07-26'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-08-03'
 !                      Date of last change
 
 !-------- Domain --------
@@ -117,10 +117,6 @@
 !                       Time step (in a) for computation of
 !                       isostatic steady-state displacement of the lithosphere
 !                       (only for REBOUND==2, ELRA model)
-
-#define DTIME_SER0 100.0d0
-!                       Time step (in a) for writing of data to
-!                       the time-series files
 
 !!! #define YEAR_SEC 31556926.0d0
 !                       Conversion from years to seconds;
@@ -523,10 +519,6 @@
 !                         topography (ZL_PRESENT_FILE) can be used.
 !                         !!! Not to be used regularly!!!
 
-#define Q_LITHO 1
-!                         0 : No coupled heat-conducting bedrock
-!                         1 : Coupled heat-conducting bedrock
-
 !-------- Evolution of the ice thickness --------
 
 #define THK_EVOL 1
@@ -880,35 +872,38 @@
 !                       Threshold water film thickness for water-film-enhanced
 !                       basal sliding (in m, only for BASAL_HYDROLOGY==1)
 
-!-------- Geothermal heat flux --------
-
-#define Q_GEO_MOD 1
-!                         1 : Constant geothermal heat flux defined
-!                             by parameter Q_GEO
-!                         2 : Spatially varying geothermal heat flux
-!                             read from file
+!-------- Geothermal heat flux (GHF) --------
 
 #define Q_GEO 55.0d0
-!                       Constant geothermal heat flux (for Q_GEO_MOD==1),
-!                       in mW/m2
+!                       Spatially constant GHF (in mW/m2)
+!                       (only used if Q_GEO_FILE == 'none', otherwise ignored)
 
 #define Q_GEO_FILE 'none'
-!                       Name of the file containing the spatially varying
-!                       geothermal heat flux (for Q_GEO_MOD==2)
+!                       Name of the file containing the spatially varying GHF
+!                       (set to 'none' if spatially constant GHF
+!                       defined by parameter Q_GEO is to be used)
+
+#define Q_LITHO 1
+!                       0 : No coupled heat-conducting bedrock
+!                           (GHF imposed directly at the grounded ice base)
+!                       1 : Coupled heat-conducting bedrock
+!                           (GHF imposed at the base of the
+!                           thermal lithosphere layer of thickness H_R,
+!                           defined in the physical-parameter file)
 
 !-------- Basal melting at the marine ice front --------
 
 #define MARINE_ICE_BASAL_MELTING 1
-!                        Basal melting rate at the marine ice front:
-!                        1 : Computed by the usual energy jump condition
-!                            for grounded ice
-!                        2 : Prescribed by QBM_MARINE
-!                        3 : Weighed average of grounded ice melting (computed)
-!                            and marine ice melting (prescribed by QBM_MARINE)
+!                       Basal melting rate at the marine ice front:
+!                       1 : Computed by the usual energy jump condition
+!                           for grounded ice
+!                       2 : Prescribed by QBM_MARINE
+!                       3 : Weighed average of grounded ice melting (computed)
+!                           and marine ice melting (prescribed by QBM_MARINE)
 
 #define QBM_MARINE 2.0d0
-!                        Basal melting rate at the marine ice front,
-!                        in m/a water equiv. (for MARINE_ICE_BASAL_MELTING==2,3)
+!                       Basal melting rate at the marine ice front,
+!                       in m/a water equiv. (for MARINE_ICE_BASAL_MELTING==2,3)
 
 !-------- Data output --------
 
@@ -961,19 +956,23 @@
 !                              time-slice output with all 3-d fields for
 !                              OUTPUT==3, in which case snapshots are written)
 
+#define DTIME_SER0 100.0d0
+!                         Time step (in a) for writing of data to
+!                         the time-series files (scalar variables)
+
 #define DTIME_OUT0 0.0d0
-!                             Time step (in a) for writing of
-!                             time-slice data (only for OUTPUT==1,3)
+!                         Time step (in a) for writing of
+!                         time-slice data (only for OUTPUT==1,3)
 
 #define N_OUTPUT 4
-!                             Number of specified times for writing of
-!                             time-slice data (only for OUTPUT==2,3,
-!                             not more than 100)
+!                         Number of specified times for writing of
+!                         time-slice data (only for OUTPUT==2,3,
+!                         not more than 100)
 
 #define TIME_OUT0 (/ -65000.0d0, -21000.0d0, -18000.0d0, 0.0d0 /)
-!                             Times (in a) for writing of time-slice
-!                             data (only for OUTPUT==2,3, in increasing
-!                             order from #1 to #N_OUTPUT)
+!                         Times (in a) for writing of time-slice
+!                         data (only for OUTPUT==2,3, in increasing
+!                         order from #1 to #N_OUTPUT)
 
 !-------- Limiters etc. --------
 

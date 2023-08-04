@@ -10,7 +10,9 @@ Modelling choices
    initial_conditions
    ice_dynamics
    ice_thermodynamics
+   ice_thickness_evolution
    flow_law
    enhancement_factor
    basal_processes
    calving
+   mb_account

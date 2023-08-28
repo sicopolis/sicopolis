@@ -55,7 +55,7 @@ module calc_thk_m
 #endif
   public :: calc_thk_init
   public :: calc_thk_sia_expl, calc_thk_sia_impl
-  public :: calc_thk_expl, calc_thk_impl
+  public :: calc_thk_expl
   public :: calc_thk_mask_update
   public :: account_mb_source
 contains
@@ -134,14 +134,13 @@ H_new  = H    ! will be overwritten later
 
   flag_solver_explicit = .true.
 
-#elif (CALCTHK==2 || CALCTHK==3 \
-       || CALCTHK==5 || CALCTHK==6)   /* implicit solver */
+#elif (CALCTHK==2)   /* implicit solver */
 
   flag_solver_explicit = .false.
 
 #else
 
-  errormsg = ' >>> calc_thk_init: CALCTHK must be between 1 and 6!'
+  errormsg = ' >>> calc_thk_init: CALCTHK must be 1, 2 or 4!'
   call error(errormsg)
 
 #endif
@@ -239,11 +238,7 @@ end subroutine calc_thk_sia_expl
 !<------------------------------------------------------------------------------
 subroutine calc_thk_sia_impl(time, dtime, dxi, deta, z_mar, mean_accum)
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-use sico_maths_m, only : sor_sprs
-#else /* Tapenade */
 use sico_maths_m
-#endif /* Normal vs. Tapenade */
 
 #if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
   use calving_m
@@ -259,8 +254,6 @@ integer(i4b)                       :: i, j
 integer(i4b)                       :: k, nnz
 real(dp)                           :: azs2, azs3
 real(dp), dimension(0:JMAX,0:IMAX) :: czs2, czs3
-
-#if (CALCTHK==2)
 
 integer(i4b)                            :: ierr
 integer(i4b)                            :: iter
@@ -287,37 +280,6 @@ real(dp),             dimension(n_sprs) :: lgs_a_value_trim
 
 real(dp)                                :: eps_sor
 
-#elif (CALCTHK==3)
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-LIS_INTEGER                            :: ierr
-LIS_INTEGER                            :: iter
-LIS_INTEGER                            :: nc, nr
-LIS_INTEGER, parameter                 :: nmax   =    (IMAX+1)*(JMAX+1)
-LIS_INTEGER, parameter                 :: n_sprs = 10*(IMAX+1)*(JMAX+1)
-LIS_INTEGER, allocatable, dimension(:) :: lgs_a_ptr, lgs_a_index
-LIS_INTEGER, allocatable, dimension(:) :: lgs_a_diag_index
-LIS_MATRIX                             :: lgs_a
-LIS_VECTOR                             :: lgs_b, lgs_x
-LIS_SCALAR,  allocatable, dimension(:) :: lgs_a_value, lgs_b_value, lgs_x_value
-LIS_SOLVER                             :: solver
-character(len=256)                     :: ch_solver_set_option
-#else /* Tapenade */
-integer(i4b)                            :: nc, nr
-integer(i4b), parameter                 :: nmax   =    (IMAX+1)*(JMAX+1)
-integer(i4b), parameter                 :: n_sprs = 10*(IMAX+1)*(JMAX+1)
-real(dp),             dimension(n_sprs) :: lgs_a_index
-integer(i4b),         dimension(nmax+1) :: lgs_a_ptr
-integer(i4b),           dimension(nmax) :: lgs_a_diag_index
-integer(i4b),         dimension(n_sprs) :: lgs_a_index_trim
-real(dp),             dimension(n_sprs) :: lgs_a_value
-real(dp),               dimension(nmax) :: lgs_b_value
-real(dp),               dimension(nmax) :: lgs_x_value
-real(dp),             dimension(n_sprs) :: lgs_a_value_trim
-#endif /* Normal vs. Tapenade */
-
-#endif
-
 !-------- Abbreviations --------
 
 azs2 = dtime/(dxi*dxi)
@@ -342,8 +304,6 @@ end do
 
 !-------- Assembly of the system of linear equations
 !                     (matrix storage: compressed sparse row CSR) --------
-
-#if (CALCTHK==2 || CALCTHK==3)
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
 allocate(lgs_a_value(n_sprs), lgs_a_index(n_sprs), lgs_a_ptr(nmax+1))
@@ -442,18 +402,8 @@ end do
 
 nnz = k   ! number of non-zero elements of the matrix
 
-#else
-
-errormsg = ' >>> calc_thk_sia_impl: CALCTHK must be either 2 or 3!'
-call error(errormsg)
-
-#endif
-
-!-------- Solution of the system of linear equations --------
-
-#if (CALCTHK==2)
-
-!  ------ Solution with the built-in SOR solver
+!-------- Solution of the system of linear equations
+!                                   (built-in SOR solver) --------
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
 allocate(lgs_a_value_trim(nnz), lgs_a_index_trim(nnz))
@@ -490,88 +440,6 @@ end do
 deallocate(lgs_a_value_trim, lgs_a_index_trim, lgs_a_ptr)
 deallocate(lgs_a_diag_index, lgs_b_value, lgs_x_value)
 #endif /* Normal */
-
-#elif (CALCTHK==3)
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-  
-  !  ------ Settings for Lis
-  
-  call lis_matrix_create(LIS_COMM_WORLD, lgs_a, ierr)
-  call lis_vector_create(LIS_COMM_WORLD, lgs_b, ierr)
-  call lis_vector_create(LIS_COMM_WORLD, lgs_x, ierr)
-  
-  call lis_matrix_set_size(lgs_a, 0, nmax, ierr)
-  call lis_vector_set_size(lgs_b, 0, nmax, ierr)
-  call lis_vector_set_size(lgs_x, 0, nmax, ierr)
-  
-  do nr=1, nmax
-  
-     do nc=lgs_a_ptr(nr), lgs_a_ptr(nr+1)-1
-        call lis_matrix_set_value(LIS_INS_VALUE, nr, lgs_a_index(nc), &
-                                                 lgs_a_value(nc), lgs_a, ierr)
-     end do
-  
-     call lis_vector_set_value(LIS_INS_VALUE, nr, lgs_b_value(nr), lgs_b, ierr)
-     call lis_vector_set_value(LIS_INS_VALUE, nr, lgs_x_value(nr), lgs_x, ierr)
-  
-  end do
-
-  call lis_matrix_set_type(lgs_a, LIS_MATRIX_CSR, ierr)
-  call lis_matrix_assemble(lgs_a, ierr)
-  
-  !  ------ Solution with Lis
-  
-  call lis_solver_create(solver, ierr)
-  
-  ch_solver_set_option = '-i bicg -p ilu '// &
-                         '-maxiter 1000 -tol 1.0e-12 -initx_zeros false'
-  
-  call lis_solver_set_option(trim(ch_solver_set_option), solver, ierr)
-  call CHKERR(ierr)
-  
-  call lis_solve(lgs_a, lgs_b, lgs_x, solver, ierr)
-  call CHKERR(ierr)
-  
-  call lis_solver_get_iter(solver, iter, ierr)
-  write(6,'(10x,a,i0)') 'calc_thk_sia_impl: iter = ', iter
-  
-  lgs_x_value = 0.0_dp
-  call lis_vector_gather(lgs_x, lgs_x_value, ierr)
-  call lis_matrix_destroy(lgs_a, ierr)
-  call lis_vector_destroy(lgs_b, ierr)
-  call lis_vector_destroy(lgs_x, ierr)
-  call lis_solver_destroy(solver, ierr)
-
-  do nr=1, nmax
-    i = n2i(nr)
-    j = n2j(nr)
-    zs_new(j,i) = lgs_x_value(nr)
-  end do
-  
-  deallocate(lgs_a_value, lgs_a_index, lgs_a_ptr)
-  deallocate(lgs_a_diag_index, lgs_b_value, lgs_x_value)
-  
-#else /* Tapenade */
-
-  do k=1, nnz   ! relocate matrix to trimmed arrays
-     lgs_a_value_trim(k) = lgs_a_value(k)
-     lgs_a_index_trim(k) = int(lgs_a_index(k))
-  end do
-
-  call sico_lis_solver(nmax, nnz, &
-                       lgs_a_ptr, lgs_a_index_trim, &
-                       lgs_a_value_trim, lgs_b_value, lgs_x_value)
-
-  do nr=1, nmax
-     i = n2i(nr)
-     j = n2j(nr)
-     zs_new(j,i) = lgs_x_value(nr)
-  end do
-
-#endif /* Normal vs. Tapenade */
-
-#endif
 
 !-------- Ice thickness --------
 
@@ -736,415 +604,6 @@ call calving_retreat_mask(time, dtime)
 end subroutine calc_thk_expl
 
 !-------------------------------------------------------------------------------
-!> Over-implicit solver for the general ice thickness equation.
-!<------------------------------------------------------------------------------
-subroutine calc_thk_impl(time, dtime, dxi, deta, z_mar, mean_accum)
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-#if (CALCTHK==5)
-use sico_maths_m, only : sor_sprs
-#elif (CALCTHK==6)
-use sico_maths_m, only : sor_sprs, sico_lis_solver
-#endif
-#else /* Tapenade */
-use sico_maths_m
-#endif /* Normal vs. Tapenade */
-
-#if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
-  use calving_m
-#endif
-
-implicit none
-
-real(dp), intent(in) :: time, dtime, dxi, deta
-real(dp), intent(in) :: z_mar
-real(dp), intent(in) :: mean_accum
-
-integer(i4b)                       :: i, j
-integer(i4b)                       :: k, nnz
-real(dp), dimension(0:JMAX,0:IMAX) :: dt_darea
-real(dp), dimension(0:JMAX,0:IMAX) :: vx_m_1, vx_m_2, vy_m_1, vy_m_2
-real(dp), dimension(0:JMAX,0:IMAX) :: upH_x_1, upH_x_2, upH_y_1, upH_y_2
-real(dp), dimension(0:JMAX,0:IMAX) :: sq_g22_x_1, sq_g22_x_2
-real(dp), dimension(0:JMAX,0:IMAX) :: sq_g11_y_1, sq_g11_y_2
-
-#if (CALCTHK==5)
-
-integer(i4b)                            :: ierr
-integer(i4b)                            :: iter
-integer(i4b)                            :: nc, nr
-integer(i4b), parameter                 :: nmax   =    (IMAX+1)*(JMAX+1)
-integer(i4b), parameter                 :: n_sprs = 10*(IMAX+1)*(JMAX+1)
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-integer(i4b), allocatable, dimension(:) :: lgs_a_ptr, lgs_a_index
-integer(i4b), allocatable, dimension(:) :: lgs_a_diag_index
-integer(i4b), allocatable, dimension(:) :: lgs_a_index_trim
-real(dp),     allocatable, dimension(:) :: lgs_a_value, lgs_b_value, lgs_x_value
-real(dp),     allocatable, dimension(:) :: lgs_a_value_trim
-#else /* Tapenade */
-real(dp),             dimension(n_sprs) :: lgs_a_index
-integer(i4b),         dimension(nmax+1) :: lgs_a_ptr
-integer(i4b),           dimension(nmax) :: lgs_a_diag_index
-integer(i4b),         dimension(n_sprs) :: lgs_a_index_trim
-real(dp),             dimension(n_sprs) :: lgs_a_value
-real(dp),               dimension(nmax) :: lgs_b_value
-real(dp),               dimension(nmax) :: lgs_x_value
-real(dp),             dimension(n_sprs) :: lgs_a_value_trim
-#endif /* Normal vs. Tapenade */
-
-real(dp)                                :: eps_sor
-
-#elif (CALCTHK==6)
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-LIS_INTEGER                            :: ierr
-LIS_INTEGER                            :: iter
-LIS_INTEGER                            :: nc, nr
-LIS_INTEGER, parameter                 :: nmax   =    (IMAX+1)*(JMAX+1)
-LIS_INTEGER, parameter                 :: n_sprs = 10*(IMAX+1)*(JMAX+1)
-LIS_INTEGER, allocatable, dimension(:) :: lgs_a_ptr, lgs_a_index
-LIS_INTEGER, allocatable, dimension(:) :: lgs_a_diag_index
-LIS_MATRIX                             :: lgs_a
-LIS_VECTOR                             :: lgs_b, lgs_x
-LIS_SCALAR,  allocatable, dimension(:) :: lgs_a_value, lgs_b_value, lgs_x_value
-LIS_SOLVER                             :: solver
-character(len=256)                     :: ch_solver_set_option
-#else /* Tapenade */
-integer(i4b)                            :: nc, nr
-integer(i4b), parameter                 :: nmax   =    (IMAX+1)*(JMAX+1)
-integer(i4b), parameter                 :: n_sprs = 10*(IMAX+1)*(JMAX+1)
-real(dp),             dimension(n_sprs) :: lgs_a_index
-integer(i4b),         dimension(nmax+1) :: lgs_a_ptr
-integer(i4b),           dimension(nmax) :: lgs_a_diag_index
-integer(i4b),         dimension(n_sprs) :: lgs_a_index_trim
-real(dp),             dimension(n_sprs) :: lgs_a_value
-real(dp),               dimension(nmax) :: lgs_b_value
-real(dp),               dimension(nmax) :: lgs_x_value
-real(dp),             dimension(n_sprs) :: lgs_a_value_trim
-#endif /* Normal vs. Tapenade */
-
-#endif
-
-!-------- Abbreviations --------
-
-dt_darea = dtime/cell_area
-
-do i=0, IMAX
-do j=0, JMAX
-
-   if (flag_inner_point(j,i)) then
-
-      vx_m_1(j,i) = vx_m(j,i-1)
-      vx_m_2(j,i) = vx_m(j,i)
-      vy_m_1(j,i) = vy_m(j-1,i)
-      vy_m_2(j,i) = vy_m(j,i)
-
-      if (vx_m_1(j,i) >= 0.0_dp) then
-         upH_x_1(j,i) = H(j,i-1)
-      else
-         upH_x_1(j,i) = H(j,i)
-      end if
-
-      if (vx_m_2(j,i) >= 0.0_dp) then
-         upH_x_2(j,i) = H(j,i)
-      else
-         upH_x_2(j,i) = H(j,i+1)
-      end if
-
-      if (vy_m_1(j,i) >= 0.0_dp) then
-         upH_y_1(j,i) = H(j-1,i)
-      else
-         upH_y_1(j,i) = H(j,i)
-      end if
-
-      if (vy_m_2(j,i) >= 0.0_dp) then
-         upH_y_2(j,i) = H(j,i)
-      else
-         upH_y_2(j,i) = H(j+1,i)
-      end if
-
-      sq_g22_x_1(j,i) = sq_g22_sgx(j,i-1)
-      sq_g22_x_2(j,i) = sq_g22_sgx(j,i)
-      sq_g11_y_1(j,i) = sq_g11_sgy(j-1,i)
-      sq_g11_y_2(j,i) = sq_g11_sgy(j,i)
-
-   else   ! .not.(flag_inner_point(j,i))
-
-      vx_m_1(j,i) = 0.0_dp
-      vx_m_2(j,i) = 0.0_dp
-      vy_m_1(j,i) = 0.0_dp
-      vy_m_2(j,i) = 0.0_dp
-
-      upH_x_1(j,i) = 0.0_dp
-      upH_x_2(j,i) = 0.0_dp
-      upH_y_1(j,i) = 0.0_dp
-      upH_y_2(j,i) = 0.0_dp
-
-      sq_g22_x_1(j,i) = 0.0_dp
-      sq_g22_x_2(j,i) = 0.0_dp
-      sq_g11_y_1(j,i) = 0.0_dp
-      sq_g11_y_2(j,i) = 0.0_dp
-
-   end if
-
-end do
-end do
-
-!-------- Assembly of the system of linear equations
-!                     (matrix storage: compressed sparse row CSR) --------
-
-#if (CALCTHK==5 || CALCTHK==6)
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-allocate(lgs_a_value(n_sprs), lgs_a_index(n_sprs), lgs_a_ptr(nmax+1))
-allocate(lgs_a_diag_index(nmax), lgs_b_value(nmax), lgs_x_value(nmax))
-#endif /* Normal */
-
-lgs_a_value = 0.0_dp
-#if !defined(ALLOW_TAPENADE) /* Normal */
-lgs_a_index = 0
-#else /* Tapenade */
-lgs_a_index = 0.0_dp
-#endif /* Normal vs. Tapenade */
-lgs_a_ptr   = 0
-
-lgs_b_value = 0.0_dp
-lgs_x_value = 0.0_dp
-
-lgs_a_ptr(1) = 1
-
-k = 0
-
-do nr=1, nmax   ! loop over rows
-
-   i = n2i(nr)
-   j = n2j(nr)
-
-   if (flag_inner_point(j,i)) then   ! inner point
-
-      k=k+1 ; nc=ij2n(j,i-1) ; lgs_a_index(k)=nc   ! for H(j,i-1)
-      if (vx_m_1(j,i) > 0.0_dp) &
-         lgs_a_value(k) = -dt_darea(j,i)*vx_m_1(j,i) &
-                                        *sq_g22_x_1(j,i)*deta*OVI_WEIGHT
-
-      k=k+1 ; nc=ij2n(j-1,i) ; lgs_a_index(k)=nc   ! for H(j-1,i)
-      if (vy_m_1(j,i) > 0.0_dp) &
-         lgs_a_value(k) = -dt_darea(j,i)*vy_m_1(j,i) &
-                                        *sq_g11_y_1(j,i)*dxi*OVI_WEIGHT
-
-      k=k+1 ; lgs_a_index(k)=nr ; lgs_a_diag_index(nr)=k  ! for H(j,i)
-      lgs_a_value(k) = 1.0_dp                             ! (diagonal element)
-      if (vy_m_1(j,i) < 0.0_dp) &
-         lgs_a_value(k) = lgs_a_value(k) &
-                          - dt_darea(j,i)*vy_m_1(j,i) &
-                                         *sq_g11_y_1(j,i)*dxi*OVI_WEIGHT
-      if (vx_m_1(j,i) < 0.0_dp) &
-         lgs_a_value(k) = lgs_a_value(k) &
-                          - dt_darea(j,i)*vx_m_1(j,i) &
-                                         *sq_g22_x_1(j,i)*deta*OVI_WEIGHT
-      if (vx_m_2(j,i) > 0.0_dp) &
-         lgs_a_value(k) = lgs_a_value(k) &
-                          + dt_darea(j,i)*vx_m_2(j,i) &
-                                         *sq_g22_x_2(j,i)*deta*OVI_WEIGHT
-      if (vy_m_2(j,i) > 0.0_dp) &
-         lgs_a_value(k) = lgs_a_value(k) &
-                          + dt_darea(j,i)*vy_m_2(j,i) &
-                                         *sq_g11_y_2(j,i)*dxi*OVI_WEIGHT
-
-      k=k+1 ; nc=ij2n(j+1,i) ; lgs_a_index(k)=nc   ! for H(j+1,i)
-      if (vy_m_2(j,i) < 0.0_dp) &
-         lgs_a_value(k) = dt_darea(j,i)*vy_m_2(j,i) &
-                                       *sq_g11_y_2(j,i)*dxi*OVI_WEIGHT
-
-      k=k+1 ; nc=ij2n(j,i+1) ; lgs_a_index(k)=nc   ! for H(j,i+1)
-      if (vx_m_2(j,i) < 0.0_dp) &
-         lgs_a_value(k) = dt_darea(j,i)*vx_m_2(j,i) &
-                                       *sq_g22_x_2(j,i)*deta*OVI_WEIGHT
-
-      lgs_b_value(nr) = H(j,i) &
-                        +dtime*mb_source(j,i) &
-                        -(1.0_dp-OVI_WEIGHT) &
-                           * dt_darea(j,i) &
-                             * (  ( vx_m_2(j,i)*upH_x_2(j,i) &
-                                               *sq_g22_x_2(j,i)*deta   &
-                                   -vx_m_1(j,i)*upH_x_1(j,i) &
-                                               *sq_g22_x_1(j,i)*deta ) &
-                                + ( vy_m_2(j,i)*upH_y_2(j,i) &
-                                               *sq_g11_y_2(j,i)*dxi    &
-                                   -vy_m_1(j,i)*upH_y_1(j,i) &
-                                               *sq_g11_y_1(j,i)*dxi  ) )
-                                                          ! right-hand side
-
-   else   ! zero-thickness boundary condition
-
-      k = k+1
-      lgs_a_value(k)       = 1.0_dp   ! diagonal element only
-      lgs_a_diag_index(nr) = k
-      lgs_a_index(k)       = nr
-      lgs_b_value(nr)      = 0.0_dp
-
-   end if
-
-   lgs_x_value(nr) = H(j,i)   ! old ice thickness,
-                              ! initial guess for solution vector
-
-   lgs_a_ptr(nr+1) = k+1   ! row is completed, store index to next row
-
-end do
-
-nnz = k   ! number of non-zero elements of the matrix
-
-#else
-
-errormsg = ' >>> calc_thk_impl: CALCTHK must be either 5 or 6!'
-call error(errormsg)
-
-#endif
-
-!-------- Solution of the system of linear equations --------
-
-#if (CALCTHK==5)
-
-!  ------ Solution with the built-in SOR solver
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-allocate(lgs_a_value_trim(nnz), lgs_a_index_trim(nnz))
-#endif /* Normal */
-
-do k=1, nnz   ! relocate matrix to trimmed arrays
-   lgs_a_value_trim(k) = lgs_a_value(k)
-#if !defined(ALLOW_TAPENADE) /* Normal */
-   lgs_a_index_trim(k) = lgs_a_index(k)
-#else /* Tapenade */
-   lgs_a_index_trim(k) = int(lgs_a_index(k))
-#endif /* Normal vs. Tapenade */
-end do
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-deallocate(lgs_a_value, lgs_a_index)
-#endif /* Normal */
-
-eps_sor = 1.0e-05_dp*mean_accum*dtime   ! convergence parameter
-
-call sor_sprs(lgs_a_value_trim, &
-              lgs_a_index_trim, lgs_a_diag_index, lgs_a_ptr, &
-              lgs_b_value, &
-              nnz, nmax, &
-              OMEGA_SOR, eps_sor, lgs_x_value, ierr)
-
-do nr=1, nmax
-   i = n2i(nr)
-   j = n2j(nr)
-   H_new(j,i) = lgs_x_value(nr)
-end do
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-deallocate(lgs_a_value_trim, lgs_a_index_trim, lgs_a_ptr)
-deallocate(lgs_a_diag_index, lgs_b_value, lgs_x_value)
-#endif /* Normal */
-
-#elif (CALCTHK==6)
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-
-!  ------ Settings for Lis
-
-call lis_matrix_create(LIS_COMM_WORLD, lgs_a, ierr)
-call lis_vector_create(LIS_COMM_WORLD, lgs_b, ierr)
-call lis_vector_create(LIS_COMM_WORLD, lgs_x, ierr)
-
-call lis_matrix_set_size(lgs_a, 0, nmax, ierr)
-call lis_vector_set_size(lgs_b, 0, nmax, ierr)
-call lis_vector_set_size(lgs_x, 0, nmax, ierr)
-
-do nr=1, nmax
-
-   do nc=lgs_a_ptr(nr), lgs_a_ptr(nr+1)-1
-      call lis_matrix_set_value(LIS_INS_VALUE, nr, lgs_a_index(nc), &
-                                               lgs_a_value(nc), lgs_a, ierr)
-   end do
-
-   call lis_vector_set_value(LIS_INS_VALUE, nr, lgs_b_value(nr), lgs_b, ierr)
-   call lis_vector_set_value(LIS_INS_VALUE, nr, lgs_x_value(nr), lgs_x, ierr)
-
-end do
-
-call lis_matrix_set_type(lgs_a, LIS_MATRIX_CSR, ierr)
-call lis_matrix_assemble(lgs_a, ierr)
-
-!  ------ Solution with Lis
-
-call lis_solver_create(solver, ierr)
-
-ch_solver_set_option = '-i bicg -p ilu '// &
-                       '-maxiter 1000 -tol 1.0e-12 -initx_zeros false'
-
-call lis_solver_set_option(trim(ch_solver_set_option), solver, ierr)
-call CHKERR(ierr)
-
-call lis_solve(lgs_a, lgs_b, lgs_x, solver, ierr)
-call CHKERR(ierr)
-
-call lis_solver_get_iter(solver, iter, ierr)
-write(6,'(10x,a,i0)') 'calc_thk_impl: iter = ', iter
-
-lgs_x_value = 0.0_dp
-call lis_vector_gather(lgs_x, lgs_x_value, ierr)
-call lis_matrix_destroy(lgs_a, ierr)
-call lis_vector_destroy(lgs_b, ierr)
-call lis_vector_destroy(lgs_x, ierr)
-call lis_solver_destroy(solver, ierr)
-
-do nr=1, nmax
-   i = n2i(nr)
-   j = n2j(nr)
-   H_new(j,i) = lgs_x_value(nr)
-end do
-
-deallocate(lgs_a_value, lgs_a_index, lgs_a_ptr)
-deallocate(lgs_a_diag_index, lgs_b_value, lgs_x_value)
-
-#else /* Tapenade */
-
-do k=1, nnz   ! relocate matrix to trimmed arrays
-   lgs_a_value_trim(k) = lgs_a_value(k)
-#if !defined(ALLOW_TAPENADE) /* Normal */
-   lgs_a_index_trim(k) = lgs_a_index(k)
-#else /* Tapenade */
-   lgs_a_index_trim(k) = int(lgs_a_index(k))
-#endif /* Normal vs. Tapenade */
-end do
-call sico_lis_solver(nmax, nnz, &
-                           lgs_a_ptr, lgs_a_index_trim, &
-                           lgs_a_value_trim, lgs_b_value, lgs_x_value)
-do nr=1, nmax
-   i = n2i(nr)
-   j = n2j(nr)
-   H_new(j,i) = lgs_x_value(nr)
-end do
-
-#endif /* Normal vs. Tapenade */
-
-#endif
-
-!-------- Applying the source term --------
-
-call apply_mb_source(dtime, z_mar)
-
-!-------- Adjusting the ice thickness, if needed --------
-
-call thk_adjust(time, dtime)
-
-!-------- Calving due to prescribed retreat mask --------
-
-#if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
-call calving_retreat_mask(time, dtime)
-#endif
-
-end subroutine calc_thk_impl
-
-!-------------------------------------------------------------------------------
 !> Ice thickness evolution due to the source term (surface mass balance,
 !! basal mass balance and calving).
 !<------------------------------------------------------------------------------
@@ -1231,18 +690,24 @@ end subroutine apply_mb_source
 !<------------------------------------------------------------------------------
   subroutine thk_adjust(time, dtime)
 
+#if defined(ALLOW_TAPENADE) /* Tapenade */
+#if (THK_EVOL==2)
+  use ctrl_m, only: myfloor, myceiling
+#endif
+#endif /* Tapenade */
+
   implicit none
 
   real(dp), intent(in) :: time, dtime
 
+  integer(i4b)                       :: i, j
+  integer(i4b)                       :: n1, n2
   real(dp), dimension(0:JMAX,0:IMAX) :: H_new_tmp
-  real(dp)                           :: time_dimless
-  real(dp)                           :: target_topo_tau_factor, target_topo_tau
+  real(dp)                           :: time_in_years
+  real(dp)                           :: time1, time2
   real(dp)                           :: dtime_inv
 
-#if defined(ALLOW_TAPENADE) /* Tapenade */
-  integer(i4b) :: i, j
-#endif /* Tapenade */
+  time_in_years = time*sec2year
 
 !-------- Saving computed H_new before any adjustments --------
 
@@ -1250,21 +715,13 @@ end subroutine apply_mb_source
 
 !-------- Correct negative thickness values --------
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-
-  where (H_new < 0.0_dp) H_new = 0.0_dp
-
-#else /* Tapenade */
-
   do i=0, IMAX  
   do j=0, JMAX 
-     if ( H_new(j,i) < 0.0_dp ) then
+     if (H_new(j,i) < 0.0_dp) then
         H_new(j,i) = 0.0_dp
      end if
   end do
   end do
-
-#endif /* Normal vs. Tapenade */
 
 !-------- Further adjustments --------
 
@@ -1285,26 +742,76 @@ end subroutine apply_mb_source
 !  ------ Nudging towards prescribed target topography
 !                                    with varying relaxation time
 
-  if (time >= time_target_topo_final) then
+  if (time_in_years < real(target_topo_tau0_time_min,dp)) then
 
-     H_new = H_target
+     target_topo_tau = target_topo_tau0(0)
 
-  else if (time > time_target_topo_init) then
+  else if (time_in_years < real(target_topo_tau0_time_max,dp)) then
 
-     time_dimless =  (time                  -time_target_topo_init) &
-                    /(time_target_topo_final-time_target_topo_init)
+#if !defined(ALLOW_TAPENADE) /* Normal */
+     n1 = floor((time_in_years &
+             -real(target_topo_tau0_time_min,dp)) &
+                /real(target_topo_tau0_time_stp,dp))
+#else /* Tapenade */
+     call myfloor((time_in_years &
+             -real(target_topo_tau0_time_min,dp)) &
+                /real(target_topo_tau0_time_stp,dp),n1)
+#endif /* Normal vs. Tapenade */
 
-     time_dimless = max(min(time_dimless, 1.0_dp), 0.0_dp)
-                                  ! constrain to interval [0,1]
+     n1 = max(n1, 0)
 
-     target_topo_tau_factor = time_dimless*time_dimless*time_dimless &
-                                 *(10.0_dp + time_dimless &
-                                             *(-15.0_dp+6.0_dp*time_dimless))
-                                  ! make transition smooth (quintic function)
+#if !defined(ALLOW_TAPENADE) /* Normal */
+     n2 = ceiling((time_in_years &
+             -real(target_topo_tau0_time_min,dp)) &
+                /real(target_topo_tau0_time_stp,dp))
+#else /* Tapenade */
+     call myceiling(((time_in_years &
+              -real(target_topo_tau0_time_min,dp)) &
+                 /real(target_topo_tau0_time_stp,dp)),n2)
+#endif /* Normal vs. Tapenade */
 
-     target_topo_tau_factor = 1.0_dp-target_topo_tau_factor
+     n2 = min(n2, ndata_target_topo_tau0)
 
-     target_topo_tau = target_topo_tau_0 * target_topo_tau_factor
+     if (n1 == n2) then
+
+        target_topo_tau = target_topo_tau0(n1)
+
+     else
+
+        time1 = (target_topo_tau0_time_min + n1*target_topo_tau0_time_stp) &
+                *year2sec
+        time2 = (target_topo_tau0_time_min + n2*target_topo_tau0_time_stp) &
+                *year2sec
+
+        target_topo_tau = target_topo_tau0(n1) &
+                  +(target_topo_tau0(n2)-target_topo_tau0(n1)) &
+                  *(time-time1)/(time2-time1)
+                   ! linear interpolation of the relaxation-time data
+
+     end if
+
+  else
+
+     target_topo_tau = target_topo_tau0(ndata_target_topo_tau0)
+
+  end if
+
+  if (target_topo_tau*sec2year > no_value_pos_1) then
+             ! relaxation time target_topo_tau interpreted as infinity
+
+#if (!defined(ALLOW_GRDCHK) && !defined(ALLOW_TAPENADE)) /* Normal */
+     target_topo_tau = huge(1.0_dp)
+#endif
+
+     !!! H_new = H_new
+
+  else if (target_topo_tau*sec2year < epsi) then
+             ! relaxation time target_topo_tau interpreted as zero
+
+     target_topo_tau = 0.0_dp
+     H_new           = H_target
+
+  else
 
      H_new =   ( target_topo_tau*H_new + dtime*H_target ) &
              / ( target_topo_tau       + dtime )
@@ -1318,36 +825,48 @@ end subroutine apply_mb_source
 
   target_topo_tau = target_topo_tau_0
 
-  H_new =   ( target_topo_tau*H_new + dtime*H_target ) &
-          / ( target_topo_tau       + dtime )
+  if (target_topo_tau*sec2year > no_value_pos_1) then
+             ! relaxation time target_topo_tau interpreted as infinity
 
-#elif (THK_EVOL==4)
+#if (!defined(ALLOW_GRDCHK) && !defined(ALLOW_TAPENADE)) /* Normal */
+     target_topo_tau = huge(1.0_dp)
+#endif
 
-!  ------ Maximum ice extent constrained by prescribed mask
+     !!! H_new = H_new
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
+  else if (target_topo_tau*sec2year < epsi) then
+             ! relaxation time target_topo_tau interpreted as zero
 
-  where (mask_maxextent == 0) &   ! not allowed to glaciate
-     H_new = 0.0_dp
+     target_topo_tau = 0.0_dp
+     H_new           = H_target
 
-#else /* Tapenade */
+  else
 
-  do i=0, IMAX
-  do j=0, JMAX
-    if ( mask_maxextent(j,i) == 0 ) then
-      H_new(j,i) = 0.0_dp
-    end if
-  end do
-  end do
+     H_new =   ( target_topo_tau*H_new + dtime*H_target ) &
+             / ( target_topo_tau       + dtime )
 
-#endif /* Normal vs. Tapenade */
+  end if
 
 #else
 
-  errormsg = ' >>> thk_adjust: THK_EVOL must be between 0 and 4!'
+  errormsg = ' >>> thk_adjust: THK_EVOL must be between 0 and 3!'
   call error(errormsg)
 
 #endif
+
+!  ------ Maximum ice extent constrained by prescribed mask
+
+  if (flag_mask_maxextent) then
+
+     do i=0, IMAX
+     do j=0, JMAX
+        if (mask_maxextent(j,i) == 0) then
+           H_new(j,i) = 0.0_dp   ! not allowed to glaciate
+        end if
+     end do
+     end do
+
+  end if
 
 !-------- Computation of the mass balance adjustment --------
 
@@ -1360,7 +879,7 @@ end subroutine apply_mb_source
   runoff  = runoff  - min(smb_corr, 0.0_dp)
                     ! runoff is counted as positive for mass loss
 
-end subroutine thk_adjust
+  end subroutine thk_adjust
 
 !-------------------------------------------------------------------------------
 !> Update of the ice-land-ocean mask etc.
@@ -1427,17 +946,6 @@ dzb_dtau  = (zb_new-zb)*dtime_inv
 dzm_dtau  = dH_t_dtau+dzb_dtau
 dH_dtau   = (H_new-H)*dtime_inv
 dH_c_dtau = dzs_dtau-dzm_dtau
-
-#if (THK_EVOL==2)
-if ( abs((time-time_target_topo_final)*year_sec_inv) < eps ) then
-   dzs_dtau  = 0.0_dp   ! Introduced
-   dzb_dtau  = 0.0_dp   ! by
-   dzm_dtau  = 0.0_dp   ! Tatsuru Sato
-   dH_dtau   = 0.0_dp   ! for
-   dH_c_dtau = 0.0_dp   ! stability
-   dH_t_dtau = 0.0_dp   ! reasons
-end if
-#endif
 
 !-------- New gradients --------
 
@@ -1557,8 +1065,8 @@ end do
 
 !  ------ Adjustment due to prescribed target topography
 
-#if (THK_EVOL==2)
-if (time >= time_target_topo_final) mask = mask_target
+#if (THK_EVOL==2 || THK_EVOL==3)
+if (target_topo_tau*sec2year < epsi) mask = mask_target
 #endif
 
 !-------- Correction of zs_new and zb_new for ice-free land and sea --------
@@ -1714,8 +1222,8 @@ end do
 
 !  ------ Adjustment due to prescribed target topography
 
-#if (THK_EVOL==2)
-if (time >= time_target_topo_final) mask = mask_target
+#if (THK_EVOL==2 || THK_EVOL==3)
+if (target_topo_tau*sec2year < epsi) mask = mask_target
 #endif
 
 !-------- Correction of zs_new and zb_new for ice-free land and sea --------
@@ -2000,8 +1508,8 @@ end do
 
 !  ------ Adjustment due to prescribed target topography
 
-#if (THK_EVOL==2)
-if (time >= time_target_topo_final) mask = mask_target
+#if (THK_EVOL==2 || THK_EVOL==3)
+if (target_topo_tau*sec2year < epsi) mask = mask_target
 #endif
 
 !-------- Correction of zs_new and zb_new

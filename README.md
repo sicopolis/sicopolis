@@ -10,7 +10,7 @@ Resources
 ---------
 
 Model website:
-[http://www.sicopolis.net/](http://www.sicopolis.net/)
+[https://www.sicopolis.net/](https://www.sicopolis.net/)
 
 User manual:
 [https://sicopolis.readthedocs.io/](https://sicopolis.readthedocs.io/)

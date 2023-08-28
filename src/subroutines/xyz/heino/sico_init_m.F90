@@ -61,7 +61,7 @@ subroutine sico_init(delta_ts, glac_index, &
   use enth_temp_omega_m, only : calc_c_int_table, calc_c_int_inv_table, &
                                 enth_fct_temp_omega
 
-  use read_m, only : read_2d_input, read_phys_para
+  use read_m, only : read_scalar_input, read_2d_input, read_phys_para
 
   use boundary_m
   use init_temp_water_age_m
@@ -195,7 +195,7 @@ time_output = 0.0_dp
 !-------- Initialisation of the Library of Iterative Solvers Lis,
 !                                                     if required --------
 
-#if (CALCTHK==3 || CALCTHK==6 || MARGIN==3 || DYNAMICS==2)
+#if (MARGIN==3 || DYNAMICS==2)
   call lis_initialize(ierr)
 #endif
 
@@ -596,6 +596,10 @@ write(10, fmt=trim(fmt1)) 'Computational domain:'
 write(10, fmt=trim(fmt1)) trim(ch_domain_long)
 write(10, fmt=trim(fmt1)) ' '
 
+write(10, fmt=trim(fmt1)) 'Physical-parameter file = ' &
+                          // trim(adjustl(PHYS_PARA_FILE))
+write(10, fmt=trim(fmt1)) ' '
+
 write(10, fmt=trim(fmt2)) 'GRID = ', GRID
 write(10, fmt=trim(fmt1)) ' '
 
@@ -673,13 +677,11 @@ write(10, fmt=trim(fmt2)) 'OCEAN_CONNECTIVITY = ', OCEAN_CONNECTIVITY
 write(10, fmt=trim(fmt3)) 'H_isol_max =', H_ISOL_MAX
 #endif
 
-#if (CALCTHK==2 || CALCTHK==3 || CALCTHK==5 || CALCTHK==6)
+#if (CALCTHK==2)
 write(10, fmt=trim(fmt3))  'ovi_weight   =', OVI_WEIGHT
-#if (CALCTHK==2 || CALCTHK==5)
 write(10, fmt=trim(fmt3))  'omega_sor    =', OMEGA_SOR
 #if (ITER_MAX_SOR>0)
 write(10, fmt=trim(fmt2)) 'iter_max_sor = ', ITER_MAX_SOR
-#endif
 #endif
 #endif
 
@@ -1073,31 +1075,10 @@ n_slide_region = nint(field2d_aux)
 
 filename_with_path = trim(IN_PATH)//'/general/'//trim(GRIP_TEMP_FILE)
 
-open(21, iostat=ios, file=trim(filename_with_path), status='old')
-
-if (ios /= 0) then
-   errormsg = ' >>> sico_init: Error when opening the data file for delta_ts!'
-   call error(errormsg)
-end if
-
-read(21, fmt=*) ch_dummy, grip_time_min, grip_time_stp, grip_time_max
-
-if (ch_dummy /= '#') then
-   errormsg = ' >>> sico_init: grip_time_min, grip_time_stp, grip_time_max' &
-            //         end_of_line &
-            //'        not defined in data file for delta_ts!'
-   call error(errormsg)
-end if
-
-ndata_grip = (grip_time_max-grip_time_min)/grip_time_stp
-
-allocate(griptemp(0:ndata_grip))
-
-do n=0, ndata_grip
-   read(21, fmt=*) d_dummy, griptemp(n)
-end do
-
-close(21, status='keep')
+call read_scalar_input(filename_with_path, &
+                       'delta_ts', ndata_grip_max, &
+                       grip_time_min, grip_time_stp, grip_time_max, &
+                       ndata_grip, griptemp)
 
 #endif
 
@@ -1107,33 +1088,10 @@ close(21, status='keep')
 
 filename_with_path = trim(IN_PATH)//'/general/'//trim(SEA_LEVEL_FILE)
 
-open(21, iostat=ios, file=trim(filename_with_path), status='old')
-
-if (ios /= 0) then
-   errormsg = ' >>> sico_init: Error when opening the data file for z_sl!'
-   call error(errormsg)
-end if
-
-read(21, fmt=*) ch_dummy, specmap_time_min, specmap_time_stp, specmap_time_max
-
-if (ch_dummy /= '#') then
-   errormsg = ' >>> sico_init:' &
-            //         end_of_line &
-            //'        specmap_time_min, specmap_time_stp, specmap_time_max' &
-            //         end_of_line &
-            //'        not defined in data file for z_sl!'
-   call error(errormsg)
-end if
-
-ndata_specmap = (specmap_time_max-specmap_time_min)/specmap_time_stp
-
-allocate(specmap_zsl(0:ndata_specmap))
-
-do n=0, ndata_specmap
-   read(21, fmt=*) d_dummy, specmap_zsl(n)
-end do
-
-close(21, status='keep')
+call read_scalar_input(filename_with_path, &
+                       'z_sl', ndata_specmap_max, &
+                       specmap_time_min, specmap_time_stp, specmap_time_max, &
+                       ndata_specmap, specmap_zsl)
 
 #endif
 
@@ -1551,8 +1509,12 @@ write(15,1109)
 
 n_core = 7   ! Points P1 - P7
 
-allocate(lambda_core(n_core), phi_core(n_core), &
-         x_core(n_core), y_core(n_core), ch_core(n_core))
+if (n_core > n_core_max) then
+   errormsg = ' >>> sico_init: n_core <= n_core_max required!' &
+            //         end_of_line &
+            //'        Increase value of n_core_max in sico_variables_m!'
+   call error(errormsg)
+end if
 
 ch_core(1)     = 'P1'
 lambda_core(1) =    0.0_dp  ! dummy

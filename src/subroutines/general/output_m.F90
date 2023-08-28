@@ -363,10 +363,6 @@ buffer = 'Time-slice output no. '//ch_ndat//' of simulation ' &
 call check( nf90_put_att(ncid, NF90_GLOBAL, 'title', trim(buffer)), &
             thisroutine )
 
-call set_ch_institution(buffer)
-call check( nf90_put_att(ncid, NF90_GLOBAL, 'institution', trim(buffer)), &
-            thisroutine )
-
 buffer = 'SICOPOLIS Version '//VERSION
 call check( nf90_put_att(ncid, NF90_GLOBAL, 'source', trim(buffer)), &
             thisroutine )
@@ -378,8 +374,12 @@ buffer = ch_date(1:4)//'-'//ch_date(5:6)//'-'//ch_date(7:8)//' '// &
 call check( nf90_put_att(ncid, NF90_GLOBAL, 'history', trim(buffer)), &
             thisroutine )
 
-buffer = 'http://www.sicopolis.net/'
+call set_ch_website(buffer)
 call check( nf90_put_att(ncid, NF90_GLOBAL, 'references', trim(buffer)), &
+            thisroutine )
+
+call set_ch_institution(buffer)
+call check( nf90_put_att(ncid, NF90_GLOBAL, 'institution', trim(buffer)), &
             thisroutine )
 
 !  ------ Definition of the dimensions
@@ -5683,10 +5683,6 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       call check( nf90_put_att(ncid(n), NF90_GLOBAL, 'title', trim(buffer)), &
                   thisroutine )
 
-      call set_ch_institution(buffer)
-      call check( nf90_put_att(ncid(n), NF90_GLOBAL, 'institution', trim(buffer)), &
-                  thisroutine )
-
       buffer = 'SICOPOLIS Version '//VERSION
       call check( nf90_put_att(ncid(n), NF90_GLOBAL, 'source', trim(buffer)), &
                   thisroutine )
@@ -5698,8 +5694,12 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       call check( nf90_put_att(ncid(n), NF90_GLOBAL, 'history', trim(buffer)), &
                   thisroutine )
 
-      buffer = 'http://www.sicopolis.net/'
+      call set_ch_website(buffer)
       call check( nf90_put_att(ncid(n), NF90_GLOBAL, 'references', trim(buffer)), &
+                  thisroutine )
+
+      call set_ch_institution(buffer)
+      call check( nf90_put_att(ncid(n), NF90_GLOBAL, 'institution', trim(buffer)), &
                   thisroutine )
 
 !  ------ Definition of the dimensions
@@ -7042,9 +7042,8 @@ real(dp), dimension(:), allocatable :: H_core, temp_b_core, &
                                        vx_s_core, vy_s_core, vh_s_core, &
                                        Rx_b_core, Ry_b_core, R_b_core, &
                                        bmb_core
-#if defined(ALLOW_TAPENADE)
 real(dp), dimension(:), allocatable :: arg1
-#endif
+
 integer(i4b)       :: cmode
 integer(i4b)       :: n_deflate_level
 logical            :: flag_shuffle
@@ -7072,9 +7071,8 @@ if (n_core >= 1) then
             vx_s_core(n_core), vy_s_core(n_core), vh_s_core(n_core), &
             Rx_b_core(n_core), Ry_b_core(n_core), R_b_core(n_core), &
             bmb_core(n_core))
-#if defined(ALLOW_TAPENADE)
-    allocate(arg1(n_core))
-#endif
+   allocate(arg1(n_core))
+
 !-------- Determination of ice-core data --------
 
    do n=1, n_core
@@ -7260,11 +7258,6 @@ if (n_core >= 1) then
       call check( nf90_put_att(ncid, NF90_GLOBAL, 'title', trim(buffer)), &
                   thisroutine )
 
-      call set_ch_institution(buffer)
-      call check( nf90_put_att(ncid, NF90_GLOBAL, 'institution', &
-                               trim(buffer)), &
-                  thisroutine )
-
       buffer = 'SICOPOLIS Version '//VERSION
       call check( nf90_put_att(ncid, NF90_GLOBAL, 'source', trim(buffer)), &
                   thisroutine )
@@ -7276,8 +7269,13 @@ if (n_core >= 1) then
       call check( nf90_put_att(ncid, NF90_GLOBAL, 'history', trim(buffer)), &
                   thisroutine )
 
-      buffer = 'http://www.sicopolis.net/'
+      call set_ch_website(buffer)
       call check( nf90_put_att(ncid, NF90_GLOBAL, 'references', trim(buffer)), &
+                  thisroutine )
+
+      call set_ch_institution(buffer)
+      call check( nf90_put_att(ncid, NF90_GLOBAL, 'institution', &
+                               trim(buffer)), &
                   thisroutine )
 
 !  ------ Definition of the dimensions
@@ -7641,71 +7639,51 @@ if (n_core >= 1) then
    if ((forcing_flag == 1).or.(forcing_flag == 3)) then
 
       call check( nf90_inq_varid(ncid, 'delta_ts', ncv), thisroutine )
-      call check( nf90_put_var(ncid, ncv, real(delta_ts,sp), &
+      call check( nf90_put_var(ncid, ncv, delta_ts, &
                                start=nc1cor), thisroutine )
 
    else if (forcing_flag == 2) then
 
       call check( nf90_inq_varid(ncid, 'glac_index', ncv), thisroutine )
-      call check( nf90_put_var(ncid, ncv, real(glac_index,sp), &
+      call check( nf90_put_var(ncid, ncv, glac_index, &
                                start=nc1cor), thisroutine )
 
    end if
 
    call check( nf90_inq_varid(ncid, 'z_sl_mean', ncv), thisroutine )
-   call check( nf90_put_var(ncid, ncv, real(z_sl_mean,sp), &
+   call check( nf90_put_var(ncid, ncv, z_sl_mean, &
                             start=nc1cor), thisroutine )
 
-#if !defined(ALLOW_TAPENADE)
    call check( nf90_inq_varid(ncid, 'H_core', ncv), thisroutine )
-   call check( nf90_put_var(ncid, ncv, real(H_core,sp), &
+   arg1 = H_core
+   call check( nf90_put_var(ncid, ncv, arg1, &
                             start=nc2cor, count=nc2cnt), thisroutine )
 
    call check( nf90_inq_varid(ncid, 'vh_b_core', ncv), thisroutine )
-   call check( nf90_put_var(ncid, ncv, real(vh_b_core,sp), &
+   arg1 = vh_b_core
+   call check( nf90_put_var(ncid, ncv, arg1, &
                             start=nc2cor, count=nc2cnt), thisroutine )
 
    call check( nf90_inq_varid(ncid, 'vh_s_core', ncv), thisroutine )
-   call check( nf90_put_var(ncid, ncv, real(vh_s_core,sp), &
+   arg1 = vh_s_core
+   call check( nf90_put_var(ncid, ncv, arg1, &
                             start=nc2cor, count=nc2cnt), thisroutine )
 
    call check( nf90_inq_varid(ncid, 'temp_b_core', ncv), thisroutine )
-   call check( nf90_put_var(ncid, ncv, real(temp_b_core,sp), &
+   arg1 = temp_b_core
+   call check( nf90_put_var(ncid, ncv, arg1, &
                             start=nc2cor, count=nc2cnt), thisroutine )
 
    call check( nf90_inq_varid(ncid, 'R_b_core', ncv), thisroutine )
-   call check( nf90_put_var(ncid, ncv, real(R_b_core,sp), &
+   arg1 = R_b_core
+   call check( nf90_put_var(ncid, ncv, arg1, &
                             start=nc2cor, count=nc2cnt), thisroutine )
 
    call check( nf90_inq_varid(ncid, 'bmb_core', ncv), thisroutine )
-   call check( nf90_put_var(ncid, ncv, real(bmb_core,sp), &
-                            start=nc2cor, count=nc2cnt), thisroutine )
-#else
-   call check( nf90_inq_varid(ncid, 'H_core', ncv), thisroutine )
-   arg1 = real(H_core,sp)
+   arg1 = bmb_core
    call check( nf90_put_var(ncid, ncv, arg1, &
                             start=nc2cor, count=nc2cnt), thisroutine )
-   arg1 = real(vh_b_core,sp)
-   call check( nf90_inq_varid(ncid, 'vh_b_core', ncv), thisroutine )
-   call check( nf90_put_var(ncid, ncv, arg1, &
-                            start=nc2cor, count=nc2cnt), thisroutine )
-   arg1 = real(vh_s_core,sp)
-   call check( nf90_inq_varid(ncid, 'vh_s_core', ncv), thisroutine )
-   call check( nf90_put_var(ncid, ncv, arg1, &
-                            start=nc2cor, count=nc2cnt), thisroutine )
-   arg1 = real(temp_b_core,sp)
-   call check( nf90_inq_varid(ncid, 'temp_b_core', ncv), thisroutine )
-   call check( nf90_put_var(ncid, ncv, arg1, &
-                            start=nc2cor, count=nc2cnt), thisroutine )
-   arg1 = real(R_b_core,sp)
-   call check( nf90_inq_varid(ncid, 'R_b_core', ncv), thisroutine )
-   call check( nf90_put_var(ncid, ncv, arg1, &
-                            start=nc2cor, count=nc2cnt), thisroutine )
-   arg1 = real(bmb_core,sp)
-   call check( nf90_inq_varid(ncid, 'bmb_core', ncv), thisroutine )
-   call check( nf90_put_var(ncid, ncv, arg1, &
-                            start=nc2cor, count=nc2cnt), thisroutine )
-#endif
+
 !  ------ Syncing NetCDF file (every 100th time)
 
    n_sync = 100
@@ -7719,10 +7697,7 @@ if (n_core >= 1) then
               temp_b_core, &
               Rx_b_core, Ry_b_core, R_b_core, &
               bmb_core)
-
-#if defined(ALLOW_TAPENADE)
-    deallocate(arg1)
-#endif
+   deallocate(arg1)
 
 !!! else   ! (n_core == 0 -> do nothing)
 !!!
@@ -7813,37 +7788,37 @@ do n=1, n_surf
 
 ! ------ Surface velocities
 
-      field = vx_s_g
-      call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
-                    vx_surf(n), flag_in_domain)
+   field = vx_s_g
+   call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
+                 vx_surf(n), flag_in_domain)
 
-      field = vy_s_g
-      call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
-                    vy_surf(n), flag_in_domain)
+   field = vy_s_g
+   call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
+                 vy_surf(n), flag_in_domain)
 
-      field = vz_s
-      call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
-                    vz_surf(n), flag_in_domain)
+   field = vz_s
+   call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
+                 vz_surf(n), flag_in_domain)
 
 ! ------ Basal velocities
 
-      field = vx_b_g
-      call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
-                    vx_base(n), flag_in_domain)
+   field = vx_b_g
+   call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
+                 vx_base(n), flag_in_domain)
 
-      field = vy_b_g
-      call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
-                    vy_base(n), flag_in_domain)
+   field = vy_b_g
+   call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
+                 vy_base(n), flag_in_domain)
 
-      field = vz_b
-      call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
-                    vz_base(n), flag_in_domain)
+   field = vz_b
+   call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
+                 vz_base(n), flag_in_domain)
 
 ! ------ Basal temperature relative to pressure melting point
 
-      field = temph_b
-      call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
-                    temp_base_pmp(n), flag_in_domain)
+   field = temph_b
+   call borehole(field, x_surf(n), y_surf(n), dxi, deta, 'grid', &
+                 temp_base_pmp(n), flag_in_domain)
 
 end do
 
@@ -7942,7 +7917,7 @@ n=n_surf
 deallocate(zl_surf, zs_surf, accum_surf, as_perp_surf, &
            snowfall_surf, rainfall_surf, runoff_surf, &
 	   vx_surf, vy_surf, vz_surf, &
-	   vx_base, vy_base, vz_base,temp_base_pmp)
+	   vx_base, vy_base, vz_base, temp_base_pmp)
 
 end subroutine output5
 
@@ -8074,6 +8049,31 @@ end subroutine output5
   end subroutine set_cmode
 
 !-------------------------------------------------------------------------------
+!> Set the value of the website string ch_website.
+!<------------------------------------------------------------------------------
+  subroutine set_ch_website(ch_website)
+
+  implicit none
+
+  character(len=*), intent(out) :: ch_website
+
+  integer(i4b)       :: istat
+  character(len=256) :: ch_website_default, ch_value
+
+  ch_website_default = ' '
+
+  call get_environment_variable(name='SICO_WEBSITE', value=ch_value, &
+                                status=istat, trim_name=.true.)
+
+  if (istat /= 0) then
+    ch_website = ch_website_default
+  else
+     ch_website = trim(ch_value)
+  end if
+
+  end subroutine set_ch_website
+
+!-------------------------------------------------------------------------------
 !> Set the value of the institution string ch_institution.
 !<------------------------------------------------------------------------------
   subroutine set_ch_institution(ch_institution)
@@ -8091,7 +8091,7 @@ end subroutine output5
   call get_environment_variable(name='SICO_INSTITUTION', value=ch_value, &
                                 status=istat, trim_name=.true.)
 
-  if (istat /= 0) then 
+  if (istat /= 0) then
 
     ch_institution = ch_institution_default
 

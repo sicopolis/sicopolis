@@ -24,7 +24,7 @@
 
 !-------- Physical parameter file --------
 
-#define PHYS_PARA_FILE 'phys_para_grl_cp10_04.dat'
+#define PHYS_PARA_FILE 'phys_para_grl_cp10_04.nc'
 !                       Name of the file containing the physical parameters
 
 !-------- Type of grid, spatial resolution --------
@@ -45,7 +45,7 @@
 !                       y coordinate (in km) of the origin point (i,j) = (0,0),
 !                       for GRID==0 or GRID==1
 
-#define DX 20.0d0
+#define DX 16.0d0
 !                       Horizontal grid spacing in km, for GRID==0
 !                       or GRID==1
 !                       (40 km requires IMAX= 42 and JMAX= 72,
@@ -56,11 +56,11 @@
 !                         5 km requires IMAX=336 and JMAX=576,
 !                         4 km requires IMAX=420 and JMAX=720)
 
-#define IMAX 84
+#define IMAX 105
 !                       IMAX+1: number of grid points in x-direction
 !                               (i=0...IMAX)
 
-#define JMAX 144
+#define JMAX 180
 !                       JMAX+1: number of grid points in y-direction
 !                               (j=0...JMAX)
 
@@ -68,7 +68,7 @@
 !                       KCMAX+1: number of grid points in z-direction
 !                                in cold ice (kc=0...KCMAX)
 
-#define KTMAX 2
+#define KTMAX 10
 !                       KTMAX+1: number of grid points in z-direction
 !                                in temperate ice (kt=0...KTMAX)
 
@@ -89,13 +89,13 @@
 
 !-------- Initial and final times, time steps --------
 
-#define YEAR_ZERO 1990.0d0
+#define YEAR_ZERO 2000.0d0
 !                       SICOPOLIS year zero in astronomical year numbering
 !                       [ = signed year CE (AD) ]
 
 !!!!! NOTE: All time quantities below refer to the SICOPOLIS calendar. !!!!!
 
-#define TIME_INIT0 -140000.0d0
+#define TIME_INIT0 -100.0d0
 !                       Initial time of simulation (in a)
 
 #define TIME_END0 0.0d0
@@ -211,7 +211,7 @@
 
 !-------- Ice sheet thermodynamics --------
 
-#define CALCMOD 3
+#define CALCMOD -1
 !                        -1 : ISOT: isothermal method,
 !                                   constant temperature and age
 !                         0 : COLD: cold-ice method, resetting of temperatures
@@ -243,13 +243,13 @@
 !                         2 : Formation of marine ice possible
 !                         3 : Formation of marine ice and ice shelves possible
 
-#define MARINE_ICE_FORMATION 2
+#define MARINE_ICE_FORMATION 1
 !                         1 : No special mechanism for the formation of marine ice
 !                             (only for MARGIN==2)
 !                         2 : Formation of marine ice via "underwater ice"
 !                             (only for MARGIN==2)
 
-#define MARINE_ICE_CALVING 3
+#define MARINE_ICE_CALVING 1
 !                         1 : Unlimited expansion of marine ice, no calving
 !                             (only for MARGIN==2)
 !                         2 : Limited expansion of marine ice,
@@ -279,7 +279,7 @@
 !                             "underwater ice"
 !                             (only for MARGIN==2 and MARINE_ICE_FORMATION==2)
 
-#define Z_MAR -300.0d0
+#define Z_MAR 0.0d0
 !                         Minimum elevation (in m) of the isostatically relaxed
 !                         bedrock allowed to glaciate
 !                         (for MARGIN==2 and MARINE_ICE_CALVING==2)
@@ -335,7 +335,7 @@
 !                         3 : Durham's flow law with stress exponent n=4
 !                         4 : Smith-Morland (polynomial) flow law
 
-#define FIN_VISC 2
+#define FIN_VISC 1
 !                         1 : Unmodified flow law with infinite viscosity
 !                             for low strain rates
 !                             (only for FLOW_LAW==1, 2, 3)
@@ -353,7 +353,7 @@
 
 !-------- Flow enhancement factor --------
 
-#define ENHMOD 3
+#define ENHMOD 1
 !                         1 : Flow enhancement factor enh=ENH_FACT everywhere
 !                             in grounded ice
 !                         2 : enh=ENH_INTG for ice younger than AGE_TRANS_0
@@ -376,7 +376,7 @@
 !                             between ENH_COMPR (for compression) and
 !                             ENH_SHEAR (for shear)
 
-#define ENH_FACT 3.0d0
+#define ENH_FACT 1.0d0
 !                         Flow enhancement factor (only for ENHMOD==1, 2, 3)
 
 #define ENH_INTG 1.0d0
@@ -399,11 +399,11 @@
 !                         Time of the Weichselian/Holocene transition
 !                         (in a; only for ENHMOD==3)
 
-#define ENH_COMPR 2.0d0
+#define ENH_COMPR 3.0d0
 !                         Flow enhancement factor for compression
 !                         (only for ENHMOD==4, 5)
 
-#define ENH_SHEAR 5.0d0
+#define ENH_SHEAR 8.0d0
 !                         Flow enhancement factor for shear
 !                         (only for ENHMOD==4, 5)
 
@@ -426,24 +426,24 @@
 !                         3 : Initial values from previous
 !                             simulation
 
-#define ZS_PRESENT_FILE   'grl_b2_20_woem_zs.dat'
+#define ZS_PRESENT_FILE   'grl_bm5_16_topo.nc'
 !                             Name of the file containing the present-day
 !                             ice-surface topography
 
-!!! #define ZB_PRESENT_FILE   '...'
+#define ZB_PRESENT_FILE   'grl_bm5_16_topo.nc'
 !                             Name of the file containing the present-day
 !                             ice-base topography (only for ANF_DAT==1)
 
-#define ZL_PRESENT_FILE   'grl_b2_20_woem_zl.dat'
+#define ZL_PRESENT_FILE   'grl_bm5_16_topo.nc'
 !                             Name of the file containing the present-day
 !                             lithosphere-surface topography
 !                             (only for ANF_DAT==1)
 
-#define ZL0_FILE          'grl_b2_20_woem_zl0_llra.dat'
+#define ZL0_FILE          'grl_bm5_16_zl0_llra.nc'
 !                             Name of the file containing the topography
 !                             of the relaxed lithosphere surface
 
-#define MASK_PRESENT_FILE 'grl_b2_20_woem_mask.dat'
+#define MASK_PRESENT_FILE 'grl_bm5_16_topo.nc'
 !                             Name of the file containing the present-day
 !                             ice-land-ocean mask
 
@@ -451,7 +451,7 @@
 !                             Name of the file containing the region mask
 !                             ('none' if no file is to be defined)
 
-#define TEMP_INIT 4
+#define TEMP_INIT 1
 !                         Initial ice temperature conditions
 !                         (only for ANF_DAT==1):
 !                         1 : Constant value in the entire ice sheet
@@ -566,7 +566,7 @@
 !                         (only for THK_EVOL==2, 3,
 !                          or for ACCSURFACE==7 and ABLSURFACE==7)
 
-#define MASK_MAXEXTENT_FILE 'none'
+#define MASK_MAXEXTENT_FILE 'grl_bm5_16_topo.nc'
 !                         Maximum ice extent mask file (only for THK_EVOL>=1)
 !                         ('none' if no file is to be defined)
 
@@ -639,7 +639,7 @@
 
 !-------- Surface temperature --------
 
-#define TSURFACE 4
+#define TSURFACE 1
 !                         1 : delta_ts = DELTA_TS0, steady state
 !                         3 : Sinusoidal air-temperature forcing
 !                             between delta_ts = 0 C and delta_ts =
@@ -654,7 +654,7 @@
 !                             read directly from NetCDF files
 !                             (requires ACCSURFACE==6, ABLSURFACE==6)
 
-#define TEMP_PRESENT_PARA 2
+#define TEMP_PRESENT_PARA 1
 !                         Parameterization of the present-day mean-annual
 !                         and mean-July surface temperatures by
 !                         1 : Ritz et al. (1997) [no longitude dependence]
@@ -680,7 +680,7 @@
 !                       Period (in a) for sinusoidal air-temperature
 !                       forcing (only for TSURFACE==3)
 
-#define GRIP_TEMP_FILE 'GRIP_GICC05_105ka_GRIP-old_Delta-Ts_2.dat'
+#define GRIP_TEMP_FILE 'none'
 !                       Name of the file containing the ice-core
 !                       air-temperature forcing (only for TSURFACE==4)
 
@@ -712,7 +712,7 @@
 
 !-------- Surface precipitation --------
 
-#define ACCSURFACE 3
+#define ACCSURFACE 1
 !                         1 : Precipitation is constant factor ACCFACT
 !                             times present distribution
 !                         2 : Precipitation is coupled linearly to
@@ -728,13 +728,13 @@
 !                         7 : Implied SMB by Calov+ (2018, Cryosphere 12)
 !                             (requires ABLSURFACE==7)
 
-#define PRECIP_PRESENT_FILE 'grl_rembo_20_precmm.dat'
+#define PRECIP_PRESENT_FILE 'none'
 !                       Name of the file containing the present-day
 !                       monthly mean precipitation data
 !                       ('none' if no such file is to be specified)
 !                       (for ACCSURFACE<=5)
 
-#define PRECIP_MA_PRESENT_FILE 'none'
+#define PRECIP_MA_PRESENT_FILE 'grl_cc_16_prec.nc'
 !                       Name of the file containing the present-day
 !                       mean annual precipitation data
 !                       ('none' if no such file is to be specified)
@@ -745,17 +745,17 @@
 !                       PRECIP_PRESENT_FILE will be used,
 !                       while PRECIP_MA_PRESENT_FILE will be ignored.]
 
-#define PRECIP_ZS_REF_FILE 'grl_rembo_20_zs_ref.dat'
+#define PRECIP_ZS_REF_FILE 'grl_bm5_16_topo.nc'
 !                       Name of the file containing the reference topography
 !                       for the data in
 !                       PRECIP_PRESENT_FILE or PRECIP_MA_PRESENT_FILE
 !                       (for ACCSURFACE<=5)
 
-#define ACCFACT 1.0d0
+#define ACCFACT 0.0d0
 !                       Constant ratio between actual and present
 !                       precipitation (only for ACCSURFACE==1)
 
-#define GAMMA_S 0.070458d0 /* ACCSURFACE==3; 7.3% change per deg temp. change */
+#define GAMMA_S 0.0d0
 !                       Parameter in the linear or exponential relation
 !                       between precipitation and delta_ts
 !                       (in 1/C, only for ACCSURFACE==2, 3)
@@ -789,7 +789,7 @@
 !                         2 : Interpolation with an exponential function
 !                             (for ACCSURFACE==5)
 
-#define SOLID_PRECIP 2
+#define SOLID_PRECIP 1
 !                         Fraction of solid precipitation:
 !                         1 : Linear function
 !                             of monthly mean surface temperature
@@ -804,7 +804,7 @@
 
 !-------- Surface ablation --------
 
-#define ABLSURFACE 2
+#define ABLSURFACE 3
 !                         1 : Ablation parameterized
 !                             by positive-degree-day (PDD) method.
 !                             Rainfall assumed to run off instantaneously.
@@ -822,7 +822,7 @@
 !                         7 : Implied SMB by Calov+ (2018, Cryosphere 12)
 !                             (requires ACCSURFACE==7)
 
-#define LAMBDA_LTI 500.0d0
+#define LAMBDA_LTI 0.0d0
 !                       Melting coefficient for the LTI method
 !                       (in (mm WE)/(a*deg C), for ABLSURFACE==3)
 
@@ -921,13 +921,13 @@
 
 !-------- Special ISMIP6 InitMIP settings for the surface mass balance --------
 
-!!! #define INITMIP_SMB_ANOM_FILE 'dsmb_20_ISMIP6_v2_EPSG3413.nc'
+!!! #define INITMIP_SMB_ANOM_FILE 'dsmb_16_ISMIP6_v2_EPSG3413.nc'
 !                       Name of the file containing the surface mass balance
 !                       anomaly for ISMIP6 InitMIP
 
 !-------- Ice discharge parameterization --------
 
-#define DISC 1
+#define DISC 0
 !                         0 : Ice discharge parameterization off
 !                         1 : Ice discharge parameterization on
 !                         2 : Ice discharge parameterization on for
@@ -993,7 +993,7 @@
 
 !-------- Sea level --------
 
-#define SEA_LEVEL 3
+#define SEA_LEVEL 1
 !                         1 : Constant sea level z_sl = Z_SL0
 !                         2 : Saw-tooth-shaped sea-level forcing
 !                             with glacial minimum z_sl = -130;
@@ -1005,7 +1005,7 @@
 !                       Constant sea level
 !                       (in m, only for SEA_LEVEL==1)
 
-#define SEA_LEVEL_FILE 'specmap_zsl_124ka_searise.dat'
+#define SEA_LEVEL_FILE 'none'
 !                       Name of the file containing the sea-level
 !                       forcing (only for SEA_LEVEL==3)
 
@@ -1042,7 +1042,7 @@
 !                       File defining the regions for the sliding laws
 !                       (only for N_SLIDE_REGIONS > 1)
 
-#define C_SLIDE 6.72d0
+#define C_SLIDE 0.0d0
 !                       Sliding coefficient, in m/[a*Pa^(p-q)]
 !                       (N_SLIDE_REGIONS separate values).
 !                       Set to 0.0d0 for no-slip conditions.
@@ -1061,15 +1061,15 @@
 !                       to allow basal sliding everywhere,
 !                       irrespective of the basal temperature.
 
-#define P_WEERT 3
+#define P_WEERT 1
 !                       Weertman exponent p (integer) for the basal shear stress
 !                       (N_SLIDE_REGIONS separate values)
 
-#define Q_WEERT 2
+#define Q_WEERT 0
 !                       Weertman exponent q (integer) for the basal pressure
 !                       (N_SLIDE_REGIONS separate values)
 
-#define TIME_RAMP_UP_SLIDE 5000.0d0
+#define TIME_RAMP_UP_SLIDE 0.0d0
 !                       Ramp-up time (in a) for basal sliding:
 !                       Sliding starts gradually between the inital time
 !                       (TIME_INIT0) and the initial time plus the ramp-up time
@@ -1106,12 +1106,12 @@
 !                       Spatially constant GHF (in mW/m2)
 !                       (only used if Q_GEO_FILE == 'none', otherwise ignored)
 
-#define Q_GEO_FILE 'GHF_Greenland_Ver2.0_GridEPSG3413_20km.nc'
+#define Q_GEO_FILE 'GHF_Greenland_Ver2.0_GridEPSG3413_16km.nc'
 !                       Name of the file containing the spatially varying GHF
 !                       (set to 'none' if spatially constant GHF
 !                       defined by parameter Q_GEO is to be used)
 
-#define Q_LITHO 1
+#define Q_LITHO 0
 !                       0 : No coupled heat-conducting bedrock
 !                           (GHF imposed directly at the grounded ice base)
 !                       1 : Coupled heat-conducting bedrock
@@ -1234,13 +1234,12 @@
 !                         Time step (in a) for writing of
 !                         time-slice data (only for OUTPUT==1,3)
 
-#define N_OUTPUT 7
+#define N_OUTPUT 1
 !                         Number of specified times for writing of
 !                         time-slice data (only for OUTPUT==2,3,
 !                         not more than 100)
 
-#define TIME_OUT0 (/ -114000.0d0, -65000.0d0, -21000.0d0, \
-                     -9000.0d0, -4000.0d0, -100.0d0, 0.0d0 /)
+#define TIME_OUT0 0.0d0
 !                         Times (in a) for writing of time-slice
 !                         data (only for OUTPUT==2,3, in increasing
 !                         order from #1 to #N_OUTPUT)

@@ -197,7 +197,7 @@ time_output = 0.0_dp
 !-------- Initialisation of the Library of Iterative Solvers Lis,
 !                                                     if required --------
 
-#if (CALCTHK==3 || CALCTHK==6 || MARGIN==3 || DYNAMICS==2)
+#if (MARGIN==3 || DYNAMICS==2)
   call lis_initialize(ierr)
 #endif
 
@@ -606,6 +606,10 @@ write(10, fmt=trim(fmt1)) 'Computational domain:'
 write(10, fmt=trim(fmt1)) trim(ch_domain_long)
 write(10, fmt=trim(fmt1)) ' '
 
+write(10, fmt=trim(fmt1)) 'Physical-parameter file = ' &
+                          // trim(adjustl(PHYS_PARA_FILE))
+write(10, fmt=trim(fmt1)) ' '
+
 write(10, fmt=trim(fmt2)) 'GRID = ', GRID
 write(10, fmt=trim(fmt1)) ' '
 
@@ -686,13 +690,11 @@ write(10, fmt=trim(fmt2)) 'OCEAN_CONNECTIVITY = ', OCEAN_CONNECTIVITY
 write(10, fmt=trim(fmt3)) 'H_isol_max =', H_ISOL_MAX
 #endif
 
-#if (CALCTHK==2 || CALCTHK==3 || CALCTHK==5 || CALCTHK==6)
+#if (CALCTHK==2)
 write(10, fmt=trim(fmt3))  'ovi_weight   =', OVI_WEIGHT
-#if (CALCTHK==2 || CALCTHK==5)
 write(10, fmt=trim(fmt3))  'omega_sor    =', OMEGA_SOR
 #if (ITER_MAX_SOR>0)
 write(10, fmt=trim(fmt2)) 'iter_max_sor = ', ITER_MAX_SOR
-#endif
 #endif
 #endif
 
@@ -1662,6 +1664,13 @@ write(12,1103)
 !  ------ Time-series file for deep boreholes
 
 n_core = 0   ! No boreholes defined
+
+if (n_core > n_core_max) then
+   errormsg = ' >>> sico_init: n_core <= n_core_max required!' &
+            //         end_of_line &
+            //'        Increase value of n_core_max in sico_variables_m!'
+   call error(errormsg)
+end if
 
 filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.core'
 

@@ -526,11 +526,9 @@ contains
   real(dp) :: cst_dist_tmp, qrt_1, qrt_2
   logical :: leave_loop
 
-  real(dp), allocatable, dimension(:,:) :: zs_tmp, grad_zs_x, grad_zs_y, &
-  grad_dist_x, grad_dist_y
-
-  allocate(zs_tmp(0:JMAX,0:IMAX), grad_zs_x(0:JMAX,0:IMAX), grad_zs_y(0:JMAX,0:IMAX), &
-  grad_dist_x(0:JMAX,0:IMAX), grad_dist_y(0:JMAX,0:IMAX))
+  real(dp), dimension(0:JMAX,0:IMAX) :: zs_tmp, &
+                                        grad_zs_x, grad_zs_y, &
+                                        grad_dist_x, grad_dist_y
 
     select case (i_search)
 
@@ -771,8 +769,6 @@ contains
       end if
     end do
     end do
-
-    deallocate(zs_tmp, grad_zs_x, grad_zs_y, grad_dist_x, grad_dist_y)
 
   end subroutine coastal_distance
 

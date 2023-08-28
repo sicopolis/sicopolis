@@ -53,6 +53,12 @@ contains
 !<------------------------------------------------------------------------------
 subroutine calc_gia(time, dtime, dxi, deta, itercount, iter_wss)
 
+#if defined(ALLOW_TAPENADE) /* Tapenade */
+#if (THK_EVOL==2)
+  use ctrl_m, only: myfloor, myceiling
+#endif
+#endif /* Tapenade */
+
 implicit none
 
 integer(i4b), intent(in) :: itercount, iter_wss
@@ -60,15 +66,18 @@ real(dp),     intent(in) :: time
 real(dp),     intent(in) :: dtime, dxi, deta
 
 integer(i4b) :: i, j
+integer(i4b) :: n1, n2
+real(dp) :: time_in_years
+real(dp) :: time1, time2
 real(dp) :: tldt_inv(0:JMAX,0:IMAX)
 real(dp) :: time_ratio_1(0:JMAX,0:IMAX), time_ratio_2(0:JMAX,0:IMAX)
 real(dp) :: load_ice_water(0:JMAX,0:IMAX)
 real(dp) :: dtime_inv
 real(dp) :: rho_g, rhosw_g, rhoa_g_inv
-real(dp) :: time_dimless
-real(dp) :: target_topo_tau_factor, target_topo_tau
 
 !-------- Term abbreviations --------
+
+time_in_years = time*sec2year
 
 do i=0, IMAX
 do j=0, JMAX
@@ -159,41 +168,109 @@ end do
 
 #if (THK_EVOL==2)
 
-if (time >= time_target_topo_final) then
+if (time_in_years < real(target_topo_tau0_time_min,dp)) then
 
-   zl_new   = zl_target
-   dzl_dtau = 0.0_dp
+   target_topo_tau = target_topo_tau0(0)
 
-else if (time > time_target_topo_init) then
+else if (time_in_years < real(target_topo_tau0_time_max,dp)) then
 
-   time_dimless =  (time                  -time_target_topo_init) &
-                  /(time_target_topo_final-time_target_topo_init)
+#if !defined(ALLOW_TAPENADE) /* Normal */
+   n1 = floor((time_in_years &
+           -real(target_topo_tau0_time_min,dp)) &
+              /real(target_topo_tau0_time_stp,dp))
+#else /* Tapenade */
+   call myfloor((time_in_years &
+           -real(target_topo_tau0_time_min,dp)) &
+              /real(target_topo_tau0_time_stp,dp),n1)
+#endif /* Normal vs. Tapenade */
 
-   time_dimless = max(min(time_dimless, 1.0_dp), 0.0_dp)
-                                ! constrain to interval [0,1]
+   n1 = max(n1, 0)
 
-   target_topo_tau_factor = time_dimless*time_dimless*time_dimless &
-                               *(10.0_dp + time_dimless &
-                                           *(-15.0_dp+6.0_dp*time_dimless))
-                                ! make transition smooth (quintic function)
+#if !defined(ALLOW_TAPENADE) /* Normal */
+   n2 = ceiling((time_in_years &
+           -real(target_topo_tau0_time_min,dp)) &
+              /real(target_topo_tau0_time_stp,dp))
+#else /* Tapenade */
+   call myceiling(((time_in_years &
+            -real(target_topo_tau0_time_min,dp)) &
+               /real(target_topo_tau0_time_stp,dp)),n2)
+#endif /* Normal vs. Tapenade */
 
-   target_topo_tau_factor = 1.0_dp-target_topo_tau_factor
+   n2 = min(n2, ndata_target_topo_tau0)
 
-   target_topo_tau = target_topo_tau_0 * target_topo_tau_factor
+   if (n1 == n2) then
+
+      target_topo_tau = target_topo_tau0(n1)
+
+   else
+
+      time1 = (target_topo_tau0_time_min + n1*target_topo_tau0_time_stp) &
+              *year2sec
+      time2 = (target_topo_tau0_time_min + n2*target_topo_tau0_time_stp) &
+              *year2sec
+
+      target_topo_tau = target_topo_tau0(n1) &
+                +(target_topo_tau0(n2)-target_topo_tau0(n1)) &
+                *(time-time1)/(time2-time1)
+                 ! linear interpolation of the relaxation-time data
+
+   end if
+
+else
+
+   target_topo_tau = target_topo_tau0(ndata_target_topo_tau0)
+
+end if
+
+if (target_topo_tau*sec2year > no_value_pos_1) then
+           ! relaxation time target_topo_tau interpreted as infinity
+
+#if (!defined(ALLOW_GRDCHK) && !defined(ALLOW_TAPENADE)) /* Normal */
+   target_topo_tau = huge(1.0_dp)
+#endif
+
+   !!! zl_new = zl_new
+
+else if (target_topo_tau*sec2year < epsi) then
+           ! relaxation time target_topo_tau interpreted as zero
+
+   target_topo_tau = 0.0_dp
+   zl_new          = zl_target
+
+else
 
    zl_new =   ( target_topo_tau*zl_new + dtime*zl_target ) &
             / ( target_topo_tau        + dtime )
 
-   dzl_dtau = (zl_new-zl)*dtime_inv
-
 end if
+
+dzl_dtau = (zl_new-zl)*dtime_inv
 
 #elif (THK_EVOL==3)
 
 target_topo_tau = target_topo_tau_0
 
-zl_new =   ( target_topo_tau*zl_new + dtime*zl_target ) &
-         / ( target_topo_tau        + dtime )
+if (target_topo_tau*sec2year > no_value_pos_1) then
+           ! relaxation time target_topo_tau interpreted as infinity
+
+#if (!defined(ALLOW_GRDCHK) && !defined(ALLOW_TAPENADE)) /* Normal */
+   target_topo_tau = huge(1.0_dp)
+#endif
+
+   !!! zl_new = zl_new
+
+else if (target_topo_tau*sec2year < epsi) then
+           ! relaxation time target_topo_tau interpreted as zero
+
+   target_topo_tau = 0.0_dp
+   zl_new          = zl_target
+
+else
+
+   zl_new =   ( target_topo_tau*zl_new + dtime*zl_target ) &
+            / ( target_topo_tau        + dtime )
+
+end if
 
 dzl_dtau = (zl_new-zl)*dtime_inv
 

@@ -15,9 +15,11 @@ Run ``repo_emtp2sge25_expA``
   | SIA, resolution 25 km, :math:`t=0\ldots{}200\,\mathrm{ka}` (Payne et al. :cite:`payne_etal_2000`).
   | The thermodynamics solver for this run is the one-layer melting-CTS enthalpy scheme (ENTM), while all other runs employ the polythermal two-layer scheme (POLY) (Greve and Blatter :cite:`greve_blatter_2016`).
 
-Run ``repo_grl16_bm5_ss25ka``
-  | Greenland ice sheet, SIA, resolution 16 km,
-  | short steady-state run (:math:`t=0\ldots{}25\,\mathrm{ka}`) for modern climate conditions (unpublished).
+Runs ``repo_grl16_bm5_{init100a, ss25ka}``
+  | Greenland ice sheet, SIA, resolution 16 km;
+  | :math:`t=-100\,\mathrm{a}\ldots{}0` for the init run without basal sliding (..._init100a),
+  | :math:`t=0\,\ldots{}25\,\mathrm{ka}` for the main run (..._ss25ka),
+  | steady-state run for modern climate conditions, free evolution during the first 10 ka, after that gradual nudging towards the slightly smoothed present-day topography computed by the init run (unpublished).
 
 Run ``repo_ant40_b2_ss25ka``
   | Antarctic ice sheet without ice shelves, SIA, resolution 40 km,
@@ -36,7 +38,7 @@ Runs ``repo_grl10_b2_{paleo21, future21_ctrl, future21_asmb}``
 Runs ``repo_ant64_b2_{spinup09_init100a, spinup09_fixtopo, spinup09, future09_ctrl}``
   | Antarctic ice sheet with hybrid shallow-ice--shelfy-stream dynamics
   | (Bernales et al. :cite:`bernales_etal_2017a`) and ice shelves (SSA), resolution 64 km;
-  | :math:`t=-140.1\ldots{}-140.0\,\mathrm{ka}` for the init run without basal sliding (..._init100a),
+  | :math:`t=-140.1\ldots{}-140\,\mathrm{ka}` for the init run without basal sliding (..._init100a),
   | :math:`t=-140\,\mathrm{ka}\ldots{}0` for the run with almost fixed topography (..._fixtopo), basal sliding ramped up during the first 5 ka,
   | :math:`t=-0.5\,\mathrm{ka}\ldots{}0` for the final, freely-evolving-topography part of the (..._spinup09),
   | :math:`t=0\ldots{}100\,\mathrm{a}` for the constant-climate control run (..._future09_ctrl).
@@ -59,7 +61,7 @@ Run ``repo_heino50_st``
 
 -------------
 
-**Computing times:**
+**Model times, time steps, computing times:**
 
 +-------------------------------------+------------+---------------------+--------------------+
 | Run                                 | Model time | Time step\ :sup:`†` | CPU time\ :sup:`‡` |
@@ -68,9 +70,11 @@ Run ``repo_heino50_st``
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_emtp2sge25\_expA              | 200 ka     | 20 a                | 3.9 min            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_grl16\_bm5\_ss25ka            | 25 ka      | 5 a                 | 9.7 min            |
+| repo\_grl16\_bm5\_100a              | 100 a      | 5 a                 | 7.1 sec            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_ant40\_b2\_ss25ka             | 25 ka      | 10 a                | 5.0 min            |
+| repo\_grl16\_bm5\_ss25ka            | 25 ka      | 5 a                 | 9.9 min            |
++-------------------------------------+------------+---------------------+--------------------+
+| repo\_ant40\_b2\_ss25ka             | 25 ka      | 10 a                | 5.1 min            |
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_grl20\_b2\_paleo21            | 140 ka     | 5 a                 | 0.8 hrs            |
 +-------------------------------------+------------+---------------------+--------------------+
@@ -86,10 +90,10 @@ Run ``repo_heino50_st``
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_ant64\_b2\_spinup09           | 500 a      | 2 / 10 a\ :sup:`†`  | 0.5 min            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_ant64\_b2\_future09\_ctrl     | 100 a      | 2 / 10 a\ :sup:`†`  | 6.1 sec            |
+| repo\_ant64\_b2\_future09\_ctrl     | 100 a      | 2 / 10 a\ :sup:`†`  | 6.3 sec            |
 +-------------------------------------+------------+---------------------+--------------------+
 
-| Table 1: Model times, time steps and computing (CPU) times for the EISMINT, Greenland and Antarctica test simulations contained in the script ``multi_sico_1.sh``, run with SICOPOLIS V5 (revision 9c909c3c2) and the Intel Fortran Compiler 19.1 for Linux (optimization options ``-xHOST -O3 -no-prec-div``) on a 12-Core Intel Xeon Gold 6256 (3.6 GHz) PC under openSUSE Leap 15.4.
+| Table 1: Model times, time steps and computing (CPU) times for the EISMINT, Greenland and Antarctica test simulations contained in the script ``multi_sico_1.sh``, run with SICOPOLIS V5 (revision 03471067a) and the Intel Fortran Compiler 19.1 for Linux (optimization options ``-xHOST -O3 -no-prec-div``) on a 12-Core Intel Xeon Gold 6256 (3.6 GHz) PC under openSUSE Leap 15.5.
 | \ :sup:`†`: If one value is given, this is the common dynamic (velocity, ice thickness) and thermodynamic (temperature, water content, age) time step. If two values are given (marked by the dagger (\ :sup:`†`) symbol), the first one is the dynamic, the second one the thermodynamic time step.
 | \ :sup:`‡`: All runs were done on a single core only. The ``repo_ant64_b2_xxx`` runs that include ice shelves can be done on multiple cores using OpenMP for the SSA solver. However, at the employed, low resolution of 64 km the solver does not scale well, and the gain in wall clock time by using multiple cores is very small.
 | \ :sup:`\*`: For this run, see the remark in the :ref:`subsection on the resolution-doubler tool <plotting_and_tools-res_dbl>`.

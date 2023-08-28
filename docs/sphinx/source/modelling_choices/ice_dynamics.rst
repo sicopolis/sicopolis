@@ -19,6 +19,6 @@ The parameter ``MARGIN`` controls how the grounded ice can extend into the sea:
 
 * ``3``: Formation of marine ice and ice shelves possible.
 
-In case of ``MARGIN 3``, ice shelves (floating ice) are included and modelled by the shallow-shelf approximation (SSA; e.g., Greve and Blatter :cite:`greve_blatter_2009`).
+In case of ``MARGIN = 3``, ice shelves (floating ice) are included and modelled by the shallow-shelf approximation (SSA; e.g., Greve and Blatter :cite:`greve_blatter_2009`).
 
 The detailed settings are controlled by additional parameters as described in the run-specs headers.

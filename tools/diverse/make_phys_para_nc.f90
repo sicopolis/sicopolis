@@ -8,7 +8,7 @@
 !!
 !! @section Date
 !!
-!! 2023-01-03
+!! 2023-08-26
 !!
 !! @section Copyright
 !!
@@ -82,7 +82,7 @@ real(dp), parameter :: very_large = 1.1111e+11_dp
 
 !-------- Settings --------
 
-ch_domain = 'ANT'
+ch_domain = 'CALVINGMIP'
 
 ! Simulated domain:
 !   ANT   - Antarctica
@@ -119,8 +119,14 @@ filename_nc = 'my_phys_para_' // trim(ch_domain) // '_' &
 
 !  ------ General parameters
 
-RHO = 9.1e+02_dp
-! Density of ice = 910 kg/m3 
+select case(ch_domain)
+   case ('CALVINGMIP')
+      RHO = 9.17e+02_dp
+      ! Density of ice = 917 kg/m3 
+   case default
+      RHO = 9.1e+02_dp
+      ! Density of ice = 910 kg/m3 
+end select
 
 RHO_W = 1.0e+03_dp
 ! Density of pure water = 1000 kg/m3
@@ -314,7 +320,13 @@ select case(ch_domain)
 
       RF = 3.16887646e-24_dp
 
-   case ('EISMINT', 'CALVINGMIP', 'HEINO')
+   case ('CALVINGMIP')
+
+!    ---- RF(T) = const
+
+      RF = 9.30920838e-26_dp
+
+   case ('EISMINT', 'HEINO')
 
 !    ---- RF(T), set-up of EISMINT Phase 2 SGE
 

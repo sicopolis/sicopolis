@@ -24,7 +24,7 @@ For specifying the topography files, see Section ":ref:`Model domain, grid and t
 Temparature
 ===========
 
-In case of ``ANF_DAT 1``, initial conditions for the 3D temperature field must also be prescribed. This is done by the parameter ``TEMP_INIT``\:
+In case of ``ANF_DAT = 1``, initial conditions for the 3D temperature field must also be prescribed. This is done by the parameter ``TEMP_INIT``\:
 
 * ``1``: Constant value in the entire ice sheet (defined by parameter ``TEMP_INIT_VAL``).
 
@@ -36,4 +36,4 @@ In case of ``ANF_DAT 1``, initial conditions for the 3D temperature field must a
 
 * ``5``: Ice temperature from previous simulation.
 
-The settings ``ANF_DAT 3``, or ``ANF_DAT 1`` and ``TEMP_INIT 5``, require specifying an initial-value file, which is typically a time-slice output file from a previous simulation (see Section ":ref:`getting_started-output`"). This is done by assigning the parameter ``ANFDATNAME`` a text string with the file name. In addition, the path where this file is located must be given as an option ``-a /path/to/initial/value/directory`` to the script ``sico.sh`` when running SICOPOLIS (see Section ":ref:`getting_started-run_simulation`").
+The settings ``ANF_DAT = 3``, or ``ANF_DAT = 1`` and ``TEMP_INIT = 5``, require specifying an initial-value file, which is typically a time-slice output file from a previous simulation (see Section ":ref:`getting_started-output`"). This is done by assigning the parameter ``ANFDATNAME`` a text string with the file name. In addition, the path where this file is located must be given as an option ``-a /path/to/initial/value/directory`` to the script ``sico.sh`` when running SICOPOLIS (see Section ":ref:`getting_started-run_simulation`").

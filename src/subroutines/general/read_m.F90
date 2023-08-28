@@ -41,7 +41,7 @@ module read_m
 
   private
   public :: read_tms_nc, read_target_topo_nc, &
-            read_2d_input, read_phys_para, read_kei
+            read_scalar_input, read_2d_input, read_phys_para, read_kei
 
 #if (defined(ALLOW_NORMAL) || defined(ALLOW_GRDCHK) || defined(ALLOW_TAPENADE))
   public :: read_age_data, read_BedMachine_data
@@ -1018,6 +1018,113 @@ contains
 #endif /* Normal vs. Tapenade */
 
   end subroutine read_target_topo_nc
+
+!-------------------------------------------------------------------------------
+!> Reading of scalar, time-dependent input files in NetCDF or ASCII format.
+!<------------------------------------------------------------------------------
+  subroutine read_scalar_input(filename_with_path, ch_var_name, ndata_max, &
+                               n_time_min, n_time_stp, n_time_max, ndata, &
+                               scalar_data)
+
+  use sico_variables_m
+  use sico_vars_m
+
+  use netcdf
+  use nc_check_m
+
+  implicit none
+
+  character(len=256), intent(in) :: filename_with_path
+  character(len=  *), intent(in) :: ch_var_name
+  integer(i4b)      , intent(in) :: ndata_max
+
+  integer(i4b), intent(out) :: n_time_min, n_time_stp, n_time_max
+  integer(i4b), intent(out) :: ndata
+  real(dp)    , intent(out), dimension(0:ndata_max) :: scalar_data
+
+  integer(i4b)       :: n
+  integer(i4b)       :: ios
+  character(len=256) :: filename_aux
+  character(len=  3) :: ch_nc_test
+  character          :: ch_dummy
+  real(dp)           :: d_dummy
+  logical            :: flag_nc
+
+  integer(i4b) :: ncid, ncv
+  !     ncid:      ID of the output file
+  !     ncv:       Variable ID
+
+!-------- Determining file type --------
+
+  filename_aux = adjustr(filename_with_path)
+  n            = len(filename_aux)
+  ch_nc_test   = filename_aux(n-2:n)
+  filename_aux = adjustl(filename_aux)
+
+  if (ch_nc_test == '.nc') then
+     flag_nc = .true.   ! NetCDF file
+  else
+     flag_nc = .false.  ! ASCII file
+  end if
+
+!-------- Reading file --------
+
+  if (flag_nc) then   ! NetCDF file
+
+     errormsg = ' >>> read_scalar_input: Reading NetCDF not yet implemented!'
+     call error(errormsg)
+
+     ios = nf90_open(trim(filename_aux), NF90_NOWRITE, ncid)
+
+     ! ...
+
+     call check( nf90_close(ncid) )
+
+  else   ! ASCII file
+
+     open(21, iostat=ios, file=trim(filename_with_path), status='old')
+
+     if (ios /= 0) then
+        errormsg = ' >>> read_scalar_input: Error when opening the ' &
+                         // trim(adjustl(ch_var_name)) // ' ASCII file!'
+        call error(errormsg)
+     end if
+
+     read(21, fmt=*) ch_dummy, n_time_min, n_time_stp, n_time_max
+
+     if (ch_dummy /= '#') then
+        errormsg = ' >>> read_scalar_input: ' &
+                 //         'n_time_min, n_time_stp, n_time_max' &
+                 //         end_of_line &
+                 //'        not defined in ' &
+                 //         trim(adjustl(ch_var_name)) // ' ASCII file!'
+        call error(errormsg)
+     end if
+
+     ndata = (n_time_max-n_time_min)/n_time_stp
+
+     if (ndata > ndata_max) then
+        errormsg = ' >>> read_scalar_input: ' &
+                 //         'ndata <= ndata_max required!' &
+                 //         end_of_line &
+                 //'        Increase corresponding ndata_max value for ' &
+                 //         trim(adjustl(ch_var_name)) &
+                 //         end_of_line &
+                 //'        in sico_variables_m or sico_vars_m!'
+        call error(errormsg)
+     end if
+
+     scalar_data = 0.0_dp   ! initialization
+
+     do n=0, ndata
+        read(21, fmt=*) d_dummy, scalar_data(n)
+     end do
+
+     close(21, status='keep')
+
+  end if
+
+  end subroutine read_scalar_input
 
 !-------------------------------------------------------------------------------
 !> Reading of 2D input files in NetCDF or ASCII format.

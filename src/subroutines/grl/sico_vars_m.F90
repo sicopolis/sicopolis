@@ -75,8 +75,10 @@ save
    integer(i4b) :: glann_time_max
 !> ndata_glann: Number of data values for the global annual temperature anomaly
    integer(i4b) :: ndata_glann
+!> ndata_glann_max: Maximum allowed value of ndata_glann
+   integer(i4b) , parameter :: ndata_glann_max = 262143
 !> dT_glann_CLIMBER(n): Data values for the global annual temperature anomaly
-   real(dp), dimension(:), allocatable :: dT_glann_CLIMBER
+   real(dp), dimension(0:ndata_glann_max) :: dT_glann_CLIMBER
 #endif
 
 #if (RETREAT_MASK==1)

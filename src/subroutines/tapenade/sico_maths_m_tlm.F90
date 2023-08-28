@@ -63,7 +63,7 @@ module sico_maths_m_diff
       module procedure sor_sprs_stub_d
   end interface
 
-#if defined(BUILD_LIS) && (CALCTHK==3 || CALCTHK==6 || MARGIN==3 || DYNAMICS==2)
+#if defined(BUILD_LIS) && (MARGIN==3 || DYNAMICS==2)
   interface sico_lis_solver
       module procedure sico_lis_solver_stub
   end interface
@@ -412,7 +412,7 @@ contains
 
   end subroutine my_erfc_stub
 
-#if defined(BUILD_LIS) && (CALCTHK==3 || CALCTHK==6 || MARGIN==3 || DYNAMICS==2)
+#if defined(BUILD_LIS) && (MARGIN==3 || DYNAMICS==2)
 !-------------------------------------------------------------------------------
 !> Template for Tapenade to help differentiate through the LIS solver.
 !<------------------------------------------------------------------------------

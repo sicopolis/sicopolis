@@ -64,7 +64,8 @@ subroutine sico_init(delta_ts, glac_index, &
   use netcdf
   use nc_check_m
 
-  use read_m, only : read_target_topo_nc, read_2d_input, read_phys_para
+  use read_m, only : read_target_topo_nc, &
+                     read_scalar_input, read_2d_input, read_phys_para
 
   use boundary_m
   use init_temp_water_age_m
@@ -208,7 +209,7 @@ time_output = 0.0_dp
 !-------- Initialisation of the Library of Iterative Solvers Lis,
 !                                                     if required --------
 
-#if (CALCTHK==3 || CALCTHK==6 || MARGIN==3 || DYNAMICS==2)
+#if (MARGIN==3 || DYNAMICS==2)
   call lis_initialize(ierr)
 #endif
 
@@ -712,6 +713,30 @@ time_output0(20) = TIME_OUT0_20
 
 #endif
 
+!-------- Maximum ice extent yes/no --------
+
+#if (!defined(MASK_MAXEXTENT_FILE) || THK_EVOL==0)
+
+flag_mask_maxextent = .false.   ! no maximum ice extent specified
+
+#else
+
+if ( (trim(adjustl(MASK_MAXEXTENT_FILE)) == 'none') &
+     .or. &
+     (trim(adjustl(MASK_MAXEXTENT_FILE)) == 'None') &
+     .or. &
+     (trim(adjustl(MASK_MAXEXTENT_FILE)) == 'NONE') ) then
+
+   flag_mask_maxextent = .false.   ! no maximum ice extent specified
+
+else
+
+   flag_mask_maxextent = .true.   ! maximum ice extent specified
+
+end if
+
+#endif
+
 !-------- Type of the geothermal heat flux (GHF) --------
 
 #if (!defined(Q_GEO_FILE))
@@ -757,6 +782,10 @@ end if
 
 write(10, fmt=trim(fmt1)) 'Computational domain:'
 write(10, fmt=trim(fmt1)) trim(ch_domain_long)
+write(10, fmt=trim(fmt1)) ' '
+
+write(10, fmt=trim(fmt1)) 'Physical-parameter file = ' &
+                          // trim(adjustl(PHYS_PARA_FILE))
 write(10, fmt=trim(fmt1)) ' '
 
 write(10, fmt=trim(fmt2)) 'GRID = ', GRID
@@ -846,9 +875,8 @@ write(10, fmt=trim(fmt3)) 'H_isol_max =', H_ISOL_MAX
 #endif
 
 #if (THK_EVOL==2)
-write(10, fmt=trim(fmt3)) 'time_target_topo_init  =', TIME_TARGET_TOPO_INIT0
-write(10, fmt=trim(fmt3)) 'time_target_topo_final =', TIME_TARGET_TOPO_FINAL0
-write(10, fmt=trim(fmt3)) 'target_topo_tau_0 =', TARGET_TOPO_TAU0
+write(10, fmt=trim(fmt1)) 'Target-topography relaxation-time file = ' &
+                          //TARGET_TOPO_TAU0_FILE
 write(10, fmt=trim(fmt1)) 'Target-topography file = '//TARGET_TOPO_DAT_NAME
 write(10, fmt=trim(fmt1)) 'Path to target-topography file = '//TARGET_TOPO_PATH
 #endif
@@ -859,17 +887,17 @@ write(10, fmt=trim(fmt1)) 'Target-topography file = '//TARGET_TOPO_DAT_NAME
 write(10, fmt=trim(fmt1)) 'Path to target-topography file = '//TARGET_TOPO_PATH
 #endif
 
-#if (THK_EVOL==4)
-write(10, fmt=trim(fmt1)) 'Maximum ice extent mask file = '//MASK_MAXEXTENT_FILE
+#if (defined(MASK_MAXEXTENT_FILE))
+if (flag_mask_maxextent) &
+   write(10, fmt=trim(fmt1)) 'Maximum ice extent mask file = ' &
+                             // trim(adjustl(MASK_MAXEXTENT_FILE))
 #endif
 
-#if (CALCTHK==2 || CALCTHK==3 || CALCTHK==5 || CALCTHK==6)
+#if (CALCTHK==2)
 write(10, fmt=trim(fmt3))  'ovi_weight   =', OVI_WEIGHT
-#if (CALCTHK==2 || CALCTHK==5)
 write(10, fmt=trim(fmt3))  'omega_sor    =', OMEGA_SOR
 #if (ITER_MAX_SOR>0)
 write(10, fmt=trim(fmt2)) 'iter_max_sor = ', ITER_MAX_SOR
-#endif
 #endif
 #endif
 
@@ -1245,9 +1273,17 @@ end if
 #endif
 
 #if (THK_EVOL==2)
-time_target_topo_init  = TIME_TARGET_TOPO_INIT0 *year2sec   ! a --> s
-time_target_topo_final = TIME_TARGET_TOPO_FINAL0*year2sec   ! a --> s
-target_topo_tau_0 = TARGET_TOPO_TAU0 *year2sec   ! a --> s
+
+filename_with_path = trim(IN_PATH)//'/general/'//trim(TARGET_TOPO_TAU0_FILE)
+
+call read_scalar_input(filename_with_path, &
+                       'target_topo_tau0', ndata_target_topo_tau0_max, &
+                       target_topo_tau0_time_min, target_topo_tau0_time_stp, &
+                       target_topo_tau0_time_max, &
+                       ndata_target_topo_tau0, target_topo_tau0)
+
+target_topo_tau0 = target_topo_tau0 *year2sec   ! a --> s
+
 #endif
 
 #if (THK_EVOL==3)
@@ -1292,7 +1328,11 @@ call read_target_topo_nc(target_topo_dat_name)
 
 !-------- Reading of the maximum ice extent mask --------
 
-#if (THK_EVOL==4)
+mask_maxextent = 1   ! default (no constraint)
+
+#if (defined(MASK_MAXEXTENT_FILE))
+
+if (flag_mask_maxextent) then
 
 #if (GRID==0 || GRID==1)
 
@@ -1313,6 +1353,8 @@ call error(errormsg)
 
 #endif
 
+end if
+
 #endif
 
 !-------- Read data for delta_ts --------
@@ -1321,31 +1363,10 @@ call error(errormsg)
 
 filename_with_path = trim(IN_PATH)//'/general/'//trim(GRIP_TEMP_FILE)
 
-open(21, iostat=ios, file=trim(filename_with_path), status='old')
-
-if (ios /= 0) then
-   errormsg = ' >>> sico_init: Error when opening the data file for delta_ts!'
-   call error(errormsg)
-end if
-
-read(21, fmt=*) ch_dummy, grip_time_min, grip_time_stp, grip_time_max
-
-if (ch_dummy /= '#') then
-   errormsg = ' >>> sico_init: grip_time_min, grip_time_stp, grip_time_max' &
-            //         end_of_line &
-            //'        not defined in data file for delta_ts!'
-   call error(errormsg)
-end if
-
-ndata_grip = (grip_time_max-grip_time_min)/grip_time_stp
-
-allocate(griptemp(0:ndata_grip))
-
-do n=0, ndata_grip
-   read(21, fmt=*) d_dummy, griptemp(n)
-end do
-
-close(21, status='keep')
+call read_scalar_input(filename_with_path, &
+                       'delta_ts', ndata_grip_max, &
+                       grip_time_min, grip_time_stp, grip_time_max, &
+                       ndata_grip, griptemp)
 
 #endif
 
@@ -1377,33 +1398,10 @@ end if
 
 filename_with_path = trim(IN_PATH)//'/general/'//trim(SEA_LEVEL_FILE)
 
-open(21, iostat=ios, file=trim(filename_with_path), status='old')
-
-if (ios /= 0) then
-   errormsg = ' >>> sico_init: Error when opening the data file for z_sl!'
-   call error(errormsg)
-end if
-
-read(21, fmt=*) ch_dummy, specmap_time_min, specmap_time_stp, specmap_time_max
-
-if (ch_dummy /= '#') then
-   errormsg = ' >>> sico_init:' &
-            //         end_of_line &
-            //'        specmap_time_min, specmap_time_stp, specmap_time_max' &
-            //         end_of_line &
-            //'        not defined in data file for z_sl!'
-   call error(errormsg)
-end if
-
-ndata_specmap = (specmap_time_max-specmap_time_min)/specmap_time_stp
-
-allocate(specmap_zsl(0:ndata_specmap))
-
-do n=0, ndata_specmap
-   read(21, fmt=*) d_dummy, specmap_zsl(n)
-end do
-
-close(21, status='keep')
+call read_scalar_input(filename_with_path, &
+                       'z_sl', ndata_specmap_max, &
+                       specmap_time_min, specmap_time_stp, specmap_time_max, &
+                       ndata_specmap, specmap_zsl)
 
 #endif
 
@@ -1802,6 +1800,13 @@ write(12,1103)
 !  ------ Time-series file for deep boreholes
 
 n_core = 0   ! No boreholes defined
+
+if (n_core > n_core_max) then
+   errormsg = ' >>> sico_init: n_core <= n_core_max required!' &
+            //         end_of_line &
+            //'        Increase value of n_core_max in sico_variables_m!'
+   call error(errormsg)
+end if
 
 filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.core'
 

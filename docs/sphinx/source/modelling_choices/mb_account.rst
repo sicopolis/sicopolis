@@ -19,4 +19,4 @@ SICOPOLIS always employs a zero-ice-thickness boundary condition at the margin o
 
 * ``1``: Outermost inner points of the domain (:math:`i=1,\,i_\mathrm{max}-1`; :math:`j=1,\,j_\mathrm{max}-1`) not allowed to glaciate (required for accurate accounting of calving near the margin).
 
-For real-world problems, the setting ``MB_ACCOUNT 1`` is usually fine. However, for some simple-geometry experiments that require the simulated ice sheet to cover the entire domain [e.g., the :ref:`test simulation <test_simulations>` ``repo_vialov3d25`` (3D Vialov profile)], ``MB_ACCOUNT 0`` must be chosen to allow that.
+For real-world problems, the setting ``MB_ACCOUNT = 1`` is usually fine. However, for some simple-geometry experiments that require the simulated ice sheet to cover the entire domain [e.g., the :ref:`test simulation <test_simulations>` ``repo_vialov3d25`` (3D Vialov profile)], ``MB_ACCOUNT = 0`` must be chosen to allow that.

@@ -3,7 +3,7 @@
 Flow enhancement factor
 ***********************
 
-The flow enhancement factor :math:`E` is a multiplier for the temperature-dependent rate factor :math:`A(T')` that accounts for ice softening (:math:`E>1`) or hardening (:math:`E<1`) due to impurities or an anisotropic fabric. For the setting ``ENHMOD 1``, three different values can be defined in the run-specs headers\:
+The flow enhancement factor :math:`E` is a multiplier for the temperature-dependent rate factor :math:`A(T')` that accounts for ice softening (:math:`E>1`) or hardening (:math:`E<1`) due to impurities or an anisotropic fabric. For the setting ``ENHMOD = 1``, three different values can be defined in the run-specs headers\:
 
 * ``ENH_FACT``: :math:`E_\mathrm{SIA}`, for the shallow-ice approximation (SIA) of grounded ice.
 

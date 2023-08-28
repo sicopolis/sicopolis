@@ -5,7 +5,7 @@
 !
 #define       MODEL_SICOPOLIS
 #define       VERSION '5'
-#define       DATE    '2023-08-03'
+#define       DATE    '2023-08-25'
 !
 !> @mainpage
 !!
@@ -38,7 +38,7 @@
 !! @li <https://sicopolis.readthedocs.io/en/latest/references.html>
 !!
 !! Resources:
-!! @li Model website: <http://www.sicopolis.net/>
+!! @li Model website: <https://www.sicopolis.net/>
 !! @li User manual: <https://sicopolis.readthedocs.io/>
 !! @li GitLab repository: <https://gitlab.awi.de/sicopolis/sicopolis/>
 !! @li SICOPOLIS community @ Zenodo:

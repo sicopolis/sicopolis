@@ -243,7 +243,7 @@ Output files are written by default to the directory ``sico_out/<run_name>``. Th
 Writing of output files can be controlled by the several parameters in the "Data output" section of the run-specs headers. For example, simulation ``repo_emtp2sge25_expA`` writes scalar variables into the time-series files ``repo_emtp2sge25_expA{.ser,.core,_ser.nc,_core.nc}`` every 100 years. In addition, it produces three time-slice files ``repo_emtp2sge25_expA0001.nc``, ``repo_emtp2sge25_expA0002.nc`` and ``repo_emtp2sge25_expA0003.nc``, which correspond to the times :math:`t=5\,\mathrm{ka}`, :math:`50\,\mathrm{ka}` and :math:`200\,\mathrm{ka}`, respectively.
 
 .. note::
-  By default, when trying to re-run a simulation, already existing output will not be overwritten, and an error message will be produced in that case. However, overwriting can be enforced by executing ``sico.sh`` (or ``multi_sico_*.sh``) with the option ``-f``.
+  By default, when trying to re-run a simulation, already existing output will not be overwritten, and an error message will be produced. However, overwriting can be enforced by executing ``sico.sh`` (or ``multi_sico_*.sh``) with the option ``-f``.
 
 .. note::
   If a time-slice file of the initial state of a simulation is written, not all variables will already be defined (because SICOPOLIS has not done any proper computation yet). For instance, "diagnosed" 2D fields like the basal temparatures ``temp_b`` and ``temph_b`` (relative to pressure melting) or the thermal state mask ``n_cts`` will contain only default values. They will be filled with meaningful values after the first time step.

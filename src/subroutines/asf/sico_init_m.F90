@@ -65,7 +65,7 @@ subroutine sico_init(delta_ts, glac_index, &
   use stereo_proj_m
 #endif
 
-  use read_m, only : read_2d_input, read_kei, read_phys_para
+  use read_m, only : read_scalar_input, read_2d_input, read_kei, read_phys_para
 
   use boundary_m
   use init_temp_water_age_m
@@ -202,7 +202,7 @@ time_output = 0.0_dp
 !-------- Initialisation of the Library of Iterative Solvers Lis,
 !                                                     if required --------
 
-#if (CALCTHK==3 || CALCTHK==6 || MARGIN==3 || DYNAMICS==2)
+#if (MARGIN==3 || DYNAMICS==2)
   call lis_initialize(ierr)
 #endif
 
@@ -624,6 +624,10 @@ write(10, fmt=trim(fmt1)) 'Computational domain:'
 write(10, fmt=trim(fmt1)) trim(ch_domain_long)
 write(10, fmt=trim(fmt1)) ' '
 
+write(10, fmt=trim(fmt1)) 'Physical-parameter file = ' &
+                          // trim(adjustl(PHYS_PARA_FILE))
+write(10, fmt=trim(fmt1)) ' '
+
 write(10, fmt=trim(fmt2)) 'GRID = ', GRID
 write(10, fmt=trim(fmt1)) ' '
 
@@ -712,13 +716,11 @@ write(10, fmt=trim(fmt2)) 'OCEAN_CONNECTIVITY = ', OCEAN_CONNECTIVITY
 write(10, fmt=trim(fmt3)) 'H_isol_max =', H_ISOL_MAX
 #endif
 
-#if (CALCTHK==2 || CALCTHK==3 || CALCTHK==5 || CALCTHK==6)
+#if (CALCTHK==2)
 write(10, fmt=trim(fmt3))  'ovi_weight   =', OVI_WEIGHT
-#if (CALCTHK==2 || CALCTHK==5)
 write(10, fmt=trim(fmt3))  'omega_sor    =', OMEGA_SOR
 #if (ITER_MAX_SOR>0)
 write(10, fmt=trim(fmt2)) 'iter_max_sor = ', ITER_MAX_SOR
-#endif
 #endif
 #endif
 
@@ -1391,31 +1393,10 @@ temp_ma_present = temp_ma_present * TEMP_MA_PRESENT_FACT
 
 filename_with_path = trim(IN_PATH)//'/general/'//trim(GRIP_TEMP_FILE)
 
-open(21, iostat=ios, file=trim(filename_with_path), status='old')
-
-if (ios /= 0) then
-   errormsg = ' >>> sico_init: Error when opening the data file for delta_ts!'
-   call error(errormsg)
-end if
-
-read(21, fmt=*) ch_dummy, grip_time_min, grip_time_stp, grip_time_max
-
-if (ch_dummy /= '#') then
-   errormsg = ' >>> sico_init: grip_time_min, grip_time_stp, grip_time_max' &
-            //         end_of_line &
-            //'        not defined in data file for delta_ts!'
-   call error(errormsg)
-end if
-
-ndata_grip = (grip_time_max-grip_time_min)/grip_time_stp
-
-allocate(griptemp(0:ndata_grip))
-
-do n=0, ndata_grip
-   read(21, fmt=*) d_dummy, griptemp(n)
-end do
-
-close(21, status='keep')
+call read_scalar_input(filename_with_path, &
+                       'delta_ts', ndata_grip_max, &
+                       grip_time_min, grip_time_stp, grip_time_max, &
+                       ndata_grip, griptemp)
 
 #endif
 
@@ -1425,31 +1406,10 @@ close(21, status='keep')
 
 filename_with_path = trim(IN_PATH)//'/general/'//trim(GLAC_IND_FILE)
 
-open(21, iostat=ios, file=trim(filename_with_path), status='old')
-
-if (ios /= 0) then
-   errormsg = ' >>> sico_init: Error when opening the glacial-index file!'
-   call error(errormsg)
-end if
-
-read(21, fmt=*) ch_dummy, gi_time_min, gi_time_stp, gi_time_max
-
-if (ch_dummy /= '#') then
-   errormsg = ' >>> sico_init: gi_time_min, gi_time_stp, gi_time_max' &
-            //         end_of_line &
-            //'        not defined in glacial-index file!'
-   call error(errormsg)
-end if
-
-ndata_gi = (gi_time_max-gi_time_min)/gi_time_stp
-
-allocate(glacial_index(0:ndata_gi))
-
-do n=0, ndata_gi
-   read(21, fmt=*) d_dummy, glacial_index(n)
-end do
-
-close(21, status='keep')
+call read_scalar_input(filename_with_path, &
+                       'gi', ndata_gi_max, &
+                       gi_time_min, gi_time_stp, gi_time_max, &
+                       ndata_gi, glacial_index)
 
 #endif
 
@@ -1459,33 +1419,10 @@ close(21, status='keep')
 
 filename_with_path = trim(IN_PATH)//'/general/'//trim(SEA_LEVEL_FILE)
 
-open(21, iostat=ios, file=trim(filename_with_path), status='old')
-
-if (ios /= 0) then
-   errormsg = ' >>> sico_init: Error when opening the data file for z_sl!'
-   call error(errormsg)
-end if
-
-read(21, fmt=*) ch_dummy, specmap_time_min, specmap_time_stp, specmap_time_max
-
-if (ch_dummy /= '#') then
-   errormsg = ' >>> sico_init:' &
-            //         end_of_line &
-            //'        specmap_time_min, specmap_time_stp, specmap_time_max' &
-            //         end_of_line &
-            //'        not defined in data file for z_sl!'
-   call error(errormsg)
-end if
-
-ndata_specmap = (specmap_time_max-specmap_time_min)/specmap_time_stp
-
-allocate(specmap_zsl(0:ndata_specmap))
-
-do n=0, ndata_specmap
-   read(21, fmt=*) d_dummy, specmap_zsl(n)
-end do
-
-close(21, status='keep')
+call read_scalar_input(filename_with_path, &
+                       'z_sl', ndata_specmap_max, &
+                       specmap_time_min, specmap_time_stp, specmap_time_max, &
+                       ndata_specmap, specmap_zsl)
 
 #endif
 
@@ -1929,6 +1866,13 @@ end if
 
 n_core = 0   ! No boreholes defined
 
+if (n_core > n_core_max) then
+   errormsg = ' >>> sico_init: n_core <= n_core_max required!' &
+            //         end_of_line &
+            //'        Increase value of n_core_max in sico_variables_m!'
+   call error(errormsg)
+end if
+
 filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.core'
 
 open(14, iostat=ios, file=trim(filename_with_path), status='new')
@@ -1937,7 +1881,7 @@ write(14,'(1x,a)') '---------------------'
 write(14,'(1x,a)') 'No boreholes defined.'
 write(14,'(1x,a)') '---------------------'
 
-!  ------ Time-series file for 20 mass balance stakes
+!  ------ Time-series file for mass balance stakes etc.
 
 #if (WRITE_SER_FILE_STAKES>0)
 
@@ -1945,10 +1889,14 @@ n_surf = 163   ! 19 mass balance stakes + 18 cores (Pinglot)
                ! 10 points on flowlines (Duvebreen & B3)
 	       ! 116 points along ELA
 
-allocate(lambda_surf(n_surf), phi_surf(n_surf), &
-         x_surf(n_surf), y_surf(n_surf))
+if (n_surf > n_surf_max) then
+   errormsg = ' >>> sico_init: n_surf <= n_surf_max required!' &
+            //         end_of_line &
+            //'        Increase value of n_surf_max in sico_vars_m!'
+   call error(errormsg)
+end if
 
-!%%%%%%%%%%%%%%     mass balance stakes     %%%%%%%%%%%%%%%%%%%%%%
+!    ---- Mass balance stakes
 
 phi_surf(1)    =  79.8322_dp *deg2rad    ! Geographical position
 lambda_surf(1) =  24.0043_dp *deg2rad    ! at 79.8322N, 24.0043E
@@ -2007,7 +1955,7 @@ lambda_surf(18) =  26.1354_dp *deg2rad   ! at 79.8499N, 26.1354E
 phi_surf(19)    =  79.8499_dp *deg2rad   ! Geographical position
 lambda_surf(19) =  25.7261_dp *deg2rad   ! at 79.8499N, 25.7261E
 
-!%%%%%%%%%%%%%%     Pinglot's shallow cores     %%%%%%%%%%%%%%%%%%%%%%
+!    ---- Pinglot's shallow cores
 
 phi_surf(20)    =  79.833333_dp *deg2rad    ! Geographical position
 lambda_surf(20) =  24.935833_dp *deg2rad    ! at 79.833333N, 24.935833E
@@ -2063,7 +2011,7 @@ lambda_surf(36) =  25.788611_dp *deg2rad    ! at 79.847778N, 25.788611E
 phi_surf(37)    =  79.830000_dp *deg2rad    ! Geographical position
 lambda_surf(37) =  24.001389_dp *deg2rad    ! at 79.830000N, 24.001389E
 
-!%%%%%%%%%%%%%%     flowline points     %%%%%%%%%%%%%%%%%%%%%%
+!    ---- Flowline points
 
 phi_surf(38)    =  80.1427268586056_dp *deg2rad    ! Geographical position of
 lambda_surf(38) =  23.9534492294493_dp *deg2rad    ! Duve-1
@@ -2095,7 +2043,7 @@ lambda_surf(46) =  24.8934874838598_dp *deg2rad    ! B3-4
 phi_surf(47)    =  79.5275754154375_dp *deg2rad    ! Geographical position of
 lambda_surf(47) =  24.7125320718015_dp *deg2rad    ! B3-5
 
-!%%%%%%%% basin controll points on ELA (N:450m, S:300m)  %%%%%%%%%%%%%%%%
+!    ---- Basin control points on ELA (N:450m, S:300m)
 
 phi_surf(48)    =  79.6232572730302_dp *deg2rad    ! Geographical position of
 lambda_surf(48) =  22.4297425686265_dp *deg2rad    ! Eton-1
@@ -2471,7 +2419,7 @@ y_surf = phi_surf
 
 #endif
 
-!---------open files for writing the different fields at these locations
+!    ---- Open files for writing the different fields at these locations
 
 filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'_zb.dat'
 
@@ -2486,7 +2434,7 @@ end if
    write(41,4002)
 
    4001 format('%Time series of the bedrock for 163 surface points')
-   4002 format('%------------------------------------------------')
+   4002 format('%-------------------------------------------------')
 
 filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'_zs.dat'
 

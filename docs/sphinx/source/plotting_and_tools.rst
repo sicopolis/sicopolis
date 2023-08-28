@@ -27,7 +27,7 @@ Fortran program (located in sicopolis/tools/make_ismip_output) that generates `I
 
   ./tools.sh -p make_ismip_output -m <run_name>
 
-For further options, try ``./tools.sh -h``.
+To list further options, execute ``./tools.sh -h``.
 
 .. _plotting_and_tools-res_dbl:
 
@@ -38,7 +38,7 @@ Fortran program (located in sicopolis/tools/resolution_doubler) that doubles the
 
   ./tools.sh -p resolution_doubler -m <run_name>
 
-For further options, try ``./tools.sh -h``.
+To list further options, execute ``./tools.sh -h``.
 
 For example, run ``repo_grl10_b2_paleo21`` (10 km resolution) requires the resolution-doubled output of run ``repo_grl20_b2_paleo21`` (20 km resolution) for :math:`t=-9\,\mathrm{ka}` as initial condition. In order to create it, execute the resolution doubler for run ``repo_grl20_b2_paleo21`` (i.e., with the option ``-m repo_grl20_b2_paleo21``) and enter ::
 

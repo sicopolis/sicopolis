@@ -16,7 +16,7 @@ Basal sliding is implemented by a Weertman-Budd-type sliding law (Weertman :cite
 
 * ``3``: Weertman-Budd-type sliding, reduced pressure (ice minus water) in denominator, limiter ``RED_PRES_LIMIT_FACT`` applied for SIA only.
 
-Sub-melt sliding (Sato and Greve :cite:`sato_greve_2012`), water-film-enhanced sliding (requires ``BASAL_HYDROLOGY 1``, see ":ref:`basal_hydrology`" below) and regionally varying sliding parameters can be added. The detailed settings are controlled by additional parameters as described in the run-specs headers.
+Sub-melt sliding (Sato and Greve :cite:`sato_greve_2012`), water-film-enhanced sliding (requires ``BASAL_HYDROLOGY = 1``, see ":ref:`basal_hydrology`" below) and regionally varying sliding parameters can be added. The detailed settings are controlled by additional parameters as described in the run-specs headers.
 
 .. _ghf:
 
@@ -74,4 +74,4 @@ The detailed settings are controlled by additional parameters (``FRAC_LLRA``, ``
 
     #define EXEC_MAKE_ZL0
 
-  It should be used together with ``ANF_DAT 1`` (present-day topography used as initial topography), computes the isostatically relaxed lithosphere surface topography, writes it on file and then stops the simulation (irrespective of the setting for the final time :math:`t_\mathrm{final}`). The underlying assumption is that the present-day bed topography is approximately in equilibrium with the present-day ice load.
+  It should be used together with ``ANF_DAT = 1`` (present-day topography used as initial topography), computes the isostatically relaxed lithosphere surface topography, writes it on file and then stops the simulation (irrespective of the setting for the final time :math:`t_\mathrm{final}`). The underlying assumption is that the present-day bed topography is approximately in equilibrium with the present-day ice load.

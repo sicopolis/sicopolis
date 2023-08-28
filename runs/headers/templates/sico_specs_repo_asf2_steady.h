@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-08-03'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-08-20'
 !                      Date of last change
 
 !-------- Domain --------
@@ -189,7 +189,7 @@
 !                         kicks in (for DYNAMICS==2 and HYB_MOD==0).
 
 #define SSTA_SIA_WEIGH_FCT 1
-!                         SStA-SIA weighing factor as a function of the
+!                         SStA-SIA weighting factor as a function of the
 !                         slip ratio (for DYNAMICS==2 and HYB_MOD==0):
 !                         0 : Linear function (continuous transitions)
 !                         1 : Cubic function (smooth transitions)
@@ -522,41 +522,32 @@
 !                         1 : Ocean connectivity enforced.
 
 #define H_ISOL_MAX 1000.0d0
-!                             Maximum thickness of isolated ice points (in m)
-!                             (if set to 0.0d0, isolated ice points are killed).
+!                         Maximum thickness of isolated ice points (in m)
+!                         (if set to 0.0d0, isolated ice points are killed).
 
 #define CALCTHK 2
 !                         Solution of the ice-thickness equation:
 !                         1 : Explicit scheme for the diffusive
 !                             SIA ice-surface equation
 !                         2 : Over-implicit scheme for the diffusive
-!                             SIA ice-surface equation,
-!                             iterative built-in SOR solver
-!                         3 : Over-implicit scheme for the diffusive
-!                             SIA ice-surface equation,
-!                             iterative library-based (Lis) solver
+!                             SIA ice-surface equation
+!                             (iterative built-in SOR solver)
 !                         4 : Explicit scheme for the general
 !                             ice-thickness equation
-!                         5 : Over-implicit scheme for the general
-!                             ice-thickness equation,
-!                             iterative built-in SOR solver
-!                         6 : Over-implicit scheme for the general
-!                             ice-thickness equation,
-!                             iterative library-based (Lis) solver
 
 #define OVI_WEIGHT 1.5d0
-!                       Weighing parameter for the over-implicit scheme
-!                       (only for CALCTHK==2, 3, 5, 6)
+!                         Weighting parameter for the over-implicit scheme
+!                         (only for CALCTHK==2)
 
 #define OMEGA_SOR 1.0d0
-!                       Relaxation parameter for the iterative SOR solver
-!                       for systems of linear equations
-!                       (0 < OMEGA_SOR < 2, only for CALCTHK==2, 5)
+!                         Relaxation parameter for the iterative SOR solver
+!                         for systems of linear equations
+!                         (0 < OMEGA_SOR < 2, only for CALCTHK==2)
 
 #define ITER_MAX_SOR 1000
-!                       Maximum number of iterations for the iterative
-!                       SOR solver for systems of linear equations
-!                       (only for CALCTHK==2, 5)
+!                         Maximum number of iterations for the iterative
+!                         SOR solver for systems of linear equations
+!                         (only for CALCTHK==2)
 
 !-------- Advection treatment in the temperature and age equations --------
 
@@ -1062,7 +1053,7 @@
 #define MEAN_ACCUM 3.0d+02
 !                       Mean accumulation rate over modelled ice sheet
 !                       (in mm water equiv./a)
-!                       [Only required in case of CALCTHK==2, 5 for
+!                       [Only required in case of CALCTHK==2 for
 !                       the convergence criterion of the SOR method.
 !                       Need not be very precise, a rough estimate is
 !                       sufficient.]

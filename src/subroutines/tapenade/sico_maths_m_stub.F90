@@ -36,16 +36,15 @@ module sico_maths_m
 
   use sico_types_m
 
-#if (CALCTHK!=3  && CALCTHK!=4 && CALCTHK!=6 )
   public :: sor_sprs, tri_sle, my_erfc
-#else  
-  public :: tri_sle, my_erfc, sico_lis_solver
+#if (MARGIN==3 || DYNAMICS==2)
+  public :: sico_lis_solver
 #endif
-#if (CALCTHK!=3 && CALCTHK!=4 && CALCTHK!=6 )
+
   interface sor_sprs
      module procedure sor_sprs_stub
   end interface
-#endif
+
   interface tri_sle
      module procedure tri_sle_stub
   end interface
@@ -58,7 +57,7 @@ module sico_maths_m
      module procedure my_erfc_stub
   end interface
 
-#if (CALCTHK==3 || CALCTHK==6 || MARGIN==3 || DYNAMICS==2)
+#if (MARGIN==3 || DYNAMICS==2)
   interface sico_lis_solver
      module procedure sico_lis_solver_stub
   end interface
@@ -66,7 +65,6 @@ module sico_maths_m
 
 contains
 
-#if (CALCTHK!=3 && CALCTHK!=4 && CALCTHK!=6)
 !-------------------------------------------------------------------------------
 !> SOR solver for a system of linear equations lgs_a*lgs_x=lgs_b
 !! [matrix storage: compressed sparse row CSR,
@@ -148,8 +146,6 @@ contains
   ierr = -1   ! convergence criterion not fulfilled
 
   end subroutine sor_sprs_stub
-
-#endif
 
 !-------------------------------------------------------------------------------
 !> Solution of a system of linear equations Ax=b with tridiagonal matrix A.
@@ -263,7 +259,7 @@ contains
 
   end subroutine my_erfc_stub
 
-#if (CALCTHK==3 || CALCTHK==6 || MARGIN==3 || DYNAMICS==2)
+#if (MARGIN==3 || DYNAMICS==2)
 !-------------------------------------------------------------------------------
 !> A stub or dummy subroutine for sico_lis_solver.
 !! Note that there are no actual calls to the LIS library since it is treated

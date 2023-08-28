@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-08-03'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-08-20'
 !                      Date of last change
 
 !-------- Domain --------
@@ -193,7 +193,7 @@
 !                         kicks in (for DYNAMICS==2 and HYB_MOD==0).
 
 #define SSTA_SIA_WEIGH_FCT 2
-!                         SStA-SIA weighing factor as a function of the
+!                         SStA-SIA weighting factor as a function of the
 !                         slip ratio (for DYNAMICS==2 and HYB_MOD==0):
 !                         0 : Linear function (continuous transitions)
 !                         1 : Cubic function (smooth transitions)
@@ -524,83 +524,69 @@
 !                         0 : No evolution of the ice thickness, kept fixed on
 !                             the initial thickness
 !                         1 : Evolution of the ice thickness
-!                         2 : Evolution of the ice thickness, but between times
-!                             TIME_TARGET_TOPO_INIT0 and TIME_TARGET_TOPO_FINAL0
-!                             the ice topography (zs, zb, zl, H) is nudged
-!                             towards a prescribed target with the
-!                             relaxation time smoothly decreasing from
-!                             TARGET_TOPO_TAU0 to zero.
+!                         2 : Evolution of the ice thickness, but
+!                             the ice topography (zs, zb, zl, H) is nugded
+!                             towards a prescribed target with a
+!                             time-dependent relaxation time
+!                             read from the file TARGET_TOPO_TAU0_FILE.
 !                         3 : Evolution of the ice thickness, but
 !                             the ice topography (zs, zb, zl, H) is nugded
 !                             towards a prescribed target with the
 !                             constant relaxation time TARGET_TOPO_TAU0.
-!                         4 : Evolution of the ice thickness,
-!                             but maximum ice extent is constrained by the
-!                             prescribed mask MASK_MAXEXTENT_FILE.
 
 #define OCEAN_CONNECTIVITY 1
 !                         0 : Ocean connectivity not enforced.
 !                         1 : Ocean connectivity enforced.
 
 #define H_ISOL_MAX 1000.0d0
-!                             Maximum thickness of isolated ice points (in m)
-!                             (if set to 0.0d0, isolated ice points are killed).
+!                         Maximum thickness of isolated ice points (in m)
+!                         (if set to 0.0d0, isolated ice points are killed).
 
-#define TIME_TARGET_TOPO_INIT0 0.0d0
-!                             Initial time for nudging towards target topography
-!                             (in a; only for THK_EVOL==2)
-
-#define TIME_TARGET_TOPO_FINAL0 0.0d0
-!                             Final time for nudging towards target topography
-!                             (in a; only for THK_EVOL==2)
+#define TARGET_TOPO_TAU0_FILE 'none'
+!                         Name of the file containing the time-dependent
+!                         relaxation time for
+!                         nudging towards target topography
+!                         (only for THK_EVOL==2)
 
 #define TARGET_TOPO_TAU0 100.0d0
-!                             Relaxation time for
-!                             nudging towards target topography
-!                             (in a;
-!                              only for THK_EVOL==2, 3,
-!                              or for ACCSURFACE==7 and ABLSURFACE==7)
+!                         Relaxation time for
+!                         nudging towards target topography
+!                         (in a;
+!                          only for THK_EVOL==3,
+!                          or for ACCSURFACE==7 and ABLSURFACE==7)
 
 #define TARGET_TOPO_DAT_NAME 'none'
-!                             Target-topography file
-!                             (only for THK_EVOL==2, 3,
-!                              or for ACCSURFACE==7 and ABLSURFACE==7)
+!                         Target-topography file
+!                         (only for THK_EVOL==2, 3,
+!                          or for ACCSURFACE==7 and ABLSURFACE==7)
 
 #define MASK_MAXEXTENT_FILE 'none'
-!                             Maximum ice extent mask file (only for THK_EVOL==4)
+!                         Maximum ice extent mask file (only for THK_EVOL>=1)
+!                         ('none' if no file is to be defined)
 
 #define CALCTHK 4
 !                         Solution of the ice-thickness equation:
 !                         1 : Explicit scheme for the diffusive
 !                             SIA ice-surface equation
 !                         2 : Over-implicit scheme for the diffusive
-!                             SIA ice-surface equation,
-!                             iterative built-in SOR solver
-!                         3 : Over-implicit scheme for the diffusive
-!                             SIA ice-surface equation,
-!                             iterative library-based (Lis) solver
+!                             SIA ice-surface equation
+!                             (iterative built-in SOR solver)
 !                         4 : Explicit scheme for the general
 !                             ice-thickness equation
-!                         5 : Over-implicit scheme for the general
-!                             ice-thickness equation,
-!                             iterative built-in SOR solver
-!                         6 : Over-implicit scheme for the general
-!                             ice-thickness equation,
-!                             iterative library-based (Lis) solver
 
 #define OVI_WEIGHT 1.5d0
-!                       Weighing parameter for the over-implicit scheme
-!                       (only for CALCTHK==2, 3, 5, 6)
+!                         Weighting parameter for the over-implicit scheme
+!                         (only for CALCTHK==2)
 
 #define OMEGA_SOR 1.0d0
-!                       Relaxation parameter for the iterative SOR solver
-!                       for systems of linear equations
-!                       (0 < OMEGA_SOR < 2, only for CALCTHK==2, 5)
+!                         Relaxation parameter for the iterative SOR solver
+!                         for systems of linear equations
+!                         (0 < OMEGA_SOR < 2, only for CALCTHK==2)
 
 #define ITER_MAX_SOR 1000
-!                       Maximum number of iterations for the iterative
-!                       SOR solver for systems of linear equations
-!                       (only for CALCTHK==2, 5)
+!                         Maximum number of iterations for the iterative
+!                         SOR solver for systems of linear equations
+!                         (only for CALCTHK==2)
 
 !-------- Advection treatment in the temperature and age equations --------
 
@@ -1334,7 +1320,7 @@
 #define MEAN_ACCUM 1.0d+02
 !                       Mean accumulation rate over modelled ice sheet
 !                       (in mm water equiv./a)
-!                       [Only required in case of CALCTHK==2, 5 for
+!                       [Only required in case of CALCTHK==2 for
 !                       the convergence criterion of the SOR method.
 !                       Need not be very precise, a rough estimate is
 !                       sufficient.]

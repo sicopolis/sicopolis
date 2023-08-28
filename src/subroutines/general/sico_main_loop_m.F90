@@ -268,7 +268,7 @@ contains
   
   call calc_thk_init()
   
-#if ((MARGIN==3 || DYNAMICS==2) && (CALCTHK==1 || CALCTHK==2 || CALCTHK==3))
+#if ((MARGIN==3 || DYNAMICS==2) && (CALCTHK==1 || CALCTHK==2))
     errormsg = ' >>> sico_main_loop:' &
              //           end_of_line &
              //'          Non-SIA dynamics combined with' &
@@ -279,15 +279,13 @@ contains
   
 #if (CALCTHK==1)
     call calc_thk_sia_expl(time, dtime, dxi, deta, z_mar)
-#elif (CALCTHK==2 || CALCTHK==3)
+#elif (CALCTHK==2)
     call calc_thk_sia_impl(time, dtime, dxi, deta, z_mar, mean_accum)
 #elif (CALCTHK==4)
     call calc_thk_expl(time, dtime, dxi, deta, z_mar)
-#elif (CALCTHK==5 || CALCTHK==6)
-    call calc_thk_impl(time, dtime, dxi, deta, z_mar, mean_accum)
 #else
     errormsg = ' >>> sico_main_loop: ' &
-             //'Parameter CALCTHK must be between 1 and 6!'
+             //'Parameter CALCTHK must be 1, 2 or 4!'
     call error(errormsg)
 #endif
   
@@ -296,9 +294,9 @@ contains
 #elif (DYNAMICS==2)   /* hybrid SIA/SStA dynamics */
     call calc_thk_mask_update(time, dtime, dxi, deta, z_mar, 2)
 #else                 /* SIA-only dynamics */
-#if (CALCTHK==1 || CALCTHK==2 || CALCTHK==3)
+#if (CALCTHK==1 || CALCTHK==2)
     call calc_thk_mask_update(time, dtime, dxi, deta, z_mar, 1)
-#elif (CALCTHK==4 || CALCTHK==5 || CALCTHK==6)
+#elif (CALCTHK==4)
     call calc_thk_mask_update(time, dtime, dxi, deta, z_mar, 2)
 #endif
 #endif

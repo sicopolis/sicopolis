@@ -63,7 +63,7 @@ module sico_maths_m_diff
       module procedure my_erfc_stub_b
   end interface
 
-#if defined(BUILD_LIS) && (CALCTHK==3 || CALCTHK==6 || MARGIN==3 || DYNAMICS==2)
+#if defined(BUILD_LIS) && (MARGIN==3 || DYNAMICS==2)
   interface sico_lis_solver
       module procedure sico_lis_solver_stub
   end interface
@@ -523,7 +523,7 @@ subroutine transpose_csr(a_value, a_index, a_diag_index, a_ptr, &
 
   end subroutine my_erfc_stub
 
-#if defined(BUILD_LIS) && (CALCTHK==3 || CALCTHK==6 || MARGIN==3 || DYNAMICS==2)
+#if defined(BUILD_LIS) && (MARGIN==3 || DYNAMICS==2)
 !-------------------------------------------------------------------------------
 !> Subroutine to transpose matrix lgs_a for the LIS solver.
 !! [matrix storage: compressed sparse row CSR,

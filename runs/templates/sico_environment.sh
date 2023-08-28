@@ -2,6 +2,9 @@
 # Environment variables for SICOPOLIS
 #-------------------------------------------------------------------------------
 
+export SICO_WEBSITE="https://www.sicopolis.net"
+       #   URL of the SICOPOLIS website.
+
 export SICO_INSTITUTION="Default"
        #   Institution where SICOPOLIS is operated.
        #   Default is

@@ -78,8 +78,6 @@ save
    real(dp), dimension(0:JMAX,0:IMAX) :: H_ref_retreat
 !> r_mask_retreat(j,i): Ice-shelf collapse mask
    real(dp), dimension(0:JMAX,0:IMAX) :: r_mask_retreat
-!> smb_corr_retreat_mask(j,i): SMB correction due to the ice-shelf collapse mask
-   real(dp), dimension(0:JMAX,0:IMAX) :: smb_corr_retreat_mask
 #endif
 
 end module sico_vars_m

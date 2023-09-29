@@ -4,8 +4,8 @@
 !             (SImulation COde for POLythermal Ice Sheets)
 !
 #define       MODEL_SICOPOLIS
-#define       VERSION '5'
-#define       DATE    '2023-08-25'
+#define       VERSION '23'
+#define       DATE    '2023-09-29'
 !
 !> @mainpage
 !!

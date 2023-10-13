@@ -223,11 +223,6 @@ function compile()
    
    $MV $RUN_SPECS_HEADER $RESDIR
    
-   # Writing a revision identifier from Git
-   REV_FILE=$RESDIR/rev_id.log
-   echo -n "Git revision identifier: " > $REV_FILE
-   echo ${REPO_REVISION} >> $REV_FILE
-
    # Writing a log file with some information about the host
    HOSTINFOFILE=$RESDIR/host_info.log
    echo "Host infos:" > $HOSTINFOFILE

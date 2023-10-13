@@ -92,7 +92,7 @@ real(dp),           intent(out) :: z_mar
 
 integer(i4b)       :: i, j, kc, kt, kr, m, n, ir, jr, n1, n2
 integer(i4b)       :: ios
-integer(i4b)       :: ierr
+integer(i4b)       :: istat, ierr
 integer(i4b)       :: n_q_geo_mod
 integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_ref
 real(dp)           :: dtime0, dtime_temp0, dtime_wss0, dtime_out0, dtime_ser0
@@ -104,6 +104,7 @@ real(dp)           :: d_dummy
 character(len=256) :: anfdatname
 character(len=256) :: filename_with_path
 character(len=256) :: shell_command
+character(len=256) :: ch_revision
 character(len= 64) :: ch_var_name
 character(len=  3) :: ch_month(12)
 character          :: ch_dummy
@@ -1099,7 +1100,10 @@ write(10, fmt=trim(fmt2)) 'WRITE_SER_FILE_STAKES = ', WRITE_SER_FILE_STAKES
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
+call get_environment_variable(name='REPO_REVISION', value=ch_revision, &
+                              status=istat, trim_name=.true.)
 write(10, fmt=trim(fmt1)) 'Program version and date: '//VERSION//' / '//DATE
+write(10, fmt=trim(fmt1)) 'Git revision identifier : ' // trim(ch_revision)
 
 close(10, status='keep')
 

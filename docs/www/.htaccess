@@ -1,0 +1,4 @@
+# activate HTTPS
+RewriteEngine On
+RewriteCond %{Server_Port} !=443
+RewriteRule ^(.*)$ https://www.sicopolis.net/$1 [R=301,L]

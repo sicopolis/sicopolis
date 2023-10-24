@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-08-20'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-10-19'
 !                      Date of last change
 
 !-------- Domain --------
@@ -1003,8 +1003,8 @@
 !                         time-slice data (only for OUTPUT==2,3,
 !                         not more than 100)
 
-#define TIME_OUT0 (/ 0.0d0, 1.0d0, 10.0d0, 100.0d0, \
-                     1000.0d0, 2000.0d0, 5000.0d0, 10000.0d0 /)
+#define TIME_OUT0 [ 0.0d0, 1.0d0, 10.0d0, 100.0d0, \
+                    1000.0d0, 2000.0d0, 5000.0d0, 10000.0d0 ]
 !                         Times (in a) for writing of time-slice
 !                         data (only for OUTPUT==2,3, in increasing
 !                         order from #1 to #N_OUTPUT)

@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-08-20'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-10-19'
 !                      Date of last change
 
 !-------- Domain --------

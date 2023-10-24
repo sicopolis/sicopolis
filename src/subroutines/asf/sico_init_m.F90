@@ -1160,8 +1160,8 @@ time = time_init
 filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
                      trim(PRECIP_MM_PRESENT_FILE)
 
-ch_month = (/ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
-              'jul', 'aug', 'sep', 'oct', 'nov', 'dec' /)
+ch_month = [ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
+             'jul', 'aug', 'sep', 'oct', 'nov', 'dec' ]
 
 do n=1, 12   ! month counter
 
@@ -1193,8 +1193,8 @@ call error(errormsg)
 filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
                      trim(PRECIP_ANOM_MM_FILE)
 
-ch_month = (/ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
-              'jul', 'aug', 'sep', 'oct', 'nov', 'dec' /)
+ch_month = [ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
+             'jul', 'aug', 'sep', 'oct', 'nov', 'dec' ]
 
 do n=1, 12   ! month counter
 
@@ -1285,8 +1285,8 @@ n_slide_region = nint(field2d_aux)
 filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
                      trim(TEMP_MM_PRESENT_FILE)
 
-ch_month = (/ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
-              'jul', 'aug', 'sep', 'oct', 'nov', 'dec' /)
+ch_month = [ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
+             'jul', 'aug', 'sep', 'oct', 'nov', 'dec' ]
 
 do n=1, 12   ! month counter
 
@@ -1317,8 +1317,8 @@ call error(errormsg)
 filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
                      trim(TEMP_MM_ANOM_FILE)
 
-ch_month = (/ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
-              'jul', 'aug', 'sep', 'oct', 'nov', 'dec' /)
+ch_month = [ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
+             'jul', 'aug', 'sep', 'oct', 'nov', 'dec' ]
 
 do n=1, 12   ! month counter
 

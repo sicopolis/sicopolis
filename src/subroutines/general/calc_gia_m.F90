@@ -692,14 +692,14 @@ call check( nf90_enddef(ncid), thisroutine )
 
 !  ------ Writing variables on file
 
-nc1cor_i = (/ 1 /)
-nc1cnt_i = (/ IMAX+1 /)
+nc1cor_i = [ 1 ]
+nc1cnt_i = [ IMAX+1 ]
 
-nc1cor_j = (/ 1 /)
-nc1cnt_j = (/ JMAX+1 /)
+nc1cor_j = [ 1 ]
+nc1cnt_j = [ JMAX+1 ]
 
-nc2cor_ij = (/ 1, 1 /)
-nc2cnt_ij = (/ IMAX+1, JMAX+1 /)
+nc2cor_ij = [ 1, 1 ]
+nc2cnt_ij = [ IMAX+1, JMAX+1 ]
 
 call check( nf90_inq_varid(ncid, 'x', ncv), thisroutine )
 call check( nf90_put_var(ncid, ncv, xi, &

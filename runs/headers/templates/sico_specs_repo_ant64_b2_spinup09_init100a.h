@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-08-20'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-10-19'
 !                      Date of last change
 
 !-------- Domain --------
@@ -1144,10 +1144,10 @@
 !                       (N_BM_REGIONS separate values,
 !                        for FLOATING_ICE_BASAL_MELTING==6)
 
-#define DELTA_TF_BM (/ -0.1592d0,  0.5716d0,  0.1316d0,  0.5141d0,  0.6999d0, \
-                        0.2711d0,  0.0760d0, -0.1193d0,  0.4328d0,  1.0665d0, \
-                       -0.0054d0, -0.6644d0, -0.0553d0, -0.1235d0, -0.0588d0, \
-                        0.1001d0 /)
+#define DELTA_TF_BM [ -0.1592d0,  0.5716d0,  0.1316d0,  0.5141d0,  0.6999d0, \
+                       0.2711d0,  0.0760d0, -0.1193d0,  0.4328d0,  1.0665d0, \
+                      -0.0054d0, -0.6644d0, -0.0553d0, -0.1235d0, -0.0588d0, \
+                       0.1001d0 ]
 !                       Thermal forcing offset, in K
 !                       (N_BM_REGIONS separate values,
 !                        for FLOATING_ICE_BASAL_MELTING==6)
@@ -1207,7 +1207,7 @@
 !                       regions for ISMIP6 LARMIP
 !                       (for FLOATING_ICE_BASAL_MELTING==4,5,6)
 
-#define LARMIP_QBM_ANOM (/ 0.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0 /)
+#define LARMIP_QBM_ANOM [ 0.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0 ]
 !                       Ice-shelf basal melting rate anomaly
 !                       for LARMIP regions 1-5
 !                       (EAIS, Ross, Amundsen, Weddell, Peninsula),
@@ -1278,7 +1278,7 @@
 !                         time-slice data (only for OUTPUT==2,3,
 !                         not more than 100)
 
-#define TIME_OUT0 (/ -140100.0d0, -140000.0d0 /)
+#define TIME_OUT0 [ -140100.0d0, -140000.0d0 ]
 !                         Times (in a) for writing of time-slice
 !                         data (only for OUTPUT==2,3, in increasing
 !                         order from #1 to #N_OUTPUT)

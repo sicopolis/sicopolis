@@ -255,16 +255,16 @@ function run()
       ulimit -s unlimited
       export STACKSIZE=8192
    fi
-   
+
    local OUT=../runs/out_$RUN.dat
    info "Starting ./$EXE_FILE"
    info "         (log-output in out_$RUN.dat) ..."
 
    (time $NICE -n 19 ./${EXE_FILE}) >$OUT
    # (time $NICE -n 19 ./${EXE_FILE}) >$OUT 2>&1
-   
+
    $MV $OUT $RESDIR
-  
+
    if [ ! $SKIP_MAKECLEAN ]; then
       $RM -f ./${EXE_FILE}
       $RM -f *.mod

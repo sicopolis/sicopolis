@@ -1519,8 +1519,8 @@ end if
 
 if (flag_precip_monthly_mean) then
 
-   ch_month = (/ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
-                 'jul', 'aug', 'sep', 'oct', 'nov', 'dec' /)
+   ch_month = [ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
+                'jul', 'aug', 'sep', 'oct', 'nov', 'dec' ]
 
    do n=1, 12   ! month counter
 

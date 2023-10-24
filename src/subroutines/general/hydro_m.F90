@@ -554,12 +554,12 @@ contains
 
  ! print *, "Start at ", i,j, flux(i,j)
       dsq = sqrt(dx*dx * dy*dy)
-      dd = 1.0_dp / (/ dsq, dy, dsq, dx, 1.0_dp, dx, dsq, dy, dsq /)
+      dd = 1.0_dp / [ dsq, dy, dsq, dx, 1.0_dp, dx, dsq, dy, dsq ]
       dd(5) = 0.0_dp
 
       !TODO:
       ! change this for non equal spaced grids
-      dd((/1,3,7,9/)) = dd((/1,3,7,9/)) * sqrt(2.0_dp) / 2.0_dp
+      dd([1,3,7,9]) = dd([1,3,7,9]) * sqrt(2.0_dp) / 2.0_dp
 
       sumd = 0.0_dp
 
@@ -902,11 +902,11 @@ contains
 
     ! af in table 6 Tarboton 1997
     real(dp), parameter :: af(8) = &
-        (/ 1.0_dp, -1.0_dp, 1.0_dp, -1.0_dp, 1.0_dp, -1.0_dp, 1.0_dp, -1.0_dp /)
+        [ 1.0_dp, -1.0_dp, 1.0_dp, -1.0_dp, 1.0_dp, -1.0_dp, 1.0_dp, -1.0_dp ]
 
     ! ac in table 6 Tarboton 1997
     real(dp), parameter :: ac(8) = &
-        (/ 0.0_dp, 1.0_dp, 1.0_dp, 2.0_dp, 2.0_dp, 3.0_dp, 3.0_dp, 4.0_dp /)
+        [ 0.0_dp, 1.0_dp, 1.0_dp, 2.0_dp, 2.0_dp, 3.0_dp, 3.0_dp, 4.0_dp ]
 
     ! the main body of the calcs. finding the direction of the vector
     ! for each segment and then the angles and then the max vector

@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-08-20'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-10-19'
 !                      Date of last change
 
 !-------- Domain --------
@@ -806,7 +806,7 @@
 !                       File defining the regions for the sliding laws
 !                       (only for N_SLIDE_REGIONS > 1)
 
-#define C_SLIDE (/ 11.2d0, 5.6d-02 /)
+#define C_SLIDE [ 11.2d0, 5.6d-02 ]
 !                       Sliding coefficient, in m/[a*Pa^(p-q)]
 !                       (N_SLIDE_REGIONS separate values).
 !                       Set to 0.0d0 for no-slip conditions.
@@ -818,18 +818,18 @@
 !                       Values > 0 only make sense
 !                       for constant Weertman exponents p and q!
 
-#define GAMMA_SLIDE (/ 0.2d0, 0.2d0 /)
+#define GAMMA_SLIDE [ 0.2d0, 0.2d0 ]
 !                       Sub-melt sliding coefficient, in K
 !                       (N_SLIDE_REGIONS separate values).
 !                       Set to 1.11d+11 (or any other very large value)
 !                       to allow basal sliding everywhere,
 !                       irrespective of the basal temperature.
 
-#define P_WEERT (/ 3, 1 /)
+#define P_WEERT [ 3, 1 ]
 !                       Weertman exponent p (integer) for the basal shear stress
 !                       (N_SLIDE_REGIONS separate values)
 
-#define Q_WEERT (/ 2, 0 /)
+#define Q_WEERT [ 2, 0 ]
 !                       Weertman exponent q (integer) for the basal pressure
 !                       (N_SLIDE_REGIONS separate values)
 
@@ -1003,8 +1003,8 @@
 !                         time-slice data (only for OUTPUT==2,3,
 !                         not more than 100)
 
-#define TIME_OUT0 (/ 0.0d0, 1.0d0, 10.0d0, 100.0d0, \
-                     1000.0d0, 2000.0d0, 5000.0d0, 10000.0d0 /)
+#define TIME_OUT0 [ 0.0d0, 1.0d0, 10.0d0, 100.0d0, \
+                    1000.0d0, 2000.0d0, 5000.0d0, 10000.0d0 ]
 !                         Times (in a) for writing of time-slice
 !                         data (only for OUTPUT==2,3, in increasing
 !                         order from #1 to #N_OUTPUT)

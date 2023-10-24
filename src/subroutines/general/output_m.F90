@@ -281,32 +281,32 @@ else
    flag_compute_flux_vars_only = .false.
 end if
 
-nc1cor_i = (/ 1 /)
-nc1cnt_i = (/ IMAX+1 /)
+nc1cor_i = [ 1 ]
+nc1cnt_i = [ IMAX+1 ]
 
-nc1cor_j = (/ 1 /)
-nc1cnt_j = (/ JMAX+1 /)
+nc1cor_j = [ 1 ]
+nc1cnt_j = [ JMAX+1 ]
 
-nc1cor_kc = (/ 1 /)
-nc1cnt_kc = (/ KCMAX+1 /)
+nc1cor_kc = [ 1 ]
+nc1cnt_kc = [ KCMAX+1 ]
 
-nc1cor_kt = (/ 1 /)
-nc1cnt_kt = (/ KTMAX+1 /)
+nc1cor_kt = [ 1 ]
+nc1cnt_kt = [ KTMAX+1 ]
 
-nc1cor_kr = (/ 1 /)
-nc1cnt_kr = (/ KRMAX+1 /)
+nc1cor_kr = [ 1 ]
+nc1cnt_kr = [ KRMAX+1 ]
 
-nc2cor_ij = (/ 1, 1 /)
-nc2cnt_ij = (/ IMAX+1, JMAX+1 /)
+nc2cor_ij = [ 1, 1 ]
+nc2cnt_ij = [ IMAX+1, JMAX+1 ]
 
-nc3cor_ijkc = (/ 1, 1, 1 /)
-nc3cnt_ijkc = (/ IMAX+1, JMAX+1, KCMAX+1 /)
+nc3cor_ijkc = [ 1, 1, 1 ]
+nc3cnt_ijkc = [ IMAX+1, JMAX+1, KCMAX+1 ]
 
-nc3cor_ijkt = (/ 1, 1, 1 /)
-nc3cnt_ijkt = (/ IMAX+1, JMAX+1, KTMAX+1 /)
+nc3cor_ijkt = [ 1, 1, 1 ]
+nc3cnt_ijkt = [ IMAX+1, JMAX+1, KTMAX+1 ]
 
-nc3cor_ijkr = (/ 1, 1, 1 /)
-nc3cnt_ijkr = (/ IMAX+1, JMAX+1, KRMAX+1 /)
+nc3cor_ijkr = [ 1, 1, 1 ]
+nc3cnt_ijkr = [ IMAX+1, JMAX+1, KRMAX+1 ]
 
 !-------- Create consecutively numbered file names --------
 
@@ -1413,7 +1413,7 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
 buffer = 'Marginal ring mask'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
             thisroutine )
-nc2flag = (/ 0, 1 /)
+nc2flag = [ 0, 1 ]
 call check( nf90_put_att(ncid, ncv, 'flag_values', nc2flag), &
             thisroutine )
 buffer = 'no_ring '// &
@@ -1475,7 +1475,7 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
 buffer = 'Ice-land-sea mask'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
             thisroutine )
-nc4flag = (/ 0, 1, 2, 3 /)
+nc4flag = [ 0, 1, 2, 3 ]
 call check( nf90_put_att(ncid, ncv, 'flag_values', nc4flag), &
             thisroutine )
 buffer = 'glaciated_land '// &
@@ -1509,7 +1509,7 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
 buffer = 'Ice-land-sea mask (old)'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
             thisroutine )
-nc4flag = (/ 0, 1, 2, 3 /)
+nc4flag = [ 0, 1, 2, 3 ]
 call check( nf90_put_att(ncid, ncv, 'flag_values', nc4flag), &
             thisroutine )
 buffer = 'glaciated_land '// &
@@ -1543,7 +1543,7 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
 buffer = 'Mask indicating ablation type'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
             thisroutine )
-nc5flag = (/ -2, -1, 1, 3, 9 /)
+nc5flag = [ -2, -1, 1, 3, 9 ]
 call check( nf90_put_att(ncid, ncv, 'flag_values', nc5flag), &
             thisroutine )
 buffer = 'hidden_(ocean) '// &
@@ -1616,7 +1616,7 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
 buffer = 'Mask for polythermal conditions'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
             thisroutine )
-nc3flag = (/ -1, 0, 1 /)
+nc3flag = [ -1, 0, 1 ]
 call check( nf90_put_att(ncid, ncv, 'flag_values', nc3flag), &
             thisroutine )
 buffer = 'cold_base '// &
@@ -6436,7 +6436,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
 
       if (grads_nc_tweaks) then
 
-         nc1cor = (/ 1 /)
+         nc1cor = [ 1 ]
 
          call check( nf90_inq_varid(ncid(n), 'x', ncv), thisroutine )
          call check( nf90_put_var(ncid(n), ncv, 0.0_sp, &
@@ -7588,7 +7588,7 @@ if (n_core >= 1) then
 
       if (grads_nc_tweaks) then
 
-         nc1cor = (/ 1 /)
+         nc1cor = [ 1 ]
 
          call check( nf90_inq_varid(ncid, 'x', ncv), thisroutine )
          call check( nf90_put_var(ncid, ncv, 0.0_sp, &
@@ -7600,7 +7600,7 @@ if (n_core >= 1) then
 
       end if
 
-      nc1cor = (/ 1 /)
+      nc1cor = [ 1 ]
 
       call check( nf90_inq_varid(ncid, 'n', ncv), thisroutine )
       call check( nf90_put_var(ncid, ncv, r_n_core, &

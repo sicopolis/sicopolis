@@ -9,4 +9,4 @@ If you think you've found a bug, please check if you're using the latest version
 
 To request a new feature, or guidance on how to implement it yourself, please open a ticket with a clear explanation of what the feature will do.
 
-You can also directly contact help@sicopolis.net or, for AD-related issues, Shreyas Gaikwad (shreyas.gaikwad@utexas.edu).
+You can also directly contact info@sicopolis.net or, for AD-related issues, Shreyas Gaikwad (shreyas.gaikwad@utexas.edu).

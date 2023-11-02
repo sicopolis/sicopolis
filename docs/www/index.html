@@ -10,9 +10,7 @@
   <meta name="robots" content="index, follow">
   <title>Ice-sheet model SICOPOLIS</title>
   <link href="./styles/ralf_style.css" rel="stylesheet" type="text/css">
-  <link rel="icon" type="image/x-icon" href="./pics/sico-icecube.ico">
-  <link rel="shortcut icon" type="image/x-icon" href="./pics/sico-icecube.ico" />
-  <!-- <link type="image/x-icon" href="./pics/sico-icecube.ico" /> -->
+  <link rel="shortcut icon" type="image/x-icon" href="sico-icecube.ico">
 </HEAD>
 
 <BODY>
@@ -39,78 +37,17 @@
 
 <hr>
 
-<P>SICOPOLIS (SImulation COde for POLythermal Ice Sheets) is a 3D
-dynamic/thermodynamic model that simulates the evolution of large ice
-sheets and ice caps. It was originally created by
-<A HREF="./publ/">Greve (1997a,b)</A> in a version for the Greenland
-ice sheet. Since then, SICOPOLIS has been developed continuously and
-applied to problems of past, present and future glaciation of Greenland,
-Antarctica, the entire northern hemisphere, the polar ice caps of the
-planet Mars and others.</P>
+<P>SICOPOLIS (SImulation COde for POLythermal Ice Sheets) is a 3D dynamic/thermodynamic model that simulates the evolution of large ice sheets and ice caps. It was originally created by <A HREF="./publ/">Greve (1997a,b)</A> in a version for the Greenland ice sheet. Since then, SICOPOLIS has been developed continuously and applied to problems of past, present and future glaciation of Greenland, Antarctica, the entire northern hemisphere, the polar ice caps of the planet Mars and others.</P>
 
-<P>The model employs either hybrid shallow-ice&ndash;shelfy-stream
-dynamics (<A HREF="./publ/">Bernales et&nbsp;al. 2017a,b</A>) or the
-shallow-ice approximation for grounded ice, and the shallow-shelf
-approximation for floating ice (e.g.,
-<A HREF="http://wwwice.lowtem.hokudai.ac.jp/~greve/publist.html#Book">Greve
-and Blatter 2009</A>). It is coded in Fortran and uses finite
-difference discretization on a staggered Arakawa&nbsp;C grid. A variety
-of different thermodynamics solvers are available, namely the polythermal
-two-layer method, two versions of the one-layer enthalpy method, the
-cold-ice method and the isothermal method (<A HREF="./publ/">Greve and
-Blatter 2016</A>).</P>
+<P>The model employs either hybrid shallow-ice&ndash;shelfy-stream dynamics (<A HREF="./publ/">Bernales et&nbsp;al. 2017a,b</A>) or the shallow-ice approximation for grounded ice, and the shallow-shelf approximation for floating ice (e.g., <A HREF="./publ/other.html">Greve and Blatter 2009</A>). It is coded in Fortran and uses finite difference discretization on a staggered Arakawa&nbsp;C grid. A variety of different thermodynamics solvers are available, namely the polythermal two-layer method, two versions of the one-layer enthalpy method, the cold-ice method and the isothermal method (<A HREF="./publ/">Greve and Blatter 2016</A>).</P>
  
-<P>The coding is based on a low-tech, ease-of-use philosophy. All
-structures are kept as simple as possible, and advanced coding
-techniques are only employed where it is deemed appropriate. The use
-of external libraries is kept at an absolute minimum, which makes the
-installation very easy and fast.</P>
-
-<!-- <table align="center" cellpadding="0" cellspacing="0"
-       bgcolor="#ffffff" width=100%>
-<colgroup>
-    <col width="280">
-    <col width="25">
-    <col width="420">
-</colgroup>
-
-<tr><td valign="top">
-
-<P>Required model forcing:</P>
-
-<UL>
-  <LI> Surface mass balance
-       <BR>
-       (precipitation, evaporation, runoff).</LI>
-  <LI> Mean annual air temperature
-       <BR>
-       above the ice.</LI>
-  <LI> Eustatic sea level.</LI>
-  <LI> Geothermal heat flux.</LI>
-</UL>
-
-</td><td></td><td valign="top">
-
-<P>Main output (as functions of position and time):</P>
-
-<UL>
-  <LI> Extent and thickness of the ice sheet.</LI>
-  <LI> Velocity field.</LI>
-  <LI> Temperature field.</LI>
-  <LI> Water content field (temperate regions).</LI>
-  <LI> Age of the ice.</LI>
-  <LI> Isostatic displacement and temperature of the lithosphere.</LI>
-</UL>
-
-</td></tr></table> -->
+<P>The coding is based on a low-tech, ease-of-use philosophy. All structures are kept as simple as possible, and advanced coding techniques are only employed where it is deemed appropriate. The use of external libraries is kept at an absolute minimum, which makes the installation very easy and fast.</P>
 
 <A NAME="get"><HR></A>
 
 <P><B>Get SICOPOLIS</B></P>
 
-<P>The Git repository of SICOPOLIS is kindly hosted by the GitLab instance
-of the <A HREF="http://www.awi.de/">Alfred Wegener Institute for Polar and
-Marine Research (AWI)</A> in Bremerhaven, Germany.</P>
+<P>The Git repository of SICOPOLIS is kindly hosted by the GitLab instance of the <A HREF="http://www.awi.de/">Alfred Wegener Institute for Polar and Marine Research (AWI)</A> in Bremerhaven, Germany.</P>
 
 <UL>
   <LI> Front page: 
@@ -155,14 +92,6 @@ Marine Research (AWI)</A> in Bremerhaven, Germany.</P>
        &#8618; <A HREF="http://wwwice.lowtem.hokudai.ac.jp/repo/sicopolis/ml-old-archive/">Archive
                   of old ML (publicly accessible)</A> (until 2020-07-17).
   </LI>
-  <!-- <LI> Mailing list
-            <A HREF="http://lists.swrepo1.awi.de/cgi-bin/mailman/listinfo/sicopolis-general">SICOPOLIS-General</a>
-            &mdash; Announcements, discussions, Q&A.
-       </LI>
-       <LI> Mailing list
-            <A HREF="http://lists.swrepo1.awi.de/cgi-bin/mailman/listinfo/sicopolis-commits">SICOPOLIS-Commits</a>
-            &mdash; Automatic mailing of commit logs.
-       </LI> -->
   <LI> Alternatively, please contact
        info<img style="vertical-align:middle;" alt="&lt;at-nospam&gt;"
                 src="pics/at-nospam_13x12.png">sicopolis.net.
@@ -171,17 +100,9 @@ Marine Research (AWI)</A> in Bremerhaven, Germany.</P>
 
 <P><B>Legal notes</B></P>
 
-<P>SICOPOLIS is free and open-source software. It can be redistributed
-and/or modified under the terms of the
-<A HREF="http://www.gnu.org/licenses/">GNU General Public License</A>
-as published by the Free Software Foundation, either version&nbsp;3 of
-the License, or (at the user's option) any later version.</P>
+<P>SICOPOLIS is free and open-source software. It can be redistributed and/or modified under the terms of the <A HREF="http://www.gnu.org/licenses/">GNU General Public License</A> as published by the Free Software Foundation, either version&nbsp;3 of the License, or (at the user's option) any later version.</P>
 
-<P>SICOPOLIS is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-<A HREF="http://www.gnu.org/licenses/">GNU General Public License</A>
-for more details.</P>
+<P>SICOPOLIS is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the <A HREF="http://www.gnu.org/licenses/">GNU General Public License</A> for more details.</P>
 
 <hr>
 
@@ -208,8 +129,8 @@ for more details.</P>
 <tr><td>
 
 <p align="right">&nbsp;<br>Last modified:
-2023-10-13 by
-<A HREF="http://wwwice.lowtem.hokudai.ac.jp/~greve/">Ralf Greve</A>
+2023-11-02 by
+<A HREF="https://linktr.ee/ralfgreve">Ralf Greve</A>
 &nbsp;&nbsp;<br>&nbsp;</p>
 
 </td></tr>

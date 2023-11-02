@@ -3,6 +3,9 @@
 Test simulations
 ****************
 
+.. |nbsp| unicode:: 0xA0 
+   :trim:
+
 These are a number of computationally rather inexpensive test simulations, of which the :ref:`run-specs header files <getting_started-run_specs_headers>` are contained in the SICOPOLIS repository.
 
 Run ``repo_vialov3d25``
@@ -15,11 +18,23 @@ Run ``repo_emtp2sge25_expA``
   | SIA, resolution 25 km, :math:`t=0\ldots{}200\,\mathrm{ka}` (Payne et al. :cite:`payne_etal_2000`).
   | The thermodynamics solver for this run is the one-layer melting-CTS enthalpy scheme (ENTM), while all other runs employ the polythermal two-layer scheme (POLY) (Greve and Blatter :cite:`greve_blatter_2016`).
 
-Runs ``repo_grl16_bm5_{init100a, ss25ka}``
+Run ``repo_grl16_bm5_ss25ka``
+  | Greenland ice sheet, SIA, resolution 16 km,
+  | short steady-state run (:math:`t=0\ldots{}25\,\mathrm{ka}`) for modern climate conditions (:numref:`grl16_ss25ka_volume`; unpublished).
+
+Runs ``repo_grl16_bm5_{init100a, ss25ka_nudged}``
   | Greenland ice sheet, SIA, resolution 16 km;
   | :math:`t=-100\,\mathrm{a}\ldots{}0` for the init run without basal sliding (..._init100a),
-  | :math:`t=0\,\ldots{}25\,\mathrm{ka}` for the main run (..._ss25ka),
-  | steady-state run for modern climate conditions, free evolution during the first 10 ka, after that gradual nudging towards the slightly smoothed present-day topography computed by the init run (unpublished).
+  | :math:`t=0\,\ldots{}25\,\mathrm{ka}` for the main run (..._ss25ka_nudged),
+  | steady-state run for modern climate conditions, free evolution during the first 10 ka, after that gradual nudging towards the slightly smoothed present-day topography computed by the init run (:numref:`grl16_ss25ka_volume`; unpublished).
+
+.. _grl16_ss25ka_volume:
+.. figure:: figs/grl16_ss25ka.png
+  :width: 500 px
+  :alt: Ice volume for steady-state simulations for Greenland
+  :align: center
+
+  Ice volume for the two steady-state simulations for Greenland, repo_grl16_bm5_ss25ka (unconstrained evolution) and repo_grl16_bm5_ss25ka_nudged (topography nudging with time-dependent relaxation time after t |nbsp| = |nbsp| 10 |nbsp| ka).
 
 Run ``repo_ant40_b2_ss25ka``
   | Antarctic ice sheet without ice shelves, SIA, resolution 40 km,
@@ -68,32 +83,34 @@ Run ``repo_heino50_st``
 +=====================================+============+=====================+====================+
 | repo\_vialov3d25                    | 100 ka     | 20 a                | 1.0 min            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_emtp2sge25\_expA              | 200 ka     | 20 a                | 3.9 min            |
+| repo\_emtp2sge25\_expA              | 200 ka     | 20 a                | 4.6 min            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_grl16\_bm5\_100a              | 100 a      | 5 a                 | 7.1 sec            |
+| repo\_grl16\_bm5\_ss25ka            | 25 ka      | 5 a                 | 10.8 min           |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_grl16\_bm5\_ss25ka            | 25 ka      | 5 a                 | 9.9 min            |
+| repo\_grl16\_bm5\_init100a          | 100 a      | 5 a                 | 1.6 sec            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_ant40\_b2\_ss25ka             | 25 ka      | 10 a                | 5.1 min            |
+| repo\_grl16\_bm5\_ss25ka_nudged     | 25 ka      | 5 a                 | 10.6 min           |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_grl20\_b2\_paleo21            | 140 ka     | 5 a                 | 0.8 hrs            |
+| repo\_ant40\_b2\_ss25ka             | 25 ka      | 10 a                | 5.4 min            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_grl10\_b2\_paleo21\ :sup:`\*` | 9 ka       | 1 a                 | 1.0 hrs            |
+| repo\_grl20\_b2\_paleo21            | 140 ka     | 5 a                 | 0.9 hrs            |
++-------------------------------------+------------+---------------------+--------------------+
+| repo\_grl10\_b2\_paleo21\ :sup:`\*` | 9 ka       | 1 a                 | 1.1 hrs            |
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_grl10\_b2\_future21\_ctrl     | 100 a      | 1 a                 | 0.9 min            |
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_grl10\_b2\_future21\_asmb     | 100 a      | 1 a                 | 0.9 min            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_ant64\_b2\_spinup09\_init100a | 100 a      | 2 / 10 a\ :sup:`†`  | 4.1 sec            |
+| repo\_ant64\_b2\_spinup09\_init100a | 100 a      | 2 / 10 a\ :sup:`†`  | 4.3 sec            |
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_ant64\_b2\_spinup09\_fixtopo  | 140 ka     | 5 / 10 a\ :sup:`†`  | 0.7 hrs            |
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_ant64\_b2\_spinup09           | 500 a      | 2 / 10 a\ :sup:`†`  | 0.5 min            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_ant64\_b2\_future09\_ctrl     | 100 a      | 2 / 10 a\ :sup:`†`  | 6.3 sec            |
+| repo\_ant64\_b2\_future09\_ctrl     | 100 a      | 2 / 10 a\ :sup:`†`  | 6.2 sec            |
 +-------------------------------------+------------+---------------------+--------------------+
 
-| Table 1: Model times, time steps and computing (CPU) times for the EISMINT, Greenland and Antarctica test simulations contained in the script ``multi_sico_1.sh``, run with SICOPOLIS V5 (revision 03471067a) and the Intel Fortran Compiler 19.1 for Linux (optimization options ``-xHOST -O3 -no-prec-div``) on a 12-Core Intel Xeon Gold 6256 (3.6 GHz) PC under openSUSE Leap 15.5.
+| Table 1: Model times, time steps and computing (CPU) times for the EISMINT, Greenland and Antarctica test simulations contained in the script ``multi_sico_1.sh``, run with SICOPOLIS v23 (revision 1ea4d5055) and the Intel Fortran Compiler 19.1 for Linux (optimization options ``-xHOST -O3 -no-prec-div``) on a 12-Core Intel Xeon Gold 6256 (3.6 GHz) PC under openSUSE Leap 15.5.
 | \ :sup:`†`: If one value is given, this is the common dynamic (velocity, ice thickness) and thermodynamic (temperature, water content, age) time step. If two values are given (marked by the dagger (\ :sup:`†`) symbol), the first one is the dynamic, the second one the thermodynamic time step.
 | \ :sup:`‡`: All runs were done on a single core only. The ``repo_ant64_b2_xxx`` runs that include ice shelves can be done on multiple cores using OpenMP for the SSA solver. However, at the employed, low resolution of 64 km the solver does not scale well, and the gain in wall clock time by using multiple cores is very small.
 | \ :sup:`\*`: For this run, see the remark in the :ref:`subsection on the resolution-doubler tool <plotting_and_tools-res_dbl>`.

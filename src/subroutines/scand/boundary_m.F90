@@ -200,41 +200,15 @@ end if
 
 !-------- Sea level --------
 
-#if SEA_LEVEL==1
-!  ------ constant sea level
+#if (SEA_LEVEL==1)
+
+!  ------ Temporally constant sea level
+
 z_sl = Z_SL0
 
-#elif SEA_LEVEL==2
-!  ------ saw-tooth-shaped palaeoclimatic sea-level forcing
+#elif (SEA_LEVEL==3)
 
-z_sl_min = -130.0_dp
-
-t1 = -250000.0_dp *year2sec
-t2 = -140000.0_dp *year2sec
-t3 = -125000.0_dp *year2sec
-t4 =  -21000.0_dp *year2sec
-t5 =   -8000.0_dp *year2sec
-t6 =       0.0_dp *year2sec
-
-if (time.lt.t1) then
-   z_sl = 0.0_dp
-else if (time.lt.t2) then
-   z_sl = z_sl_min*(time-t1)/(t2-t1)
-else if (time.lt.t3) then
-   z_sl = -z_sl_min*(time-t3)/(t3-t2)
-else if (time.lt.t4) then
-   z_sl = z_sl_min*(time-t3)/(t4-t3)
-else if (time.lt.t5) then
-   z_sl = -z_sl_min*(time-t5)/(t5-t4)
-else if (time.lt.t6) then
-   z_sl = 0.0_dp
-else
-   z_sl = 0.0_dp
-end if
-
-#elif SEA_LEVEL==3
-
-!  ------ z_sl from the SPECMAP record
+!  ------ Time-dependent sea level from data
 
 if (time/year2sec.lt.real(specmap_time_min,dp)) then
    z_sl = specmap_zsl(0)
@@ -267,6 +241,11 @@ else if (time/year2sec.lt.real(specmap_time_max,dp)) then
 else
    z_sl  = specmap_zsl(ndata_specmap)
 end if
+
+#else
+
+errormsg = ' >>> boundary: Parameter SEA_LEVEL must be either 1 or 3!'
+call error(errormsg)
 
 #endif
 

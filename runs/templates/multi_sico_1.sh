@@ -110,15 +110,18 @@ function run()
    (./sico.sh ${MULTI_OPTIONS_1} -m repo_emtp2sge25_expA) \
               >out_multi_102.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_grl16_bm5_init100a) \
+   (./sico.sh ${MULTI_OPTIONS_1} -m repo_grl16_bm5_ss25ka) \
               >out_multi_103.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_grl16_bm5_ss25ka \
-              -t ${MULTI_OUTDIR}/repo_grl16_bm5_init100a) \
+   (./sico.sh ${MULTI_OPTIONS_1} -m repo_grl16_bm5_init100a) \
               >out_multi_104.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant40_b2_ss25ka) \
+   (./sico.sh ${MULTI_OPTIONS_1} -m repo_grl16_bm5_ss25ka_nudged \
+              -t ${MULTI_OUTDIR}/repo_grl16_bm5_init100a) \
               >out_multi_105.dat 2>&1
+
+   (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant40_b2_ss25ka) \
+              >out_multi_106.dat 2>&1
 
    #--------
 

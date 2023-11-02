@@ -386,17 +386,14 @@ delta_ts = temp_ma_90 - temp_ma_90_present
 !-------- Sea level --------
 
 #if (SEA_LEVEL==1)
-!  ------ constant sea level
+
+!  ------ Temporally constant sea level
+
 z_sl = Z_SL0
 
-#elif (SEA_LEVEL==2)
+#else
 
-errormsg = ' >>> boundary: SEA_LEVEL==2 not allowed for nmars application!'
-call error(errormsg)
-
-#elif (SEA_LEVEL==3)
-
-errormsg = ' >>> boundary: SEA_LEVEL==3 not allowed for nmars application!'
+errormsg = ' >>> boundary: Parameter SEA_LEVEL must be 1!'
 call error(errormsg)
 
 #endif

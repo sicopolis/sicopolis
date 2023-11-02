@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-10-19'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-10-25'
 !                      Date of last change
 
 !-------- Domain --------
@@ -994,18 +994,14 @@
 !-------- Sea level --------
 
 #define SEA_LEVEL 1
-!                         1 : Constant sea level z_sl = Z_SL0
-!                         2 : Saw-tooth-shaped sea-level forcing
-!                             with glacial minimum z_sl = -130;
-!                             for palaeoclimatic scenarios
-!                         3 : Sea-level reconstruction from data
-!                             (e.g., SPECMAP); for palaeoclimatic scenarios
+!                       1 : Constant sea level z_sl = Z_SL0
+!                       3 : Time-dependent sea level read from file
 
 #define Z_SL0 0.0d0
 !                       Constant sea level
 !                       (in m, only for SEA_LEVEL==1)
 
-#define SEA_LEVEL_FILE 'specmap_zsl_124ka_searise.dat'
+#define SEA_LEVEL_FILE 'none'
 !                       Name of the file containing the sea-level
 !                       forcing (only for SEA_LEVEL==3)
 

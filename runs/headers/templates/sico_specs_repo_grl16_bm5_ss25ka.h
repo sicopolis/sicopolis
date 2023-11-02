@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-10-19'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-10-25'
 !                      Date of last change
 
 !-------- Domain --------
@@ -526,7 +526,7 @@
 
 !-------- Evolution of the ice thickness --------
 
-#define THK_EVOL 2
+#define THK_EVOL 1
 !                         0 : No evolution of the ice thickness, kept fixed on
 !                             the initial thickness
 !                         1 : Evolution of the ice thickness
@@ -548,7 +548,7 @@
 !                         Maximum thickness of isolated ice points (in m)
 !                         (if set to 0.0d0, isolated ice points are killed).
 
-#define TARGET_TOPO_TAU0_FILE 'target_topo_tau_ss25ka.dat'
+#define TARGET_TOPO_TAU0_FILE 'none'
 !                         Name of the file containing the time-dependent
 !                         relaxation time for
 !                         nudging towards target topography
@@ -561,7 +561,7 @@
 !                          only for THK_EVOL==3,
 !                          or for ACCSURFACE==7 and ABLSURFACE==7)
 
-#define TARGET_TOPO_DAT_NAME 'repo_grl16_bm5_init100a0001.nc'
+#define TARGET_TOPO_DAT_NAME 'none'
 !                         Target-topography file
 !                         (only for THK_EVOL==2, 3,
 !                          or for ACCSURFACE==7 and ABLSURFACE==7)
@@ -994,12 +994,8 @@
 !-------- Sea level --------
 
 #define SEA_LEVEL 1
-!                         1 : Constant sea level z_sl = Z_SL0
-!                         2 : Saw-tooth-shaped sea-level forcing
-!                             with glacial minimum z_sl = -130;
-!                             for palaeoclimatic scenarios
-!                         3 : Sea-level reconstruction from data
-!                             (e.g., SPECMAP); for palaeoclimatic scenarios
+!                       1 : Constant sea level z_sl = Z_SL0
+!                       3 : Time-dependent sea level read from file
 
 #define Z_SL0 0.0d0
 !                       Constant sea level

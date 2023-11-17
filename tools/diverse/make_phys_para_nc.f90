@@ -80,7 +80,7 @@ real(dp), parameter :: very_large = 1.1111e+11_dp
 
 !-------- Settings --------
 
-ch_domain = 'CALVINGMIP'
+ch_domain = 'NPI'
 
 ! Simulated domain:
 !   ANT   - Antarctica

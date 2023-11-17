@@ -67,26 +67,6 @@
   LAMBDA0     = 1.308997d+00
 %       Reference longitude +75 deg (75 deg E) in rad
 %
-%-------- Degree-day model --------
-%
-% Format:
-% Quantity    = Value....... [% Comment]
-%
-  S_STAT_0    = 4.5d+00
-%       Standard deviation of the air termperature, in deg C
-%
-  BETA1_0     = 3.0d+00
-%       Degree-day factor for snow, in (mm WE)/(d*deg C)
-%
-  BETA2_0     = 7.0d+01
-%       Degree-day factor for ice, in (mm WE)/(d*deg C)
-%
-  PMAX_0      = 6.0d-01
-%       Saturation factor for the formation of superimposed ice
-%
-  MU_0        = 9.7155d+00
-%       Firn-warming correction, in (d*deg C)/(mm WE)
-%
 %-------- Table for rate factor A(T)
 %         (by Smith and Morland, 1981, Cold Reg. Sci. Technol. 5, 141-150)
 %         [A] = 1 (normalised to A(-10C) = 1), [T] = deg C --------

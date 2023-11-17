@@ -67,42 +67,6 @@
   LAMBDA0     = -0.785398163397448d+00
 %       Reference longitude -45 deg (45 deg W) in rad
 %
-%-------- Degree-day model --------
-%
-% Format:
-% Quantity    = Value....... [% Comment]
-%
-  S_STAT_0    =  5.0d+00
-%       Standard deviation of the air termperature, in deg C
-%
-  BETA1_LT_0  =  2.73d+00     % 3 mm IE/(d*deg C)
-%       Degree-day factor for snow at low summer temperature (<= -1 deg C),
-%       in (mm WE)/(d*deg C)
-%
-  BETA1_HT_0  =  2.73d+00     % 3 mm IE/(d*deg C)
-%       Degree-day factor for snow at high summer temperature (>= +10 deg C),
-%       in (mm WE)/(d*deg C)
-%
-  BETA2_LT_0  =  7.28d+00     % 8 mm IE/(d*deg C)
-%       Degree-day factor for ice at low summer temperature (<= -1 deg C),
-%       in (mm WE)/(d*deg C)
-%
-  BETA2_HT_0  =  7.28d+00     % 8 mm IE/(d*deg C)
-%       Degree-day factor for ice at high summer temperature (>= +10 deg C),
-%       in (mm WE)/(d*deg C)
-%
-  PHI_SEP_0   =  0.0d+00
-%       Separation latitude (in deg N) for the computation of the
-%       degree-day factors beta1 and beta2: South of PHI_SEP, only the
-%       high-temperature values are used, whereas north of PHI_SEP,
-%       beta1 and beta2 are temperature-dependent
-%
-  PMAX_0      =  6.0d-01
-%       Saturation factor for the formation of superimposed ice
-%
-  MU_0        =  9.7155d+00
-%       Firn-warming correction, in (d*deg C)/(mm WE)
-%
 %-------- Table for rate factor A(T)
 %         (by Cuffey and Paterson, "The Physics of Glaciers",
 %                                  4th ed. 2010, Sect. 3.4.6)

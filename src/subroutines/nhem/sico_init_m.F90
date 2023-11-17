@@ -756,9 +756,22 @@ write(10, fmt=trim(fmt3)) 'zs_thresh   =', ZS_THRESH
 #endif
 #endif
 
-#if (ABLSURFACE==3)
-write(10, fmt=trim(fmt3)) 'lambda_lti     =', LAMBDA_LTI
-write(10, fmt=trim(fmt3)) 'temp_lti       =', TEMP_LTI
+#if (ABLSURFACE==1 || ABLSURFACE==2)
+#if (defined(S_STAT_0) && defined(BETA1_0) && defined(BETA2_0) \
+                       && defined(PMAX_0) && defined(MU_0))
+write(10, fmt=trim(fmt3)) 's_stat =', S_STAT_0
+write(10, fmt=trim(fmt3)) 'beta1  =', BETA1_0
+write(10, fmt=trim(fmt3)) 'beta2  =', BETA2_0
+write(10, fmt=trim(fmt3)) 'Pmax   =', PMAX_0
+write(10, fmt=trim(fmt3)) 'mu     =', MU_0
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameters for PDD model not defined in run-specs header!'
+call error(errormsg)
+#endif
+#elif (ABLSURFACE==3)
+write(10, fmt=trim(fmt3)) 'lambda_lti =', LAMBDA_LTI
+write(10, fmt=trim(fmt3)) 'temp_lti   =', TEMP_LTI
 #endif
 
 write(10, fmt=trim(fmt2)) 'SEA_LEVEL  = ', SEA_LEVEL

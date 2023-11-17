@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-10-25'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-11-09'
 !                      Date of last change
 
 !-------- Domain --------
@@ -451,7 +451,7 @@
 !                         5 : Ice temperature from previous simulation
 
 #define TEMP_INIT_VAL -10.0d0
-!                         Prescribed initial temperature (in deg C)
+!                         Prescribed initial temperature (in degC)
 !                         (only for ANF_DAT==1 and TEMP_INIT==1)
 
 #define ANFDATNAME 'none'
@@ -713,25 +713,45 @@
 !-------- Surface ablation --------
 
 #define ABLSURFACE 3
-!                         1 : Ablation parameterized
-!                             by positive-degree-day (PDD) method.
-!                             Rainfall assumed to run off instantaneously.
-!                             Parameters defined in physical-parameter file.
-!                         2 : Ablation parameterized
-!                             by positive-degree-day (PDD) method.
-!                             Rainfall assumed to contribute to formation 
-!                             of superimposed ice.
-!                             Parameters defined in physical-parameter file.
-!                         3 : Ablation parameterized
-!                             by linear-temperature-index (LTI) method.
+!                       1 : Ablation parameterized
+!                           by positive-degree-day (PDD) method.
+!                           Rainfall assumed to run off instantaneously.
+!                       2 : Ablation parameterized
+!                           by positive-degree-day (PDD) method.
+!                           Rainfall assumed to contribute to formation 
+!                           of superimposed ice.
+!                       3 : Ablation parameterized
+!                           by linear-temperature-index (LTI) method.
+
+#define S_STAT_0 4.5d0
+!                       Standard deviation of the air termperature
+!                       (in degC, for ABLSURFACE==1 or 2)
+
+#define BETA1_0 3.0d0
+!                       Degree-day factor for snow
+!                       (in (mm WE)/(d*degC), for ABLSURFACE==1 or 2)
+!                                   [value equal to 3 mm IE/(d*degC)]
+
+#define BETA2_0 7.0d0
+!                       Degree-day factor for ice
+!                       (in (mm WE)/(d*degC), for ABLSURFACE==1 or 2)
+!                                   [value equal to 8 mm IE/(d*degC)]
+
+#define PMAX_0 0.6d0
+!                       Saturation factor for the formation of superimposed ice
+!                       (for ABLSURFACE==1 or 2)
+
+#define MU_0 9.7155d0
+!                       Firn-warming correction
+!                       (in (d*degC)/(mm WE), for ABLSURFACE==1 or 2)
 
 #define LAMBDA_LTI 500.0d0
 !                       Melting coefficient for the LTI method
-!                       (in (mm WE)/(a*deg C), for ABLSURFACE==3)
+!                       (in (mm WE)/(a*degC), for ABLSURFACE==3)
 
 #define TEMP_LTI -2.0d0
 !                       Threshold summer temperature for the LTI method
-!                       (in deg C, for ABLSURFACE==3)
+!                       (in degC, for ABLSURFACE==3)
 
 #define MB_ACCOUNT 1
 !                       Mass balance accounting by "hidden ablation scheme"

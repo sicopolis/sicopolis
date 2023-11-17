@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-10-25'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-11-09'
 !                      Date of last change
 
 !-------- Domain --------
@@ -436,7 +436,7 @@
 !                         5 : Ice temperature from previous simulation
 
 #define TEMP_INIT_VAL -10.0d0
-!                         Prescribed initial temperature (in deg C)
+!                         Prescribed initial temperature (in degC)
 !                         (only for ANF_DAT==1 and TEMP_INIT==1)
 
 #define ANFDATNAME 'none'
@@ -553,7 +553,7 @@
 
 !-------- Parameters for surface temperature and surface mass balance --------
 
-#define TEMP_MIN -4.0d+01   /* in deg C    */
+#define TEMP_MIN -4.0d+01   /* in degC     */
 #define S_T       2.5d-09   /* in K/km3    */
 #define X_HAT     2.0d+03   /* in km       */
 #define Y_HAT     2.0d+03   /* in km       */

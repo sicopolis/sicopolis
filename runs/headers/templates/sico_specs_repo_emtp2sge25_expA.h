@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-10-25'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-11-09'
 !                      Date of last change
 
 !-------- Domain --------
@@ -458,7 +458,7 @@
 !                         5 : Ice temperature from previous simulation
 
 #define TEMP_INIT_VAL -10.0d0
-!                         Prescribed initial temperature (in deg C)
+!                         Prescribed initial temperature (in degC)
 !                         (only for ANF_DAT==1 and TEMP_INIT==1)
 
 #define ANFDATNAME 'none'
@@ -611,13 +611,13 @@
 !                         2 : Elevation-dependent forcings
 !                             (Greve and Blatter 2009, Sect. 5.7.4)
 
-#define TEMP_MIN -3.5d+01   /* in deg C    , for SURFACE_FORCING==1 */
+#define TEMP_MIN -3.5d+01   /* in degC     , for SURFACE_FORCING==1 */
 #define S_T       1.67d-02  /* in K/km     , for SURFACE_FORCING==1 */
 #define B_MAX     5.0d-01   /* in m/a      , for SURFACE_FORCING==1 */
 #define S_B       1.0d-02   /* in m/(a*km) , for SURFACE_FORCING==1 */
 #define ELD       4.5d+02   /* in km       , for SURFACE_FORCING==1 */
 
-#define TEMP_0   -3.5d0     /* in deg C    , for SURFACE_FORCING==2 */
+#define TEMP_0   -3.5d0     /* in degC     , for SURFACE_FORCING==2 */
 #define GAMMA_T   8.0d0     /* in K/km     , for SURFACE_FORCING==2 */
 #define S_0       5.0d-01   /* in m/a      , for SURFACE_FORCING==2 */
 #define M_0       5.0d0     /* in m/(a*km) , for SURFACE_FORCING==2 */

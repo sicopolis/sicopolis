@@ -9,7 +9,7 @@
 #   copying them to the corresponding directories.
 #
 # Author: Ralf Greve
-# Date:   2023-09-29
+# Date:   2023-11-16
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #-------- Settings (to be customized) --------
@@ -43,7 +43,7 @@ MOCHO_FLAG=1     # Mocho-Choshuenco ice cap:
 REPO_URL=https://zenodo.org/record/8388199/files
 
 # Backup repo:
-# REPO_URL=http://wwwice.lowtem.hokudai.ac.jp/repo/sicopolis/sico_in
+# REPO_URL=https://www2.lowtem.hokudai.ac.jp/gisg/repo/sicopolis/sico_in
 
 SICOPOLIS_HOME=$PWD
 

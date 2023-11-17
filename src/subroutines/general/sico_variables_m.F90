@@ -658,6 +658,7 @@ save
 !> R_T: Coefficient of the water-content dependence in the rate factor
 !>      for temperate ice
    real(dp) :: R_T
+
 !> R: Mean radius of the planet
    real(dp) :: R
 !> A: Semi-major axis of the planet
@@ -671,30 +672,6 @@ save
    real(dp) :: LAMBDA0
 !> PHI0: Standard parallel of the stereographic projection
    real(dp) :: PHI0
-!> S_STAT_0: Standard deviation of the air termperature for the
-!>           degree-day model
-   real(dp) :: S_STAT_0
-!> BETA1_0: Degree-day factor for snow
-   real(dp) :: BETA1_0
-!> BETA1_LT_0: Degree-day factor for snow at low summer temperatures
-   real(dp) :: BETA1_LT_0
-!> BETA1_HT_0: Degree-day factor for snow at high summer temperatures
-   real(dp) :: BETA1_HT_0
-!> BETA2_0: Degree-day factor for ice
-   real(dp) :: BETA2_0
-!> BETA2_LT_0: Degree-day factor for ice at low summer temperatures
-   real(dp) :: BETA2_LT_0
-!> BETA2_HT_0: Degree-day factor for ice at high summer temperatures
-   real(dp) :: BETA2_HT_0
-!> PHI_SEP_0: Separation latitude for the computation of the degree-day
-!>            factors beta1 and beta2: Equatorward of phi_sep, only the
-!>            high-temperature values are used, whereas poleward of phi_sep,
-!>            beta1 and beta2 are temperature-dependent
-   real(dp) :: PHI_SEP_0
-!> PMAX_0: Saturation factor for the formation of superimposed ice
-   real(dp) :: PMAX_0
-!> MU_0: Firn-warming correction
-   real(dp) :: MU_0
 
 !> RF(n): Tabulated values for the rate factor of cold ice
    real(dp), dimension(-190:10) :: RF

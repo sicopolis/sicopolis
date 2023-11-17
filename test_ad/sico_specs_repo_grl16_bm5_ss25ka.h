@@ -4,11 +4,7 @@
 
 !-------- Basic settings --------
 
-#define SICO_VERSION '5-dev'
-!                      Version number of SICOPOLIS
-!                      for which this run-specs header is suitable
-
-#define RUN_SPECS_HEADER_LAST_CHANGED '2022-10-12'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-11-09'
 !                      Date of last change
 
 !-------- Domain --------
@@ -124,10 +120,6 @@
 !                       for the ice discharge parameterization
 !                       (only for DISC>0, ice discharge parameterization on)
 
-#define DTIME_SER0 10.0d0
-!                       Time step (in a) for writing of data to
-!                       the time-series files
-
 !!! #define YEAR_SEC 31556926.0d0
 !                       Conversion from years to seconds;
 !                       only required if supposed to be different from
@@ -207,7 +199,7 @@
 !                         kicks in (for DYNAMICS==2 and HYB_MOD==0).
 
 #define SSTA_SIA_WEIGH_FCT 1
-!                         SStA-SIA weighing factor as a function of the
+!                         SStA-SIA weighting factor as a function of the
 !                         slip ratio (for DYNAMICS==2 and HYB_MOD==0):
 !                         0 : Linear function (continuous transitions)
 !                         1 : Cubic function (smooth transitions)
@@ -472,6 +464,10 @@
 !                             [Robin (1955) solution]
 !                         5 : Ice temperature from previous simulation
 
+#define TEMP_INIT_VAL -10.0d0
+!                         Prescribed initial temperature (in degC)
+!                         (only for ANF_DAT==1 and TEMP_INIT==1)
+
 #define ANFDATNAME 'none'
 !                             Initial-value file (only for ANF_DAT==3,
 !                                  or for ANF_DAT==1 and TEMP_INIT==5)
@@ -528,93 +524,75 @@
 !                         topography (ZL_PRESENT_FILE) can be used.
 !                         !!! Not to be used regularly!!!
 
-#define Q_LITHO 0
-!                         0 : No coupled heat-conducting bedrock
-!                         1 : Coupled heat-conducting bedrock
-
 !-------- Evolution of the ice thickness --------
 
 #define THK_EVOL 1
 !                         0 : No evolution of the ice thickness, kept fixed on
 !                             the initial thickness
 !                         1 : Evolution of the ice thickness
-!                         2 : Evolution of the ice thickness, but between times
-!                             TIME_TARGET_TOPO_INIT0 and TIME_TARGET_TOPO_FINAL0
-!                             the ice topography (zs, zb, zl, H) is nudged
-!                             towards a prescribed target with the
-!                             relaxation time smoothly decreasing from
-!                             TARGET_TOPO_TAU0 to zero.
+!                         2 : Evolution of the ice thickness, but
+!                             the ice topography (zs, zb, zl, H) is nugded
+!                             towards a prescribed target with a
+!                             time-dependent relaxation time
+!                             read from the file TARGET_TOPO_TAU0_FILE.
 !                         3 : Evolution of the ice thickness, but
 !                             the ice topography (zs, zb, zl, H) is nugded
 !                             towards a prescribed target with the
 !                             constant relaxation time TARGET_TOPO_TAU0.
-!                         4 : Evolution of the ice thickness,
-!                             but maximum ice extent is constrained by the
-!                             prescribed mask MASK_MAXEXTENT_FILE.
 
 #define OCEAN_CONNECTIVITY 1
 !                         0 : Ocean connectivity not enforced.
 !                         1 : Ocean connectivity enforced.
 
 #define H_ISOL_MAX 1000.0d0
-!                             Maximum thickness of isolated ice points (in m)
-!                             (if set to 0.0d0, isolated ice points are killed).
+!                         Maximum thickness of isolated ice points (in m)
+!                         (if set to 0.0d0, isolated ice points are killed).
 
-#define TIME_TARGET_TOPO_INIT0 0.0d0
-!                             Initial time for nudging towards target topography
-!                             (in a; only for THK_EVOL==2)
-
-#define TIME_TARGET_TOPO_FINAL0 0.0d0
-!                             Final time for nudging towards target topography
-!                             (in a; only for THK_EVOL==2)
+#define TARGET_TOPO_TAU0_FILE 'none'
+!                         Name of the file containing the time-dependent
+!                         relaxation time for
+!                         nudging towards target topography
+!                         (only for THK_EVOL==2)
 
 #define TARGET_TOPO_TAU0 100.0d0
-!                             Relaxation time for
-!                             nudging towards target topography
-!                             (in a;
-!                              only for THK_EVOL==2, 3,
-!                              or for ACCSURFACE==7 and ABLSURFACE==7)
+!                         Relaxation time for
+!                         nudging towards target topography
+!                         (in a;
+!                          only for THK_EVOL==3,
+!                          or for ACCSURFACE==7 and ABLSURFACE==7)
 
 #define TARGET_TOPO_DAT_NAME 'none'
-!                             Target-topography file
-!                             (only for THK_EVOL==2, 3,
-!                              or for ACCSURFACE==7 and ABLSURFACE==7)
+!                         Target-topography file
+!                         (only for THK_EVOL==2, 3,
+!                          or for ACCSURFACE==7 and ABLSURFACE==7)
 
 #define MASK_MAXEXTENT_FILE 'none'
-!                             Maximum ice extent mask file (only for THK_EVOL==4)
+!                         Maximum ice extent mask file (only for THK_EVOL>=1)
+!                         ('none' if no file is to be defined)
 
 #define CALCTHK 2
 !                         Solution of the ice-thickness equation:
 !                         1 : Explicit scheme for the diffusive
 !                             SIA ice-surface equation
 !                         2 : Over-implicit scheme for the diffusive
-!                             SIA ice-surface equation,
-!                             iterative built-in SOR solver
-!                         3 : Over-implicit scheme for the diffusive
-!                             SIA ice-surface equation,
-!                             iterative library-based (Lis) solver
+!                             SIA ice-surface equation
+!                             (iterative built-in SOR solver)
 !                         4 : Explicit scheme for the general
 !                             ice-thickness equation
-!                         5 : Over-implicit scheme for the general
-!                             ice-thickness equation,
-!                             iterative built-in SOR solver
-!                         6 : Over-implicit scheme for the general
-!                             ice-thickness equation,
-!                             iterative library-based (Lis) solver
 
 #define OVI_WEIGHT 1.5d0
-!                       Weighing parameter for the over-implicit scheme
-!                       (only for CALCTHK==2, 3, 5, 6)
+!                         Weighting parameter for the over-implicit scheme
+!                         (only for CALCTHK==2)
 
 #define OMEGA_SOR 1.0d0
-!                       Relaxation parameter for the iterative SOR solver
-!                       for systems of linear equations
-!                       (0 < OMEGA_SOR < 2, only for CALCTHK==2, 5)
+!                         Relaxation parameter for the iterative SOR solver
+!                         for systems of linear equations
+!                         (0 < OMEGA_SOR < 2, only for CALCTHK==2)
 
 #define ITER_MAX_SOR 1000
-!                       Maximum number of iterations for the iterative
-!                       SOR solver for systems of linear equations
-!                       (only for CALCTHK==2, 5)
+!                         Maximum number of iterations for the iterative
+!                         SOR solver for systems of linear equations
+!                         (only for CALCTHK==2)
 
 !-------- Advection treatment in the temperature and age equations --------
 
@@ -827,30 +805,50 @@
 !-------- Surface ablation --------
 
 #define ABLSURFACE 2
-!                         1 : Ablation parameterized
-!                             by positive-degree-day (PDD) method.
-!                             Rainfall assumed to run off instantaneously.
-!                             Parameters defined in physical-parameter file.
-!                         2 : Ablation parameterized
-!                             by positive-degree-day (PDD) method.
-!                             Rainfall assumed to contribute to formation 
-!                             of superimposed ice.
-!                             Parameters defined in physical-parameter file.
-!                         3 : Ablation parameterized
-!                             by linear-temperature-index (LTI) method.
-!                         6 : SMB climatology and anomaly
-!                             read directly from NetCDF files
-!                             (requires TSURFACE==6, ACCSURFACE==6)
-!                         7 : Implied SMB by Calov+ (2018, Cryosphere 12)
-!                             (requires ACCSURFACE==7)
+!                       1 : Ablation parameterized
+!                           by positive-degree-day (PDD) method.
+!                           Rainfall assumed to run off instantaneously.
+!                       2 : Ablation parameterized
+!                           by positive-degree-day (PDD) method.
+!                           Rainfall assumed to contribute to formation 
+!                           of superimposed ice.
+!                       3 : Ablation parameterized
+!                           by linear-temperature-index (LTI) method.
+!                       6 : SMB climatology and anomaly
+!                           read directly from NetCDF files
+!                           (requires TSURFACE==6, ACCSURFACE==6)
+!                       7 : Implied SMB by Calov+ (2018, Cryosphere 12)
+!                           (requires ACCSURFACE==7)
+
+#define S_STAT_0 5.0d0
+!                       Standard deviation of the air termperature
+!                       (in degC, for ABLSURFACE==1 or 2)
+
+#define BETA1_0 2.73d0
+!                       Degree-day factor for snow
+!                       (in (mm WE)/(d*degC), for ABLSURFACE==1 or 2)
+!                                   [value equal to 3 mm IE/(d*degC)]
+
+#define BETA2_0 7.28d0
+!                       Degree-day factor for ice
+!                       (in (mm WE)/(d*degC), for ABLSURFACE==1 or 2)
+!                                   [value equal to 8 mm IE/(d*degC)]
+
+#define PMAX_0 0.6d0
+!                       Saturation factor for the formation of superimposed ice
+!                       (for ABLSURFACE==1 or 2)
+
+#define MU_0 9.7155d0
+!                       Firn-warming correction
+!                       (in (d*degC)/(mm WE), for ABLSURFACE==1 or 2)
 
 #define LAMBDA_LTI 500.0d0
 !                       Melting coefficient for the LTI method
-!                       (in (mm WE)/(a*deg C), for ABLSURFACE==3)
+!                       (in (mm WE)/(a*degC), for ABLSURFACE==3)
 
 #define TEMP_LTI -2.0d0
 !                       Threshold summer temperature for the LTI method
-!                       (in deg C, for ABLSURFACE==3)
+!                       (in degC, for ABLSURFACE==3)
 
 #define MB_ACCOUNT 1
 !                       Mass balance accounting by "hidden ablation scheme"
@@ -1016,12 +1014,8 @@
 !-------- Sea level --------
 
 #define SEA_LEVEL 1
-!                         1 : Constant sea level z_sl = Z_SL0
-!                         2 : Saw-tooth-shaped sea-level forcing
-!                             with glacial minimum z_sl = -130;
-!                             for palaeoclimatic scenarios
-!                         3 : Sea-level reconstruction from data
-!                             (e.g., SPECMAP); for palaeoclimatic scenarios
+!                       1 : Constant sea level z_sl = Z_SL0
+!                       3 : Time-dependent sea level read from file
 
 #define Z_SL0 0.0d0
 !                       Constant sea level
@@ -1069,6 +1063,13 @@
 !                       (N_SLIDE_REGIONS separate values).
 !                       Set to 0.0d0 for no-slip conditions.
 
+#define C_SLIDE_FILTER_WIDTH 0.0d0
+!                       Filtering width (spatial smoothing by Gaussian filter)
+!                       for the sliding coefficient, in km.
+!                       Set to 0.0d0 for no smoothing.
+!                       Values > 0 only make sense
+!                       for constant Weertman exponents p and q!
+
 #define GAMMA_SLIDE 1.0d0
 !                       Sub-melt sliding coefficient, in K
 !                       (N_SLIDE_REGIONS separate values).
@@ -1115,35 +1116,38 @@
 !                       Threshold water film thickness for water-film-enhanced
 !                       basal sliding (in m, only for BASAL_HYDROLOGY==1)
 
-!-------- Geothermal heat flux --------
-
-#define Q_GEO_MOD 2
-!                         1 : Constant geothermal heat flux defined
-!                             by parameter Q_GEO
-!                         2 : Spatially varying geothermal heat flux
-!                             read from file
+!-------- Geothermal heat flux (GHF) --------
 
 #define Q_GEO 0.0d0
-!                       Constant geothermal heat flux (for Q_GEO_MOD==1),
-!                       in mW/m2
+!                       Spatially constant GHF (in mW/m2)
+!                       (only used if Q_GEO_FILE == 'none', otherwise ignored)
 
 #define Q_GEO_FILE 'GHF_Greenland_Ver2.0_GridEPSG3413_16km.nc'
-!                       Name of the file containing the spatially varying
-!                       geothermal heat flux (for Q_GEO_MOD==2)
+!                       Name of the file containing the spatially varying GHF
+!                       (set to 'none' if spatially constant GHF
+!                       defined by parameter Q_GEO is to be used)
+
+#define Q_LITHO 0
+!                       0 : No coupled heat-conducting bedrock
+!                           (GHF imposed directly at the grounded ice base)
+!                       1 : Coupled heat-conducting bedrock
+!                           (GHF imposed at the base of the
+!                           thermal lithosphere layer of thickness H_R,
+!                           defined in the physical-parameter file)
 
 !-------- Basal melting at the marine ice front --------
 
 #define MARINE_ICE_BASAL_MELTING 1
-!                        Basal melting rate at the marine ice front:
-!                        1 : Computed by the usual energy jump condition
-!                            for grounded ice
-!                        2 : Prescribed by QBM_MARINE
-!                        3 : Weighed average of grounded ice melting (computed)
-!                            and marine ice melting (prescribed by QBM_MARINE)
+!                       Basal melting rate at the marine ice front:
+!                       1 : Computed by the usual energy jump condition
+!                           for grounded ice
+!                       2 : Prescribed by QBM_MARINE
+!                       3 : Weighed average of grounded ice melting (computed)
+!                           and marine ice melting (prescribed by QBM_MARINE)
 
 #define QBM_MARINE 2.0d0
-!                        Basal melting rate at the marine ice front,
-!                        in m/a water equiv. (for MARINE_ICE_BASAL_MELTING==2,3)
+!                       Basal melting rate at the marine ice front,
+!                       in m/a water equiv. (for MARINE_ICE_BASAL_MELTING==2,3)
 
 !-------- Basal melting for floating ice (only for MARGIN==3) --------
 
@@ -1238,19 +1242,23 @@
 !                              time-slice output with all 3-d fields for
 !                              OUTPUT==3, in which case snapshots are written)
 
+#define DTIME_SER0 10.0d0
+!                         Time step (in a) for writing of data to
+!                         the time-series files (scalar variables)
+
 #define DTIME_OUT0 0.0d0
-!                             Time step (in a) for writing of
-!                             time-slice data (only for OUTPUT==1,3)
+!                         Time step (in a) for writing of
+!                         time-slice data (only for OUTPUT==1,3)
 
 #define N_OUTPUT 3
-!                             Number of specified times for writing of
-!                             time-slice data (only for OUTPUT==2,3,
-!                             not more than 100)
+!                         Number of specified times for writing of
+!                         time-slice data (only for OUTPUT==2,3,
+!                         not more than 100)
 
-#define TIME_OUT0 (/ 0.0d0, 10000.0d0, 25000.0d0 /)
-!                             Times (in a) for writing of time-slice
-!                             data (only for OUTPUT==2,3, in increasing
-!                             order from #1 to #N_OUTPUT)
+#define TIME_OUT0 [ 0.0d0, 10000.0d0, 25000.0d0 ]
+!                         Times (in a) for writing of time-slice
+!                         data (only for OUTPUT==2,3, in increasing
+!                         order from #1 to #N_OUTPUT)
 
 !-------- Limiters etc. --------
 
@@ -1289,9 +1297,13 @@
 #define MEAN_ACCUM 3.0d+02
 !                       Mean accumulation rate over modelled ice sheet
 !                       (in mm water equiv./a)
-!                       [Only required in case of CALCTHK==2, 5 for
+!                       [Only required in case of CALCTHK==2 for
 !                       the convergence criterion of the SOR method.
 !                       Need not be very precise, a rough estimate is
 !                       sufficient.]
+
+!-------------------------------------------------------------------------------
+
 #define ALLOW_COST
+
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

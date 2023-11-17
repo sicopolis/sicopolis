@@ -67,42 +67,6 @@
   LAMBDA0     = -0.785398163397448d+00
 %       Reference longitude -45 deg (45 deg W) in rad
 %
-%-------- Degree-day model --------
-%
-% Format:
-% Quantity    = Value....... [% Comment]
-%
-  S_STAT_0    =  4.5d+00      % Tarasov's value: 5.2d+00
-%       Standard deviation of the air termperature, in deg C
-%
-  BETA1_LT_0  =  3.0d+00      % Tarasov's value: 2.41d+00
-%       Degree-day factor for snow at low summer temperature (<= -1 deg C),
-%       in (mm WE)/(d*deg C)
-%
-  BETA1_HT_0  =  3.0d+00      % Tarasov's value: 3.91d+00
-%       Degree-day factor for snow at high summer temperature (>= +10 deg C),
-%       in (mm WE)/(d*deg C)
-%
-  BETA2_LT_0  = 15.0d+00      % Tarasov's value: 15.67d+00
-%       Degree-day factor for ice at low summer temperature (<= -1 deg C),
-%       in (mm WE)/(d*deg C)
-%
-  BETA2_HT_0  =  7.0d+00      % Tarasov's value: 7.55d+00
-%       Degree-day factor for ice at high summer temperature (>= +10 deg C),
-%       in (mm WE)/(d*deg C)
-%
-  PHI_SEP_0   = 72.0d+00
-%       Separation latitude (in deg N) for the computation of the
-%       degree-day factors beta1 and beta2: South of PHI_SEP, only the
-%       high-temperature values are used, whereas north of PHI_SEP,
-%       beta1 and beta2 are temperature-dependent
-%
-  PMAX_0      =  6.0d-01
-%       Saturation factor for the formation of superimposed ice
-%
-  MU_0        =  9.7155d+00
-%       Firn-warming correction, in (d*deg C)/(mm WE)
-%
 %-------- Table for rate factor A(T)
 %         (by Smith and Morland, 1981, Cold Reg. Sci. Technol. 5, 141-150)
 %         [A] = 1 (normalised to A(-10C) = 1), [T] = deg C --------

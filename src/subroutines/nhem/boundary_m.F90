@@ -409,8 +409,14 @@ temp_rain = 2.0_dp      ! Threshold instantaneous temperature for &
 temp_snow = temp_rain   ! Threshold instantaneous temperature for &
                         ! precipitation = 100% snow, in deg C
 
-s_stat    = S_STAT_0    ! Standard deviation of the air termperature
-                        ! (same parameter as in the PDD model)
+#if (defined(S_STAT_0))
+s_stat = S_STAT_0    ! Standard deviation of the air termperature
+                     ! (same parameter as in the PDD model)
+#else
+errormsg = ' >>> boundary: ' &
+           // 'Parameters for PDD model not defined in run-specs header!'
+call error(errormsg)
+#endif
 
 inv_sqrt2_s_stat = 1.0_dp/(sqrt(2.0_dp)*s_stat)
 
@@ -418,6 +424,8 @@ inv_sqrt2_s_stat = 1.0_dp/(sqrt(2.0_dp)*s_stat)
 
 #if (ABLSURFACE==1 || ABLSURFACE==2)
 
+#if (defined(S_STAT_0) && defined(BETA1_0) && defined(BETA2_0) \
+                       && defined(PMAX_0) && defined(MU_0))
 s_stat = S_STAT_0
 beta1  = BETA1_0  *(0.001_dp/86400.0_dp)*(RHO_W/RHO)
                         ! (mm WE)/(d*deg C) --> (m IE)/(s*deg C)
@@ -426,6 +434,11 @@ beta2  = BETA2_0  *(0.001_dp/86400.0_dp)*(RHO_W/RHO)
 Pmax   = PMAX_0
 mu     = MU_0     *(1000.0_dp*86400.0_dp)*(RHO/RHO_W)
                         ! (d*deg C)/(mm WE) --> (s*deg C)/(m IE)
+#else
+errormsg = ' >>> boundary: ' &
+           // 'Parameters for PDD model not defined in run-specs header!'
+call error(errormsg)
+#endif
 
 #elif (ABLSURFACE==3)
 

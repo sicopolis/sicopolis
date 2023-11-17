@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-10-25'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-11-09'
 !                      Date of last change
 
 !-------- Domain --------
@@ -469,7 +469,7 @@
 !                         5 : Ice temperature from previous simulation
 
 #define TEMP_INIT_VAL -100.0d0
-!                         Prescribed initial temperature (in deg C)
+!                         Prescribed initial temperature (in degC)
 !                         (only for ANF_DAT==1 and TEMP_INIT==1)
 
 #define ANFDATNAME 'none'
@@ -695,14 +695,14 @@
 !-------- Surface ablation --------
 
 #define ABLSURFACE 1
-!                         1 : Ablation parameterized
-!                             by equilibrium-line-distance approach.
-!                             Equilibrium-line distance coupled linearly
-!                             to delta_ts, coupling parameter GAMMA_ELD
-!                         2 : Ablation parameterized
-!                             by equilibrium-line-distance approach.
-!                             Equilibrium-line distance coupled exponentially
-!                             to delta_ts, coupling parameter GAMMA_ELD
+!                       1 : Ablation parameterized
+!                           by equilibrium-line-distance approach.
+!                           Equilibrium-line distance coupled linearly
+!                           to delta_ts, coupling parameter GAMMA_ELD
+!                       2 : Ablation parameterized
+!                           by equilibrium-line-distance approach.
+!                           Equilibrium-line distance coupled exponentially
+!                           to delta_ts, coupling parameter GAMMA_ELD
 
 #define ELD_0 5.5d+02
 !                       Present equilibrium-line distance for the ablation

@@ -8,7 +8,7 @@
 !!
 !! @section Date
 !!
-!! 2023-08-26
+!! 2023-11-09
 !!
 !! @section Copyright
 !!
@@ -58,9 +58,7 @@ integer, parameter :: dp  = kind(1.0d0)            ! double-precision reals
 
 real(dp) :: RHO, RHO_W, RHO_SW, L, G, NUE, BETA, DELTA_TM_SW, OMEGA_MAX, &
             H_R, RHO_C_R, KAPPA_R, RHO_A, R_T, &
-            R, A, B, F_INV, LOND0, LATD0, &
-            S_STAT_0, BETA1_0, BETA2_0, PMAX_0, MU_0, &
-            BETA1_LT_0, BETA1_HT_0, BETA2_LT_0, BETA2_HT_0, PHI_SEP_0
+            R, A, B, F_INV, LOND0, LATD0
 
 real(dp), dimension(-190:10) :: RF, KAPPA, C
 
@@ -100,7 +98,6 @@ ch_domain = 'CALVINGMIP'
 !   VIALOV     - 3D Vialov profile
 !   HEINO      - ISMIP HEINO
 
-!   FIIC   - Flade Isblink ice cap
 !   MOCHO  - Mocho-Choshuenco ice cap
 !   NPI    - North Patagonian ice field
 !   SHMARS - Southern hemisphere of Mars
@@ -224,7 +221,7 @@ select case(ch_domain)
    case ('ASF')
       LATD0 = 79.7208_dp
       LOND0 = 15.0_dp   ! central median of UTM33
-   case ('GRL', 'FIIC')
+   case ('GRL')
       LATD0 =  70.0_dp
       LOND0 = -45.0_dp
    case ('NHEM')
@@ -258,52 +255,6 @@ end select
 !        \!/ In the ASCII files, this is called PHI0 (in rad) \!/
 ! LOND0: Reference longitude (degrees E)
 !        \!/ In the ASCII files, this is called LAMBDA0 (in rad) \!/
-
-!  ------ Degree-day model
-
-S_STAT_0 = 5.0_dp
-! Standard deviation of the air termperature, in degC
-
-select case(ch_domain)
-
-   case ('GRL')
-
-      BETA1_LT_0 = 2.73_dp     ! 3 mm IE/(d*degC)
-      ! Degree-day factor for snow at low summer temperature (<= -1 degC),
-      ! in (mm WE)/(d*degC)
-
-      BETA1_HT_0 = 2.73_dp     ! 3 mm IE/(d*degC)
-      ! Degree-day factor for snow at high summer temperature (>= +10 degC),
-      ! in (mm WE)/(d*degC)
-
-      BETA2_LT_0 = 7.28_dp     ! 8 mm IE/(d*degC)
-      ! Degree-day factor for ice at low summer temperature (<= -1 degC),
-      ! in (mm WE)/(d*degC)
-
-      BETA2_HT_0 = 7.28_dp     ! 8 mm IE/(d*degC)
-      ! Degree-day factor for ice at high summer temperature (>= +10 degC),
-      ! in (mm WE)/(d*degC)
-
-      PHI_SEP_0 = 0.0_dp
-      ! Separation latitude (in deg N) for the computation of the
-      ! degree-day factors beta1 and beta2: South of PHI_SEP, only the
-      ! high-temperature values are used, whereas north of PHI_SEP,
-      ! beta1 and beta2 are temperature-dependent
-
-   case default
-      
-      BETA1_0 = 3.0_dp
-      ! Degree-day factor for snow, in (mm WE)/(d*degC)
-      BETA2_0 = 8.0_dp
-      ! Degree-day factor for ice, in (mm WE)/(d*degC)
-
-end select
-
-PMAX_0 = 0.6_dp
-! Saturation factor for the formation of superimposed ice
-
-MU_0 = 9.7155_dp
-! Firn-warming correction, in (d*degC)/(mm WE)
 
 !  ------ Rate factor RF(T)
 !         [RF] = 1/(s*Pa3), [T] = degC
@@ -584,114 +535,6 @@ istat = nf90_put_att(ncid, varid(25), 'units', 'degrees_E')
 istat = nf90_put_att(ncid, varid(25), 'standard_name', 'central_meridian')
 istat = nf90_put_att(ncid, varid(25), 'long_name', 'Central meridian')
 
-istat = nf90_def_var(ncid, 'S_STAT_0', NF90_DOUBLE, varid(31))
-
-istat = nf90_put_att(ncid, varid(31), 'units', 'degC')
-istat = nf90_put_att(ncid, varid(31), &
-   'standard_name', &
-   'air_temperature_standard_deviation')
-istat = nf90_put_att(ncid, varid(31), &
-   'long_name', &
-   'Standard deviation of the air temperature')
-
-select case(ch_domain)
-
-   case ('GRL')
-
-      istat = nf90_def_var(ncid, 'BETA1_LT_0', NF90_DOUBLE, varid(34))
-
-      istat = nf90_put_att(ncid, varid(34), 'units', 'mmWE d-1 degC-1')
-      istat = nf90_put_att(ncid, varid(34), &
-         'standard_name', &
-         'snow_degree_day_factor_low_summer_temperature')
-      istat = nf90_put_att(ncid, varid(34), &
-         'long_name', &
-         'Degree-day factor for snow at low summer temperature')
-
-      istat = nf90_def_var(ncid, 'BETA1_HT_0', NF90_DOUBLE, varid(35))
-
-      istat = nf90_put_att(ncid, varid(35), 'units', 'mmWE d-1 degC-1')
-      istat = nf90_put_att(ncid, varid(35), &
-         'standard_name', &
-         'snow_degree_day_factor_high_summer_temperature')
-      istat = nf90_put_att(ncid, varid(35), &
-         'long_name', &
-         'Degree-day factor for snow at high summer temperature')
-
-      istat = nf90_def_var(ncid, 'BETA2_LT_0', NF90_DOUBLE, varid(36))
-
-      istat = nf90_put_att(ncid, varid(36), 'units', 'mmWE d-1 degC-1')
-      istat = nf90_put_att(ncid, varid(36), &
-         'standard_name', &
-         'ice_degree_day_factor_low_summer_temperature')
-      istat = nf90_put_att(ncid, varid(36), &
-         'long_name', &
-         'Degree-day factor for ice at low summer temperature')
-
-      istat = nf90_def_var(ncid, 'BETA2_HT_0', NF90_DOUBLE, varid(37))
-
-      istat = nf90_put_att(ncid, varid(37), 'units', 'mmWE d-1 degC-1')
-      istat = nf90_put_att(ncid, varid(37), &
-         'standard_name', &
-         'ice_degree_day_factor_high_summer_temperature')
-      istat = nf90_put_att(ncid, varid(37), &
-         'long_name', &
-         'Degree-day factor for ice at high summer temperature')
-
-      istat = nf90_def_var(ncid, 'PHI_SEP_0', NF90_DOUBLE, varid(38))
-
-      istat = nf90_put_att(ncid, varid(38), 'units', 'degrees_N')
-      istat = nf90_put_att(ncid, varid(38), &
-         'standard_name', &
-         'degree_day_factor_separation_latitude')
-      istat = nf90_put_att(ncid, varid(38), &
-         'long_name', &
-         'Separation latitude for the degree-day factors')
-
-   case default
-      
-      istat = nf90_def_var(ncid, 'BETA1_0', NF90_DOUBLE, varid(32))
-
-      istat = nf90_put_att(ncid, varid(32), 'units', 'mmWE d-1 degC-1')
-      istat = nf90_put_att(ncid, varid(32), &
-         'standard_name', &
-         'snow_degree_day_factor')
-      istat = nf90_put_att(ncid, varid(32), &
-         'long_name', &
-         'Degree-day factor for snow')
-      
-      istat = nf90_def_var(ncid, 'BETA2_0', NF90_DOUBLE, varid(33))
-
-      istat = nf90_put_att(ncid, varid(33), 'units', 'mmWE d-1 degC-1')
-      istat = nf90_put_att(ncid, varid(33), &
-         'standard_name', &
-         'ice_degree_day_factor')
-      istat = nf90_put_att(ncid, varid(33), &
-         'long_name', &
-         'Degree-day factor for ice')
-      
-end select
-
-istat = nf90_def_var(ncid, 'PMAX_0', NF90_DOUBLE, varid(39))
-
-istat = nf90_put_att(ncid, varid(39), 'units', '-')
-istat = nf90_put_att(ncid, varid(39), &
-   'standard_name', &
-   'superimposed_ice_formation_saturation_factor')
-istat = nf90_put_att(ncid, varid(39), &
-   'long_name', &
-   'Saturation factor for the formation of superimposed ice')
-
-istat = nf90_def_var(ncid, 'MU_0', NF90_DOUBLE, varid(40))
-
-istat = nf90_put_att(ncid, varid(40), 'units', 'd degC mmWE-1')
-istat = nf90_put_att(ncid, varid(40), &
-   'standard_name', &
-   'firn_warming_correction')
-istat = nf90_put_att(ncid, varid(40), &
-   'long_name', &
-   'Firn-warming correction')
-
 istat = nf90_def_var(ncid, 'RF', NF90_DOUBLE, ncd, varid(51))
 
 istat = nf90_put_att(ncid, varid(51), 'units', 's-1 Pa-3')
@@ -734,21 +577,6 @@ istat = nf90_put_var(ncid, varid(22), A)
 istat = nf90_put_var(ncid, varid(23), F_INV)
 istat = nf90_put_var(ncid, varid(24), LATD0)
 istat = nf90_put_var(ncid, varid(25), LOND0)
-
-istat = nf90_put_var(ncid, varid(31), S_STAT_0)
-select case(ch_domain)
-   case ('GRL')
-      istat = nf90_put_var(ncid, varid(34), BETA1_LT_0)
-      istat = nf90_put_var(ncid, varid(35), BETA1_HT_0)
-      istat = nf90_put_var(ncid, varid(36), BETA2_LT_0)
-      istat = nf90_put_var(ncid, varid(37), BETA2_HT_0)
-      istat = nf90_put_var(ncid, varid(38), PHI_SEP_0)
-   case default
-      istat = nf90_put_var(ncid, varid(32), BETA1_0)
-      istat = nf90_put_var(ncid, varid(33), BETA2_0)
-end select
-istat = nf90_put_var(ncid, varid(39), PMAX_0)
-istat = nf90_put_var(ncid, varid(40), MU_0)
 
 istat = nf90_put_var(ncid, varid(51), RF)
 istat = nf90_put_var(ncid, varid(52), KAPPA)

@@ -116,10 +116,7 @@ real(dp) :: gamma_p, zs_thresh, &
             temp_rain, temp_snow, &
             inv_delta_temp_rain_snow, coeff(0:5), inv_sqrt2_s_stat, &
             precip_fact, frac_solid
-real(dp) :: s_stat, &
-            phi_sep, temp_lt, temp_ht, inv_delta_temp_ht_lt, &
-            beta1_lt, beta1_ht, beta2_lt, beta2_ht, &
-            beta1, beta2, Pmax, mu, lambda_lti, temp_lti
+real(dp) :: s_stat, beta1, beta2, Pmax, mu, lambda_lti, temp_lti
 real(dp) :: r_aux
 character(len=256) :: ch_aux
 logical, dimension(0:JMAX,0:IMAX) :: check_point
@@ -920,8 +917,14 @@ temp_rain = 2.0_dp      ! Threshold instantaneous temperature for &
 temp_snow = temp_rain   ! Threshold instantaneous temperature for &
                         ! precipitation = 100% snow, in deg C
 
-s_stat    = S_STAT_0    ! Standard deviation of the air termperature
-                        ! (same parameter as in the PDD model)
+#if (defined(S_STAT_0))
+s_stat = S_STAT_0    ! Standard deviation of the air termperature
+                     ! (same parameter as in the PDD model)
+#else
+errormsg = ' >>> boundary: ' &
+           // 'Parameters for PDD model not defined in run-specs header!'
+call error(errormsg)
+#endif
 
 inv_sqrt2_s_stat = 1.0_dp/(sqrt(2.0_dp)*s_stat)
 
@@ -931,25 +934,21 @@ inv_sqrt2_s_stat = 1.0_dp/(sqrt(2.0_dp)*s_stat)
 
 #if (ABLSURFACE==1 || ABLSURFACE==2)
 
-s_stat   = S_STAT_0
-
-phi_sep  = PHI_SEP_0*deg2rad   ! separates different domains for computation of
-                               ! degree-day factors beta1 and beta2
-temp_lt  = -1.0_dp
-temp_ht  = 10.0_dp
-inv_delta_temp_ht_lt = 1.0_dp/(temp_ht-temp_lt)
-
-beta1_lt = BETA1_LT_0  *(0.001_dp/86400.0_dp)*(RHO_W/RHO)
+#if (defined(S_STAT_0) && defined(BETA1_0) && defined(BETA2_0) \
+                       && defined(PMAX_0) && defined(MU_0))
+s_stat = S_STAT_0
+beta1  = BETA1_0  *(0.001_dp/86400.0_dp)*(RHO_W/RHO)
                            ! (mm WE)/(d*deg C) --> (m IE)/(s*deg C)
-beta1_ht = BETA1_HT_0  *(0.001_dp/86400.0_dp)*(RHO_W/RHO)
+beta2  = BETA2_0  *(0.001_dp/86400.0_dp)*(RHO_W/RHO)
                            ! (mm WE)/(d*deg C) --> (m IE)/(s*deg C)
-beta2_lt = BETA2_LT_0  *(0.001_dp/86400.0_dp)*(RHO_W/RHO)
-                           ! (mm WE)/(d*deg C) --> (m IE)/(s*deg C)
-beta2_ht = BETA2_HT_0  *(0.001_dp/86400.0_dp)*(RHO_W/RHO)
-                           ! (mm WE)/(d*deg C) --> (m IE)/(s*deg C)
-Pmax     = PMAX_0
-mu       = MU_0        *(1000.0_dp*86400.0_dp)*(RHO/RHO_W)
+Pmax   = PMAX_0
+mu     = MU_0     *(1000.0_dp*86400.0_dp)*(RHO/RHO_W)
                            ! (d*deg C)/(mm WE) --> (s*deg C)/(m IE)
+#else
+errormsg = ' >>> boundary: ' &
+           // 'Parameters for PDD model not defined in run-specs header!'
+call error(errormsg)
+#endif
 
 #elif (ABLSURFACE==3)
 
@@ -962,34 +961,6 @@ mu         = 0.0_dp      ! no superimposed ice considered
 
 do i=0, IMAX
 do j=0, JMAX
-
-#if (ABLSURFACE==1 || ABLSURFACE==2)
-
-   if (phi(j,i) <= phi_sep) then
-
-         beta1 = beta1_ht
-         beta2 = beta2_ht
-
-   else
-
-      if (temp_mm(j,i,7) >= temp_ht) then
-         beta1 = beta1_ht
-         beta2 = beta2_ht
-      else if (temp_mm(j,i,7) <= temp_lt) then
-         beta1 = beta1_lt
-         beta2 = beta2_lt
-      else
-         beta1 = beta1_lt &
-                 + (beta1_ht-beta1_lt) &
-                   *inv_delta_temp_ht_lt*(temp_mm(j,i,7)-temp_lt)
-         beta2 = beta2_ht &
-                 + (beta2_lt-beta2_ht) &
-                   *(inv_delta_temp_ht_lt*(temp_ht-temp_mm(j,i,7)))**3
-      end if
-
-   end if
-
-#endif
 
 !  ------ Accumulation
 

@@ -239,8 +239,8 @@ call error(errormsg)
 
 temp_0    = TEMP_0                           ! deg C
 gamma_t   = GAMMA_T   *1.0e-03_dp            ! K/km -> K/m
-s_0       = S_0       /year2sec              ! m/a -> m/s
-m_0       = M_0       *1.0e-03_dp/year2sec   ! m/(a*km) -> 1/s
+s_0       = S_0       *sec2year              ! m/a -> m/s
+m_0       = M_0       *1.0e-03_dp*sec2year   ! m/(a*km) -> 1/s
 ela       = ELA       *1.0e+03_dp            ! km -> m
 #if (defined(DELA_DTS))
   dela_dts = DELA_DTS                        ! m/degC
@@ -252,8 +252,8 @@ ela       = ELA       *1.0e+03_dp            ! km -> m
 
 temp_0    = TEMP_0                           ! deg C
 gamma_t   = GAMMA_T   *1.0e-03_dp            ! K/km -> K/m
-s_0       = S_0       /year2sec              ! m/a -> m/s
-m_0       = M_0       *1.0e-03_dp/year2sec   ! m/(a*km) -> 1/s
+s_0       = S_0       *sec2year              ! m/a -> m/s
+m_0       = M_0       *1.0e-03_dp*sec2year   ! m/(a*km) -> 1/s
 ela       = ELA       *1.0e+03_dp            ! km -> m
 ela_amp	  = ELA_AMP			     ! m
 #if (defined(DELA_DTS))
@@ -269,8 +269,8 @@ y_gip	  = Y_GIP			     ! m
 
 temp_0    = TEMP_0                           ! deg C
 gamma_t   = GAMMA_T   *1.0e-03_dp            ! K/km -> K/m
-s_0       = S_0       /year2sec              ! m/a -> m/s
-m_0       = M_0       *1.0e-03_dp/year2sec   ! m/(a*km) -> 1/s
+s_0       = S_0       *sec2year              ! m/a -> m/s
+m_0       = M_0       *1.0e-03_dp*sec2year   ! m/(a*km) -> 1/s
 ela       = ELA       *1.0e+03_dp            ! km -> m
 ela_amp	  = ELA_AMP			     ! m
 #if (defined(DELA_DTS))
@@ -281,15 +281,15 @@ ela_amp	  = ELA_AMP			     ! m
 phi_0	  = PHI_0     *deg2rad               ! deg -> rad
 x_gip	  = X_GIP			     ! m
 y_gip	  = Y_GIP			     ! m
-m_1       = M_1       *1.0e-03_dp/year2sec   ! m/(a*km) -> 1/s
+m_1       = M_1       *1.0e-03_dp*sec2year   ! m/(a*km) -> 1/s
 z_gc      = Z_GC      *1.0e+03_dp            ! km -> m
 
 #elif (SURFACE_FORCING==5)
 
 temp_0    = TEMP_0                           ! deg C
 gamma_t   = GAMMA_T   *1.0e-03_dp            ! K/km -> K/m
-s_0       = S_0       /year2sec              ! m/a -> m/s
-m_0       = M_0       *1.0e-03_dp/year2sec   ! m/(a*km) -> 1/s
+s_0       = S_0       *sec2year              ! m/a -> m/s
+m_0       = M_0       *1.0e-03_dp*sec2year   ! m/(a*km) -> 1/s
 ela       = ELA       *1.0e+03_dp            ! km -> m
 ela_amp	  = ELA_AMP			     ! m
 #if (defined(DELA_DTS))
@@ -298,15 +298,15 @@ ela_amp	  = ELA_AMP			     ! m
   dela_dts = 0.0_dp                          ! m/degC
 #endif
 phi_0	  = PHI_0     *deg2rad               ! deg -> rad
-m_1       = M_1       *1.0e-03_dp/year2sec   ! m/(a*km) -> 1/s
+m_1       = M_1       *1.0e-03_dp*sec2year   ! m/(a*km) -> 1/s
 z_gc      = Z_GC      *1.0e+03_dp            ! km -> m
 
 #elif (SURFACE_FORCING==6)
 
 temp_0    = TEMP_0                           ! deg C
 gamma_t   = GAMMA_T   *1.0e-03_dp            ! K/km -> K/m
-s_0       = S_0       /year2sec              ! m/a -> m/s
-m_0       = M_0       *1.0e-03_dp/year2sec   ! m/(a*km) -> 1/s
+s_0       = S_0       *sec2year              ! m/a -> m/s
+m_0       = M_0       *1.0e-03_dp*sec2year   ! m/(a*km) -> 1/s
 ela       = ELA       *1.0e+03_dp            ! km -> m
 ela_amp	  = ELA_AMP			     ! m
 #if (defined(DELA_DTS))
@@ -321,8 +321,8 @@ tgt       = TGT     			     ! deg
 
 temp_0    = TEMP_0                           ! deg C
 gamma_t   = GAMMA_T   *1.0e-03_dp            ! K/km -> K/m
-s_0       = S_0       /year2sec              ! m/a -> m/s
-m_0       = M_0       *1.0e-03_dp/year2sec   ! m/(a*km) -> 1/s
+s_0       = S_0       *sec2year              ! m/a -> m/s
+m_0       = M_0       *1.0e-03_dp*sec2year   ! m/(a*km) -> 1/s
 ela       = ELA       *1.0e+03_dp            ! km -> m
 ela_amp	  = ELA_AMP			     ! m
 #if (defined(DELA_DTS))
@@ -336,8 +336,8 @@ phi_0	  = PHI_0     *deg2rad               ! deg -> rad
 
 temp_0    = TEMP_0                           ! deg C
 gamma_t   = GAMMA_T   *1.0e-03_dp            ! K/km -> K/m
-s_0       = S_0       /year2sec              ! m/a -> m/s
-m_0       = M_0       *1.0e-03_dp/year2sec   ! m/(a*km) -> 1/s
+s_0       = S_0       *sec2year              ! m/a -> m/s
+m_0       = M_0       *1.0e-03_dp*sec2year   ! m/(a*km) -> 1/s
 ela       = ELA       *1.0e+03_dp            ! km -> m
 ela_amp	  = ELA_AMP			     ! m
 #if (defined(DELA_DTS))
@@ -837,7 +837,11 @@ write(10, fmt=trim(fmt1)) 'zl0 file          = '//ZL0_FILE
 write(10, fmt=trim(fmt1)) 'mask_present file = '//MASK_PRESENT_FILE
 #endif
 #if (defined(MASK_REGION_FILE))
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
    write(10, fmt=trim(fmt1)) 'mask_region file = '//MASK_REGION_FILE
    write(10, fmt=trim(fmt1)) ' '
 end if
@@ -920,7 +924,11 @@ write(10, fmt=trim(fmt3)) 'ela      =', ELA
 write(10, fmt=trim(fmt1)) ' '
 
 #if (defined(SMB_CORR_FILE))
-if ( trim(adjustl(SMB_CORR_FILE)) /= 'none' ) then
+if ( (trim(adjustl(SMB_CORR_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(SMB_CORR_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(SMB_CORR_FILE)) /= 'NONE') ) then
    write(10, fmt=trim(fmt1)) 'smb_corr_file = '//SMB_CORR_FILE
    write(10, fmt=trim(fmt1)) ' '
 end if
@@ -1317,7 +1325,7 @@ n_slide_region = nint(field2d_aux)
 
 !-------- Mean accumulation --------
 
-mean_accum = MEAN_ACCUM*(1.0e-03_dp/year2sec)*(RHO_W/RHO)
+mean_accum = MEAN_ACCUM*(1.0e-03_dp*sec2year)*(RHO_W/RHO)
 !                      ! mm/a water equiv. --> m/s ice equiv.
 
 !-------- Reading of the prescribed target topography --------
@@ -1380,7 +1388,11 @@ smb_corr_in = 0.0_dp
 
 #if (defined(SMB_CORR_FILE))
 
-if (trim(adjustl(SMB_CORR_FILE)) /= 'none') then
+if ( (trim(adjustl(SMB_CORR_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(SMB_CORR_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(SMB_CORR_FILE)) /= 'NONE') ) then
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
                         trim(SMB_CORR_FILE)
@@ -1389,7 +1401,7 @@ if (trim(adjustl(SMB_CORR_FILE)) /= 'none') then
                       ch_var_name='DSMB', n_var_type=1, n_ascii_header=6, &
                       field2d_r=field2d_aux)
 
-   smb_corr_in = field2d_aux /year2sec
+   smb_corr_in = field2d_aux *sec2year
                              ! m/a ice equiv. -> m/s ice equiv.
 
 end if
@@ -2118,7 +2130,11 @@ mask_region = -1
 
 #if (defined(MASK_REGION_FILE))
 
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
                                       ! read mask_region from file
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
@@ -2285,7 +2301,11 @@ mask_region = -1
 
 #if (defined(MASK_REGION_FILE))
 
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
                                       ! read mask_region from file
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
@@ -2414,7 +2434,11 @@ mask_region = -1
 
 #if (defined(MASK_REGION_FILE))
 
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
                                       ! read mask_region from file
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &

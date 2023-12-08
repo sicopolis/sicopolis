@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-11-09'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-12-07'
 !                      Date of last change
 
 !-------- Domain --------
@@ -24,12 +24,12 @@
 
 !-------- Physical parameter file --------
 
-#define PHYS_PARA_FILE 'phys_para_ant.dat'
+#define PHYS_PARA_FILE 'phys_para_ant_cp10_02.dat'
 !                       Name of the file containing the physical parameters
 
 !-------- Type of grid, spatial resolution --------
 
-#define GRID 1
+#define GRID 0
 !                       0 : Cartesian coordinates in the stereographic plane
 !                           without distortion correction
 !                       1 : Cartesian coordinates in the stereographic plane
@@ -45,7 +45,7 @@
 !                       y coordinate (in km) of the origin point (i,j) = (0,0),
 !                       for GRID==0 or GRID==1
 
-#define DX 40.0d0
+#define DX 64.0d0
 !                       Horizontal grid spacing in km, for GRID==0
 !                       or GRID==1
 !                       [64 km requires IMAX= 95 and JMAX= 95,
@@ -56,11 +56,11 @@
 !                        10 km requires IMAX=608 and JMAX=608,
 !                         8 km requires IMAX=760 and JMAX=760]
 
-#define IMAX 152
+#define IMAX 95
 !                       IMAX+1: number of grid points in x-direction
 !                               (i=0...IMAX)
 
-#define JMAX 152
+#define JMAX 95
 !                       JMAX+1: number of grid points in y-direction
 !                               (j=0...JMAX)
 
@@ -68,7 +68,7 @@
 !                       KCMAX+1: number of grid points in z-direction
 !                                in cold ice (kc=0...KCMAX)
 
-#define KTMAX 10
+#define KTMAX 2
 !                       KTMAX+1: number of grid points in z-direction
 !                                in temperate ice (kt=0...KTMAX)
 
@@ -89,7 +89,7 @@
 
 !-------- Initial and final times, time steps --------
 
-#define YEAR_ZERO 2000.0d0
+#define YEAR_ZERO 1990.0d0
 !                       SICOPOLIS year zero in astronomical year numbering
 !                       [ = signed year CE (AD) ]
 
@@ -98,10 +98,10 @@
 #define TIME_INIT0 0.0d0
 !                       Initial time of simulation (in a)
 
-#define TIME_END0 25000.0d0
+#define TIME_END0 100.0d0
 !                       Final time of simulation (in a)
 
-#define DTIME0 10.0d0
+#define DTIME0 2.0d0
 !                       Time step (in a) for computation of velocity
 !                       and topography
 
@@ -109,7 +109,7 @@
 !                       Time step (in a) for computation of
 !                       temperature, water content and age of the ice
 
-#define DTIME_WSS0 100.0d0
+#define DTIME_WSS0 10.0d0
 !                       Time step (in a) for computation of
 !                       isostatic steady-state displacement of the lithosphere
 !                       (only for REBOUND==2, ELRA model)
@@ -122,7 +122,7 @@
 
 !-------- Ice sheet dynamics --------
 
-#define DYNAMICS 1
+#define DYNAMICS 2
 !                         0 : Ice flow velocity set to zero everywhere
 !                             (static ice)
 !                         1 : SIA for grounded ice,
@@ -192,7 +192,7 @@
 !                         If the slip ratio is larger, hybrid SIA/SStA dynamics
 !                         kicks in (for DYNAMICS==2 and HYB_MOD==0).
 
-#define SSTA_SIA_WEIGH_FCT 1
+#define SSTA_SIA_WEIGH_FCT 2
 !                         SStA-SIA weighting factor as a function of the
 !                         slip ratio (for DYNAMICS==2 and HYB_MOD==0):
 !                         0 : Linear function (continuous transitions)
@@ -205,7 +205,7 @@
 
 !-------- Ice sheet thermodynamics --------
 
-#define CALCMOD 1
+#define CALCMOD 3
 !                        -1 : ISOT: isothermal method,
 !                                   constant temperature and age
 !                         0 : COLD: cold-ice method, resetting of temperatures
@@ -232,7 +232,7 @@
 
 !-------- Ice margin treatment --------
 
-#define MARGIN 1
+#define MARGIN 3
 !                         1 : Ice extent strictly restricted to land area
 !                         2 : Formation of marine ice possible
 !                         3 : Formation of marine ice and ice shelves possible
@@ -307,7 +307,7 @@
 !                         (for MARGIN==2,
 !                         MARINE_ICE_FORMATION==2 and MARINE_ICE_CALVING==9)
 
-#define ICE_SHELF_CALVING 1
+#define ICE_SHELF_CALVING 2
 !                         1 : Unlimited expansion of ice shelves, no calving
 !                             (only for MARGIN==3)
 !                         2 : Instantaneous calving of ice shelves if the
@@ -316,7 +316,7 @@
 !                             Instantaneous removal of all floating ice
 !                             (only for MARGIN==3)
 
-#define H_CALV 200.0d0
+#define H_CALV 50.0d0
 !                         Threshold thickness (in m) of ice shelves for calving
 !                         (for MARGIN==3 and ICE_SHELF_CALVING==2)
 
@@ -329,7 +329,7 @@
 !                         3 : Durham's flow law with stress exponent n=4
 !                         4 : Smith-Morland (polynomial) flow law
 
-#define FIN_VISC 1
+#define FIN_VISC 2
 !                         1 : Unmodified flow law with infinite viscosity
 !                             for low strain rates
 !                             (only for FLOW_LAW==1, 2, 3)
@@ -370,7 +370,7 @@
 !                             between ENH_COMPR (for compression) and
 !                             ENH_SHEAR (for shear)
 
-#define ENH_FACT 3.0d0
+#define ENH_FACT 5.0d0
 !                         Flow enhancement factor (only for ENHMOD==1, 2, 3)
 
 #define ENH_INTG 1.0d0
@@ -413,31 +413,31 @@
 
 !-------- Initial conditions --------
 
-#define ANF_DAT 1
+#define ANF_DAT 3
 !                         1 : Present initial topography
 !                         2 : Ice-free initial topography with
 !                             relaxed lithosphere
 !                         3 : Initial values from previous
 !                             simulation
 
-#define ZS_PRESENT_FILE   'ant_b2_40_zs.dat'
+#define ZS_PRESENT_FILE   'ant_b2_64_zs.dat'
 !                             Name of the file containing the present-day
 !                             ice-surface topography
 
-#define ZB_PRESENT_FILE   'ant_b2_40_zb.dat'
+#define ZB_PRESENT_FILE   'ant_b2_64_zb.dat'
 !                             Name of the file containing the present-day
 !                             ice-base topography (only for ANF_DAT==1)
 
-#define ZL_PRESENT_FILE   'ant_b2_40_zl.dat'
+#define ZL_PRESENT_FILE   'ant_b2_64_zl.dat'
 !                             Name of the file containing the present-day
 !                             lithosphere-surface topography
 !                             (only for ANF_DAT==1)
 
-#define ZL0_FILE          'ant_b2_40_zl0_llra.dat'
+#define ZL0_FILE          'ant_b2_64_zl0_elra.dat'
 !                             Name of the file containing the topography
 !                             of the relaxed lithosphere surface
 
-#define MASK_PRESENT_FILE 'ant_b2_40_mask.dat'
+#define MASK_PRESENT_FILE 'ant_b2_64_mask.dat'
 !                             Name of the file containing the present-day
 !                             ice-land-ocean mask
 
@@ -445,7 +445,7 @@
 !                             Name of the file containing the region mask
 !                             ('none' if no file is to be defined)
 
-#define TEMP_INIT 4
+#define TEMP_INIT 1
 !                         Initial ice temperature conditions
 !                         (only for ANF_DAT==1):
 !                         1 : Constant value in the entire ice sheet
@@ -462,13 +462,13 @@
 !                         Prescribed initial temperature (in degC)
 !                         (only for ANF_DAT==1 and TEMP_INIT==1)
 
-#define ANFDATNAME 'none'
+#define ANFDATNAME 'repo_ant64_b2_spinup090004.nc'
 !                             Initial-value file (only for ANF_DAT==3,
 !                                  or for ANF_DAT==1 and TEMP_INIT==5)
 
 !-------- Lithosphere (bedrock) modelling --------
 
-#define REBOUND 1
+#define REBOUND 0
 !                         0 : No bedrock adjustment
 !                         1 : Isostatic bedrock adjustment with local
 !                             lithosphere and relaxing asthenosphere (LLRA model)
@@ -564,7 +564,7 @@
 !                         Maximum ice extent mask file (only for THK_EVOL>=1)
 !                         ('none' if no file is to be defined)
 
-#define CALCTHK 2
+#define CALCTHK 4
 !                         Solution of the ice-thickness equation:
 !                         1 : Explicit scheme for the diffusive
 !                             SIA ice-surface equation
@@ -648,7 +648,7 @@
 !                             read directly from NetCDF files
 !                             (requires ACCSURFACE==6, ABLSURFACE==6)
 
-#define TEMP_PRESENT_PARA 1
+#define TEMP_PRESENT_PARA 2
 !                         Parameterization of the present-day mean-annual
 !                         and mean-January (summer) surface temperatures by
 !                         1 : Fortuin and Oerlemans (1990)
@@ -728,7 +728,7 @@
 !                         7 : Implied SMB by Calov+ (2018, Cryosphere 12)
 !                             (requires ABLSURFACE==7)
 
-#define PRECIP_PRESENT_FILE 'ant_sr_dev1.0_40_prec_a.dat'
+#define PRECIP_PRESENT_FILE 'ant_sr_dev1.0_64_prec_a.dat'
 !                       Name of the file containing the present-day
 !                       precipitation data
 !                       (for ACCSURFACE<=5)
@@ -742,7 +742,7 @@
 !                       between precipitation and delta_ts
 !                       (in 1/C, only for ACCSURFACE==2, 3)
 
-#define ELEV_DESERT 1
+#define ELEV_DESERT 0
 !                         0 : No elevation desertification
 !                         1 : Elevation desertification accounted for
 !                             (only for ACCSURFACE==1, 2, 3)
@@ -786,7 +786,7 @@
 
 !-------- Surface ablation --------
 
-#define ABLSURFACE 2
+#define ABLSURFACE 1
 !                       1 : Ablation parameterized
 !                           by positive-degree-day (PDD) method.
 !                           Rainfall assumed to run off instantaneously.
@@ -921,9 +921,9 @@
 
 !-------- Special ISMIP6 InitMIP settings for the surface mass balance --------
 
-!!! #define INITMIP_SMB_ANOM_FILE 'smb_anomaly_40km_ISMIP6.nc'
+#define INITMIP_SMB_ANOM_FILE 'none'
 !                       Name of the file containing the surface mass balance
-!                       anomaly for ISMIP6 InitMIP
+!                       anomaly for ISMIP6 InitMIP ('none' if not used)
 
 !-------- Ice-shelf collapse masks --------
 
@@ -988,7 +988,7 @@
 
 !-------- Basal sliding --------
 
-#define SLIDE_LAW 1
+#define SLIDE_LAW 2
 !                       1 : Weertman-type sliding,
 !                           full ice pressure in denominator
 !                       2 : Weertman-type sliding,
@@ -1065,16 +1065,16 @@
 
 !-------- Geothermal heat flux (GHF) --------
 
-#define Q_GEO 55.0d0
+#define Q_GEO 0.0d0
 !                       Spatially constant GHF (in mW/m2)
 !                       (only used if Q_GEO_FILE == 'none', otherwise ignored)
 
-#define Q_GEO_FILE 'none'
+#define Q_GEO_FILE 'ant_pu_64_qgeo.dat'
 !                       Name of the file containing the spatially varying GHF
 !                       (set to 'none' if spatially constant GHF
 !                       defined by parameter Q_GEO is to be used)
 
-#define Q_LITHO 0
+#define Q_LITHO 1
 !                       0 : No coupled heat-conducting bedrock
 !                           (GHF imposed directly at the grounded ice base)
 !                       1 : Coupled heat-conducting bedrock
@@ -1098,7 +1098,7 @@
 
 !-------- Basal melting for floating ice (only for MARGIN==3) --------
 
-#define FLOATING_ICE_BASAL_MELTING 1
+#define FLOATING_ICE_BASAL_MELTING 5
 !                       Basal melting rate for floating ice:
 !                       1 : Constant values for the continental shelf
 !                           and the abyssal ocean, respectively
@@ -1112,7 +1112,7 @@
 !                       6 : Sector-wise parameterization as a function of the
 !                           thermal forcing, by ISMIP6-Antarctica
 
-#define QBM_FLOAT_1 1.0d0
+#define QBM_FLOAT_1 2.0d0
 !                       Basal melting rate for the continental shelf,
 !                       in m/a water equiv.
 !                       (for FLOATING_ICE_BASAL_MELTING==1)
@@ -1125,7 +1125,7 @@
 !                       Threshold seabed elevation separating
 !                       the continental shelf from the abyssal ocean, in m
 
-#define H_W_0 0.0d0
+#define H_W_0 75.0d0
 !                       Threshold water column thickness below which
 !                       basal melting is reduced, in m
 !                       (0.0d0 -> no reduction)
@@ -1147,7 +1147,7 @@
 !                       Number of basal-melting regions
 !                       (for FLOATING_ICE_BASAL_MELTING==6)
 
-#define BM_REGIONS_FILE 'ismip6_imbie2_basin_numbers_40km.dat'
+#define BM_REGIONS_FILE 'ismip6_imbie2_basin_numbers_64km.dat'
 !                       File defining the regions
 !                       (only for N_BM_REGIONS > 1,
 !                        for FLOATING_ICE_BASAL_MELTING==6)
@@ -1166,7 +1166,7 @@
 !                       (N_BM_REGIONS separate values,
 !                        for FLOATING_ICE_BASAL_MELTING==6)
 
-#define TF_BM_PRESENT_FILE 'ismip6_obs_thermal_forcing_1995-2017_40km_60m.nc'
+#define TF_BM_PRESENT_FILE 'ismip6_obs_thermal_forcing_1995-2017_64km_60m.nc'
 !                       Name of the file containing the
 !                       present-day thermal forcing data of the ocean
 !                       (for FLOATING_ICE_BASAL_MELTING==6)
@@ -1211,15 +1211,17 @@
 
 !  ------ Special ISMIP6 InitMIP setting
 
-!!! #define INITMIP_BMB_ANOM_FILE 'basal_melt_anomaly_40km_ISMIP6.nc'
+#define INITMIP_BMB_ANOM_FILE 'basal_melt_anomaly_64km_ISMIP6.nc'
 !                       Name of the file containing the
 !                       ice-shelf basal melting anomaly for ISMIP6 InitMIP
-!                       (for FLOATING_ICE_BASAL_MELTING==4,5,6)
+!                       (for FLOATING_ICE_BASAL_MELTING==4,5,6;
+!                        'none' if not used)
 
-!!! #define LARMIP_REGIONS_FILE 'LARMIP_regions_initMIPgrid_40.nc'
+#define LARMIP_REGIONS_FILE 'none'
 !                       Name of the file containing the
 !                       regions for ISMIP6 LARMIP
-!                       (for FLOATING_ICE_BASAL_MELTING==4,5,6)
+!                       (for FLOATING_ICE_BASAL_MELTING==4,5,6;
+!                        'none' if not used)
 
 #define LARMIP_QBM_ANOM [ 0.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0 ]
 !                       Ice-shelf basal melting rate anomaly
@@ -1252,7 +1254,7 @@
 !                         1 : Initial conditions are written to
 !                             output files
 
-#define OUTPUT 2
+#define OUTPUT 3
 !                         1 : Writing of time-slice data in files
 !                             '.nc' with prescribed time step
 !                         2 : Writing of time-slice data in files
@@ -1279,20 +1281,20 @@
 !                              time-slice output with all 3-d fields for
 !                              OUTPUT==3, in which case snapshots are written)
 
-#define DTIME_SER0 10.0d0
+#define DTIME_SER0 2.0d0
 !                         Time step (in a) for writing of data to
 !                         the time-series files (scalar variables)
 
-#define DTIME_OUT0 0.0d0
+#define DTIME_OUT0 10.0d0
 !                         Time step (in a) for writing of
 !                         time-slice data (only for OUTPUT==1,3)
 
-#define N_OUTPUT 3
+#define N_OUTPUT 1
 !                         Number of specified times for writing of
 !                         time-slice data (only for OUTPUT==2,3,
 !                         not more than 100)
 
-#define TIME_OUT0 [ 0.0d0, 10000.0d0, 25000.0d0 ]
+#define TIME_OUT0 [ 100.0d0 ]
 !                         Times (in a) for writing of time-slice
 !                         data (only for OUTPUT==2,3, in increasing
 !                         order from #1 to #N_OUTPUT)

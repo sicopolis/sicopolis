@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-11-09'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-12-07'
 !                      Date of last change
 
 !-------- Domain --------
@@ -941,9 +941,9 @@
 
 !-------- Special ISMIP6 InitMIP settings for the surface mass balance --------
 
-!!! #define INITMIP_SMB_ANOM_FILE 'dsmb_20_ISMIP6_v2_EPSG3413.nc'
+#define INITMIP_SMB_ANOM_FILE 'none'
 !                       Name of the file containing the surface mass balance
-!                       anomaly for ISMIP6 InitMIP
+!                       anomaly for ISMIP6 InitMIP ('none' if not used)
 
 !-------- Ice discharge parameterization --------
 

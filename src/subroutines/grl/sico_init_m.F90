@@ -133,6 +133,7 @@ logical            :: flag_precip_monthly_mean
 logical            :: flag_init_output, flag_3d_output
 
 real(dp), dimension(0:JMAX,0:IMAX) :: field2d_aux
+real(dp), dimension(0:IMAX,0:JMAX) :: field2d_tra_aux
 
 integer(i4b) :: n_slide_regions
 #if (!defined(N_SLIDE_REGIONS) || N_SLIDE_REGIONS<=1)
@@ -156,13 +157,7 @@ character(len=64)   :: ch_st_unit, ch_smb_unit
 real(dp), parameter :: temp_C_to_K = 273.15_dp
 #endif
 
-#if (defined(SMB_CORR_FILE))
-real(dp), dimension(0:IMAX,0:JMAX) :: smb_corr_in_conv
-#endif
-
-#if (defined(INITMIP_SMB_ANOM_FILE))
-real(dp), dimension(0:IMAX,0:JMAX) :: smb_anom_initmip_conv
-#endif
+character(len=64) :: ch_initmip_smb_anom_file
 
 #if (RETREAT_MASK==1)
 real(dp), dimension(0:IMAX,0:JMAX) :: H_ref_retreat_conv
@@ -522,6 +517,8 @@ ndat2d = 1
 ndat3d = 1
 
 flag_calc_temp = .true.
+
+flag_initmip_asmb = .false.
 
 !-------- General abbreviations --------
 
@@ -963,7 +960,11 @@ write(10, fmt=trim(fmt1)) 'zl_present file = '//ZL_PRESENT_FILE
 write(10, fmt=trim(fmt1)) 'zl0 file = '//ZL0_FILE
 write(10, fmt=trim(fmt1)) 'mask_present file = '//MASK_PRESENT_FILE
 #if (defined(MASK_REGION_FILE))
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
    write(10, fmt=trim(fmt1)) 'mask_region file = '//MASK_REGION_FILE
    write(10, fmt=trim(fmt1)) ' '
 end if
@@ -1074,10 +1075,18 @@ errormsg = ' >>> sico_init: ' &
 call error(errormsg)
 #endif
 #if (defined(PRECIP_PRESENT_FILE) && defined(PRECIP_MA_PRESENT_FILE))
-if ( trim(adjustl(PRECIP_PRESENT_FILE)) /= 'none' ) then
+if ( (trim(adjustl(PRECIP_PRESENT_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(PRECIP_PRESENT_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(PRECIP_PRESENT_FILE)) /= 'NONE') ) then
    write(10, fmt=trim(fmt1)) 'precip_present_file = '//PRECIP_PRESENT_FILE
    flag_precip_monthly_mean = .true.
-else if ( trim(adjustl(PRECIP_MA_PRESENT_FILE)) /= 'none' ) then
+else if ( (trim(adjustl(PRECIP_MA_PRESENT_FILE)) /= 'none') &
+          .and. &
+          (trim(adjustl(PRECIP_MA_PRESENT_FILE)) /= 'None') &
+          .and. &
+          (trim(adjustl(PRECIP_MA_PRESENT_FILE)) /= 'NONE') ) then
    write(10, fmt=trim(fmt1)) 'precip_ma_present_file = '//PRECIP_MA_PRESENT_FILE
    flag_precip_monthly_mean = .false.
 else
@@ -1169,15 +1178,26 @@ write(10, fmt=trim(fmt1)) ' '
 #endif
 
 #if (defined(SMB_CORR_FILE))
-if ( trim(adjustl(SMB_CORR_FILE)) /= 'none' ) then
+if ( (trim(adjustl(SMB_CORR_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(SMB_CORR_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(SMB_CORR_FILE)) /= 'NONE') ) then
    write(10, fmt=trim(fmt1)) 'smb_corr_file = '//SMB_CORR_FILE
    write(10, fmt=trim(fmt1)) ' '
 end if
 #endif
 
 #if (defined(INITMIP_SMB_ANOM_FILE))
-if ( trim(adjustl(INITMIP_SMB_ANOM_FILE)) /= 'none' ) then
-   write(10, fmt=trim(fmt1)) 'initmip_smb_anom file = '//INITMIP_SMB_ANOM_FILE
+if ( (trim(adjustl(INITMIP_SMB_ANOM_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(INITMIP_SMB_ANOM_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(INITMIP_SMB_ANOM_FILE)) /= 'NONE') ) then
+   flag_initmip_asmb = .true.
+   ch_initmip_smb_anom_file = trim(adjustl(INITMIP_SMB_ANOM_FILE))
+   write(10, fmt=trim(fmt1)) 'initmip_smb_anom file = ' &
+                                // trim(ch_initmip_smb_anom_file)
 end if
 write(10, fmt=trim(fmt1)) ' '
 #endif
@@ -1544,7 +1564,7 @@ if (flag_precip_monthly_mean) then
                          n_var_type=1, n_ascii_header=6+3*n+(JMAX+1)*(n-1), &
                          field2d_r=field2d_aux)
 
-      precip_present(:,:,n) = field2d_aux *(1.0e-03_dp/year2sec)*(RHO_W/RHO)
+      precip_present(:,:,n) = field2d_aux *(1.0e-03_dp*sec2year)*(RHO_W/RHO)
                                            ! mm/a water equiv. -> m/s ice equiv.
 
    end do
@@ -1556,7 +1576,7 @@ else
                       n_var_type=1, n_ascii_header=6, &
                       field2d_r=field2d_aux)
 
-   precip_ma_present = field2d_aux *(1.0e-03_dp/year2sec)*(RHO_W/RHO)
+   precip_ma_present = field2d_aux *(1.0e-03_dp*sec2year)*(RHO_W/RHO)
                                     ! mm/a water equiv. -> m/s ice equiv.
 
 end if
@@ -1677,7 +1697,7 @@ end do
 
 !-------- Mean accumulation --------
 
-mean_accum = MEAN_ACCUM*(1.0e-03_dp/year2sec)*(RHO_W/RHO)
+mean_accum = MEAN_ACCUM*(1.0e-03_dp*sec2year)*(RHO_W/RHO)
                        ! mm/a water equiv. -> m/s ice equiv.
 
 !-------- Read file defining the regions for the sliding laws --------
@@ -1853,7 +1873,7 @@ do j=0, JMAX
       smb_climatol(j,i) = smb_climatol_conv(i,j) /RHO
                                        ! kg/(m2*s) -> m/s ice equiv.
    else if (trim(adjustl(ch_smb_unit))=='m a-1') then
-      smb_climatol(j,i) = smb_climatol_conv(i,j) /year2sec
+      smb_climatol(j,i) = smb_climatol_conv(i,j) *sec2year
                                        ! m/a ice equiv. -> m/s ice equiv.
    else
       errormsg = ' >>> sico_init: Unit of SMB_clim could not be determined!'
@@ -1873,7 +1893,11 @@ smb_corr_in = 0.0_dp
 
 #if (defined(SMB_CORR_FILE))
 
-if (trim(adjustl(SMB_CORR_FILE)) /= 'none') then
+if ( (trim(adjustl(SMB_CORR_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(SMB_CORR_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(SMB_CORR_FILE)) /= 'NONE') ) then
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
                         trim(SMB_CORR_FILE)
@@ -1882,7 +1906,7 @@ if (trim(adjustl(SMB_CORR_FILE)) /= 'none') then
                       ch_var_name='DSMB', n_var_type=1, n_ascii_header=6, &
                       field2d_r=field2d_aux)
 
-   smb_corr_in = field2d_aux /year2sec
+   smb_corr_in = field2d_aux *sec2year
                              ! m/a ice equiv. -> m/s ice equiv.
 
 end if
@@ -1891,12 +1915,10 @@ end if
 
 !-------- Reading of ISMIP6 InitMIP SMB anomaly data --------
 
-#if (defined(INITMIP_SMB_ANOM_FILE))
-
-if ( trim(adjustl(INITMIP_SMB_ANOM_FILE)) /= 'none' ) then
+if (flag_initmip_asmb) then
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)// &
-                                      '/'//trim(INITMIP_SMB_ANOM_FILE)
+                                      '/'//trim(ch_initmip_smb_anom_file)
 
    ios = nf90_open(trim(filename_with_path), NF90_NOWRITE, ncid)
 
@@ -1908,13 +1930,13 @@ if ( trim(adjustl(INITMIP_SMB_ANOM_FILE)) /= 'none' ) then
    end if
 
    call check( nf90_inq_varid(ncid, 'DSMB', ncv) )
-   call check( nf90_get_var(ncid, ncv, smb_anom_initmip_conv) )
+   call check( nf90_get_var(ncid, ncv, field2d_tra_aux) )
 
    call check( nf90_close(ncid) )
 
    do i=0, IMAX
    do j=0, JMAX
-      smb_anom_initmip(j,i) = smb_anom_initmip_conv(i,j) /year2sec
+      smb_anom_initmip(j,i) = field2d_tra_aux(i,j) *sec2year
                                    ! m/a ice equiv. -> m/s ice equiv.
    end do
    end do
@@ -1922,8 +1944,6 @@ if ( trim(adjustl(INITMIP_SMB_ANOM_FILE)) /= 'none' ) then
 else
    smb_anom_initmip = 0.0_dp
 end if
-
-#endif
 
 !-------- Reading of the global annual temperature anomaly
 !         (for parameterising the sub-ocean temperature anomaly
@@ -2875,7 +2895,11 @@ mask_region = -1
 
 #if (defined(MASK_REGION_FILE))
 
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
                                       ! read mask_region from file
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
@@ -3048,7 +3072,11 @@ mask_region = -1
 
 #if (defined(MASK_REGION_FILE))
 
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
                                       ! read mask_region from file
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
@@ -3170,7 +3198,11 @@ mask_region = -1
 
 #if (defined(MASK_REGION_FILE))
 
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
                                       ! read mask_region from file
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &

@@ -313,7 +313,11 @@ if ( firstcall.or.(n_year_CE_aux /= n_year_CE_aux_save) ) then
 
 !  ------ Surface-temperature anomaly
 
-   if ( trim(adjustl(TEMP_ANOM_FILES)) /= 'none' ) then
+   if ( (trim(adjustl(TEMP_ANOM_FILES)) /= 'none') &
+        .and. &
+        (trim(adjustl(TEMP_ANOM_FILES)) /= 'None') &
+        .and. &
+        (trim(adjustl(TEMP_ANOM_FILES)) /= 'NONE') ) then
 
       filename_with_path = trim(TEMP_SMB_ANOM_DIR)//'/'// &
                            trim(TEMP_ANOM_SUBDIR)//'/'// &
@@ -341,9 +345,17 @@ if ( firstcall.or.(n_year_CE_aux /= n_year_CE_aux_save) ) then
 
 !  ------ Surface-temperature vertical gradient
 
-   if ( trim(adjustl(dTEMPdz_FILES)) /= 'none' ) then
+   if ( (trim(adjustl(dTEMPdz_FILES)) /= 'none') &
+        .and. &
+        (trim(adjustl(dTEMPdz_FILES)) /= 'None') &
+        .and. &
+        (trim(adjustl(dTEMPdz_FILES)) /= 'NONE') ) then
 
-      if ( trim(adjustl(dTEMPdz_SUBDIR)) /= 'value' ) then   ! read from file
+      if ( (trim(adjustl(dTEMPdz_SUBDIR)) /= 'value') &
+           .and. &
+           (trim(adjustl(dTEMPdz_SUBDIR)) /= 'Value') &
+           .and. &
+           (trim(adjustl(dTEMPdz_SUBDIR)) /= 'VALUE') ) then  ! read from file
 
          filename_with_path = trim(TEMP_SMB_ANOM_DIR)//'/'// &
                               trim(dTEMPdz_SUBDIR)//'/'// &
@@ -379,7 +391,11 @@ if ( firstcall.or.(n_year_CE_aux /= n_year_CE_aux_save) ) then
 
 !  ------ SMB anomaly
 
-   if ( trim(adjustl(SMB_ANOM_FILES)) /= 'none' ) then
+   if ( (trim(adjustl(SMB_ANOM_FILES)) /= 'none') &
+        .and. &
+        (trim(adjustl(SMB_ANOM_FILES)) /= 'None') &
+        .and. &
+        (trim(adjustl(SMB_ANOM_FILES)) /= 'NONE') ) then
 
       filename_with_path = trim(TEMP_SMB_ANOM_DIR)//'/'// &
                            trim(SMB_ANOM_SUBDIR)//'/'// &
@@ -422,9 +438,17 @@ if ( firstcall.or.(n_year_CE_aux /= n_year_CE_aux_save) ) then
 
 !  ------ SMB vertical gradient
 
-   if ( trim(adjustl(dSMBdz_FILES)) /= 'none' ) then
+   if ( (trim(adjustl(dSMBdz_FILES)) /= 'none') &
+        .and. &
+        (trim(adjustl(dSMBdz_FILES)) /= 'None') &
+        .and. &
+        (trim(adjustl(dSMBdz_FILES)) /= 'NONE') ) then
 
-      if ( trim(adjustl(dSMBdz_SUBDIR)) /= 'value' ) then   ! read from file
+      if ( (trim(adjustl(dSMBdz_SUBDIR)) /= 'value') &
+           .and. &
+           (trim(adjustl(dSMBdz_SUBDIR)) /= 'Value') &
+           .and. &
+           (trim(adjustl(dSMBdz_SUBDIR)) /= 'VALUE') ) then  ! read from file
 
          filename_with_path = trim(TEMP_SMB_ANOM_DIR)//'/'// &
                               trim(dSMBdz_SUBDIR)//'/'// &
@@ -1219,26 +1243,29 @@ runoff = -min(as_perp, 0.0_dp)
 
 smb_corr_prescribed = smb_corr_in
 
-#if (defined(INITMIP_SMB_ANOM_FILE))   /* Correction for ISMIP InitMIP */
+if (flag_initmip_asmb) then   ! Correction for ISMIP InitMIP
 
 #if defined(ALLOW_TAPENADE) /* Tapenade */
-call myfloor(time_in_years, i_time_in_years)
+   call myfloor(time_in_years, i_time_in_years)
 #endif /* Tapenade */
 
-if ((time_in_years > 0.0_dp).and.(time_in_years <= 40.0_dp)) then
+   if ((time_in_years > 0.0_dp).and.(time_in_years <= 40.0_dp)) then
+
 #if !defined(ALLOW_TAPENADE) /* Normal */
-   smb_corr_prescribed = smb_corr_prescribed &
+      smb_corr_prescribed = smb_corr_prescribed &
                               + 0.025_dp*floor(time_in_years) * smb_anom_initmip
 #else /* Tapenade */
-   smb_corr_prescribed = smb_corr_prescribed &
+      smb_corr_prescribed = smb_corr_prescribed &
                               + 0.025_dp*(i_time_in_years) * smb_anom_initmip
 #endif /* Normal vs. Tapenade */
-else if (time_in_years > 40.0_dp) then
-   smb_corr_prescribed = smb_corr_prescribed &
-                              + smb_anom_initmip
-end if
 
-#endif
+   else if (time_in_years > 40.0_dp) then
+
+      smb_corr_prescribed = smb_corr_prescribed + smb_anom_initmip
+
+   end if
+
+end if
 
 as_perp = as_perp + smb_corr_prescribed
 

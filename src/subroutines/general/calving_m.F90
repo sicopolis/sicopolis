@@ -174,7 +174,6 @@ contains
 
   implicit none
 
-  real(dp)                           :: year_sec_inv
   real(dp)                           :: rhosw_rho_ratio
   real(dp)                           :: calv_uw_coeff, r1_calv_uw, r2_calv_uw
   real(dp)                           :: H0_flt
@@ -183,14 +182,12 @@ contains
 
 !-------- Term abbreviations --------
 
-  year_sec_inv = 1.0_dp/year2sec
-
   rhosw_rho_ratio = RHO_SW/RHO
 
 !-------- Setting of parameters --------
 
 #if (defined(CALV_UW_COEFF))
-  calv_uw_coeff = CALV_UW_COEFF * year_sec_inv
+  calv_uw_coeff = CALV_UW_COEFF *sec2year
 #else
   errormsg = ' >>> calving_underwater_ice: CALV_UW_COEFF undefined!'
   call error(errormsg)

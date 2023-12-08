@@ -652,7 +652,11 @@ write(10, fmt=trim(fmt1)) 'zl_present file   = '//ZL_PRESENT_FILE
 write(10, fmt=trim(fmt1)) 'zl0 file          = '//ZL0_FILE
 write(10, fmt=trim(fmt1)) 'mask_present file = '//MASK_PRESENT_FILE
 #if (defined(MASK_REGION_FILE))
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
    write(10, fmt=trim(fmt1)) 'mask_region file = '//MASK_REGION_FILE
    write(10, fmt=trim(fmt1)) ' '
 end if
@@ -1150,12 +1154,12 @@ do j=0, JMAX
 #if (ACC_UNIT==1)
 
    accum_present(j,i) = accum_present(j,i) &
-                           *(1.0e-03_dp/year2sec)*(RHO_W/RHO_I) &
+                           *(1.0e-03_dp*sec2year)*(RHO_W/RHO_I) &
                            *(1.0_dp/(1.0_dp-FRAC_DUST))
 
 #elif (ACC_UNIT==2)
 
-   accum_present(j,i) = accum_present(j,i)*(1.0e-03_dp/year2sec)
+   accum_present(j,i) = accum_present(j,i)*(1.0e-03_dp*sec2year)
 
 #endif
 
@@ -1166,13 +1170,13 @@ end do
 
 #if (ACC_UNIT==1)
 
-mean_accum = MEAN_ACCUM*(1.0e-03_dp/year2sec)*(RHO_W/RHO_I) &
+mean_accum = MEAN_ACCUM*(1.0e-03_dp*sec2year)*(RHO_W/RHO_I) &
                        *(1.0_dp/(1.0_dp-FRAC_DUST))
 !                      ! mm/a water equiv. --> m/s (ice+dust) equiv.
 
 #elif (ACC_UNIT==2)
 
-mean_accum = MEAN_ACCUM*(1.0e-03_dp/year2sec)
+mean_accum = MEAN_ACCUM*(1.0e-03_dp*sec2year)
 !                      ! mm/a (ice+dust) equiv. --> m/s (ice+dust) equiv.
 
 #endif
@@ -1962,7 +1966,11 @@ mask_region = -1
 
 #if (defined(MASK_REGION_FILE))
 
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
                                       ! read mask_region from file
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
@@ -2134,7 +2142,11 @@ mask_region = -1
 
 #if (defined(MASK_REGION_FILE))
 
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
                                       ! read mask_region from file
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
@@ -2258,7 +2270,11 @@ mask_region = -1
 
 #if (defined(MASK_REGION_FILE))
 
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
                                       ! read mask_region from file
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &

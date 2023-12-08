@@ -126,14 +126,14 @@ delta_ts = SINE_AMPLIT &
 
 !  ------ delta_ts from ice-core record
 
-if (time/year2sec.lt.real(grip_time_min,dp)) then
+if (time*sec2year.lt.real(grip_time_min,dp)) then
    delta_ts = griptemp(0)
-else if (time/year2sec.lt.real(grip_time_max,dp)) then
+else if (time*sec2year.lt.real(grip_time_max,dp)) then
 
-   i_kl = floor(((time/year2sec)-real(grip_time_min,dp))/real(grip_time_stp,dp))
+   i_kl = floor(((time*sec2year)-real(grip_time_min,dp))/real(grip_time_stp,dp))
    i_kl = max(i_kl, 0)
 
-   i_gr = ceiling(((time/year2sec)-real(grip_time_min,dp))/real(grip_time_stp,dp))
+   i_gr = ceiling(((time*sec2year)-real(grip_time_min,dp))/real(grip_time_stp,dp))
    i_gr = min(i_gr, ndata_grip)
 
    if (i_kl.eq.i_gr) then
@@ -163,14 +163,14 @@ delta_ts = delta_ts * GRIP_TEMP_FACT
 
 #elif TSURFACE==5
 
-if (time/year2sec < real(gi_time_min,dp)) then
+if (time*sec2year < real(gi_time_min,dp)) then
    glac_index = glacial_index(0)
-else if (time/year2sec < real(gi_time_max,dp)) then
+else if (time*sec2year < real(gi_time_max,dp)) then
 
-   i_kl = floor(((time/year2sec)-real(gi_time_min,dp))/real(gi_time_stp,dp))
+   i_kl = floor(((time*sec2year)-real(gi_time_min,dp))/real(gi_time_stp,dp))
    i_kl = max(i_kl, 0)
 
-   i_gr = ceiling(((time/year2sec)-real(gi_time_min,dp))/real(gi_time_stp,dp))
+   i_gr = ceiling(((time*sec2year)-real(gi_time_min,dp))/real(gi_time_stp,dp))
    i_gr = min(i_gr, ndata_gi)
 
    if (i_kl == i_gr) then
@@ -207,14 +207,14 @@ z_sl = Z_SL0
 
 !  ------ Time-dependent sea level from data
 
-if (time/year2sec.lt.real(specmap_time_min,dp)) then
+if (time*sec2year.lt.real(specmap_time_min,dp)) then
    z_sl = specmap_zsl(0)
-else if (time/year2sec.lt.real(specmap_time_max,dp)) then
+else if (time*sec2year.lt.real(specmap_time_max,dp)) then
 
-   i_kl = floor(((time/year2sec)-real(specmap_time_min,dp))/real(specmap_time_stp,dp))
+   i_kl = floor(((time*sec2year)-real(specmap_time_min,dp))/real(specmap_time_stp,dp))
    i_kl = max(i_kl, 0)
 
-   i_gr = ceiling(((time/year2sec)-real(specmap_time_min,dp))/real(specmap_time_stp,dp))
+   i_gr = ceiling(((time*sec2year)-real(specmap_time_min,dp))/real(specmap_time_stp,dp))
    i_gr = min(i_gr, ndata_specmap)
 
    if (i_kl.eq.i_gr) then
@@ -438,7 +438,7 @@ call error(errormsg)
 
 #elif (ABLSURFACE==3)
 
-lambda_lti = LAMBDA_LTI  *(0.001_dp/year2sec)*(RHO_W/RHO)
+lambda_lti = LAMBDA_LTI  *(0.001_dp*sec2year)*(RHO_W/RHO)
                          ! (mm WE)/(a*deg C) --> (m IE)/(s*deg C)
 temp_lti   = TEMP_LTI
 mu         = 0.0_dp       ! no superimposed ice considered

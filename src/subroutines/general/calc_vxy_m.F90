@@ -698,7 +698,7 @@ end do
 !-------- Limitation of computed vx_b, vy_b, vx_b_g, vy_b_g to the interval
 !         [-VH_MAX, VH_MAX] --------
 
-vh_max     = max(VH_MAX, eps_dp)/year2sec
+vh_max     = max(VH_MAX, eps_dp)*sec2year
 vh_max_inv = 1.0_dp/vh_max
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
@@ -1129,7 +1129,7 @@ end do
 !-------- Limitation of computed vx_c/t, vy_c/t, vx_s_g, vy_s_g
 !         to the interval [-VH_MAX, VH_MAX] --------
 
-vh_max     = max(VH_MAX, eps_dp)/year2sec
+vh_max     = max(VH_MAX, eps_dp)*sec2year
 vh_max_inv = 1.0_dp/vh_max
 
 #if !defined (ALLOW_TAPENADE) /* Normal */
@@ -1515,7 +1515,7 @@ end if
   visc_init = 1.0e+15_dp   ! Pa s
 #endif
 
-vh_max     = max(VH_MAX, eps_dp)/year2sec
+vh_max     = max(VH_MAX, eps_dp)*sec2year
 vh_max_inv = 1.0_dp/vh_max
 
 write(6,'(10x,a)') 'calc_vxy_ssa:'

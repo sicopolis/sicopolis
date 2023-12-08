@@ -85,7 +85,6 @@ contains
 
   integer(i4b)       :: i, j, kc, kt, kr, n
   integer(i4b)       :: ios
-  real(dp)           :: year2sec_inv
   character(len=256) :: anfdat_path
   character(len=256) :: filename_with_path
   logical            :: flag_temp_age_only
@@ -633,8 +632,6 @@ contains
 
 !-------- Convert data to real*8 and years to seconds --------
 
-  year2sec_inv = 1.0_dp/year2sec
-
   if (.not.flag_temp_age_only) then
 
      z_sl_mean = z_sl_mean_conv
@@ -670,34 +667,34 @@ contains
         H_c(j,i)  = H(j,i)
         H_t(j,i)  = 0.0_dp
 #endif
-        Q_bm(j,i)    = real(Q_bm_conv(i,j),dp)*year2sec_inv
-        Q_tld(j,i)   = real(Q_tld_conv(i,j),dp)*year2sec_inv
-        am_perp(j,i) = real(am_perp_conv(i,j),dp)*year2sec_inv
-        qx(j,i)      = real(qx_conv(i,j),dp)*year2sec_inv
-        qy(j,i)      = real(qy_conv(i,j),dp)*year2sec_inv
-        vx_m_sia(j,i) = real(vx_m_sia_conv(i,j),dp)*year2sec_inv
-        vy_m_sia(j,i) = real(vy_m_sia_conv(i,j),dp)*year2sec_inv
-        vx_m_ssa(j,i) = real(vx_m_ssa_conv(i,j),dp)*year2sec_inv
-        vy_m_ssa(j,i) = real(vy_m_ssa_conv(i,j),dp)*year2sec_inv
-        dzs_dtau(j,i)  = real(dzs_dtau_conv(i,j),dp)*year2sec_inv
-        dzm_dtau(j,i)  = real(dzm_dtau_conv(i,j),dp)*year2sec_inv
-        dzb_dtau(j,i)  = real(dzb_dtau_conv(i,j),dp)*year2sec_inv
-        dzl_dtau(j,i)  = real(dzl_dtau_conv(i,j),dp)*year2sec_inv
-        dH_dtau(j,i)   = real(dH_dtau_conv(i,j),dp)*year2sec_inv
-        dH_c_dtau(j,i) = real(dH_c_dtau_conv(i,j),dp)*year2sec_inv
-        dH_t_dtau(j,i) = real(dH_t_dtau_conv(i,j),dp)*year2sec_inv
-        vx_b_g(j,i)  = real(vx_b_g_conv(i,j),dp)*year2sec_inv
-        vy_b_g(j,i)  = real(vy_b_g_conv(i,j),dp)*year2sec_inv
-        vz_b(j,i)    = real(vz_b_conv(i,j),dp)*year2sec_inv
-        vx_s_g(j,i)  = real(vx_s_g_conv(i,j),dp)*year2sec_inv
-        vy_s_g(j,i)  = real(vy_s_g_conv(i,j),dp)*year2sec_inv
-        vz_s(j,i)    = real(vz_s_conv(i,j),dp)*year2sec_inv
+        Q_bm(j,i)    = real(Q_bm_conv(i,j),dp)*sec2year
+        Q_tld(j,i)   = real(Q_tld_conv(i,j),dp)*sec2year
+        am_perp(j,i) = real(am_perp_conv(i,j),dp)*sec2year
+        qx(j,i)      = real(qx_conv(i,j),dp)*sec2year
+        qy(j,i)      = real(qy_conv(i,j),dp)*sec2year
+        vx_m_sia(j,i) = real(vx_m_sia_conv(i,j),dp)*sec2year
+        vy_m_sia(j,i) = real(vy_m_sia_conv(i,j),dp)*sec2year
+        vx_m_ssa(j,i) = real(vx_m_ssa_conv(i,j),dp)*sec2year
+        vy_m_ssa(j,i) = real(vy_m_ssa_conv(i,j),dp)*sec2year
+        dzs_dtau(j,i)  = real(dzs_dtau_conv(i,j),dp)*sec2year
+        dzm_dtau(j,i)  = real(dzm_dtau_conv(i,j),dp)*sec2year
+        dzb_dtau(j,i)  = real(dzb_dtau_conv(i,j),dp)*sec2year
+        dzl_dtau(j,i)  = real(dzl_dtau_conv(i,j),dp)*sec2year
+        dH_dtau(j,i)   = real(dH_dtau_conv(i,j),dp)*sec2year
+        dH_c_dtau(j,i) = real(dH_c_dtau_conv(i,j),dp)*sec2year
+        dH_t_dtau(j,i) = real(dH_t_dtau_conv(i,j),dp)*sec2year
+        vx_b_g(j,i)  = real(vx_b_g_conv(i,j),dp)*sec2year
+        vy_b_g(j,i)  = real(vy_b_g_conv(i,j),dp)*sec2year
+        vz_b(j,i)    = real(vz_b_conv(i,j),dp)*sec2year
+        vx_s_g(j,i)  = real(vx_s_g_conv(i,j),dp)*sec2year
+        vy_s_g(j,i)  = real(vy_s_g_conv(i,j),dp)*sec2year
+        vz_s(j,i)    = real(vz_s_conv(i,j),dp)*sec2year
         temp_b(j,i)  = real(temp_b_conv(i,j),dp)
         temph_b(j,i) = real(temph_b_conv(i,j),dp)
         p_b_w(j,i)   = real(p_b_w_conv(i,j),dp)
-        q_w(j,i)     = real(q_w_conv(i,j),dp)*year2sec_inv
-        q_w_x(j,i)   = real(q_w_x_conv(i,j),dp)*year2sec_inv
-        q_w_y(j,i)   = real(q_w_y_conv(i,j),dp)*year2sec_inv
+        q_w(j,i)     = real(q_w_conv(i,j),dp)*sec2year
+        q_w_x(j,i)   = real(q_w_x_conv(i,j),dp)*sec2year
+        q_w_y(j,i)   = real(q_w_y_conv(i,j),dp)*sec2year
         H_w(j,i)     = real(H_w_conv(i,j),dp)
         ratio_sl_x(j,i) = real(ratio_sl_x_conv(i,j),dp)
         ratio_sl_y(j,i) = real(ratio_sl_y_conv(i,j),dp)
@@ -777,9 +774,9 @@ contains
         end do
 
         do kt=0, KTMAX
-           vx_t(kt,j,i)    = real(vx_t_conv(i,j,kt),dp)*year2sec_inv
-           vy_t(kt,j,i)    = real(vy_t_conv(i,j,kt),dp)*year2sec_inv
-           vz_t(kt,j,i)    = real(vz_t_conv(i,j,kt),dp)*year2sec_inv
+           vx_t(kt,j,i)    = real(vx_t_conv(i,j,kt),dp)*sec2year
+           vy_t(kt,j,i)    = real(vy_t_conv(i,j,kt),dp)*sec2year
+           vz_t(kt,j,i)    = real(vz_t_conv(i,j,kt),dp)*sec2year
            omega_t(kt,j,i) = real(omega_t_conv(i,j,kt),dp)
            age_t(kt,j,i)   = real(age_t_conv(i,j,kt),dp)*year2sec
            enth_t(kt,j,i)  = real(enth_t_conv(i,j,kt),dp)
@@ -788,9 +785,9 @@ contains
         end do
 
         do kc=0, KCMAX
-           vx_c(kc,j,i)    = real(vx_c_conv(i,j,kc),dp)*year2sec_inv
-           vy_c(kc,j,i)    = real(vy_c_conv(i,j,kc),dp)*year2sec_inv
-           vz_c(kc,j,i)    = real(vz_c_conv(i,j,kc),dp)*year2sec_inv
+           vx_c(kc,j,i)    = real(vx_c_conv(i,j,kc),dp)*sec2year
+           vy_c(kc,j,i)    = real(vy_c_conv(i,j,kc),dp)*sec2year
+           vz_c(kc,j,i)    = real(vz_c_conv(i,j,kc),dp)*sec2year
            temp_c(kc,j,i)  = real(temp_c_conv(i,j,kc),dp)
            age_c(kc,j,i)   = real(age_c_conv(i,j,kc),dp)*year2sec
            enth_c(kc,j,i)  = real(enth_c_conv(i,j,kc),dp)

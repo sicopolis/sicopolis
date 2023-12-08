@@ -30,15 +30,24 @@ Runs ``repo_grl16_bm5_{init100a, ss25ka_nudged}``
 
 .. _grl16_ss25ka_volume:
 .. figure:: figs/grl16_ss25ka.png
-  :width: 500 px
+  :width: 480 px
   :alt: Ice volume for steady-state simulations for Greenland
   :align: center
 
   Ice volume for the two steady-state simulations for Greenland, repo_grl16_bm5_ss25ka (unconstrained evolution) and repo_grl16_bm5_ss25ka_nudged (topography nudging with time-dependent relaxation time after t |nbsp| = |nbsp| 10 |nbsp| ka).
 
-Run ``repo_ant40_b2_ss25ka``
-  | Antarctic ice sheet without ice shelves, SIA, resolution 40 km,
-  | short steady-state run (:math:`t=0\ldots{}25\,\mathrm{ka}`) for modern climate conditions (unpublished).
+Run ``repo_ant64_bm3_ss25ka``
+  | Antarctic ice sheet, hybrid shallow-ice--shelfy-stream dynamics (Bernales et al. :cite:`bernales_etal_2017a`),
+  | instantaneous removal of ice shelves ("float-kill"), resolution 64 km,
+  | short steady-state run (:math:`t=0\ldots{}25\,\mathrm{ka}`) for modern climate conditions (:numref:`ant64_bm3_ss25ka0003_H_vs`; unpublished).
+
+.. _ant64_bm3_ss25ka0003_H_vs:
+.. figure:: figs/repo_ant64_bm3_ss25ka0003_H_vs.png
+  :width: 680 px
+  :alt: Ice thickness and surface velocity for float-kill simulation for Antarctica
+  :align: center
+
+  Ice thickness and surface velocity for the short steady-state simulation for Antarctica with instantaneous removal of ice shelves ("float-kill"), repo_ant64_bm3_ss25ka. The West Antarctic ice sheet has largely disappeared.
 
 Run ``repo_grl20_b2_paleo21``
   | Greenland ice sheet, SIA, resolution 20 km,
@@ -47,17 +56,35 @@ Run ``repo_grl20_b2_paleo21``
 
 Runs ``repo_grl10_b2_{paleo21, future21_ctrl, future21_asmb}``
   | Greenland ice sheet, SIA, resolution 10 km,
-  | :math:`t=-9\,\mathrm{ka}\ldots{}0` for the paleo run, :math:`t=0\ldots{}100\,\mathrm{a}` for the future runs.
-  | 10-km version of the spin-up and the schematic future climate runs for ISMIP6 InitMIP (Greve et al. :cite:`greve_etal_2017a`).
+  | :math:`t=-9\,\mathrm{ka}\ldots{}0` for the paleo run, :math:`t=0\ldots{}100\,\mathrm{a}` for the two future runs.
+  | 10-km version of the spin-up and schematic future climate runs for ISMIP6 InitMIP
+  | (:numref:`grl10_b2_future21_vaf`; Greve et al. :cite:`greve_etal_2017a`, Seroussi et al. :cite:`seroussi_etal_2019`).
 
-Runs ``repo_ant64_b2_{spinup09_init100a, spinup09_fixtopo, spinup09, future09_ctrl}``
+.. _grl10_b2_future21_vaf:
+.. figure:: figs/grl10_b2_future21.png
+  :width: 480 px
+  :alt: Ice volume above flotation for future climate simulations for Greenland
+  :align: center
+
+  Ice volume above flotation, expressed in metres of sea-level equivalent (m SLE), for the two ISMIP6 InitMIP future-climate simulations for Greenland, repo_grl10_b2_future21_ctrl (constant-climate control run) and repo_grl10_b2_future21_asmb (schematic surface-mass-balance anomaly applied).
+
+Runs ``repo_ant64_b2_{spinup09_init100a, spinup09_fixtopo, spinup09, future09_ctrl, future09_asmb, future09_abmb}``
   | Antarctic ice sheet with hybrid shallow-ice--shelfy-stream dynamics
   | (Bernales et al. :cite:`bernales_etal_2017a`) and ice shelves (SSA), resolution 64 km;
   | :math:`t=-140.1\ldots{}-140\,\mathrm{ka}` for the init run without basal sliding (..._init100a),
   | :math:`t=-140\,\mathrm{ka}\ldots{}0` for the run with almost fixed topography (..._fixtopo), basal sliding ramped up during the first 5 ka,
-  | :math:`t=-0.5\,\mathrm{ka}\ldots{}0` for the final, freely-evolving-topography part of the (..._spinup09),
-  | :math:`t=0\ldots{}100\,\mathrm{a}` for the constant-climate control run (..._future09_ctrl).
-  | 64-km version of the spin-up and the constant-climate control run for ISMIP6 InitMIP (Greve and Galton-Fenzi, pers. comm. 2017).
+  | :math:`t=-0.5\,\mathrm{ka}\ldots{}0` for the final, freely-evolving-topography part of the spin-up (..._spinup09),
+  | :math:`t=0\ldots{}100\,\mathrm{a}` for the three future runs (..._future09_{ctrl, asmb, abmb}).
+  | 64-km version of the spin-up and schematic future climate runs for ISMIP6 InitMIP
+  | (:numref:`ant64_b2_future09_vaf`; Seroussi et al. :cite:`seroussi_etal_2019`).
+
+.. _ant64_b2_future09_vaf:
+.. figure:: figs/ant64_b2_future09.png
+  :width: 480 px
+  :alt: Ice volume above flotation for future climate simulations for Antarctica
+  :align: center
+
+  Ice volume above flotation, expressed in metres of sea-level equivalent (m SLE), for the three ISMIP6 InitMIP future-climate simulations for Antarctica, repo_ant64_b2_future09_ctrl (constant-climate control run), repo_ant64_b2_future09_asmb (schematic surface-mass-balance anomaly applied) and repo_ant64_b2_future09_abmb (schematic sub-ice-shelf-melt anomaly applied).
 
 Runs ``repo_asf2_steady``, ``repo_asf2_surge``
   | Austfonna, SIA, resolution 2 km, :math:`t=0\ldots{}10\,\mathrm{ka}`.
@@ -91,7 +118,7 @@ Run ``repo_heino50_st``
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_grl16\_bm5\_ss25ka_nudged     | 25 ka      | 5 a                 | 10.6 min           |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_ant40\_b2\_ss25ka             | 25 ka      | 10 a                | 5.4 min            |
+| repo\_ant64\_bm3\_ss25ka            | 25 ka      | 2 / 10 a\ :sup:`†`  | 8.9 min            |
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_grl20\_b2\_paleo21            | 140 ka     | 5 a                 | 0.9 hrs            |
 +-------------------------------------+------------+---------------------+--------------------+
@@ -107,10 +134,14 @@ Run ``repo_heino50_st``
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_ant64\_b2\_spinup09           | 500 a      | 2 / 10 a\ :sup:`†`  | 0.5 min            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_ant64\_b2\_future09\_ctrl     | 100 a      | 2 / 10 a\ :sup:`†`  | 6.2 sec            |
+| repo\_ant64\_b2\_future09\_ctrl     | 100 a      | 2 / 10 a\ :sup:`†`  | 6.3 sec            |
++-------------------------------------+------------+---------------------+--------------------+
+| repo\_ant64\_b2\_future09\_asmb     | 100 a      | 2 / 10 a\ :sup:`†`  | 6.3 sec            |
++-------------------------------------+------------+---------------------+--------------------+
+| repo\_ant64\_b2\_future09\_abmb     | 100 a      | 2 / 10 a\ :sup:`†`  | 6.3 sec            |
 +-------------------------------------+------------+---------------------+--------------------+
 
-| Table 1: Model times, time steps and computing (CPU) times for the EISMINT, Greenland and Antarctica test simulations contained in the script ``multi_sico_1.sh``, run with SICOPOLIS v23 (revision 1ea4d5055) and the Intel Fortran Compiler 19.1 for Linux (optimization options ``-xHOST -O3 -no-prec-div``) on a 12-Core Intel Xeon Gold 6256 (3.6 GHz) PC under openSUSE Leap 15.5.
+| Table 1: Model times, time steps and computing (CPU) times for the EISMINT, Greenland and Antarctica test simulations contained in the script ``multi_sico_1.sh``, run with SICOPOLIS v23 (revision 1353323e2) and the Intel Fortran Compiler 19.1 for Linux (optimization options ``-xHOST -O3 -no-prec-div``) on a 12-Core Intel Xeon Gold 6256 (3.6 GHz) PC under openSUSE Leap 15.5.
 | \ :sup:`†`: If one value is given, this is the common dynamic (velocity, ice thickness) and thermodynamic (temperature, water content, age) time step. If two values are given (marked by the dagger (\ :sup:`†`) symbol), the first one is the dynamic, the second one the thermodynamic time step.
-| \ :sup:`‡`: All runs were done on a single core only. The ``repo_ant64_b2_xxx`` runs that include ice shelves can be done on multiple cores using OpenMP for the SSA solver. However, at the employed, low resolution of 64 km the solver does not scale well, and the gain in wall clock time by using multiple cores is very small.
+| \ :sup:`‡`: All runs were done on a single core only. The ``repo_ant64_xxx`` runs can be done on multiple cores using OpenMP for the SSA solver. However, at the employed, low resolution of 64 km the solver does not scale well, and the gain in wall clock time by using multiple cores is very small.
 | \ :sup:`\*`: For this run, see the remark in the :ref:`subsection on the resolution-doubler tool <plotting_and_tools-res_dbl>`.

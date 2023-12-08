@@ -104,6 +104,11 @@ function check_args()
 
 function run()
 {
+   OMP_NUM_THREADS=1; export OMP_NUM_THREADS
+   #              (number of threads for the SSA solver using OpenMP)
+
+   #--------
+
    (./sico.sh ${MULTI_OPTIONS_1} -m repo_vialov3d25) \
               >out_multi_101.dat 2>&1
 
@@ -120,7 +125,7 @@ function run()
               -t ${MULTI_OUTDIR}/repo_grl16_bm5_init100a) \
               >out_multi_105.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant40_b2_ss25ka) \
+   (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant64_bm3_ss25ka) \
               >out_multi_106.dat 2>&1
 
    #--------
@@ -147,13 +152,6 @@ function run()
 
    #--------
 
-   # NOTE: The following simulations require Lis and OpenMP.
-   #       In order to run them, make sure that both LIS_FLAG and OPENMP_FLAG
-   #       are set to "true" in sico_configs.sh.
-
-   OMP_NUM_THREADS=1; export OMP_NUM_THREADS
-   #              (number of threads for the SSA solver using OpenMP)
-
    (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant64_b2_spinup09_init100a) \
               >out_multi_121.dat 2>&1
 
@@ -169,6 +167,14 @@ function run()
    (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant64_b2_future09_ctrl \
               -a ${MULTI_OUTDIR}/repo_ant64_b2_spinup09) \
               >out_multi_124.dat 2>&1
+
+   (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant64_b2_future09_asmb \
+              -a ${MULTI_OUTDIR}/repo_ant64_b2_spinup09) \
+              >out_multi_125.dat 2>&1
+
+   (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant64_b2_future09_abmb \
+              -a ${MULTI_OUTDIR}/repo_ant64_b2_spinup09) \
+              >out_multi_126.dat 2>&1
 }
 
 ################################################################################

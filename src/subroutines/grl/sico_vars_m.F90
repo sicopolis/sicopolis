@@ -57,11 +57,11 @@ save
 !> smb_corr_in(j,i): Prescribed SMB correction
    real(dp), dimension(0:JMAX,0:IMAX) :: smb_corr_in
 
-#if (defined(INITMIP_SMB_ANOM_FILE))
-!> smb_anom_initmip(j,i): InitMIP anomaly of the accumulation-ablation function
-!>                        at the ice surface (surface mass balance)
+!> flag_initmip_asmb: Flag for use of InitMIP SMB anomaly
+logical :: flag_initmip_asmb
+
+!> smb_anom_initmip(j,i): InitMIP SMB anomaly
    real(dp), dimension(0:JMAX,0:IMAX) :: smb_anom_initmip
-#endif
 
 #if (DISC==2)
 !> glann_time_min: Minimum time of the data values for the

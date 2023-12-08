@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-11-09'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2023-12-07'
 !                      Date of last change
 
 !-------- Domain --------
@@ -921,9 +921,9 @@
 
 !-------- Special ISMIP6 InitMIP settings for the surface mass balance --------
 
-!!! #define INITMIP_SMB_ANOM_FILE 'smb_anomaly_64km_ISMIP6.nc'
+#define INITMIP_SMB_ANOM_FILE 'none'
 !                       Name of the file containing the surface mass balance
-!                       anomaly for ISMIP6 InitMIP
+!                       anomaly for ISMIP6 InitMIP ('none' if not used)
 
 !-------- Ice-shelf collapse masks --------
 
@@ -1211,15 +1211,17 @@
 
 !  ------ Special ISMIP6 InitMIP setting
 
-!!! #define INITMIP_BMB_ANOM_FILE 'basal_melt_anomaly_64km_ISMIP6.nc'
+#define INITMIP_BMB_ANOM_FILE 'none'
 !                       Name of the file containing the
 !                       ice-shelf basal melting anomaly for ISMIP6 InitMIP
-!                       (for FLOATING_ICE_BASAL_MELTING==4,5,6)
+!                       (for FLOATING_ICE_BASAL_MELTING==4,5,6;
+!                        'none' if not used)
 
-!!! #define LARMIP_REGIONS_FILE 'LARMIP_regions_initMIPgrid_64.nc'
+#define LARMIP_REGIONS_FILE 'none'
 !                       Name of the file containing the
 !                       regions for ISMIP6 LARMIP
-!                       (for FLOATING_ICE_BASAL_MELTING==4,5,6)
+!                       (for FLOATING_ICE_BASAL_MELTING==4,5,6;
+!                        'none' if not used)
 
 #define LARMIP_QBM_ANOM [ 0.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0 ]
 !                       Ice-shelf basal melting rate anomaly

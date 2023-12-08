@@ -626,34 +626,38 @@ call error(errormsg)
 
 #endif
 
+#if (defined(ANT))   /* Antarctic ice sheet */
+
 !  ------ Correction for ISMIP InitMIP
 
-#if (defined(INITMIP_BMB_ANOM_FILE))
+if (flag_initmip_abmb) then
 
-if ((time_in_years > 0.0_dp).and.(time_in_years <= 40.0_dp)) then
+   if ((time_in_years > 0.0_dp).and.(time_in_years <= 40.0_dp)) then
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
-   Q_bm_floating = Q_bm_floating &
+      Q_bm_floating = Q_bm_floating &
                       + 0.025_dp*floor(time_in_years)*ab_anom_initmip(j,i)
 #else /* Tapenade */
-   Q_bm_floating = Q_bm_floating &
+      Q_bm_floating = Q_bm_floating &
                       + 0.025_dp*i_time_in_years*ab_anom_initmip(j,i)
 #endif /* Normal vs. Tapenade */
 
-else if (time_in_years > 40.0_dp) then
+   else if (time_in_years > 40.0_dp) then
 
-   Q_bm_floating = Q_bm_floating + ab_anom_initmip(j,i)
+      Q_bm_floating = Q_bm_floating + ab_anom_initmip(j,i)
+
+   end if
 
 end if
 
-#endif
-
 !  ------ Correction for ISMIP LARMIP
 
-#if (defined(LARMIP_REGIONS_FILE))
+if (flag_larmip) then
    n             = n_larmip_region(j,i)
    Q_bm_floating = Q_bm_floating + ab_anom_larmip(n)
-#endif
+end if
+
+#endif   /* Antarctic ice sheet */
 
 end subroutine sub_ice_shelf_melting_param_1
 
@@ -756,7 +760,11 @@ if ( firstcall_param_2.or.(n_year_CE_aux /= n_year_CE_aux_save) ) then
 
    write(ch_year_CE, '(i0)') n_year_CE_aux
 
-   if ( trim(adjustl(TF_BM_FILES)) /= 'none' ) then
+   if ( (trim(adjustl(TF_BM_FILES)) /= 'none') &
+        .and. &
+        (trim(adjustl(TF_BM_FILES)) /= 'None') &
+        .and. &
+        (trim(adjustl(TF_BM_FILES)) /= 'NONE') ) then
 
 !  ------ Read data from file
 
@@ -830,7 +838,7 @@ if ( firstcall_param_2.or.(n_year_CE_aux /= n_year_CE_aux_save) ) then
 
 #endif /* Normal */
 
-   else   ! ( trim(adjustl(TF_BM_FILES)) == 'none' )
+   else   ! ( trim(adjustl(TF_BM_FILES)) == 'none' or 'None' or 'NONE' )
 
 !  ------ Use present-day data
 
@@ -1001,34 +1009,38 @@ do j=0, JMAX
          if ((mask(j,i)==2).and.(Q_bm(j,i) < 0.0_dp)) Q_bm(j,i) = 0.0_dp
                                      ! avoid negative values for the open ocean
 
+#if (defined(ANT))   /* Antarctic ice sheet */
+
 !    ---- Correction for ISMIP InitMIP
 
-#if (defined(INITMIP_BMB_ANOM_FILE))
+         if (flag_initmip_abmb) then
 
-         if ((time_in_years > 0.0_dp).and.(time_in_years <= 40.0_dp)) then
+            if ((time_in_years > 0.0_dp).and.(time_in_years <= 40.0_dp)) then
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
-            Q_bm(j,i) = Q_bm(j,i) &
+               Q_bm(j,i) = Q_bm(j,i) &
                            + 0.025_dp*floor(time_in_years)*ab_anom_initmip(j,i)
 #else /* Tapenade */
-            Q_bm(j,i) = Q_bm(j,i) &
+               Q_bm(j,i) = Q_bm(j,i) &
                            + 0.025_dp*i_time_in_years*ab_anom_initmip(j,i)
 #endif /* Normal vs. Tapenade */
 
-         else if (time_in_years > 40.0_dp) then
+            else if (time_in_years > 40.0_dp) then
 
-            Q_bm(j,i) = Q_bm(j,i) + ab_anom_initmip(j,i)
+               Q_bm(j,i) = Q_bm(j,i) + ab_anom_initmip(j,i)
+
+            end if
 
          end if
 
-#endif
-
 !    ---- Correction for ISMIP LARMIP
 
-#if (defined(LARMIP_REGIONS_FILE))
-         n         = n_larmip_region(j,i)
-         Q_bm(j,i) = Q_bm(j,i) + ab_anom_larmip(n)
-#endif
+         if (flag_larmip) then
+            n         = n_larmip_region(j,i)
+            Q_bm(j,i) = Q_bm(j,i) + ab_anom_larmip(n)
+         end if
+
+#endif   /* Antarctic ice sheet */
 
 !  ------ Melting rate over abyssal ocean
 

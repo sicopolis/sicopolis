@@ -57,25 +57,25 @@ save
 !> smb_corr_in(j,i): Prescribed SMB correction
    real(dp), dimension(0:JMAX,0:IMAX) :: smb_corr_in
 
-#if (defined(INITMIP_SMB_ANOM_FILE))
-!> smb_anom_initmip(j,i): InitMIP anomaly of the accumulation-ablation function
-!>                        at the ice surface (surface mass balance)
+!> flag_initmip_asmb: Flag for use of InitMIP SMB anomaly
+logical :: flag_initmip_asmb
+
+!> smb_anom_initmip(j,i): InitMIP SMB anomaly
    real(dp), dimension(0:JMAX,0:IMAX) :: smb_anom_initmip
-#endif
 
-#if (defined(INITMIP_BMB_ANOM_FILE))
-!> ab_anom_initmip(j,i): InitMIP anomaly of the basal melting rate
-!>                       under floating ice
+!> flag_initmip_abmb: Flag for use of InitMIP sub-ice-shelf-melt anomaly
+logical :: flag_initmip_abmb
+
+!> ab_anom_initmip(j,i): InitMIP sub-ice-shelf-melt anomaly
    real(dp), dimension(0:JMAX,0:IMAX) :: ab_anom_initmip
-#endif
 
-#if (defined(LARMIP_REGIONS_FILE))
+!> flag_larmip: Flag for use of LARMIP sub-ice-shelf-melt anomaly
+logical :: flag_larmip
+
 !> n_larmip_region(j,i): LARMIP regions for ice shelf basal melting
    integer(i4b), dimension(0:JMAX,0:IMAX) :: n_larmip_region
-!> ab_anom_larmip(n): LARMIP anomaly of the basal melting rate
-!>                    under floating ice
+!> ab_anom_larmip(n): LARMIP sub-ice-shelf-melt anomaly
    real(dp), dimension(0:7) :: ab_anom_larmip
-#endif
 
 !> n_bm_region(j,i): Regions for ice shelf basal melting
    integer(i4b), dimension(0:JMAX,0:IMAX) :: n_bm_region

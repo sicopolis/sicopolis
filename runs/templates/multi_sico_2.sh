@@ -127,10 +127,6 @@ function run()
 
    #--------
 
-   # NOTE: This simulation requires Lis and OpenMP.
-   #       In order to run it, make sure that both LIS_FLAG and OPENMP_FLAG
-   #       are set to "true" in sico_configs.sh.
-
    ## OMP_NUM_THREADS=1; export OMP_NUM_THREADS
    ## #              (number of threads for the SSA solver using OpenMP)
    ## 

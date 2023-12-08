@@ -897,13 +897,8 @@ real(dp),     intent(in) :: z_mar
 integer(i4b), intent(in) :: n_calc_thk_mask_update_aux
 
 integer(i4b)                       :: i, j
-real(dp)                           :: year_sec_inv
 real(dp), dimension(0:JMAX,0:IMAX) :: H_new_tmp
 real(dp)                           :: dtime_inv
-
-!-------- Term abbreviations --------
-
-year_sec_inv = 1.0_dp/year2sec
 
 !-------- Saving computed H_new before any modifications --------
 

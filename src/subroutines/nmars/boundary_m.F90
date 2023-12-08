@@ -188,7 +188,7 @@ insol_ma_90_present = (sol/pi)*sin(obliq0)/sqrt(1.0_dp-ecc0**2)
 
 ndata_insol = (insol_time_max-insol_time_min)/insol_time_stp
 
-if (time/year2sec.lt.real(insol_time_min,dp)) then
+if (time*sec2year.lt.real(insol_time_min,dp)) then
 
    insol_ma_90_now = insol_ma_90(0)
    obl_now         = obl_data(0)
@@ -196,13 +196,13 @@ if (time/year2sec.lt.real(insol_time_min,dp)) then
    ave_now         = ave_data(0)
    cp_now          = cp_data(0)
 
-else if (time/year2sec.lt.real(insol_time_max,dp)) then
+else if (time*sec2year.lt.real(insol_time_max,dp)) then
 
-   i_kl = floor(((time/year2sec) &
+   i_kl = floor(((time*sec2year) &
           -real(insol_time_min,dp))/real(insol_time_stp,dp))
    i_kl = max(i_kl, 0)
 
-   i_gr = ceiling(((time/year2sec) &
+   i_gr = ceiling(((time*sec2year) &
           -real(insol_time_min,dp))/real(insol_time_stp,dp))
    i_gr = min(i_gr, ndata_insol)
 
@@ -264,7 +264,7 @@ end if
 
 !    ---- Present value
 
-if (time_present/year2sec.lt.real(insol_time_min,dp)) then
+if (time_present*sec2year.lt.real(insol_time_min,dp)) then
 
    insol_ma_90_present = insol_ma_90(0)
    obl_present         = obl_data(0)
@@ -272,13 +272,13 @@ if (time_present/year2sec.lt.real(insol_time_min,dp)) then
    ave_present         = ave_data(0)
    cp_present          = cp_data(0)
 
-else if (time_present/year2sec.lt.real(insol_time_max,dp)) then
+else if (time_present*sec2year.lt.real(insol_time_max,dp)) then
 
-   i_kl = floor(((time_present/year2sec) &
+   i_kl = floor(((time_present*sec2year) &
           -real(insol_time_min,dp))/real(insol_time_stp,dp))
    i_kl = max(i_kl, 0)
 
-   i_gr = ceiling(((time_present/year2sec) &
+   i_gr = ceiling(((time_present*sec2year) &
           -real(insol_time_min,dp))/real(insol_time_stp,dp))
    i_gr = min(i_gr, ndata_insol)
 
@@ -556,11 +556,11 @@ end do
 eld  = ELD_0 *1.0e+03_dp   ! km -> m
 
 #if (ACC_UNIT==1)
-g_mb = G_0 *(1.0e-06_dp/year2sec)*(RHO_W/RHO_I) &
+g_mb = G_0 *(1.0e-06_dp*sec2year)*(RHO_W/RHO_I) &
            *(1.0_dp/(1.0_dp-FRAC_DUST))
            ! [mm/a water equiv.]/km -> [m/s (ice+dust) equiv.]/m
 #elif (ACC_UNIT==2)
-g_mb = G_0 *(1.0e-06_dp/year2sec)
+g_mb = G_0 *(1.0e-06_dp*sec2year)
            ! [mm/a (ice+dust) equiv.]/km -> [m/s (ice+dust) equiv.]/m
 #endif
 
@@ -588,11 +588,11 @@ end do
 #if (CHASM==2)
 
 #if (ACC_UNIT==1)
-erosion_chasm = EROSION_CHASM *(1.0e-03_dp/year2sec)*(RHO_W/RHO_I) &
+erosion_chasm = EROSION_CHASM *(1.0e-03_dp*sec2year)*(RHO_W/RHO_I) &
                               *(1.0_dp/(1.0_dp-FRAC_DUST))
            ! [mm/a water equiv.] -> [m/s (ice+dust) equiv.]
 #elif (ACC_UNIT==2)
-erosion_chasm = EROSION_CHASM  *(1.0e-03_dp/year2sec)
+erosion_chasm = EROSION_CHASM  *(1.0e-03_dp*sec2year)
            ! [mm/a (ice+dust) equiv.] -> [m/s (ice+dust) equiv.]
 #endif
 

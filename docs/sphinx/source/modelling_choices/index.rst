@@ -14,5 +14,4 @@ Modelling choices
    flow_law
    enhancement_factor
    basal_processes
-   calving
    mb_account

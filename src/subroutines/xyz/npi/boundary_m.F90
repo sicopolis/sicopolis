@@ -280,7 +280,11 @@ if ( firstcall.or.(n_year_CE_aux /= n_year_CE_aux_save) ) then
 
 !  ------ Surface-temperature anomaly
 
-   if ( trim(adjustl(TEMP_ANOM_FILES)) /= 'none' ) then
+   if ( (trim(adjustl(TEMP_ANOM_FILES)) /= 'none') &
+        .and. &
+        (trim(adjustl(TEMP_ANOM_FILES)) /= 'None') &
+        .and. &
+        (trim(adjustl(TEMP_ANOM_FILES)) /= 'NONE') ) then
 
       filename_with_path = trim(TEMP_SMB_ANOM_DIR)//'/'// &
                            trim(TEMP_ANOM_SUBDIR)//'/'// &
@@ -308,9 +312,17 @@ if ( firstcall.or.(n_year_CE_aux /= n_year_CE_aux_save) ) then
 
 !  ------ Surface-temperature vertical gradient
 
-   if ( trim(adjustl(dTEMPdz_FILES)) /= 'none' ) then
+   if ( (trim(adjustl(dTEMPdz_FILES)) /= 'none') &
+        .and. &
+        (trim(adjustl(dTEMPdz_FILES)) /= 'None') &
+        .and. &
+        (trim(adjustl(dTEMPdz_FILES)) /= 'NONE') ) then
 
-      if ( trim(adjustl(dTEMPdz_SUBDIR)) /= 'value' ) then   ! read from file
+      if ( (trim(adjustl(dTEMPdz_SUBDIR)) /= 'value') &
+           .and. &
+           (trim(adjustl(dTEMPdz_SUBDIR)) /= 'Value') &
+           .and. &
+           (trim(adjustl(dTEMPdz_SUBDIR)) /= 'VALUE') ) then  ! read from file
 
          filename_with_path = trim(TEMP_SMB_ANOM_DIR)//'/'// &
                               trim(dTEMPdz_SUBDIR)//'/'// &
@@ -346,7 +358,11 @@ if ( firstcall.or.(n_year_CE_aux /= n_year_CE_aux_save) ) then
 
 !  ------ SMB anomaly
 
-   if ( trim(adjustl(SMB_ANOM_FILES)) /= 'none' ) then
+   if ( (trim(adjustl(SMB_ANOM_FILES)) /= 'none') &
+        .and. &
+        (trim(adjustl(SMB_ANOM_FILES)) /= 'None') &
+        .and. &
+        (trim(adjustl(SMB_ANOM_FILES)) /= 'NONE') ) then
 
       filename_with_path = trim(TEMP_SMB_ANOM_DIR)//'/'// &
                            trim(SMB_ANOM_SUBDIR)//'/'// &
@@ -389,9 +405,17 @@ if ( firstcall.or.(n_year_CE_aux /= n_year_CE_aux_save) ) then
 
 !  ------ SMB vertical gradient
 
-   if ( trim(adjustl(dSMBdz_FILES)) /= 'none' ) then
+   if ( (trim(adjustl(dSMBdz_FILES)) /= 'none') &
+        .and. &
+        (trim(adjustl(dSMBdz_FILES)) /= 'None') &
+        .and. &
+        (trim(adjustl(dSMBdz_FILES)) /= 'NONE') ) then
 
-      if ( trim(adjustl(dSMBdz_SUBDIR)) /= 'value' ) then   ! read from file
+      if ( (trim(adjustl(dSMBdz_SUBDIR)) /= 'value') &
+           .and. &
+           (trim(adjustl(dSMBdz_SUBDIR)) /= 'Value') &
+           .and. &
+           (trim(adjustl(dSMBdz_SUBDIR)) /= 'VALUE') ) then  ! read from file
 
          filename_with_path = trim(TEMP_SMB_ANOM_DIR)//'/'// &
                               trim(dSMBdz_SUBDIR)//'/'// &

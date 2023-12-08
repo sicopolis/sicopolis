@@ -919,7 +919,11 @@ write(10, fmt=trim(fmt1)) 'zl_present file = '//ZL_PRESENT_FILE
 write(10, fmt=trim(fmt1)) 'zl0 file = '//ZL0_FILE
 write(10, fmt=trim(fmt1)) 'mask_present file = '//MASK_PRESENT_FILE
 #if (defined(MASK_REGION_FILE))
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
    write(10, fmt=trim(fmt1)) 'mask_region file = '//MASK_REGION_FILE
    write(10, fmt=trim(fmt1)) ' '
 end if
@@ -1095,7 +1099,11 @@ write(10, fmt=trim(fmt1)) ' '
 #endif
 
 #if (defined(SMB_CORR_FILE))
-if ( trim(adjustl(SMB_CORR_FILE)) /= 'none' ) then
+if ( (trim(adjustl(SMB_CORR_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(SMB_CORR_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(SMB_CORR_FILE)) /= 'NONE') ) then
    write(10, fmt=trim(fmt1)) 'smb_corr_file = '//SMB_CORR_FILE
    write(10, fmt=trim(fmt1)) ' '
 end if
@@ -1446,7 +1454,7 @@ call read_2d_input(filename_with_path, &
                    n_var_type=1, n_ascii_header=6, &
                    field2d_r=field2d_aux)
 
-precip_ma_present = field2d_aux *(1.0e-03_dp/year2sec)*(RHO_W/RHO)
+precip_ma_present = field2d_aux *(1.0e-03_dp*sec2year)*(RHO_W/RHO)
                                  ! mm/a water equiv. -> m/s ice equiv.
 
 !  ------ Present monthly precipitation rates
@@ -1562,7 +1570,7 @@ end do
 
 !-------- Mean accumulation --------
 
-mean_accum = MEAN_ACCUM*(1.0e-03_dp/year2sec)*(RHO_W/RHO)
+mean_accum = MEAN_ACCUM*(1.0e-03_dp*sec2year)*(RHO_W/RHO)
                        ! mm/a water equiv. -> m/s ice equiv.
 
 !-------- Read file defining the regions for the sliding laws --------
@@ -1832,7 +1840,7 @@ do j=0, JMAX
       smb_climatol(j,i) = smb_climatol_conv(i,j) /RHO
                                        ! kg/(m2*s) -> m/s ice equiv.
    else if (trim(adjustl(ch_smb_unit))=='m a-1') then
-      smb_climatol(j,i) = smb_climatol_conv(i,j) /year2sec
+      smb_climatol(j,i) = smb_climatol_conv(i,j) *sec2year
                                        ! m/a ice equiv. -> m/s ice equiv.
    else
       errormsg = ' >>> sico_init: Unit of SMB_clim could not be determined!'
@@ -1852,7 +1860,11 @@ smb_corr_in = 0.0_dp
 
 #if (defined(SMB_CORR_FILE))
 
-if (trim(adjustl(SMB_CORR_FILE)) /= 'none') then
+if ( (trim(adjustl(SMB_CORR_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(SMB_CORR_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(SMB_CORR_FILE)) /= 'NONE') ) then
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
                         trim(SMB_CORR_FILE)
@@ -1861,7 +1873,7 @@ if (trim(adjustl(SMB_CORR_FILE)) /= 'none') then
                       ch_var_name='DSMB', n_var_type=1, n_ascii_header=6, &
                       field2d_r=field2d_aux)
 
-   smb_corr_in = field2d_aux /year2sec
+   smb_corr_in = field2d_aux *sec2year
                              ! m/a ice equiv. -> m/s ice equiv.
 
 end if
@@ -2665,7 +2677,11 @@ mask_region = -1
 
 #if (defined(MASK_REGION_FILE))
 
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
                                       ! read mask_region from file
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
@@ -2838,7 +2854,11 @@ mask_region = -1
 
 #if (defined(MASK_REGION_FILE))
 
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
                                       ! read mask_region from file
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
@@ -2960,7 +2980,11 @@ mask_region = -1
 
 #if (defined(MASK_REGION_FILE))
 
-if ( trim(adjustl(MASK_REGION_FILE)) /= 'none' ) then
+if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
                                       ! read mask_region from file
 
    filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &

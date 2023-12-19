@@ -1159,8 +1159,8 @@ if ( (trim(adjustl(INITMIP_SMB_ANOM_FILE)) /= 'none') &
    ch_initmip_smb_anom_file = trim(adjustl(INITMIP_SMB_ANOM_FILE))
    write(10, fmt=trim(fmt1)) 'initmip_smb_anom file = ' &
                                 // trim(ch_initmip_smb_anom_file)
+   write(10, fmt=trim(fmt1)) ' '
 end if
-write(10, fmt=trim(fmt1)) ' '
 #endif
 
 #if (defined(ICE_SHELF_COLLAPSE_MASK))

@@ -35,4 +35,5 @@ Authors
    AD/index
    technical_notes/index
    how_to_contribute
+   abbrev
    references

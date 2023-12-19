@@ -4,7 +4,7 @@
 SICOPOLIS
 =========
 
-SICOPOLIS (SImulation COde for POLythermal Ice Sheets) is a 3D dynamic/thermodynamic model that simulates the evolution of ice sheets and ice caps. 
+SICOPOLIS (SImulation COde for POLythermal Ice Sheets) is a 3D model that simulates the evolution, dynamics and thermodynamics of ice sheets and ice caps. 
 
 Resources
 ---------

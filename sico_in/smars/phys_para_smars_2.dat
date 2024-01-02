@@ -66,16 +66,16 @@
   F_INV       = 169.81d+00
 %       Inverse flattening of Mars = 169.81
 %
-  PHI0        = -1.239184d+00
-%       Standard parallel -71 deg (71 deg S) in rad
+  LATD0       = -71.0d+00
+%       Standard parallel -71 deg (71 degS)
 %
-  LAMBDA0     = 0.0d+00
-%       Reference longitude 0 deg in rad
+  LOND0       = 0.0d+00
+%       Central meridian 0 deg (0 degE)
 %
 %-------- Table for rate factor A(T)
 %         (for Goldsby-Kohlstedt flow law with n=1.8 and d=1.4;
 %          Nye, 2000, Journal of Glaciology 46 (154), 438-444)
-%         [A] = m^1.4/(s*Pa^1.8), [T] = deg C --------
+%         [A] = m^1.4/(s*Pa^1.8), [T] = degC --------
 %
 % Format:
 % Quantity    = Value....... [% Comment]
@@ -284,7 +284,7 @@
 %
 %-------- Table for heat conductivity kappa(T)
 %         (by Greve, Weis and Hutter, 1998, Paleoclimates 2 (2-3), 133-161)
-%         [kappa] = W/(m*K), [T] = deg C --------
+%         [kappa] = W/(m*K), [T] = degC --------
 %
 % Format:
 % Quantity    = Value....... [% Comment]
@@ -493,7 +493,7 @@
 %
 %-------- Table for specific heat c(T)
 %         (by Greve, Weis and Hutter, 1998, Paleoclimates 2 (2-3), 133-161)
-%         [c] = J/(kg*K), [T] = deg C --------
+%         [c] = J/(kg*K), [T] = degC --------
 %
 % Format:
 % Quantity    = Value....... [% Comment]

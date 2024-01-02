@@ -26,7 +26,7 @@
 %
   DELTA_TM_SW = 1.85d+00
 %       Melting point depression of sea water
-%       due to its average salinity = 1.85 deg C
+%       due to its average salinity = 1.85 degC
 %
   OMEGA_MAX   = 1.0d-02
 %       Threshold value for the water content = 1%
@@ -61,17 +61,17 @@
   F_INV       = 298.257223563d+00
 %       Inverse flattening of the Earth = 298.257223563
 %
-  PHI0        = -0.698131700797732d+00
-%       Standard parallel -40 deg (40 deg S) in rad
+  LATD0       = -40.0d+00
+%       Standard parallel -40 deg (40 degS)
 %
-  LAMBDA0     = -1.265363707695889d+00
-%       Reference longitude -72.5 deg (72.5 deg W) in rad
+  LOND0       = -72.5d+00
+%       Central meridian -72.5 deg (72.5 degW)
 %
 %-------- Table for rate factor A(T)
-%         (constant; recommended base value for 0 deg C
+%         (constant; recommended base value for 0 degC
 %          by Cuffey and Paterson, "The Physics of Glaciers",
 %                                  4th ed. 2010, Sect. 3.4.6)
-%         [A] = 1/(s*Pa3), [T] = deg C --------
+%         [A] = 1/(s*Pa3), [T] = degC --------
 %
 % Format:
 % Quantity    = Value....... [% Comment]
@@ -280,7 +280,7 @@
 %
 %-------- Table for heat conductivity kappa(T)
 %         (constant; value of EISMINT Phase 2 SGE by Payne et al. (2000))
-%         [kappa] = W/(m*K), [T] = deg C --------
+%         [kappa] = W/(m*K), [T] = degC --------
 %
 % Format:
 % Quantity    = Value....... [% Comment]
@@ -489,7 +489,7 @@
 %
 %-------- Table for specific heat c(T)
 %         (constant; value of EISMINT Phase 2 SGE by Payne et al. (2000))
-%         [c] = J/(kg*K), [T] = deg C --------
+%         [c] = J/(kg*K), [T] = degC --------
 %
 % Format:
 % Quantity    = Value....... [% Comment]

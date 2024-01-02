@@ -8,7 +8,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve
+!! Copyright 2009-2024 Ralf Greve
 !!
 !! @section License
 !!
@@ -1066,25 +1066,25 @@ close(10, status='keep')
 
 !-------- Conversion of time quantities --------
 
-year_zero  = year_zero*year2sec     ! a --> s
-time_init  = time_init0*year2sec    ! a --> s
-time_end   = time_end0*year2sec     ! a --> s
-dtime      = dtime0*year2sec        ! a --> s
-dtime_temp = dtime_temp0*year2sec   ! a --> s
+year_zero  = year_zero*year2sec     ! a -> s
+time_init  = time_init0*year2sec    ! a -> s
+time_end   = time_end0*year2sec     ! a -> s
+dtime      = dtime0*year2sec        ! a -> s
+dtime_temp = dtime_temp0*year2sec   ! a -> s
 #if (REBOUND==2)
-dtime_wss  = dtime_wss0*year2sec    ! a --> s
+dtime_wss  = dtime_wss0*year2sec    ! a -> s
 #endif
 #if (CHASM==2)
-time_chasm_init = time_chasm_init0 *year2sec    ! a --> s
-time_chasm_end  = time_chasm_end0  *year2sec    ! a --> s
+time_chasm_init = time_chasm_init0 *year2sec    ! a -> s
+time_chasm_end  = time_chasm_end0  *year2sec    ! a -> s
 #endif
-dtime_ser  = dtime_ser0*year2sec    ! a --> s
+dtime_ser  = dtime_ser0*year2sec    ! a -> s
 #if (OUTPUT==1 || OUTPUT==3)
-dtime_out  = dtime_out0*year2sec    ! a --> s
+dtime_out  = dtime_out0*year2sec    ! a -> s
 #endif
 #if (OUTPUT==2 || OUTPUT==3)
 do n=1, n_output
-   time_output(n) = time_output0(n)*year2sec  ! a --> s
+   time_output(n) = time_output0(n)*year2sec  ! a -> s
 end do
 #endif
 
@@ -1146,7 +1146,7 @@ end do
 #endif
 
 !  ------ Conversion mm/a water or (ice+dust) equivalent
-!                          --> m/s (ice+dust) equivalent
+!                           -> m/s (ice+dust) equivalent
 
 do i=0, IMAX
 do j=0, JMAX
@@ -1172,12 +1172,12 @@ end do
 
 mean_accum = MEAN_ACCUM*(1.0e-03_dp*sec2year)*(RHO_W/RHO_I) &
                        *(1.0_dp/(1.0_dp-FRAC_DUST))
-!                      ! mm/a water equiv. --> m/s (ice+dust) equiv.
+!                      ! mm/a water equiv. -> m/s (ice+dust) equiv.
 
 #elif (ACC_UNIT==2)
 
 mean_accum = MEAN_ACCUM*(1.0e-03_dp*sec2year)
-!                      ! mm/a (ice+dust) equiv. --> m/s (ice+dust) equiv.
+!                      ! mm/a (ice+dust) equiv. -> m/s (ice+dust) equiv.
 
 #endif
 
@@ -1854,7 +1854,7 @@ do j=0, JMAX
    end if
 
    zs(j,i)  = zs(j,i) *1000.0_dp
-   zb(j,i)  = zb(j,i) *1000.0_dp    ! km --> m
+   zb(j,i)  = zb(j,i) *1000.0_dp    ! km -> m
    zl(j,i)  = zl(j,i) *1000.0_dp
    zl0(j,i) = zl0(j,i)*1000.0_dp
 
@@ -2030,7 +2030,7 @@ do j=0, JMAX
    end if
 
    zs(j,i)  = zs(j,i) *1000.0_dp
-   zb(j,i)  = zb(j,i) *1000.0_dp   ! km --> m
+   zb(j,i)  = zb(j,i) *1000.0_dp   ! km -> m
    zl(j,i)  = zl(j,i) *1000.0_dp
    zl0(j,i) = zl0(j,i)*1000.0_dp
 

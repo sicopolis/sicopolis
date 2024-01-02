@@ -26,7 +26,7 @@
 %
   DELTA_TM_SW = 1.85d+00
 %       Melting point depression of sea water
-%       due to its average salinity = 1.85 deg C
+%       due to its average salinity = 1.85 degC
 %
   OMEGA_MAX   = 1.0d-02
 %       Threshold value for the water content = 1%
@@ -61,14 +61,14 @@
   F_INV       = 298.257223563d+00
 %       Inverse flattening of the Earth = 298.257223563
 %
-  PHI0        = 1.239184d+00
-%       Standard parallel +71 deg (71 deg N) in rad
+  LATD0       = 71.0d+00
+%       Standard parallel +71 deg (71 degN)
 %
-  LAMBDA0     = 0.0d+00
-%       Reference longitude 0 deg (0 deg E) in rad
+  LOND0       = 0.0d+00
+%       Central meridian 0 deg (0 degE)
 %
 %-------- Table for rate factor A(T) (constant value for the Vialov profile)
-%         [A] = 1/(s*Pa3), [T] = deg C --------
+%         [A] = 1/(s*Pa3), [T] = degC --------
 %
 % Format:
 % Quantity    = Value....... [% Comment]
@@ -276,7 +276,7 @@
   RF(-190)    = 3.16887646d-24
 %
 %-------- Table for heat conductivity kappa(T) (set-up of EISMINT Phase 2 SGE)
-%         [kappa] = W/(m*K), [T] = deg C --------
+%         [kappa] = W/(m*K), [T] = degC --------
 %
 % Format:
 % Quantity    = Value....... [% Comment]
@@ -484,7 +484,7 @@
   KAPPA(-190) = 2.1d+00
 %
 %-------- Table for specific heat c(T) (set-up of EISMINT Phase 2 SGE)
-%         [c] = J/(kg*K), [T] = deg C --------
+%         [c] = J/(kg*K), [T] = degC --------
 %
 % Format:
 % Quantity    = Value....... [% Comment]

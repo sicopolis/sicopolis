@@ -26,7 +26,7 @@
 %
   DELTA_TM_SW = 1.85d+00
 %       Melting point depression of sea water
-%       due to its average salinity = 1.85 deg C
+%       due to its average salinity = 1.85 degC
 %
   OMEGA_MAX   = 1.0d-02
 %       Threshold value for the water content = 1%
@@ -61,15 +61,15 @@
   F_INV       = 298.257223563d+00
 %       Inverse flattening of the Earth = 298.257223563
 %
-  PHI0        = -1.239184d+00
-%       Standard parallel -71 deg (71 deg S) in rad
+  LATD0       = -71.0d+00
+%       Standard parallel -71 deg (71 degS)
 %
-  LAMBDA0     = 0.0d+00
-%       Reference longitude 0 deg (0 deg E) in rad
+  LOND0       = 0.0d+00
+%       Central meridian 0 deg (0 degE)
 %
 %-------- Table for rate factor A(T)
 %         (constant value 1.0d-18 1/(a*Pa3))
-%         [A] = 1/(s*Pa3), [T] = deg C --------
+%         [A] = 1/(s*Pa3), [T] = degC --------
 %
 % Format:
 % Quantity    = Value....... [% Comment]
@@ -278,7 +278,7 @@
 %
 %-------- Table for heat conductivity kappa(T)
 %         (by Greve, Weis and Hutter, 1998, Paleoclimates 2 (2-3), 133-161)
-%         [kappa] = W/(m*K), [T] = deg C --------
+%         [kappa] = W/(m*K), [T] = degC --------
 %
 % Format:
 % Quantity    = Value....... [% Comment]
@@ -487,7 +487,7 @@
 %
 %-------- Table for specific heat c(T)
 %         (by Greve, Weis and Hutter, 1998, Paleoclimates 2 (2-3), 133-161)
-%         [c] = J/(kg*K), [T] = deg C --------
+%         [c] = J/(kg*K), [T] = degC --------
 %
 % Format:
 % Quantity    = Value....... [% Comment]

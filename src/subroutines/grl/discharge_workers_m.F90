@@ -14,7 +14,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2011-2023 Reinhard Calov, Andrey Ganopolski
+!! Copyright 2011-2024 Reinhard Calov, Andrey Ganopolski
 !!                     (Potsdam Institute for Climate Impact Research)
 !!
 !! @section License

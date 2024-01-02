@@ -8,7 +8,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve
+!! Copyright 2009-2024 Ralf Greve
 !!
 !! @section License
 !!
@@ -808,7 +808,7 @@ end if
 
 !-------- Numerical time lag for evolution of H_t_new --------
 
-time_lag_cts = TAU_CTS*year2sec   ! yr --> s
+time_lag_cts = TAU_CTS*year2sec   ! a -> s
 
 do i=0, IMAX   ! extended to domain margins (22.1.02 -> V1.1)
 do j=0, JMAX   ! extended to domain margins (22.1.02 -> V1.1)
@@ -1385,8 +1385,8 @@ omega_c_new = 0.0_dp
 Q_tld       = 0.0_dp
 
 #if (defined(AGE_CONST))
-   age_c_new   = AGE_CONST *year2sec   ! a --> s
-   age_t_new   = AGE_CONST *year2sec   ! a --> s
+   age_c_new   = AGE_CONST *year2sec   ! a -> s
+   age_t_new   = AGE_CONST *year2sec   ! a -> s
 #else
    age_c_new   = 0.0_dp   ! default value 0
    age_t_new   = 0.0_dp   ! default value 0

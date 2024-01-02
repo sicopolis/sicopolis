@@ -86,7 +86,7 @@ Authorship
 Legal notes
 ===========
 
-Copyright 2009–2023 SICOPOLIS Authors.
+Copyright 2009–2024 SICOPOLIS Authors.
 
 SICOPOLIS is free and open-source software. It can be redistributed and/or modified under the terms of the `GNU General Public License <https://www.gnu.org/licenses/>`__ as published by the Free Software Foundation, either version 3 of the License, or (at the user's option) any later version.
 

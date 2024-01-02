@@ -8,7 +8,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve, Tatsuru Sato, Thomas Goelles, Jorge Bernales
+!! Copyright 2009-2024 Ralf Greve, Tatsuru Sato, Thomas Goelles, Jorge Bernales
 !!
 !! @section License
 !!

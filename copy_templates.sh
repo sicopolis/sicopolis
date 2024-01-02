@@ -9,7 +9,7 @@
 #   SICOPOLIS and the run-specification header files.
 #
 # Author: Ralf Greve
-# Date:   2022-12-26
+# Date:   2024-01-02
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 CP=/bin/cp

@@ -8,7 +8,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve, Shreyas Sunil Gaikwad
+!! Copyright 2009-2024 Ralf Greve, Shreyas Sunil Gaikwad
 !!                     Liz Curry-Logan, Sri Hari Krishna Narayanan
 !!
 !! @section License

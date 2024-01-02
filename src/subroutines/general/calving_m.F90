@@ -9,7 +9,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve, Thorben Dunse, Marius Schaefer
+!! Copyright 2009-2024 Ralf Greve, Thorben Dunse, Marius Schaefer
 !!
 !! @section License
 !!

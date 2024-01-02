@@ -5,13 +5,13 @@
 !> @file
 !!
 !! Mars Atmosphere-Ice Coupler MAIC-1.5:
-!! Computation of the surface temperature (must be less than 0 deg C)
+!! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation rate for the south polar cap of Mars.
 !! Computation of the geothermal heat flux.
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve
+!! Copyright 2009-2024 Ralf Greve
 !!
 !! @section License
 !!
@@ -34,7 +34,7 @@
 
 !-------------------------------------------------------------------------------
 !> Mars Atmosphere-Ice Coupler MAIC-1.5:
-!! Computation of the surface temperature (must be less than 0 deg C)
+!! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation rate for the south polar cap of Mars.
 !! Computation of the geothermal heat flux.
 !<------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ contains
 !-------------------------------------------------------------------------------
 !> Main routine of boundary_m:
 !! Mars Atmosphere-Ice Coupler MAIC-1.5:
-!! Computation of the surface temperature (must be less than 0 deg C)
+!! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation rate for the south polar cap of Mars.
 !! Computation of the geothermal heat flux.
 !<------------------------------------------------------------------------------

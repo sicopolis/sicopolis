@@ -61,13 +61,32 @@ The subroutines for ISMIP HEINO (Calov et al. :cite:`calov_etal_2010`) are avail
 Spatial grid
 ============
 
-In principle, SICOPOLIS allows using any orthogonal coordinates on the Earth's surface, provided that the two components :math:`g_{11}` and :math:`g_{22}` of the metric tensor are known (see ":ref:`orthog_coord`"). They are computed in the module ``metric_m``. Three options are currently implemented and can be selected in the run-specs header by the parameter ``GRID``\:
+.. _spatial_grid_hor:
+
+Horizontal coordinates
+----------------------
+
+In principle, SICOPOLIS allows using any orthogonal coordinates on the Earth's (or another planet's) surface, provided that the two components :math:`g_{11}` and :math:`g_{22}` of the metric tensor are known (see ":ref:`Orthogonal coordinates on the Earth's surface/General considerations <orthog_coord_gen>`"). Three options are currently implemented and can be selected in the run-specs header by the parameter ``GRID``\:
 
 * ``0``: Cartesian coordinates in the stereographic plane without distortion correction.
 
 * ``1``: Cartesian coordinates in the stereographic plane with distortion correction.
 
-* ``2``: Geographical coordinates (longitude/latitude).
+* ``2``: Geographic coordinates (longitude/latitude).
+
+For the cases ``0`` and ``1``, a polar stereoraphic projection for an ellipsoidal planet model is employed. The projection parameters are defined in the physical-parameter file:
+
+* ``R`` (:math:`=R_\mathrm{e}`, mean radius of planet, in m),
+* ``A`` (:math:`=A`, semi-major axis of planet, in m),
+* ``F_INV`` (:math:`=F_\mathrm{inv}`, inverse flattening of planet),
+* ``LATD0`` (:math:`=\varphi_0`, standard parallel, in deg, +/-- for N/S),
+* ``LOND0`` (:math:`=\lambda_0`, central meridian, in deg, +/-- for E/W).
+
+For case ``2`` (geographic coordinates), only the parameters ``R``, ``A`` and ``F_INV`` are relevant.
+
+The semi-minor axis :math:`B` can be computed from the above parameters via :math:`B=A(1-1/F_\mathrm{inv})`. If :math:`F_\mathrm{inv}=\infty` (i.e., ``F_INV`` set to any finite value greater than ``1.0e+10_dp``), a spherical planet with radius :math:`R_\mathrm{e}` is assumed instead of an elliptical one.
+
+The components :math:`g_{11}` and :math:`g_{22}` of the metric tensor are computed for simplicity under the assumption of a spherical planet. For case ``0`` (distortion correction neglected), they are set to unity. For the cases ``1`` and ``2``, the derivations are found in ":ref:`Orthogonal coordinates on the Earth's surface/Polar stereographic projection <orthog_coord_pol_ster>`" and ":ref:`Orthogonal coordinates on the Earth's surface/Geographic coordinate system <orthog_coord_geogr>`", respectively. The computations are carried out in the module ``metric_m``.
 
 For the most common case of Cartesian coordinates :math:`x` and :math:`y` in the stereographic plane (or any other projection plane), let the domain be the rectangle described by :math:`[x_0,x_\mathrm{max}]`, :math:`[y_0,y_\mathrm{max}]`. It is discretized by a regular (structured) grid with horizontal resolution :math:`\Delta{x}`, which is the same for the :math:`x`- and :math:`y`-directions. The location of the grid points :math:`x_i` and :math:`y_j` is then given by
 
@@ -88,6 +107,11 @@ where the notation :math:`a\,(b)\,c` means "from :math:`a` to :math:`c` in steps
 * ``DX`` (:math:`=\Delta{}x`, horizontal grid spacing in km),
 * ``IMAX`` (:math:`=i_\mathrm{max}`, maximum value of the index :math:`i`),
 * ``JMAX`` (:math:`=j_\mathrm{max}`, maximum value of the index :math:`j`).
+
+.. _spatial_grid_vert:
+
+Vertical coordinate
+-------------------
 
 For the vertical (:math:`z`) direction, a terrain-following ("sigma") transformation is employed that maps vertical columns in the physical space onto :math:`[0,1]` intervals. If the polythermal two-layer method (POLY, see Section ":ref:`ice_thermodynamics`") is employed, this mapping is done separately for the upper cold-ice layer (:math:`\zeta_\mathrm{c}` domain), the lower temperate-ice layer (:math:`\zeta_\mathrm{t}` domain) and the lithosphere layer (:math:`\zeta_\mathrm{r}` domain). The transformation is linear for the :math:`\zeta_\mathrm{t}` and :math:`\zeta_\mathrm{r}` domains. However, for the :math:`\zeta_\mathrm{c}` domain, exponential stretching is used so that equidistant grid points in the transformed domain map on grid points concentrating towards the base in the physical :math:`z`-coordinate\:
 
@@ -159,6 +183,11 @@ For all other thermodynamics schemes (ENTC, ENTM, COLD, ISOT; see Section ":ref:
   \frac{z-b_\mathrm{r}}{H_\mathrm{r}} = \zeta_\mathrm{r}.
 
 For technical reasons, the :math:`\zeta_\mathrm{t}` domain is still present and should be assigned three grid points, that is, ``KTMAX`` should be set to ``2``.
+
+.. _spatial_grid_stag:
+
+Staggered grid
+--------------
 
 A staggered Arakawa C grid is used for reasons of numerical stability
 (Arakawa and Lamb :cite:`arakawa_lamb_1977`). This means that the

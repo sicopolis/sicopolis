@@ -8,7 +8,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve, Marius Schaefer
+!! Copyright 2009-2024 Ralf Greve, Marius Schaefer
 !!
 !! @section License
 !!

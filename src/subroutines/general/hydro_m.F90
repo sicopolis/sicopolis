@@ -19,7 +19,7 @@
 !! Le Brocq et al. (2006), but has been modified and repurposed
 !! for this hydrology module of SICOPOLIS.
 !!
-!! Copyright 2006-2023 Sebastian Beyer, Anne Le Brocq, Thomas Kleiner,
+!! Copyright 2006-2024 Sebastian Beyer, Anne Le Brocq, Thomas Kleiner,
 !!                     Ralf Greve
 !!
 !! @section License

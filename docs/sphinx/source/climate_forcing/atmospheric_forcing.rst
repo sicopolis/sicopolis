@@ -8,6 +8,8 @@ Atmospheric forcing
 
 Atmospheric forcing consists of the surface temperature and surface mass balance (SMB). Both must be provided for the simulated ice sheet as functions of space and time.
 
+Note that, as mentioned in the ":ref:`ice_thermodynamics`" section, the surface temperature is capped at a maximum value of :math:`-0.001^\circ\mathrm{C}` to avoid the presence of a temperate ice surface.
+
 .. _atm_eismint:
 
 EISMINT

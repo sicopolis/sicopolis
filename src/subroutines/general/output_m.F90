@@ -8,7 +8,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve, Reinhard Calov, Thomas Goelles,
+!! Copyright 2009-2024 Ralf Greve, Reinhard Calov, Thomas Goelles,
 !!                     Thorben Dunse
 !!
 !! @section License

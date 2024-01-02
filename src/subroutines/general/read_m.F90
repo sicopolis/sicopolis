@@ -8,7 +8,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve
+!! Copyright 2009-2024 Ralf Greve
 !!
 !! @section License
 !!
@@ -1562,8 +1562,8 @@ contains
      call check( nf90_get_var(ncid, ncv, PHI0), thisroutine )
      PHI0 = PHI0 *deg2rad   ! deg -> rad
   else
-     call read_phys_para_value(n_unit, 'PHI0', PHI0)
-          ! PHI0 is already in rad, no conversion required
+     call read_phys_para_value(n_unit, 'LATD0', PHI0)
+     PHI0 = PHI0 *deg2rad   ! deg -> rad
   end if
 
   if (flag_nc) then
@@ -1571,8 +1571,8 @@ contains
      call check( nf90_get_var(ncid, ncv, LAMBDA0), thisroutine )
      LAMBDA0 = LAMBDA0 *deg2rad   ! deg -> rad
   else
-     call read_phys_para_value(n_unit, 'LAMBDA0', LAMBDA0)
-          ! LAMBDA0 is already in rad, no conversion required
+     call read_phys_para_value(n_unit, 'LOND0', LAMBDA0)
+     LAMBDA0 = LAMBDA0 *deg2rad   ! deg -> rad
   end if
 
   if (flag_nc) then
@@ -1788,7 +1788,7 @@ open(unit=1094, file=path, status='old')
        end do
     end do
 
-    ! ages yr --> s
+    ! ages a -> s
     do k=0,KDATA
        do j=0,JMAX
           do i=0,IMAX

@@ -8,7 +8,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve, Eduardo Flandez, Matthias Scheiter
+!! Copyright 2009-2024 Ralf Greve, Eduardo Flandez, Matthias Scheiter
 !!
 !! @section License
 !!

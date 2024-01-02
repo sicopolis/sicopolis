@@ -4,8 +4,8 @@
 !             (SImulation COde for POLythermal Ice Sheets)
 !
 #define       MODEL_SICOPOLIS
-#define       VERSION '23'
-#define       DATE    '2023-12-19'
+#define       VERSION '24'
+#define       DATE    '2024-01-02'
 !
 !> @mainpage
 !!
@@ -46,7 +46,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 SICOPOLIS Authors\n
+!! Copyright 2009-2024 SICOPOLIS Authors\n
 !! (<https://sicopolis.readthedocs.io/en/latest/introduction.html#authorship>)
 !!
 !! @section License
@@ -70,7 +70,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 SICOPOLIS Authors
+!! Copyright 2009-2024 SICOPOLIS Authors
 !!
 !! @section License
 !!

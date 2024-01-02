@@ -4,12 +4,12 @@
 !
 !> @file
 !!
-!! Computation of the surface temperature (must be less than 0 deg C!)
+!! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation function.
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve
+!! Copyright 2009-2024 Ralf Greve
 !!
 !! @section License
 !!
@@ -31,7 +31,7 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> Computation of the surface temperature (must be less than 0 deg C!)
+!> Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation function.
 !<------------------------------------------------------------------------------
 module boundary_m
@@ -49,7 +49,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Main routine of boundary_m:
-!! Computation of the surface temperature (must be less than 0 deg C!)
+!! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation function.
 !<------------------------------------------------------------------------------
 subroutine boundary(time, dtime, dxi, deta, &
@@ -377,18 +377,18 @@ zs_thresh = ZS_THRESH            ! Elevation threshold, in m
 #if (SOLID_PRECIP == 1)     /* Marsiat (1994) */
 
 temp_rain =    7.0_dp   ! Threshold monthly mean temperature for
-                        ! precipitation = 100% rain, in deg C
+                        ! precipitation = 100% rain, in degC
 temp_snow =  -10.0_dp   ! Threshold monthly mean temperature for &
-                        ! precipitation = 100% snow, in deg C
+                        ! precipitation = 100% snow, in degC
 
 inv_delta_temp_rain_snow = 1.0_dp/(temp_rain-temp_snow)
 
 #elif (SOLID_PRECIP == 2)   /* Bales et al. (2009) */
 
 temp_rain =    7.2_dp   ! Threshold monthly mean temperature for &
-                        ! precipitation = 100% rain, in deg C
+                        ! precipitation = 100% rain, in degC
 temp_snow =  -11.6_dp   ! Threshold monthly mean temperature for &
-                        ! precipitation = 100% snow, in deg C
+                        ! precipitation = 100% snow, in degC
 
 coeff(0) =  5.4714e-01_dp   ! Coefficients
 coeff(1) = -9.1603e-02_dp   ! of
@@ -400,9 +400,9 @@ coeff(5) =  6.0e-07_dp      ! fit
 #elif (SOLID_PRECIP == 3)   /* Huybrechts and de Wolde (1999) */
 
 temp_rain = 2.0_dp      ! Threshold instantaneous temperature for &
-                        ! precipitation = 100% rain, in deg C
+                        ! precipitation = 100% rain, in degC
 temp_snow = temp_rain   ! Threshold instantaneous temperature for &
-                        ! precipitation = 100% snow, in deg C
+                        ! precipitation = 100% snow, in degC
 
 #if (defined(S_STAT_0))
 s_stat = S_STAT_0    ! Standard deviation of the air termperature
@@ -423,13 +423,13 @@ inv_sqrt2_s_stat = 1.0_dp/(sqrt(2.0_dp)*s_stat)
                        && defined(PMAX_0) && defined(MU_0))
 s_stat   = S_STAT_0
 beta1  = BETA1_0  *(0.001_dp/86400.0_dp)*(RHO_W/RHO)
-                        ! (mm WE)/(d*deg C) --> (m IE)/(s*deg C)
+                        ! (mm WE)/(d*degC) -> (m IE)/(s*degC)
 beta2  = BETA2_0  *(0.001_dp/86400.0_dp)*(RHO_W/RHO)
-                        ! (mm WE)/(d*deg C) --> (m IE)/(s*deg C)
+                        ! (mm WE)/(d*degC) -> (m IE)/(s*degC)
 
 Pmax   = PMAX_0
 mu     = MU_0     *(1000.0_dp*86400.0_dp)*(RHO/RHO_W)
-                        ! (d*deg C)/(mm WE) --> (s*deg C)/(m IE)
+                        ! (d*degC)/(mm WE) -> (s*degC)/(m IE)
 #else
 errormsg = ' >>> boundary: ' &
            // 'Parameters for PDD model not defined in run-specs header!'
@@ -439,7 +439,7 @@ call error(errormsg)
 #elif (ABLSURFACE==3)
 
 lambda_lti = LAMBDA_LTI  *(0.001_dp*sec2year)*(RHO_W/RHO)
-                         ! (mm WE)/(a*deg C) --> (m IE)/(s*deg C)
+                         ! (mm WE)/(a*degC) -> (m IE)/(s*degC)
 temp_lti   = TEMP_LTI
 mu         = 0.0_dp       ! no superimposed ice considered
 

@@ -8,7 +8,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve
+!! Copyright 2009-2024 Ralf Greve
 !!
 !! @section License
 !!
@@ -1019,18 +1019,18 @@ close(10, status='keep')
 
 !-------- Conversion of time quantities --------
 
-year_zero  = year_zero*year2sec     ! a --> s
-time_init  = time_init0*year2sec    ! a --> s
-time_end   = time_end0*year2sec     ! a --> s
-dtime      = dtime0*year2sec        ! a --> s
-dtime_temp = dtime_temp0*year2sec   ! a --> s
-dtime_ser  = dtime_ser0*year2sec    ! a --> s
+year_zero  = year_zero*year2sec     ! a -> s
+time_init  = time_init0*year2sec    ! a -> s
+time_end   = time_end0*year2sec     ! a -> s
+dtime      = dtime0*year2sec        ! a -> s
+dtime_temp = dtime_temp0*year2sec   ! a -> s
+dtime_ser  = dtime_ser0*year2sec    ! a -> s
 #if (OUTPUT==1 || OUTPUT==3)
-dtime_out  = dtime_out0*year2sec    ! a --> s
+dtime_out  = dtime_out0*year2sec    ! a -> s
 #endif
 #if (OUTPUT==2 || OUTPUT==3)
 do n=1, n_output
-   time_output(n) = time_output0(n)*year2sec  ! a --> s
+   time_output(n) = time_output0(n)*year2sec  ! a -> s
 end do
 #endif
 
@@ -1056,7 +1056,7 @@ time = time_init
 !-------- Mean accumulation --------
 
 mean_accum = MEAN_ACCUM*(1.0e-03_dp*sec2year)*(RHO_W/RHO)
-!                      ! mm/a water equiv. --> m/s ice equiv.
+!                      ! mm/a water equiv. -> m/s ice equiv.
 
 !-------- Read file defining the regions for the sliding laws --------
 
@@ -1485,7 +1485,7 @@ end if
 write(12,1102)
 write(12,1103)
 
-   1102 format('         t(a)  D_Ts(deg C) z_sl_mean(m)',/, &
+   1102 format('         t(a)   D_Ts(degC) z_sl_mean(m)',/, &
                '                    V(m^3)     V_g(m^3)     V_f(m^3)', &
                '       A(m^2)     A_g(m^2)     A_f(m^2)',/, &
                '                               V_sle(m)     V_t(m^3)', &
@@ -1509,7 +1509,7 @@ end if
 write(15,1108)
 write(15,1109)
 
-1108 format('         t(a)  D_Ts(deg C) z_sl_mean(m)',/, &
+1108 format('         t(a)   D_Ts(degC) z_sl_mean(m)',/, &
             '                  H_ave(m)   Tbh_ave(C)     Atb(m^2)')
 1109 format('----------------------------------------------------')
 

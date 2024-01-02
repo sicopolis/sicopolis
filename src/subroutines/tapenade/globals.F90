@@ -9,7 +9,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve, Shreyas Sunil Gaikwad, Liz Curry-Logan
+!! Copyright 2009-2024 Ralf Greve, Shreyas Sunil Gaikwad, Liz Curry-Logan
 !!
 !! @section License
 !!

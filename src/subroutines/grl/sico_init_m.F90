@@ -8,7 +8,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve
+!! Copyright 2009-2024 Ralf Greve
 !!
 !! @section License
 !!
@@ -1455,21 +1455,21 @@ call error(errormsg)
 
 !-------- Conversion of time quantities --------
 
-year_zero  = year_zero*year2sec     ! a --> s
-time_init  = time_init0*year2sec    ! a --> s
-time_end   = time_end0*year2sec     ! a --> s
-dtime      = dtime0*year2sec        ! a --> s
-dtime_temp = dtime_temp0*year2sec   ! a --> s
+year_zero  = year_zero*year2sec     ! a -> s
+time_init  = time_init0*year2sec    ! a -> s
+time_end   = time_end0*year2sec     ! a -> s
+dtime      = dtime0*year2sec        ! a -> s
+dtime_temp = dtime_temp0*year2sec   ! a -> s
 #if (REBOUND==2)
-dtime_wss  = dtime_wss0*year2sec    ! a --> s
+dtime_wss  = dtime_wss0*year2sec    ! a -> s
 #endif
-dtime_ser  = dtime_ser0*year2sec    ! a --> s
+dtime_ser  = dtime_ser0*year2sec    ! a -> s
 #if (OUTPUT==1 || OUTPUT==3)
-dtime_out  = dtime_out0*year2sec    ! a --> s
+dtime_out  = dtime_out0*year2sec    ! a -> s
 #endif
 #if (OUTPUT==2 || OUTPUT==3)
 do n=1, n_output
-   time_output(n) = time_output0(n)*year2sec  ! a --> s
+   time_output(n) = time_output0(n)*year2sec  ! a -> s
 end do
 #endif
 
@@ -1517,16 +1517,16 @@ call read_scalar_input(filename_with_path, &
                        target_topo_tau0_time_max, &
                        ndata_target_topo_tau0, target_topo_tau0)
 
-target_topo_tau0 = target_topo_tau0 *year2sec   ! a --> s
+target_topo_tau0 = target_topo_tau0 *year2sec   ! a -> s
 
 #endif
 
 #if (THK_EVOL==3)
-target_topo_tau_0 = TARGET_TOPO_TAU0 *year2sec   ! a --> s
+target_topo_tau_0 = TARGET_TOPO_TAU0 *year2sec   ! a -> s
 #endif
 
 #if (ACCSURFACE==7 && ABLSURFACE==7)
-target_topo_tau_0 = TARGET_TOPO_TAU0 *year2sec   ! a --> s
+target_topo_tau_0 = TARGET_TOPO_TAU0 *year2sec   ! a -> s
 #endif
 
 time = time_init
@@ -2437,7 +2437,7 @@ if ((forcing_flag == 1).or.(forcing_flag == 3)) then
    write(12,1102)
    write(12,1103)
 
-   1102 format('         t(a)  D_Ts(deg C) z_sl_mean(m)',/, &
+   1102 format('         t(a)   D_Ts(degC) z_sl_mean(m)',/, &
                '                    V(m^3)     V_g(m^3)     V_f(m^3)', &
                '       A(m^2)     A_g(m^2)     A_f(m^2)',/, &
                '                               V_sle(m)     V_t(m^3)', &

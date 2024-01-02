@@ -4,12 +4,12 @@
 !
 !> @file
 !!
-!! Computation of the surface temperature (must be less than 0 deg C!)
+!! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation function.
 !!
 !! @section Copyright
 !!
-!! Copyright 2009-2023 Ralf Greve, Eduardo Flandez, Matthias Scheiter
+!! Copyright 2009-2024 Ralf Greve, Eduardo Flandez, Matthias Scheiter
 !!
 !! @section License
 !!
@@ -31,7 +31,7 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> Computation of the surface temperature (must be less than 0 deg C!)
+!> Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation function.
 !<------------------------------------------------------------------------------
 module boundary_m
@@ -49,7 +49,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Main routine of boundary_m:
-!! Computation of the surface temperature (must be less than 0 deg C!)
+!! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation function.
 !<------------------------------------------------------------------------------
 subroutine boundary(time, dtime, dxi, deta, &

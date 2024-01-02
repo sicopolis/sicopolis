@@ -9,7 +9,7 @@
 !!
 !! @section Copyright
 !!
-!! Copyright 2013-2023 Ralf Greve, Heinz Blatter
+!! Copyright 2013-2024 Ralf Greve, Heinz Blatter
 !!
 !! @section License
 !!
@@ -48,11 +48,11 @@ save
 #if !defined(ALLOW_TAPENADE) /* Normal */
 
 !> c_int_table:     Temperature integral of the specific heat of ice.
-!>                  Index is temperature in deg C.
+!>                  Index is temperature in degC.
    real(dp), dimension(-256:255), private       :: c_int_table
 
 !> c_int_inv_table: Inverse of the temperature integral of the specific heat
-!>                  of ice. Index is enthalpy in J/kg (zero for 0 deg C).
+!>                  of ice. Index is enthalpy in J/kg (zero for 0 degC).
    real(dp), dimension(-524288:524287), private :: c_int_inv_table
 
 !> n_temp_min: Lower index limit of properly defined values in c_int_table
@@ -122,7 +122,7 @@ if ((n_temp_min <= -256).or.(n_temp_max >= 255)) then
 end if
 
 !-------- Numerical integration with the trapezoidal rule (spacing
-!         of data in c_table and c_int_table assumed to be 1 deg C) --------
+!         of data in c_table and c_int_table assumed to be 1 degC) --------
 
 do n=n_temp_min+1, n_temp_max
    c_int_table(n) = c_int_table(n-1) + 0.5_dp*(c_table(n-1)+c_table(n))
@@ -133,7 +133,7 @@ do n=n_temp_max+1, 255
    c_int_table(n) = c_int_table(n_temp_max)   ! dummy values
 end do
 
-!-------- Shift of the zero level to 0 deg C --------
+!-------- Shift of the zero level to 0 degC --------
 
 c_int_zero = c_int_table(0)
 

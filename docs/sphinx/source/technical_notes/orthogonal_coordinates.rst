@@ -6,10 +6,12 @@ Orthogonal coordinates on the Earth's surface
 .. |nbsp| unicode:: 0xA0 
    :trim:
 
+.. _orthog_coord_gen:
+
 General considerations
 ======================
 
-In what follows, the surface of the Earth will be regarded approximately as a sphere with radius :math:`R_\mathrm{e}=6371\,\mathrm{km}`. Be :math:`x^1`, :math:`x^2` the contravariant coordinates of an arbitrary orthogonal coordinate system on a subset of this sphere (for instance, the Greenland ice sheet and surrounding area). The covariant local base vectors, :math:`\mathbf{g}_1` and :math:`\mathbf{g}_2`, are then defined as the derivatives of the position vector, :math:`\mathbf{r}`, with respect to :math:`x^1`, :math:`x^2` (Bronshtein et al. :cite:`bronshtein_etal_2015`):
+In what follows, the surface of the Earth (or any other planet considered) will be regarded approximately as a sphere with radius :math:`R_\mathrm{e}`. Be :math:`x^1`, :math:`x^2` the contravariant coordinates of an arbitrary orthogonal coordinate system on a subset of this sphere (for instance, the Greenland ice sheet and surrounding area). The covariant local base vectors, :math:`\mathbf{g}_1` and :math:`\mathbf{g}_2`, are then defined as the derivatives of the position vector, :math:`\mathbf{r}`, with respect to :math:`x^1`, :math:`x^2` (Bronshtein et al. :cite:`bronshtein_etal_2015`):
 
 .. math::
   :label: orth_crd_eq001
@@ -122,6 +124,8 @@ Inserting this result in Eq. |nbsp| :eq:`orth_crd_eq007` yields
 
 Equations |nbsp| :eq:`orth_crd_eq009` and :eq:`orth_crd_eq012` are useful for rewriting the model equations in any orthogonal coordinates on the Earth's surface.
 
+.. _orthog_coord_geogr:
+
 Geographic coordinate system
 ============================
 
@@ -160,6 +164,8 @@ The shortcoming of this system is that, when approaching the poles, :math:`\varp
   \lim_{\varphi\rightarrow\pm 90^\circ} g_{11} = 0,
 
 so that the expressions :eq:`orth_crd_eq009` and :eq:`orth_crd_eq012` are no longer defined. Therefore, the latitude-longitude system cannot be used unmodified for a domain that includes one of the Earth's poles.
+
+.. _orthog_coord_pol_ster:
 
 Polar stereographic projection
 ==============================
@@ -286,7 +292,17 @@ from which the metric tensor of the projection can be inferred:
 
   g_{11} = g_{22}
   = \frac{\cos^4\frac{\theta}{2}}{K^2}
-  = \frac{1}{K^2 \left(1+\frac{x^2+y^2}{(2R_\mathrm{e}K)^2}\right)^2}.
+  = \frac{1}{K^2 \left(1+\frac{x^2+y^2}{(2R_\mathrm{e}K)^2}\right)^2}
+
+(see :numref:`stereo_sphere_metric`).
+
+.. _stereo_sphere_metric:
+.. figure:: figs/stereo_sphere_metric.png
+  :width: 435 px
+  :alt: Metric tensor
+  :align: center
+
+  Metric tensor (:math:`g_{11},\;g_{22}`) of the polar stereographic projection for a spherical Earth model. Standard parallel :math:`\varphi_0=70^\circ\mathrm{N}`.
 
 A simpler alternative is to neglect the distortion involved by the projection. In this case, the metric tensor becomes equal to the identity tensor,
 

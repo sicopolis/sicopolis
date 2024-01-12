@@ -16,7 +16,7 @@ DOMAIN_SHORT=grl
 endif
 
 ifndef DISC_AND_GRL
-DISC_AND_GRL := $(shell python3 subroutines/tapenade/check_GRL_DISC.py -f ../runs/headers/sico_specs_${HEADER}.h)
+DISC_AND_GRL := $(shell python3 subroutines/tapenade/check_GRL_DISC.py -f ../headers/sico_specs_${HEADER}.h)
 ### PRINT STATEMENT TO CHECK VARIABLE ###
 ifeq ($(DISC_AND_GRL),0)
 $(info DISC_AND_GRL is $(DISC_AND_GRL))
@@ -552,7 +552,7 @@ numCore.F90: sicopolis.F90
 RUN=$(HEADER)
 INDIR=../sico_in
 RESDIR=../sico_out/$(HEADER)
-sico_specs.h: ../runs/headers/sico_specs_$(HEADER).h
+sico_specs.h: ../headers/sico_specs_$(HEADER).h
 	cp $^ sico_specs.h
 
 drivernormal: sico_specs.h $(SRC_SICO_PASSIVE) $(SRC_SICO_SOLVERS) $(SRC_SICO) $(SRC_SICO_COST) $(SRC)
@@ -590,7 +590,7 @@ subroutines/tapenade/tapenade_m.o: subroutines/tapenade/tapenade_m.F90
 	${F90C} -DALLOW_TAPENADE ${LISFLAG} -I./ ${F90FLAGS} -o $@ -c $<
 
 sico_variables_m_cpp.f90: subroutines/general/sico_variables_m.F90
-	python3 subroutines/tapenade/deal_with_metadata.py -SS ../runs/headers/sico_specs_${HEADER}.h -SV subroutines/general/sico_variables_m.F90
+	python3 subroutines/tapenade/deal_with_metadata.py -SS ../headers/sico_specs_${HEADER}.h -SV subroutines/general/sico_variables_m.F90
 	$(CPPCMD_FILES) > dummy.f90
 	cat dummy.f90 > $@
 	sed -i 's/__NL__/\n/g' $@

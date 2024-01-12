@@ -23,7 +23,7 @@ The output described in ":ref:`getting_started-output`" can be visualized with a
 Make ISMIP output
 =================
 
-Fortran program (located in sicopolis/tools/make_ismip_output) that generates `ISMIP6 output <https://www.climate-cryosphere.org/wiki/index.php?title=ISMIP6-Projections2300-Antarctica#A2.3.3_Table_A1:_Variable_request_for_ISMIP6>`__ from the NetCDF time-slice files produced by SICOPOLIS (see ":ref:`getting_started-output`"). For simulation ``<run_name>``, to be executed by ::
+Fortran program (located in ``tools/make_ismip_output``) that generates `ISMIP6 output <https://www.climate-cryosphere.org/wiki/index.php?title=ISMIP6-Projections2300-Antarctica#A2.3.3_Table_A1:_Variable_request_for_ISMIP6>`__ from the NetCDF time-slice files produced by SICOPOLIS (see ":ref:`getting_started-output`"). For simulation ``<run_name>``, to be executed from the directory ``tools`` by ::
 
   ./tools.sh -p make_ismip_output -m <run_name>
 
@@ -34,7 +34,7 @@ To list further options, execute ``./tools.sh -h``.
 Resolution doubler
 ==================
 
-Fortran program (located in sicopolis/tools/resolution_doubler) that doubles the horizontal resolution of a NetCDF time-slice output file produced by SICOPOLIS (see ":ref:`getting_started-output`"). For simulation ``<run_name>``, to be executed by ::
+Fortran program (located in ``tools/resolution_doubler``) that doubles the horizontal resolution of a NetCDF time-slice output file produced by SICOPOLIS (see ":ref:`getting_started-output`"). For simulation ``<run_name>``, to be executed from the directory ``tools`` by ::
 
   ./tools.sh -p resolution_doubler -m <run_name>
 

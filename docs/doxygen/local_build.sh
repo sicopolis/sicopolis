@@ -7,17 +7,17 @@
 
 # Requirements:
 # -------------
-# Ensure that you have Doxygen version 1.8.1 or later installed.
+# Ensure that you have Doxygen version 1.10.0 or later installed.
 
 # Doxygen config file (in docs/doxygen/doxygen-config):
 # -----------------------------------------------------
 # Copy the config template:
-# cp doxygen1.8.1-config-template.txt my_doxygen1.8.1-config.txt
+# cp Doxyfile_Template.txt my_Doxyfile.txt
 #
-# Edit my_doxygen1.8.1-config.txt:  
+# Edit my_Doxyfile.txt:
 #  * Search for "Revision ...", and replace "..." with the current
-#    revision number  
-#    (execute `./rev_id.sh` in the runs directory to find out).  
+#    revision number
+#    (execute `./rev_id.sh` in the main directory to find out).
 #  * Search for "/home/username/Documents/sicopolis/src", and replace
 #    this by the actual path of the src directory.
 
@@ -51,7 +51,7 @@ fi
 
 cd docs/doxygen/doxygen-config/
 
-doxygen my_doxygen1.8.1-config.txt
+doxygen my_Doxyfile.txt
 
 cd ../../../
 

@@ -810,7 +810,7 @@ def simulation(mode, header, domain,
 		print("Can't change the Current Working Directory")
 		sys.exit(1)
 
-	copy_file(f'../runs/headers/sico_specs_{header}.h', 'sico_specs.h')
+	copy_file(f'../headers/sico_specs_{header}.h', 'sico_specs.h')
 
 	if ind_var_dim == 3 and ind_var_z_co_ord is None:
 		raise Exception ("Wrong input arguments for dimension")

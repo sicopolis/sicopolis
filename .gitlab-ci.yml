@@ -22,7 +22,7 @@ tests:
         script:
                - ./get_input_files.sh
                - cd test_ad
-               - cp sico_specs_repo_ant40_b2_ss25ka.h ../runs/headers
-               - cp sico_specs_repo_grl16_bm5_ss25ka.h ../runs/headers
-               - cp sico_specs_repo_ant64_b2_future09_ctrl.h ../runs/headers
+               - cp sico_specs_repo_ant40_b2_ss25ka.h ../headers
+               - cp sico_specs_repo_grl16_bm5_ss25ka.h ../headers
+               - cp sico_specs_repo_ant64_b2_future09_ctrl.h ../headers
                - pytest tests.py

@@ -117,9 +117,9 @@ function check_args()
 
    # Configuration file
    if [ ! "$CONFIG" ]; then
-      CONFIG="../runs/sico_configs.sh"
+      CONFIG="../sico_configs.sh"
    else
-      CONFIG="../runs/`basename $CONFIG`"
+      CONFIG="../`basename $CONFIG`"
       if [ ! -e $CONFIG ]; then error "$CONFIG does not exist."; fi
    fi
 
@@ -132,7 +132,7 @@ function check_args()
 
 function compile()
 {
-   source ../runs/sico_environment.sh
+   source ../sico_environment.sh
 
    info "\nConfiguration file ${CONFIG}."
    source $CONFIG

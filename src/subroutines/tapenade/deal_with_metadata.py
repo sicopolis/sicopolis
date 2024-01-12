@@ -260,7 +260,7 @@ def SEA_LEVEL_3(sico_specs_file, sico_variables_file):
 if __name__ == '__main__':
 
 	## Example Usage from src/ dir -
-	## python subroutines/tapenade/deal_with_metadata.py -SS ../runs/headers/sico_specs_${HEADER}.h -SV subroutines/general/sico_variables_m.F90
+	## python subroutines/tapenade/deal_with_metadata.py -SS ../headers/sico_specs_${HEADER}.h -SV subroutines/general/sico_variables_m.F90
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-SV", "--sico_variables", help="name of sico variables file", type=str, required=True)

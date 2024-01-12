@@ -9,21 +9,21 @@
 #   SICOPOLIS and the run-specification header files.
 #
 # Author: Ralf Greve
-# Date:   2024-01-02
+# Date:   2024-01-08
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 CP=/bin/cp
 
-RUN_DIR=./runs
-TOOLS_DIR=./tools
-HEADER_DIR=${RUN_DIR}/headers
-TEMPLATE_DIR_NAME=templates
+MAIN_DIR="."
+TOOLS_DIR="${MAIN_DIR}/tools"
+HEADER_DIR="${MAIN_DIR}/headers"
+TEMPLATE_DIR_NAME="templates"
 
 echo "Copying scripts *.sh"
-echo "        from ${RUN_DIR}/${TEMPLATE_DIR_NAME}"
-echo "        to ${RUN_DIR} ..."
+echo "        from ${MAIN_DIR}/${TEMPLATE_DIR_NAME}"
+echo "        to ${MAIN_DIR} ..."
 echo " "
-$CP -f ${RUN_DIR}/${TEMPLATE_DIR_NAME}/*.sh ${RUN_DIR}
+$CP -f ${MAIN_DIR}/${TEMPLATE_DIR_NAME}/*.sh ${MAIN_DIR}
 
 echo "Copying scripts *.sh"
 echo "        from ${TOOLS_DIR}/${TEMPLATE_DIR_NAME}"

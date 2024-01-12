@@ -98,7 +98,7 @@ A typical finite differences simulation requires perturbing the correct independ
 
 .. code-block:: python
 
-   copy_file(f'../runs/headers/sico_specs_{header}.h', 'sico_specs.h')
+   copy_file(f'../headers/sico_specs_{header}.h', 'sico_specs.h')
 
 2. Perturb the correct independent variable in ``grdchk_main`` subroutine in ``src/subroutines/tapenade/tapenade_m.F90``.
 
@@ -154,7 +154,7 @@ A typical tangent linear mode simulation is set up by giving the correct depende
 
 .. code-block:: python
 
-   copy_file(f'../runs/headers/sico_specs_{header}.h', 'sico_specs.h')
+   copy_file(f'../headers/sico_specs_{header}.h', 'sico_specs.h')
 
 2. Set up the I/O for the differentiated variable
 
@@ -216,7 +216,7 @@ The adjoint mode has the most possible options of what can be done with it. A ty
 
 .. code-block:: python
 
-   copy_file(f'../runs/headers/sico_specs_{header}.h', 'sico_specs.h')
+   copy_file(f'../headers/sico_specs_{header}.h', 'sico_specs.h')
 
 3. Compile the code once.
 

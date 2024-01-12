@@ -3,7 +3,7 @@
 
 # one variable, more parameters
 
-fldr = "/home/marius/Models/Sicopolis/runs/headers"
+fldr = "/home/marius/Models/Sicopolis/headers"
 
 file_in = "sico_specs_const_calv.h"
 

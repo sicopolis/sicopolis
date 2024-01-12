@@ -37,11 +37,11 @@ Download an archive
 Initial configuration
 =====================
 
-1. Change to the new directory ``sicopolis`` and execute the bash script ``copy_templates.sh``::
+1. Change to the main directory ``sicopolis`` and execute the bash script ``copy_templates.sh``::
 
       ./copy_templates.sh
 
-   It copies several scripts from ``runs/templates`` to ``runs`` and the run-specs header files from ``runs/headers/templates`` to ``runs/headers``. This allows modifying the scripts and headers suitably if needed, while the original files are always stored in the respective templates subdirectories for reference. 
+   It copies several scripts from ``templates`` to ``.`` (the main directory), from ``tools/templates`` to ``tools``, and the run-specs header files from ``headers/templates`` to ``headers``. This allows modifying the scripts and headers suitably if needed, while the original files are always stored in the respective templates subdirectories for reference. 
 
 2. Execute the bash script ``get_input_files.sh``::
 
@@ -49,7 +49,7 @@ Initial configuration
 
   It downloads the input data files for the several model domains (Antarctica, Greenland, etc.) These files are stored on a server (`Zenodo archive <https://doi.org/10.5281/zenodo.6371122>`__) and needed for various inputs such as topography, precipitation, geothermal heat flux, etc. The script can be configured before execution if the input files are only needed for selected domains (default is downloading everything). To do so, open it with a text editor and change the flag variables according to the instructions in the script.
 
-3. Locate the file ``sico_configs.sh`` in the directory ``runs``, and open it with a text editor.
+3. Locate the file ``sico_configs.sh`` in the main directory, and open it with a text editor.
 
    Set the flags ``LIS_FLAG``, ``OPENMP_FLAG`` and ``LARGE_DATA_FLAG`` according to your needs. 
 
@@ -61,7 +61,7 @@ Initial configuration
 
    Depending on your system, some additional settings might have to be added in ``sico_configs.sh`` (``module load`` commands for dynamic loading etc.).
 
-4. Locate the file ``sico_environment.sh`` in the directory ``runs``, open it with a text editor, and replace the ``SICO_INSTITUTION="Default"`` entry by the name of your institution (max. 256 characters).
+4. Locate the file ``sico_environment.sh`` in the main directory, open it with a text editor, and replace the ``SICO_INSTITUTION="Default"`` entry by the name of your institution (max. 256 characters).
 
 Directory structure
 ===================
@@ -69,19 +69,18 @@ Directory structure
 Main directory
   Initialization scripts ``copy_templates.sh``, ``get_input_files.sh``.
 
-  License file.
-
-Directory ``runs``
   Configuration scripts ``sico_configs.sh``, ``sico_environment.sh``.
 
-  Shell script (bash) ``sico.sh`` for running a single simulation.
+  Shell script ``sico.sh`` for running a single simulation.
 
-  Shell scripts (bash) ``multi_sico_1.sh`` and ``multi_sico_2.sh`` for running multiple simulations by repeated calls of ``sico.sh``.
+  Shell scripts ``multi_sico_1.sh`` and ``multi_sico_2.sh`` for running multiple simulations by repeated calls of ``sico.sh``.
 
-  Subdirectory ``headers``
-    Run-specs header files ``sico_specs_<run_name>.h`` (see :ref:`below <getting_started-run_specs_headers>`) for the simulations to be carried out with SICOPOLIS.
+  README and LICENSE files.
 
-    By default, it contains a number of :ref:`test simulations <test_simulations>`.
+Directory ``headers``
+  Run-specs header files ``sico_specs_<run_name>.h`` (see :ref:`below <getting_started-run_specs_headers>`) for the simulations to be carried out with SICOPOLIS.
+
+  By default, it contains a number of :ref:`test simulations <test_simulations>`.
 
 Directory ``src``
   Main program file ``sicopolis.F90``.
@@ -123,6 +122,9 @@ Directory ``sico_out``
 
 Directory ``docs``
   Documentation for SICOPOLIS.
+
+Directory ``tmp``
+  Empty directory, contents ignored by Git.
 
 Directory ``tools``
   Some useful tools and a shell script (``tools.sh``) to execute them (see ":ref:`plotting_and_tools`").
@@ -167,9 +169,9 @@ How to run a simulation
 
 For example, to run the EISMINT Phase 2 Simplified Geometry Experiment A (Payne et al. :cite:`payne_etal_2000`), named ``repo_emtp2sge25_expA``, use the script ``sico.sh`` as follows::
 
-  (./sico.sh -m repo_emtp2sge25_expA) >out_001.dat 2>&1
+  (./sico.sh -m repo_emtp2sge25_expA) >tmp/out_001.dat 2>&1 &
 
-(from directory ``runs``, bash required). Accordingly for any other simulation.
+(from the main directory, bash required). Accordingly for any other simulation.
 
 To list further options, execute ``./sico.sh -h``.
 
@@ -178,13 +180,13 @@ To list further options, execute ``./sico.sh -h``.
 
 If you prefer to run :ref:`all EISMINT, Antarctica and Greenland simulations <test_simulations>` consecutively, execute the script ``multi_sico_1.sh``::
 
-  (./multi_sico_1.sh) >out_multi_100.dat 2>&1 &
+  (./multi_sico_1.sh) >tmp/out_multi_100.dat 2>&1 &
 
 To list further options, execute ``./multi_sico_1.sh -h``.
 
 Alternatively, :ref:`all other test simulations (Austfonna etc.) <test_simulations>` can be run with the script ``multi_sico_2.sh``::
 
-  (./multi_sico_2.sh) >out_multi_200.dat 2>&1 &
+  (./multi_sico_2.sh) >tmp/out_multi_200.dat 2>&1 &
 
 Approximate computing times are listed in the ":ref:`Test simulations <test_simulations>`" section.
 

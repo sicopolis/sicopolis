@@ -10,7 +10,7 @@ LANG=C
 #
 #  Authors: Malte Thoma, Thomas Goelles, Ralf Greve, Fuyuki Saito
 #
-#  Date: 2020-07-08
+#  Date: 2024-01-08
 #
 #    Execute script 
 #       ./sico.sh -m <run_name> [further options...]
@@ -101,7 +101,7 @@ function check_args()
 
    # Output directory, absolute paths
    if [ ! "$OUTDIR" ]; then
-      RESDIR=${PWD}"/../sico_out/$RUN"
+      RESDIR=${PWD}"/sico_out/$RUN"
    else
       lastch=`echo $OUTDIR | sed -e 's/\(^.*\)\(.$\)/\2/'`
       if [ ${lastch} == "/" ]; then OUTDIR=`echo $OUTDIR | sed '$s/.$//'`; fi
@@ -111,7 +111,7 @@ function check_args()
    
    # Input directory, absolute paths
       if [ ! "$INDIRIN" ]; then
-      INDIR=${PWD}"/../sico_in"
+      INDIR=${PWD}"/sico_in"
    else
       lastch=`echo $INDIRIN | sed -e 's/\(^.*\)\(.$\)/\2/'`
       if [ ${lastch} == "/" ]; then INDIRIN=`echo $INDIRIN  | sed '$s/.$//'`; fi
@@ -193,7 +193,7 @@ function compile()
 
    source ./rev_id.sh >/dev/null 2>&1
 
-   cd ../src/
+   cd ./src/
 
    EXE_FILE='sico_'${RUN}'.x'
 
@@ -246,7 +246,7 @@ function run()
       return 0
    fi
 
-   cd ../src/
+   cd ./src/
 
    # Needed for openmp on LINUX 
    UNAME=`uname`
@@ -256,7 +256,7 @@ function run()
       export STACKSIZE=8192
    fi
 
-   local OUT=../runs/out_$RUN.dat
+   local OUT=../out_$RUN.dat
    info "Starting ./$EXE_FILE"
    info "         (log-output in out_$RUN.dat) ..."
 

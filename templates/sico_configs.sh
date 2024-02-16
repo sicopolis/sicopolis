@@ -6,7 +6,7 @@
 
 export FC=gfortran
 ###    Can be set here if needed.
-###    So far, gfortran and ifort are supported.
+###    Currently, gfortran, ifort and ifx are supported.
 
 if [ "$FC" != "" ] ; then
    echo "Fortran compiler >$FC< found."
@@ -95,15 +95,38 @@ fi
 
 #-------- Compiler flags --------
 
-if [ "$FC" = "ifort" ] ; then
+if [ "$FC" = "ifx" ] ; then
 
    case $PROGNAME in
         "sicopolis")
            FCFLAGS='-xHOST -O3 -no-prec-div'
            # This is '-fast' without '-static' and '-ipo'
            ;;
-        "sicograph")
-           FCFLAGS='-O2 -Vaxlib'
+        *)
+           FCFLAGS='-O2'
+           ;;
+   esac            
+
+   if [ "$LARGE_DATA_FLAG" = "true" ] ; then
+      FCFLAGS=${FCFLAGS}' -mcmodel=medium -shared-intel'
+      # No memory restriction on data (more than 2GB possible)
+   fi
+
+   if [ "$OPENMP_FLAG" = "true" ] ; then
+      case $PROGNAME in
+           "sicopolis")
+              FCFLAGS=${FCFLAGS}' -qopenmp'
+              ;;
+           *) ;;
+      esac            
+   fi
+
+elif [ "$FC" = "ifort" ] ; then
+
+   case $PROGNAME in
+        "sicopolis")
+           FCFLAGS='-xHOST -O3 -no-prec-div'
+           # This is '-fast' without '-static' and '-ipo'
            ;;
         *)
            FCFLAGS='-O2'
@@ -129,9 +152,6 @@ elif [ "$FC" = "gfortran" ] ; then
 
    case $PROGNAME in
         "sicopolis")
-           FCFLAGS='-O2 -ffree-line-length-none'
-           ;;
-        "sicograph")
            FCFLAGS='-O2 -ffree-line-length-none'
            ;;
         *)

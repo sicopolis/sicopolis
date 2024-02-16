@@ -2,16 +2,14 @@
 !
 !  Module :  m e t r i c _ m
 !
-!> @file
-!!
 !! Definition of the components g11 and g22 of the metric tensor of the
 !! applied numerical coordinates.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve, Roland Warner
+!! Ralf Greve, Roland Warner
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -22,18 +20,18 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Definition of the components g11 and g22 of the metric tensor of the
 !! applied numerical coordinates.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module metric_m
 
   use sico_types_m
@@ -49,7 +47,7 @@ contains
 !> Main routine of module metric_m:
 !! Definition of the components g11 and g22 of the metric tensor of the
 !! applied numerical coordinates.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine metric()
 
   use sico_variables_m, only : xi, eta, &
@@ -173,7 +171,7 @@ contains
 !-------------------------------------------------------------------------------
 !> Components g11 and g22 of the metric tensor for the
 !! stereographical projection.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine metric_stereo(x_val, y_val, K, g11_r, g22_r)
 
   use sico_variables_m, only : R
@@ -192,7 +190,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Components g11 and g22 of the metric tensor for geographical coordinates.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine metric_geogr(phi_val, g11_r, g22_r)
 
   use sico_variables_m, only : R

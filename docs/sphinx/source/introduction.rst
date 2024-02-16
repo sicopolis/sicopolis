@@ -12,10 +12,11 @@ The coding is based on a low-tech, ease-of-use philosophy. All structures are ke
 Resources
 =========
 
-* Model website: https://www.sicopolis.net/
-* This user manual: https://sicopolis.readthedocs.io/
-* GitLab repository: https://gitlab.awi.de/sicopolis/sicopolis/
-* SICOPOLIS community @ Zenodo: https://zenodo.org/communities/sicopolis/
+* Model website: https://www.sicopolis.net/.
+* This user manual: https://sicopolis.readthedocs.io/.
+* Developer manual: See the :ref:`building instructions <developer_manual>`.
+* GitLab repository: https://gitlab.awi.de/sicopolis/sicopolis/.
+* SICOPOLIS community @ Zenodo: https://zenodo.org/communities/sicopolis/.
 
 Authorship
 ==========

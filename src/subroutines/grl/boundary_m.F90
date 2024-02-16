@@ -2,16 +2,15 @@
 !
 !  Module :  b o u n d a r y _ m
 !
-!> @file
-!!
+!! GRL domain:
 !! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation function.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve
+!! Ralf Greve
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -22,18 +21,19 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> Computation of the surface temperature (must be less than 0 degC)
+!> GRL domain:
+!! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation function.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module boundary_m
 
   use sico_types_m
@@ -53,7 +53,7 @@ contains
 !> Main routine of boundary_m:
 !! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation function.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine boundary(time, dtime, dxi, deta, &
                     delta_ts, glac_index, z_mar)
 
@@ -65,9 +65,7 @@ subroutine boundary(time, dtime, dxi, deta, &
   use netcdf
   use nc_check_m
 
-#if ((MARGIN==2) \
-      && (MARINE_ICE_FORMATION==2) \
-      && (MARINE_ICE_CALVING==9))
+#if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
   use calving_m
 #endif
 
@@ -958,8 +956,7 @@ inv_sqrt2_s_stat = 1.0_dp/(sqrt(2.0_dp)*s_stat)
 
 #if (ABLSURFACE==1 || ABLSURFACE==2)
 
-#if (defined(S_STAT_0) && defined(BETA1_0) && defined(BETA2_0) \
-                       && defined(PMAX_0) && defined(MU_0))
+#if (defined(S_STAT_0) && defined(BETA1_0) && defined(BETA2_0) && defined(PMAX_0) && defined(MU_0))
 s_stat = S_STAT_0
 beta1  = BETA1_0  *(0.001_dp/86400.0_dp)*(RHO_W/RHO)
                            ! (mm WE)/(d*degC) -> (m IE)/(s*degC)
@@ -1332,9 +1329,7 @@ end do
 
 calving = 0.0_dp   ! Initialization
 
-#if ((MARGIN==2) \
-      && (MARINE_ICE_FORMATION==2) \
-      && (MARINE_ICE_CALVING==9))
+#if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
 
 call calving_underwater_ice()
 

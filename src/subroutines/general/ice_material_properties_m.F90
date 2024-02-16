@@ -2,17 +2,15 @@
 !
 !  Module :  i c e _ m a t e r i a l _ p r o p e r t i e s _ m
 !
-!> @file
-!!
 !! Material properties of ice:
 !! Rate factor, heat conductivity, specific heat (heat capacity),
 !! creep function, viscosity.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve
+!! Ralf Greve
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -23,19 +21,19 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Material properties of ice:
 !! Rate factor, heat conductivity, specific heat (heat capacity),
 !! creep function, viscosity.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module ice_material_properties_m
 
 use sico_types_m
@@ -46,39 +44,42 @@ save
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
 
-!> RF(n): Tabulated values for the rate factor of cold ice
-   real(dp), dimension(-256:255), private       :: RF
+real(dp), dimension(-256:255), private :: RF
+   !! Tabulated values for the rate factor of cold ice
 
-!> R_T: Coefficient of the water-content dependence in the rate factor
-!>      for temperate ice
-   real(dp)                     , private       :: R_T
+real(dp), private :: R_T
+   !! Coefficient of the water-content dependence in the rate factor
+   !! for temperate ice
 
-!> KAPPA(n): Tabulated values for the heat conductivity of ice
-   real(dp), dimension(-256:255), private       :: KAPPA
+real(dp), dimension(-256:255), private :: KAPPA
+   !! Tabulated values for the heat conductivity of ice
 
-!> C(n): Tabulated values for the specific heat of ice
-   real(dp), dimension(-256:255), private       :: C
+real(dp), dimension(-256:255), private :: C
+   !! Tabulated values for the specific heat of ice
 
-!> n_temp_min: Lower index limit of properly defined values in RF, KAPPA and C
-!>             (n_temp_min >= -256).
-   integer(i4b), private :: n_temp_min
+integer(i4b), private :: n_temp_min
+   !! Lower index limit of properly defined values in RF, KAPPA and C
+   !! (n_temp_min >= -256).
 
-!> n_temp_max: Upper index limit of properly defined values in RF, KAPPA and C
-!>             (n_temp_max <= 255).
-   integer(i4b), private :: n_temp_max
+integer(i4b), private :: n_temp_max
+   !! Upper index limit of properly defined values in RF, KAPPA and C
+   !! (n_temp_max <= 255).
 
-!> RHO_I: Density of ice
-   real(dp)                     , private       :: RHO_I
-                                                ! only for the Martian ice caps
-!> RHO_C: Density of crustal material (dust)
-   real(dp)                     , private       :: RHO_C
-                                                ! only for the Martian ice caps
-!> KAPPA_C: Heat conductivity of crustal material (dust)
-   real(dp)                     , private       :: KAPPA_C
-                                                ! only for the Martian ice caps
-!> C_C: Specific heat of crustal material (dust)
-   real(dp)                     , private       :: C_C
-                                                ! only for the Martian ice caps
+real(dp), private :: RHO_I
+   !! Density of ice
+   !! (only for the Martian ice caps)
+
+real(dp), private :: RHO_C
+   !! Density of crustal material (dust)
+   !! (only for the Martian ice caps)
+
+real(dp), private :: KAPPA_C
+   !! Heat conductivity of crustal material (dust)
+   !! (only for the Martian ice caps)
+
+real(dp), private :: C_C
+   !! Specific heat of crustal material (dust)
+   !! (only for the Martian ice caps)
 
 private
 public :: ice_mat_eqs_pars, &
@@ -109,7 +110,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Setting of required physical parameters.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine ice_mat_eqs_pars(RF_table, R_T_val, KAPPA_table, C_table, &
                             n_tmp_min, n_tmp_max, &
                             RHO_I_val, RHO_C_val, KAPPA_C_val, C_C_val)
@@ -296,7 +297,7 @@ end subroutine ice_mat_eqs_pars
 !-------------------------------------------------------------------------------
 !> Rate factor for cold ice:
 !! Linear interpolation of tabulated values in RF(.).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 function ratefac_c(temp_val, temp_m_val)
 
 use sico_variables_m
@@ -340,7 +341,7 @@ end function ratefac_c
 
 !-------------------------------------------------------------------------------
 !> Rate factor for temperate ice.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 function ratefac_t(omega_val)
 
 use sico_variables_m
@@ -361,7 +362,7 @@ end function ratefac_t
 !-------------------------------------------------------------------------------
 !> Rate factor for cold and temperate ice:
 !! Combination of ratefac_c and ratefac_t (only for the enthalpy method).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 function ratefac_c_t(temp_val, omega_val, temp_m_val)
 
 use sico_variables_m
@@ -408,7 +409,7 @@ end function ratefac_c_t
 !-------------------------------------------------------------------------------
 !> Heat conductivity of ice:
 !! Linear interpolation of tabulated values in KAPPA(.).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 function kappa_val(temp_val)
 
 use sico_variables_m
@@ -476,7 +477,7 @@ end function kappa_val
 !-------------------------------------------------------------------------------
 !> Specific heat of ice:
 !! Linear interpolation of tabulated values in C(.).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 function c_val(temp_val)
 
 use sico_variables_m
@@ -544,7 +545,7 @@ end function c_val
 
 !-------------------------------------------------------------------------------
 !> Creep response function for ice.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 function creep(sigma_val)
 
 use sico_variables_m
@@ -618,7 +619,7 @@ end function creep
 !> Ice viscosity as a function of the effective strain rate and the temperature
 !! (in cold ice) or the water content (in temperate ice) or both (for the
 !! enthalpy method).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 function viscosity(de_val, temp_val, temp_m_val, omega_val, enh_val, &
                    i_flag_cold_temp)
 
@@ -746,7 +747,7 @@ end function viscosity
 !-------------------------------------------------------------------------------
 !> Iterative computation of the viscosity by solving equation (4.28)
 !! by Greve and Blatter (Springer, 2009).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 function visc_iter(de_val_m, ratefac_val, enh_val, n_power_law, sigma_res)
 
 implicit none
@@ -822,7 +823,7 @@ end function visc_iter
 !-------------------------------------------------------------------------------
 !> Viscosity polynomial
 !! [equation (4.28) by Greve and Blatter (Springer, 2009)].
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 function fct_visc(de_val_m, ratefac_val, enh_val, visc_val, &
                   n_power_law, sigma_res)
 
@@ -848,7 +849,7 @@ end function fct_visc
 !-------------------------------------------------------------------------------
 !> Derivative of the viscosity polynomial
 !! [equation (4.28) by Greve and Blatter (Springer, 2009)].
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 function fct_visc_deriv(de_val_m, ratefac_val, enh_val, visc_val, &
                         n_power_law, sigma_res)
 
@@ -876,7 +877,7 @@ end function fct_visc_deriv
 !-------------------------------------------------------------------------------
 !> Iterative computation of the viscosity by solving equation (4.33)
 !! [analogous to (4.28)] by Greve and Blatter (Springer, 2009).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 function visc_iter_sm(de_val_m, ratefac_val, enh_val, &
                       sm_coeff_1, sm_coeff_2, sm_coeff_3)
 
@@ -954,7 +955,7 @@ end function visc_iter_sm
 !-------------------------------------------------------------------------------
 !> Viscosity polynomial
 !! [equation (4.33) by Greve and Blatter (Springer, 2009)].
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 function fct_visc_sm(de_val_m, ratefac_val, enh_val, visc_val, &
                      sm_coeff_1, sm_coeff_2, sm_coeff_3)
 
@@ -981,7 +982,7 @@ end function fct_visc_sm
 !-------------------------------------------------------------------------------
 !> Derivative of the viscosity polynomial
 !! [equation (4.33) by Greve and Blatter (Springer, 2009)].
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 function fct_visc_sm_deriv(de_val_m, ratefac_val, enh_val, visc_val, &
                            sm_coeff_1, sm_coeff_2, sm_coeff_3)
 

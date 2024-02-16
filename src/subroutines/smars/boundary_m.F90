@@ -2,18 +2,17 @@
 !
 !  Module :  b o u n d a r y _ m
 !
-!> @file
-!!
-!! Mars Atmosphere-Ice Coupler MAIC-1.5:
+!! SMARS domain:
+!! Mars Atmosphere-Ice Coupler MAIC-1.5.
 !! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation rate for the south polar cap of Mars.
 !! Computation of the geothermal heat flux.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve
+!! Ralf Greve
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -24,20 +23,21 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> Mars Atmosphere-Ice Coupler MAIC-1.5:
+!> SMARS domain:
+!! Mars Atmosphere-Ice Coupler MAIC-1.5.
 !! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation rate for the south polar cap of Mars.
 !! Computation of the geothermal heat flux.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module boundary_m
 
   use sico_types_m
@@ -57,7 +57,7 @@ contains
 !! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation rate for the south polar cap of Mars.
 !! Computation of the geothermal heat flux.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine boundary(time, dtime, dxi, deta, &
                     delta_ts, glac_index, z_mar)
 
@@ -69,9 +69,7 @@ subroutine boundary(time, dtime, dxi, deta, &
   use mars_instemp_m
 #endif
 
-#if ((MARGIN==2) \
-      && (MARINE_ICE_FORMATION==2) \
-      && (MARINE_ICE_CALVING==9))
+#if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
   use calving_m
 #endif
 
@@ -637,9 +635,7 @@ temp_s = max(temp_s, temp_s_min)   ! Cut-off of air temperatures below the
 
 calving = 0.0_dp   ! Initialization
 
-#if ((MARGIN==2) \
-      && (MARINE_ICE_FORMATION==2) \
-      && (MARINE_ICE_CALVING==9))
+#if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
 
 call calving_underwater_ice()
 

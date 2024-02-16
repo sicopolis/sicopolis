@@ -2,15 +2,13 @@
 !
 !  Module :  c a l c _ b a s _ m e l t _ m
 !
-!> @file
-!!
 !! Computation of the basal melting rate.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve, Ben Galton-Fenzi, Tatsuru Sato
+!! Ralf Greve, Ben Galton-Fenzi, Tatsuru Sato
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -21,17 +19,17 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Computation of the basal melting rate.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module calc_bas_melt_m
 
   use sico_types_m
@@ -49,7 +47,7 @@ contains
 !-------------------------------------------------------------------------------
 !> Computation of the basal melting rate Q_bm.
 !! Summation of Q_bm and Q_tld (water drainage rate from the temperate layer).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_qbm(time, dzeta_c, dzeta_r)
 
 use ice_material_properties_m, only : kappa_val
@@ -164,7 +162,7 @@ do j=1, JMAX-1
 
 #if (!defined(MARINE_ICE_BASAL_MELTING) || MARINE_ICE_BASAL_MELTING==1)
 
-      !!! continue
+      !%% continue
 
 #elif (MARINE_ICE_BASAL_MELTING==2)
 
@@ -227,7 +225,7 @@ do j=1, JMAX-1
 
       if (flag_grounding_line_1(j,i)) then
                                 ! grounding line (grounded-ice side)
-         !!! continue
+         !%% continue
 
       else if ( (zb(j,i) < z_sl(j,i)) &          ! marine ice margin
                 .and. &
@@ -240,7 +238,7 @@ do j=1, JMAX-1
 
 #if (MARINE_ICE_BASAL_MELTING==1)
 
-         !!! continue
+         !%% continue
 
 #elif (MARINE_ICE_BASAL_MELTING==2)
 
@@ -310,8 +308,8 @@ do j=1, JMAX-1
 
 #elif (FLOATING_ICE_BASAL_MELTING==6)
 
-      !!! continue
-      !!! (will be computed below by subroutine sub_ice_shelf_melting_param_2)
+      !%% continue
+      !%% (will be computed below by subroutine sub_ice_shelf_melting_param_2)
 
 #else
       errormsg = ' >>> calc_qbm: FLOATING_ICE_BASAL_MELTING' &
@@ -364,8 +362,7 @@ Q_b_tot = Q_bm + Q_tld
    call error(errormsg)
 #endif
 
-#if ( defined(MARINE_ICE_BASAL_MELTING) \
-      && ( MARINE_ICE_BASAL_MELTING==2 || MARINE_ICE_BASAL_MELTING==3 ) )
+#if ( defined(MARINE_ICE_BASAL_MELTING) && ( MARINE_ICE_BASAL_MELTING==2 || MARINE_ICE_BASAL_MELTING==3 ) )
 
 if (QBM_MARINE*sec2year*rhow_rho_ratio > qbm_max) then
    errormsg = ' >>> calc_qbm: QBM_MARINE' &
@@ -410,7 +407,7 @@ end subroutine calc_qbm
 
 !-------------------------------------------------------------------------------
 !> Local sub-ice-shelf melting parameterization.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine sub_ice_shelf_melting_param_1(time, time_in_years, &
                                          rhow_rho_ratio, &
                                          i, j, Q_bm_floating)
@@ -577,7 +574,7 @@ call error(errormsg)
 
 #else
 
-!!! continue
+!%% continue
 
 #endif
 
@@ -663,7 +660,7 @@ end subroutine sub_ice_shelf_melting_param_1
 
 !-------------------------------------------------------------------------------
 !> Non-local sub-ice-shelf melting parameterization by ISMIP6.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine sub_ice_shelf_melting_param_2(time, time_in_years, &
                                          rhow_rho_ratio, z_abyssal, &
                                          n_year_CE)

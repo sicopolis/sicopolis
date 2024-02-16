@@ -2,15 +2,13 @@
 !
 !  Module :  c a l c _ g i a _ m
 !
-!> @file
-!!
 !! Computation of the glacial isostatic adjustment of the lithosphere surface.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve, Sascha Knell
+!! Ralf Greve, Sascha Knell
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -21,17 +19,17 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Computation of the glacial isostatic adjustment of the lithosphere surface.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 
 module calc_gia_m
 
@@ -50,7 +48,7 @@ contains
 !-------------------------------------------------------------------------------
 !> Main subroutine of calc_gia_m:
 !! Computation of the glacial isostatic adjustment of the lithosphere surface.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_gia(time, dtime, dxi, deta, itercount, iter_wss)
 
 #if defined(ALLOW_TAPENADE) /* Tapenade */
@@ -229,7 +227,7 @@ if (target_topo_tau*sec2year > no_value_pos_1) then
    target_topo_tau = huge(1.0_dp)
 #endif
 
-   !!! zl_new = zl_new
+   !%% zl_new = zl_new
 
 else if (target_topo_tau*sec2year < epsi) then
            ! relaxation time target_topo_tau interpreted as zero
@@ -257,7 +255,7 @@ if (target_topo_tau*sec2year > no_value_pos_1) then
    target_topo_tau = huge(1.0_dp)
 #endif
 
-   !!! zl_new = zl_new
+   !%% zl_new = zl_new
 
 else if (target_topo_tau*sec2year < epsi) then
            ! relaxation time target_topo_tau interpreted as zero
@@ -300,7 +298,7 @@ end subroutine calc_gia
 !-------------------------------------------------------------------------------
 !> Computation of the isostatic steady-state displacement of the lithosphere
 !! for the elastic-lithosphere (EL) model.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_el(load_ice_water, dxi, deta)
 
 #if defined(ALLOW_TAPENADE) /* Tapenade */
@@ -443,7 +441,7 @@ end subroutine calc_el
 !! lithosphere model (depending on the setting of the parameter REBOUND).
 !! This routine is not to be used regularly, and it is only executed if the
 !! parameter EXEC_MAKE_ZL0 is defined in the header file.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine make_zl0()
 
 #if defined(ALLOW_TAPENADE) /* Tapenade */

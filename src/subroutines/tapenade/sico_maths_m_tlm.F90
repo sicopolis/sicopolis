@@ -2,15 +2,13 @@
 !
 !  Module :  s i c o _ m a t h s _ m _ t l m
 !
-!> @file
-!!
 !! Stub file for solvers in tangent linear (forward) mode of SICOPOLIS-AD v2.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Shreyas Sunil Gaikwad, Liz Curry-Logan, Ralf Greve
+!! Shreyas Sunil Gaikwad, Liz Curry-Logan, Ralf Greve
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -21,17 +19,17 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Stub file for solvers in tangent linear (forward) mode of SICOPOLIS-AD v2.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module sico_maths_m_diff
 
   use sico_types_m
@@ -78,7 +76,7 @@ contains
 !> Differentiation of sor_sprs_stub in forward (tangent) mode:
 !! variations of useful results: lgs_x_value,
 !! with respect to varying inputs: lgs_b_value lgs_x_value lgs_a_value.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine sor_sprs_stub_d(lgs_a_value, lgs_a_valued, lgs_a_index, &
                              lgs_a_diag_index, lgs_a_ptr, &
                              lgs_b_value, lgs_b_valued, &
@@ -128,7 +126,7 @@ contains
 !! [matrix storage: compressed sparse row CSR,
 !! represented by arrays lgs_a_value(values), lgs_a_index (indices)
 !! and lgs_a_ptr (pointers)].
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine sor_sprs_stub(lgs_a_value, lgs_a_index, lgs_a_diag_index, &
                            lgs_a_ptr, lgs_b_value, &
                            nnz, nmax, &
@@ -209,7 +207,7 @@ contains
 !> Differentiation of tri_sle_stub in forward (tangent) mode:
 !! variations of useful results: x b,
 !! with respect to varying inputs: x a0 a1 a2 b.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine tri_sle_stub_d(a0, a0d, a1, a1d, a2, a2d, x, xd, b, bd, nrows)
 
   implicit none
@@ -244,7 +242,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Solution of a system of linear equations Ax=b with tridiagonal matrix A.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine tri_sle_stub(a0, a1, a2, x, b, nrows)
 
   implicit none
@@ -257,7 +255,7 @@ contains
      ! a1: a1(j) is element A_(j,j)   of matrix A
      ! a2: a2(j) is element A_(j,j+1) of matrix A
      ! b: inhomogeneity vector
-     ! nrows: size of matrix A (indices run from 0 (!!!) to nrows)
+     ! nrows: size of matrix A (indices run from 0 (!) to nrows)
      ! x: solution vector
 
   integer(i4b) :: n
@@ -303,7 +301,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Bilinear interpolation.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   function bilinint(x1, x2, y1, y2, z11, z12, z21, z22, x, y)
   
   implicit none
@@ -326,7 +324,7 @@ contains
 !> Differentiation of my_erfc_stub in forward (tangent) mode:
 !! variations of useful results: retval,
 !! with respect to varying inputs: x.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine my_erfc_stub_d(x, xd, retval, retvald)
 
   implicit none
@@ -382,7 +380,7 @@ contains
 !> Computation of the complementary error function erfc(x) = 1-erf(x)
 !! with a fractional error everywhere less than 1.2 x 10^(-7)
 !! (formula by Press et al., 'Numerical Recipes in Fortran 77').
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine my_erfc_stub(x, retval)
 
   implicit none
@@ -415,7 +413,7 @@ contains
 #if defined(BUILD_LIS) && (MARGIN==3 || DYNAMICS==2)
 !-------------------------------------------------------------------------------
 !> Template for Tapenade to help differentiate through the LIS solver.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 #include "lisf.h"
   subroutine sico_lis_solver_stub(nmax, nnz, lgs_a_ptr, lgs_a_index, &
                                   lgs_a_value, lgs_b_value, lgs_x_value)
@@ -499,7 +497,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Differentiation of sico_lis_solver_stub in forward (tangent) mode.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine sico_lis_solver_stub_d(nmax, nnz, &
                                     lgs_a_ptr, lgs_a_index, &
                                     lgs_a_value, lgs_a_valued, lgs_b_value, &

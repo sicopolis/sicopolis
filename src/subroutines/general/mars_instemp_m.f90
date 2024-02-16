@@ -2,17 +2,15 @@
 !
 !  Module :  m a r s _ i n s t e m p _ m
 !
-!> @file
-!!
 !! Computation of the daily mean surface temperature of Mars based on
 !! obliquity, eccentricity and the anomaly of vernal equinox
 !! (local insolation temperature scheme = LIT scheme).
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Bjoern Grieger, Oliver J. Stenzel, Ralf Greve
+!! Bjoern Grieger, Oliver J. Stenzel, Ralf Greve
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -23,19 +21,19 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Computation of the daily mean surface temperature of Mars based on
 !! obliquity, eccentricity and the anomaly of vernal equinox
 !! (local insolation temperature scheme = LIT scheme).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module mars_instemp_m
 
    use sico_types_m
@@ -58,7 +56,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Main subroutine of module mars_instemp_m
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
    subroutine setinstemp ( o, ecc, ave, obl, sma, sa, sac, op, ct )
 
       implicit none
@@ -229,7 +227,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Annual mean temperature at latitude phi
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
    function instam ( o, phi )
 
       implicit none
@@ -253,7 +251,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Annual maximum temperature at latitude phi
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
    function instmax ( o, phi )
 
       implicit none
@@ -277,7 +275,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Temperature at orbit position psi and latitude phi
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
    function inst ( o, psi, phi )
 
       implicit none
@@ -301,7 +299,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Temperature at orbit position ipsi (integer) and latitude phi
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
    function inst1 ( o, ipsi, phi )
 
       implicit none

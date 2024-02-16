@@ -2,16 +2,13 @@
 !
 !  Module :  c a l v i n g _ m
 !
-!> @file
+!! Calving of grounded or floating ice.
 !!
-!! Calving of grounded ice according to different calving laws and conditions 
-!! which can be selected by the MARINE_ICE_CALVING variable in the header file 
+!!##### Authors
 !!
-!! @section Copyright
+!! Ralf Greve, Thorben Dunse, Marius Schaefer
 !!
-!! Copyright 2009-2024 Ralf Greve, Thorben Dunse, Marius Schaefer
-!!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -22,17 +19,17 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Calving of grounded or floating ice.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module calving_m
 
   use sico_types_m
@@ -48,8 +45,8 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Subroutine which applies a constant specific mass loss at grid cells
-!> which have ocean in at one of its neighbouring grid cells.
-!<------------------------------------------------------------------------------
+!! which have ocean in at one of its neighbouring grid cells.
+!-------------------------------------------------------------------------------
   subroutine constant_calving()
 
   implicit none
@@ -110,8 +107,8 @@ contains
   
 !-------------------------------------------------------------------------------
 !> Subroutine which applies a velocity dependent specific mass loss
-!> at grid cells which have ocean at one of its neighbouring grid cells.
-!<------------------------------------------------------------------------------
+!! at grid cells which have ocean at one of its neighbouring grid cells.
+!-------------------------------------------------------------------------------
   subroutine velocity_calving()
 
   implicit none
@@ -167,9 +164,8 @@ contains
   end subroutine velocity_calving
 
 !-------------------------------------------------------------------------------
-!> Calving of grounded ("underwater") ice when the floatation criterion is
-!> fulfilled, acording to the calving law proposed by Dunse et al 2011 (JOG).
-!<------------------------------------------------------------------------------ 
+!> Calving of grounded "underwater ice".
+!-------------------------------------------------------------------------------
   subroutine calving_underwater_ice()
 
   implicit none
@@ -242,7 +238,7 @@ contains
 !> Adjustment of the newly computed ice thickness distribution due to either
 !! the retreat mask due to oceanic forcing or the ice-shelf collapse mask
 !! (counted as calving).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine calving_retreat_mask(time, dtime)
 
   implicit none

@@ -68,10 +68,7 @@ my_*
 /tmp/*
 !/tmp/.keep
 
-/docs/doxygen/html/*
-!/docs/doxygen/html/.keep
-/docs/doxygen/latex/*
-!/docs/doxygen/latex/.keep
+/docs/ford/*
 
 /docs/sphinx/build/*
 !/docs/sphinx/build/.keep

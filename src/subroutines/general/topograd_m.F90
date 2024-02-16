@@ -2,17 +2,15 @@
 !
 !  Module :  t o p o g r a d _ m
 !
-!> @file
-!!
 !! Calculation of topography gradients on the staggered grid and on the grid
 !! points (including length rescaling with the corresponding components of the
 !! metric tensor).
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve
+!! Ralf Greve
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -23,19 +21,19 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Calculation of topography gradients on the staggered grid and on the grid
 !! points (including length rescaling with the corresponding components of the
 !! metric tensor).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module topograd_m
 
   use sico_types_m
@@ -52,7 +50,7 @@ contains
 !-------------------------------------------------------------------------------
 !> Calculation of topography gradients on the staggered grid and on the grid
 !! points (the latter by second-order discretization).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine topograd_1(dxi, deta, n_switch)
 
   implicit none
@@ -198,7 +196,7 @@ contains
 !-------------------------------------------------------------------------------
 !> Calculation of topography gradients on the staggered grid and on the grid
 !! points (the latter by fourth-order discretization).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine topograd_2(dxi, deta, n_switch)
 
   implicit none

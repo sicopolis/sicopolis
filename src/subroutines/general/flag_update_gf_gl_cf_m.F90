@@ -2,16 +2,14 @@
 !
 !  Module :  f l a g _ u p d a t e _ g f _ g l _ c f _ m
 !
-!> @file
-!!
 !! Update of the flags for the land-terminating grounded front,
 !! marine-terminating grounded front, grounding line and calving front.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2018-2024 Ralf Greve
+!! Ralf Greve
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -22,18 +20,18 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Update of the flags for the land-terminating grounded front,
 !! marine-terminating grounded front, grounding line and calving front.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module flag_update_gf_gl_cf_m
 
   use sico_types_m
@@ -51,7 +49,7 @@ contains
 !> Main subroutine of flag_update_gf_gl_cf_m:
 !! Update of the flags for the land-terminating grounded front,
 !! marine-terminating grounded front, grounding line and calving front.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine flag_update_gf_gl_cf()
 
   implicit none

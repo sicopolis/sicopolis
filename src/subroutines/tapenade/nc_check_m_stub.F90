@@ -2,15 +2,13 @@
 !
 !  Module :  n c _ c h e c k _ m _ s t u b
 !
-!> @file
-!!
 !! Stub file for NetCDF error capturing.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve, Shreyas Sunil Gaikwad
+!! Ralf Greve, Shreyas Sunil Gaikwad
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -21,17 +19,17 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Stub file for NetCDF error capturing.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module nc_check_m
 
 use sico_types_m
@@ -43,7 +41,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> NetCDF error capturing.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine check(status, ch_calling_routine)
 
 implicit none

@@ -2,16 +2,14 @@
 !
 !  Module :  s t e r e o _ p r o j _ m
 !
-!> @file
-!!
 !! Computation of the forward or inverse stereographic projection,
 !! alternatively for a spherical or an ellipsoidal planet.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve, Reinhard Calov, Alex Robinson
+!! Ralf Greve, Reinhard Calov, Alex Robinson
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -22,18 +20,18 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Computation of the forward or inverse stereographic projection,
 !! alternatively for a spherical or an ellipsoidal planet.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module stereo_proj_m
 
   use sico_types_m
@@ -49,7 +47,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Forward stereographic projection for an ellipsoidal planet.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine stereo_forw_ellipsoid(lon_val, lat_val, A, B, &
                                    lon0, lat0, x_val, y_val)
 
@@ -105,7 +103,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Inverse stereographic projection for an ellipsoidal planet.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine stereo_inv_ellipsoid(x_val, y_val, A, B, &
                                   lon0, lat0, lon_val, lat_val)
 
@@ -187,7 +185,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Forward stereographic projection for a spherical planet.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine stereo_forw_sphere(lon_val, lat_val, R, lon0, lat0, &
                                 x_val, y_val)
 
@@ -234,7 +232,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Inverse stereographic projection for a spherical planet.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine stereo_inv_sphere(x_val, y_val, R, lon0, lat0, &
                                lon_val, lat_val)
 

@@ -2,27 +2,18 @@
 !
 !  Module :  h y d r o _ m   (including several sub-modules)
 !
-!> @file
-!!
 !! Routing scheme for the basal meltwater.
 !!
-!! Reference:
-!! @li Le Brocq, A. M., A. J. Payne and M. J. Siegert. 2006.\n
-!!     West Antarctic balance calculations:
-!!     Impact of flux-routing algorithm, smoothing algorithm and topography.\n
-!!     Computers & Geosciences 32 (10), 1780-1795,
-!!     doi: 10.1016/j.cageo.2006.05.003.
+!! This module uses elements of the code produced by
+!! Le Brocq et al. (2006, Comput. Geosci. 32, 1780-1795,
+!! doi: 10.1016/j.cageo.2006.05.003), but has been modified
+!! and repurposed for this hydrology module of SICOPOLIS.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! The following code uses elements of the code produced by
-!! Le Brocq et al. (2006), but has been modified and repurposed
-!! for this hydrology module of SICOPOLIS.
+!! Sebastian Beyer, Anne Le Brocq, Thomas Kleiner, Ralf Greve
 !!
-!! Copyright 2006-2024 Sebastian Beyer, Anne Le Brocq, Thomas Kleiner,
-!!                     Ralf Greve
-!!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -33,12 +24,12 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
@@ -60,7 +51,7 @@
 
 !-------------------------------------------------------------------------------
 !> Module hydro_fortfilt_m of libhydro.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module hydro_fortfilt_m
 
   use sico_types_m, only: dp
@@ -230,7 +221,7 @@ end module hydro_fortfilt_m
 
 !-------------------------------------------------------------------------------
 !> Module hydro_priority_queue_m of libhydro.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module hydro_priority_queue_m
 
   use sico_types_m, only: dp
@@ -369,7 +360,7 @@ end module hydro_priority_queue_m
 
 !-------------------------------------------------------------------------------
 !> Module hydro_priority_flood_m of libhydro.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module hydro_priority_flood_m
 
   use sico_types_m, only: dp
@@ -495,7 +486,7 @@ end module hydro_priority_flood_m
 
 !-------------------------------------------------------------------------------
 !> Module hydro_balance_flux_m of libhydro.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module hydro_balance_flux_m
 
   use sico_types_m, only: dp
@@ -1012,7 +1003,7 @@ end module hydro_balance_flux_m
 
 !-------------------------------------------------------------------------------
 !> Module hydro_modelstate_flux_m of libhydro.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module hydro_modelstate_flux_m
 
   use sico_types_m, only: dp
@@ -1078,7 +1069,7 @@ end module hydro_modelstate_flux_m
 
 !-------------------------------------------------------------------------------
 !> Module hydro_modelstate_geom_m of libhydro.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module hydro_modelstate_geom_m
 
   use sico_types_m, only: dp
@@ -1161,7 +1152,7 @@ end module hydro_modelstate_geom_m
 
 !-------------------------------------------------------------------------------
 !> Module hydro_modelstate_pot_m of libhydro.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module hydro_modelstate_pot_m
 
   use sico_types_m, only: dp
@@ -1217,7 +1208,7 @@ end module hydro_modelstate_pot_m
 
 !-------------------------------------------------------------------------------
 !> Module hydro_modelstate_m of libhydro.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module hydro_modelstate_m
 
   use sico_types_m, only: dp
@@ -1270,7 +1261,7 @@ end module hydro_modelstate_m
 
 !-------------------------------------------------------------------------------
 !> Module hydro_conf_m of libhydro.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module hydro_conf_m
 
   use sico_types_m, only: dp
@@ -1353,7 +1344,7 @@ end module hydro_conf_m
 
 !-------------------------------------------------------------------------------
 !> Module hydro_barnes_wrapper_m of libhydro.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module hydro_barnes_wrapper_m
 
   use sico_types_m, only: sp, dp
@@ -1383,7 +1374,7 @@ end module hydro_barnes_wrapper_m
 
 !-------------------------------------------------------------------------------
 !> Main module hydro_m of libhydro: Routing scheme for the basal meltwater.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module hydro_m
 
   use sico_types_m, only: dp

@@ -10,7 +10,7 @@ NetCDF
 
 NetCDF (Network Common Data Form) is a common format for scientific data (Unidata :cite:`unidata_2023`) that is also used by SICOPOLIS. The NetCDF C and Fortran libraries are required.
 
-For **GCC**, installation from a package manager is recommended. Under openSUSE Leap 15.2, install ``netcdf``, ``netcdf-devel``, ``netcdf-devel-static``, ``netcdf-fortran``, ``netcdf-fortran-devel``, ``netcdf-fortran-static``, ``ncview``. This requires the repositories "Software for Scientists and Engineers" and "sebschub's Home Project". Details (especially the required repositories) will differ for other systems.
+For **GCC**, installation from a package manager is recommended. Under openSUSE Leap 15.3, install ``netcdf``, ``netcdf-devel``, ``netcdf-devel-static``, ``netcdf-fortran``, ``netcdf-fortran-devel``, ``netcdf-fortran-static``, ``ncview``. This requires the repositories "Software for Scientists and Engineers" and "sebschub's Home Project". Details (especially the required repositories) will differ for other systems.
 
 For the **Intel compiler**, building from the source code is required. The C and Fortran sources are available for download on the `NetCDF website <https://doi.org/10.5065/D6H70CW6>`__ as zip or tar archives. Unzip the archives into temporary directories.
 

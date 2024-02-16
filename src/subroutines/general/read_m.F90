@@ -2,15 +2,13 @@
 !
 !  Module :  r e a d _ m
 !
-!> @file
-!!
 !! Reading of several input data.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve
+!! Ralf Greve
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -21,17 +19,17 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Reading of several input data.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module read_m
 
   use sico_types_m
@@ -51,7 +49,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Reading of time-slice files in NetCDF format.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine read_tms_nc(filename, &
                          opt_mask, opt_n_cts, opt_kc_cts, &
                          opt_H_cold, opt_H_temp, opt_H, &
@@ -911,7 +909,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Reading of the target-topography file (in NetCDF format).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine read_target_topo_nc(target_topo_dat_name)
 
   use sico_variables_m, only : mask_target, &
@@ -1018,7 +1016,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Reading of scalar, time-dependent input files in NetCDF or ASCII format.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine read_scalar_input(filename_with_path, ch_var_name, ndata_max, &
                                n_time_min, n_time_stp, n_time_max, ndata, &
                                scalar_data)
@@ -1125,7 +1123,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Reading of 2D input files in NetCDF or ASCII format.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine read_2d_input(filename_with_path, ch_var_name, n_var_type, &
                            n_ascii_header, field2d_r)
 
@@ -1266,7 +1264,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Reading of the tabulated kei function.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine read_kei()
 
   use sico_variables_m, only : kei, kei_r_max, kei_r_incr, n_data_kei, errormsg
@@ -1324,7 +1322,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Reading of physical parameters.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine read_phys_para()
 
   use sico_variables_m
@@ -1622,7 +1620,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Reading of a value of a physical parameter from the phys_para file.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine read_phys_para_value(n_unit, ch_para, d_para)
 
   use sico_variables_m
@@ -1708,7 +1706,7 @@ contains
 #if (defined(ALLOW_NORMAL) || defined(ALLOW_GRDCHK) || defined(ALLOW_TAPENADE))
 !-------------------------------------------------------------------------------
 !> Reading in of adjoint related data (only set up for ages right now).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine read_age_data()
 
   use sico_variables_m

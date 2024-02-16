@@ -2,15 +2,13 @@
 !
 !  Module :  c a l c _ v z _ m
 !
-!> @file
-!!
 !! Computation of the vertical velocity vz.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve, Tatsuru Sato
+!! Ralf Greve, Tatsuru Sato
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -21,17 +19,17 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Computation of the vertical velocity vz.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module calc_vz_m
 
   use sico_types_m
@@ -47,7 +45,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Computation of the vertical velocity vz for grounded ice.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_vz_grounded(dxi, deta, dzeta_c, dzeta_t)
 
 implicit none
@@ -254,7 +252,7 @@ end subroutine calc_vz_grounded
 
 !-------------------------------------------------------------------------------
 !> Computation of the vertical velocity vz for floating ice.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_vz_floating(dxi, deta, dzeta_c)
 
 implicit none
@@ -368,7 +366,7 @@ end subroutine calc_vz_floating
 
 !-------------------------------------------------------------------------------
 !> Computation of the vertical velocity vz for static ice.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_vz_static()
 
 implicit none

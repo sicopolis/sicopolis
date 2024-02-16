@@ -2,15 +2,13 @@
 !
 !  Module :  c a l c _ t e m p _ m e l t _ b a s _ m
 !
-!> @file
-!!
 !! Computation of the melting and basal temperatures.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve
+!! Ralf Greve
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -21,17 +19,17 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Computation of the melting and basal temperatures.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module calc_temp_melt_bas_m
 
   use sico_types_m
@@ -47,7 +45,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Computation of the melting temperatures.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine calc_temp_melt()
 
   implicit none
@@ -80,7 +78,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Computation of the basal temperatures.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine calc_temp_bas()
 
   implicit none

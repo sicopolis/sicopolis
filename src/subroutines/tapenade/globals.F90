@@ -2,16 +2,14 @@
 !
 !  Module :  g l o b a l s
 !
-!> @file
-!!
 !! TAPENADE does not like the save statement and instead prefers the global
 !! variables to be declared in a separate file.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve, Shreyas Sunil Gaikwad, Liz Curry-Logan
+!! Ralf Greve, Shreyas Sunil Gaikwad, Liz Curry-Logan
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -22,18 +20,18 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> TAPENADE does not like the save statement and instead prefers the global
 !! variables to be declared in a separate file.
-!<++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 module globals
         
   use sico_types_m

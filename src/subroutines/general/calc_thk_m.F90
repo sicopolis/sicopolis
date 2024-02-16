@@ -2,15 +2,13 @@
 !
 !  Module :  c a l c _ t h k _ m
 !
-!> @file
-!!
 !! Computation of the ice thickness.
 !!
-!! @section Copyright
+!!##### Authors
 !!
-!! Copyright 2009-2024 Ralf Greve, Reinhard Calov, Tatsuru Sato
+!! Ralf Greve, Reinhard Calov, Tatsuru Sato
 !!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -21,17 +19,17 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
 !> Computation of the ice thickness.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module calc_thk_m
 
   use sico_types_m
@@ -62,7 +60,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Initialisations for the ice thickness computation.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_thk_init()
 
 implicit none
@@ -153,7 +151,7 @@ end subroutine calc_thk_init
 
 !-------------------------------------------------------------------------------
 !> Explicit solver for the diffusive SIA ice surface equation.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_thk_sia_expl(time, dtime, dxi, deta, z_mar)
 
 #if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
@@ -235,7 +233,7 @@ end subroutine calc_thk_sia_expl
 
 !-------------------------------------------------------------------------------
 !> Over-implicit solver for the diffusive SIA ice surface equation.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_thk_sia_impl(time, dtime, dxi, deta, z_mar, mean_accum)
 
 use sico_maths_m
@@ -463,7 +461,7 @@ end subroutine calc_thk_sia_impl
 
 !-------------------------------------------------------------------------------
 !> Explicit solver for the general ice thickness equation.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_thk_expl(time, dtime, dxi, deta, z_mar)
 
 #if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
@@ -606,7 +604,7 @@ end subroutine calc_thk_expl
 !-------------------------------------------------------------------------------
 !> Ice thickness evolution due to the source term (surface mass balance,
 !! basal mass balance and calving).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine apply_mb_source(dtime, z_mar)
 
   implicit none
@@ -687,7 +685,7 @@ end subroutine apply_mb_source
 
 !-------------------------------------------------------------------------------
 !> Adjustment of the newly computed ice thickness distribution.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine thk_adjust(time, dtime)
 
 #if defined(ALLOW_TAPENADE) /* Tapenade */
@@ -735,7 +733,7 @@ end subroutine apply_mb_source
 
 !  ------ Ice thickness evolves freely
 
-  !!! continue
+  !%% continue
 
 #elif (THK_EVOL==2)
 
@@ -803,7 +801,7 @@ end subroutine apply_mb_source
      target_topo_tau = huge(1.0_dp)
 #endif
 
-     !!! H_new = H_new
+     !%% H_new = H_new
 
   else if (target_topo_tau*sec2year < epsi) then
              ! relaxation time target_topo_tau interpreted as zero
@@ -832,7 +830,7 @@ end subroutine apply_mb_source
      target_topo_tau = huge(1.0_dp)
 #endif
 
-     !!! H_new = H_new
+     !%% H_new = H_new
 
   else if (target_topo_tau*sec2year < epsi) then
              ! relaxation time target_topo_tau interpreted as zero
@@ -883,7 +881,7 @@ end subroutine apply_mb_source
 
 !-------------------------------------------------------------------------------
 !> Update of the ice-land-ocean mask etc.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_thk_mask_update(time, dtime, dxi, deta, z_mar, &
                                 n_calc_thk_mask_update_aux)
 
@@ -926,7 +924,7 @@ end if
 #if (!defined(OCEAN_CONNECTIVITY) || OCEAN_CONNECTIVITY==1)
    call ocean_connect()
 #elif (OCEAN_CONNECTIVITY==0)
-   !!! continue
+   !%% continue
 #else
    errormsg = ' >>> calc_thk_mask_update:' &
             //         end_of_line &
@@ -981,7 +979,7 @@ end subroutine calc_thk_mask_update
 !-------------------------------------------------------------------------------
 !> Update of the ice-land-ocean mask for SIA-only dynamics of ice sheets
 !! without ice shelves.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_thk_mask_update_aux1(time, dtime, dtime_inv, z_mar)
 
 implicit none
@@ -1138,7 +1136,7 @@ end subroutine calc_thk_mask_update_aux1
 !-------------------------------------------------------------------------------
 !> Update of the ice-land-ocean mask for hybrid SIA/SStA dynamics of ice sheets
 !! without ice shelves.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_thk_mask_update_aux2(time, dtime, dtime_inv, z_mar)
 
 implicit none
@@ -1297,7 +1295,7 @@ end subroutine calc_thk_mask_update_aux2
 !-------------------------------------------------------------------------------
 !> Update of the ice-land-ocean mask for coupled SIA/SSA or
 !! SIA/SStA/SSA dynamics of ice sheets with ice shelves.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine calc_thk_mask_update_aux3(time, dtime, dtime_inv, z_mar)
 
 implicit none
@@ -1581,7 +1579,7 @@ end subroutine calc_thk_mask_update_aux3
 
 !-------------------------------------------------------------------------------
 !> Limit thickness of isolated ice points.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine limit_thickness_isolated_ice()
 
 implicit none
@@ -1657,7 +1655,7 @@ end subroutine limit_thickness_isolated_ice
 
 !-------------------------------------------------------------------------------
 !> Enforce connectivity of the ocean.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine ocean_connect()
 
 implicit none
@@ -1746,7 +1744,7 @@ end subroutine ocean_connect
 !-------------------------------------------------------------------------------
 !> Determination of the several components of the mass balance:
 !! Accumulation (precipitation), runoff, net SMB, calving, basal melt. 
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine account_mb_source(dtime, z_mar)
 
   implicit none
@@ -1826,8 +1824,8 @@ subroutine account_mb_source(dtime, z_mar)
                                        /(runoff(j,i)+calving(j,i) &
                                                     +Q_b_tot(j,i))
 
-           !!! else runoff(j,i)=0.0_dp .and. calving(j,i) = 0.0_dp &
-           !!!                         .and. Q_b_tot(j,i) = 0.0_dp
+           !%% else runoff(j,i)=0.0_dp .and. calving(j,i) = 0.0_dp &
+           !%%                         .and. Q_b_tot(j,i) = 0.0_dp
 
            end if
 

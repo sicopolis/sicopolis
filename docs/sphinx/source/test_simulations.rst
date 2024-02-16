@@ -110,13 +110,13 @@ Run ``repo_heino50_st``
 +=====================================+============+=====================+====================+
 | repo\_vialov3d25                    | 100 ka     | 20 a                | 1.0 min            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_emtp2sge25\_expA              | 200 ka     | 20 a                | 4.6 min            |
+| repo\_emtp2sge25\_expA              | 200 ka     | 20 a                | 4.7 min            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_grl16\_bm5\_ss25ka            | 25 ka      | 5 a                 | 10.8 min           |
+| repo\_grl16\_bm5\_ss25ka            | 25 ka      | 5 a                 | 11.0 min           |
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_grl16\_bm5\_init100a          | 100 a      | 5 a                 | 1.6 sec            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_grl16\_bm5\_ss25ka_nudged     | 25 ka      | 5 a                 | 10.6 min           |
+| repo\_grl16\_bm5\_ss25ka_nudged     | 25 ka      | 5 a                 | 10.9 min           |
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_ant64\_bm3\_ss25ka            | 25 ka      | 2 / 10 a\ :sup:`†`  | 8.9 min            |
 +-------------------------------------+------------+---------------------+--------------------+
@@ -124,9 +124,9 @@ Run ``repo_heino50_st``
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_grl10\_b2\_paleo21\ :sup:`\*` | 9 ka       | 1 a                 | 1.1 hrs            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_grl10\_b2\_future21\_ctrl     | 100 a      | 1 a                 | 0.9 min            |
+| repo\_grl10\_b2\_future21\_ctrl     | 100 a      | 1 a                 | 1.0 min            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_grl10\_b2\_future21\_asmb     | 100 a      | 1 a                 | 0.9 min            |
+| repo\_grl10\_b2\_future21\_asmb     | 100 a      | 1 a                 | 1.0 min            |
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_ant64\_b2\_spinup09\_init100a | 100 a      | 2 / 10 a\ :sup:`†`  | 4.3 sec            |
 +-------------------------------------+------------+---------------------+--------------------+
@@ -134,14 +134,14 @@ Run ``repo_heino50_st``
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_ant64\_b2\_spinup09           | 500 a      | 2 / 10 a\ :sup:`†`  | 0.5 min            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_ant64\_b2\_future09\_ctrl     | 100 a      | 2 / 10 a\ :sup:`†`  | 6.3 sec            |
+| repo\_ant64\_b2\_future09\_ctrl     | 100 a      | 2 / 10 a\ :sup:`†`  | 6.0 sec            |
 +-------------------------------------+------------+---------------------+--------------------+
-| repo\_ant64\_b2\_future09\_asmb     | 100 a      | 2 / 10 a\ :sup:`†`  | 6.3 sec            |
+| repo\_ant64\_b2\_future09\_asmb     | 100 a      | 2 / 10 a\ :sup:`†`  | 5.8 sec            |
 +-------------------------------------+------------+---------------------+--------------------+
 | repo\_ant64\_b2\_future09\_abmb     | 100 a      | 2 / 10 a\ :sup:`†`  | 6.3 sec            |
 +-------------------------------------+------------+---------------------+--------------------+
 
-| Table 1: Model times, time steps and computing (CPU) times for the EISMINT, Greenland and Antarctica test simulations contained in the script ``multi_sico_1.sh``, run with SICOPOLIS v23 (revision 1353323e2) and the Intel Fortran Compiler 19.1 for Linux (optimization options ``-xHOST -O3 -no-prec-div``) on a 12-Core Intel Xeon Gold 6256 (3.6 GHz) PC under openSUSE Leap 15.5.
+| Table 1: Model times, time steps and computing (CPU) times for the EISMINT, Greenland and Antarctica test simulations contained in the script ``multi_sico_1.sh``, run with SICOPOLIS v24 (revision eb8446b55) and the Intel Fortran Compiler 2021.8.0 for Linux (optimization options ``-xHOST -O3 -no-prec-div``) on a 12-Core Intel Xeon Gold 6256 (3.6 GHz) PC under openSUSE Leap 15.5.
 | \ :sup:`†`: If one value is given, this is the common dynamic (velocity, ice thickness) and thermodynamic (temperature, water content, age) time step. If two values are given (marked by the dagger (\ :sup:`†`) symbol), the first one is the dynamic, the second one the thermodynamic time step.
 | \ :sup:`‡`: All runs were done on a single core only. The ``repo_ant64_xxx`` runs can be done on multiple cores using OpenMP for the SSA solver. However, at the employed, low resolution of 64 km the solver does not scale well, and the gain in wall clock time by using multiple cores is very small.
 | \ :sup:`\*`: For this run, see the remark in the :ref:`subsection on the resolution-doubler tool <plotting_and_tools-res_dbl>`.

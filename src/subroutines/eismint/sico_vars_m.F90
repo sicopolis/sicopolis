@@ -2,15 +2,13 @@
 !
 !  Module :  s i c o _ v a r s _ m
 !
-!> @file
+!! EISMINT domain: Declarations of global variables for SICOPOLIS.
 !!
-!! Declarations of global variables for SICOPOLIS (for the EISMINT domain).
+!!##### Authors
 !!
-!! @section Copyright
+!! Ralf Greve
 !!
-!! Copyright 2009-2024 Ralf Greve
-!!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -21,17 +19,17 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> Declarations of global variables for SICOPOLIS (for the EISMINT domain).
-!<------------------------------------------------------------------------------
+!> EISMINT domain: Declarations of global variables for SICOPOLIS.
+!-------------------------------------------------------------------------------
 module sico_vars_m
 
 use sico_types_m
@@ -40,27 +38,39 @@ implicit none
 save
 
 #if (!defined(SURFACE_FORCING) || SURFACE_FORCING==1)
-!> temp_min: Minimum surface temperature
-   real(dp) :: temp_min
-!> s_t: Gradient of surface temperature change with horizontal distance
-   real(dp) :: s_t
-!> b_max: Maximum accumulation rate
-   real(dp) :: b_max
-!> s_b: Gradient of accumulation rate change with horizontal distance
-   real(dp) :: s_b
-!> eld: Equilibrium line distance
-   real(dp) :: eld
+
+real(dp) :: temp_min
+   !! Minimum surface temperature
+
+real(dp) :: s_t
+   !! Gradient of surface temperature change with horizontal distance
+
+real(dp) :: b_max
+   !! Maximum accumulation rate
+
+real(dp) :: s_b
+   !! Gradient of accumulation rate change with horizontal distance
+
+real(dp) :: eld
+   !! Equilibrium line distance
+
 #elif (SURFACE_FORCING==2)
-!> temp_0: Surface temperature at z=0
-   real(dp) :: temp_0
-!> gamma_t: Lapse rate of the surface temperature
-   real(dp) :: gamma_t
-!> s_0: Maximum accumulation rate
-   real(dp) :: s_0
-!> m_0: Melting gradient (change of accumulation rate with elevation)
-   real(dp) :: m_0
-!> ela: Equilibrium line altitude
-   real(dp) :: ela
+
+real(dp) :: temp_0
+   !! Surface temperature at z=0
+
+real(dp) :: gamma_t
+   !! Lapse rate of the surface temperature
+
+real(dp) :: s_0
+   !! Maximum accumulation rate
+
+real(dp) :: m_0
+   !! Melting gradient (change of accumulation rate with elevation)
+
+real(dp) :: ela
+   !! Equilibrium line altitude
+
 #endif
 
 end module sico_vars_m

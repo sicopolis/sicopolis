@@ -2,15 +2,13 @@
 !
 !  Module :  s i c o _ i n i t _ m
 !
-!> @file
+!! ASF domain: Initializations for SICOPOLIS.
 !!
-!! Initialisations for SICOPOLIS.
+!!##### Authors
 !!
-!! @section Copyright
+!! Ralf Greve, Thorben Dunse
 !!
-!! Copyright 2009-2024 Ralf Greve, Thorben Dunse
-!!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -21,17 +19,17 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> Initialisations for SICOPOLIS.
-!<------------------------------------------------------------------------------
+!> ASF domain: Initializations for SICOPOLIS.
+!-------------------------------------------------------------------------------
 module sico_init_m
 
   use sico_types_m
@@ -47,7 +45,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Main routine of sico_init_m: Initialisations for SICOPOLIS.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine sico_init(delta_ts, glac_index, &
                mean_accum, &
                dtime, dtime_temp, dtime_wss, dtime_out, dtime_ser, &
@@ -766,8 +764,7 @@ write(10, fmt=trim(fmt3)) 'zs_thresh   =', ZS_THRESH
 #endif
 
 #if (ABLSURFACE==1 || ABLSURFACE==2)
-#if (defined(S_STAT_0) && defined(BETA1_0) && defined(BETA2_0) \
-                       && defined(PMAX_0) && defined(MU_0))
+#if (defined(S_STAT_0) && defined(BETA1_0) && defined(BETA2_0) && defined(PMAX_0) && defined(MU_0))
 write(10, fmt=trim(fmt3)) 's_stat =', S_STAT_0
 write(10, fmt=trim(fmt3)) 'beta1  =', BETA1_0
 write(10, fmt=trim(fmt3)) 'beta2  =', BETA2_0
@@ -795,8 +792,7 @@ write(10, fmt=trim(fmt1)) ' '
 #if (MARINE_ICE_CALVING==2 || MARINE_ICE_CALVING==3)
 write(10, fmt=trim(fmt3)) 'z_mar          =', Z_MAR
 write(10, fmt=trim(fmt1)) ' '
-#elif (MARINE_ICE_CALVING==4 || MARINE_ICE_CALVING==5 \
-       || MARINE_ICE_CALVING==6 || MARINE_ICE_CALVING==7)
+#elif (MARINE_ICE_CALVING==4 || MARINE_ICE_CALVING==5 || MARINE_ICE_CALVING==6 || MARINE_ICE_CALVING==7)
 write(10, fmt=trim(fmt3)) 'fact_z_mar     =', FACT_Z_MAR
 write(10, fmt=trim(fmt1)) ' '
 #elif (MARINE_ICE_FORMATION==2 && MARINE_ICE_CALVING==9)
@@ -876,9 +872,7 @@ write(10, fmt=trim(fmt3)) 'time_ramp_up_slide =', TIME_RAMP_UP_SLIDE
 #if (SLIDE_LAW==2 || SLIDE_LAW==3)
 write(10, fmt=trim(fmt3)) 'red_pres_limit_fact =', RED_PRES_LIMIT_FACT
 #endif
-#if (BASAL_HYDROLOGY==1 \
-       && defined(HYDRO_SLIDE_SAT_FCT) \
-       && defined(C_HW_SLIDE) && defined(HW0_SLIDE))
+#if (BASAL_HYDROLOGY==1 && defined(HYDRO_SLIDE_SAT_FCT) && defined(C_HW_SLIDE) && defined(HW0_SLIDE))
 write(10, fmt=trim(fmt2)) 'HYDRO_SLIDE_SAT_FCT = ', HYDRO_SLIDE_SAT_FCT
 write(10, fmt=trim(fmt3)) 'c_Hw_slide  =', C_HW_SLIDE
 write(10, fmt=trim(fmt3)) 'Hw0_slide   =', HW0_SLIDE
@@ -1702,13 +1696,13 @@ Q_b_tot = Q_bm + Q_tld
 #elif (ENHMOD==3)
    call calc_enhance_3(time_init)
 #elif (ENHMOD==4)
-   !!! call calc_enhance_4()
-   !!!    (for anisotropic flow enhancement factor,
-   !!!     use values read from output of previous simulation)
+   !%% call calc_enhance_4()
+   !%%    (for anisotropic flow enhancement factor,
+   !%%     use values read from output of previous simulation)
 #elif (ENHMOD==5)
-   !!! call calc_enhance_5()
-   !!!    (for anisotropic flow enhancement factor,
-   !!!     use values read from output of previous simulation)
+   !%% call calc_enhance_5()
+   !%%    (for anisotropic flow enhancement factor,
+   !%%     use values read from output of previous simulation)
 #else
    errormsg = ' >>> sico_init: Parameter ENHMOD must be between 1 and 5!'
    call error(errormsg)
@@ -2732,7 +2726,7 @@ end subroutine sico_init
 !> Definition of the initial surface and bedrock topography
 !! (including gradients) and of the horizontal grid spacings dxi, deta.
 !! For present-day initial topography.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine topography1(dxi, deta)
 
   use read_m, only : read_2d_input
@@ -2968,7 +2962,7 @@ end subroutine topography1
 !> Definition of the initial surface and bedrock topography
 !! (including gradients) and of the horizontal grid spacings dxi, deta.
 !! For ice-free initial topography with relaxed lithosphere.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine topography2(dxi, deta)
 
   use read_m, only : read_2d_input
@@ -3145,7 +3139,7 @@ end subroutine topography2
 !> Definition of the initial surface and bedrock topography
 !! (including gradients) and of the horizontal grid spacings dxi, deta.
 !! For initial topography from previous simulation.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine topography3(dxi, deta, anfdatname)
 
   use read_m, only : read_tms_nc, read_2d_input

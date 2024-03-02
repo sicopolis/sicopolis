@@ -84,7 +84,6 @@ real(dp), dimension(0:JMAX,0:IMAX) :: dist, dist2
 real(dp), dimension(0:JMAX,0:IMAX) :: accum_prescribed, &
                                       runoff_prescribed
 logical, dimension(0:JMAX,0:IMAX) :: check_point
-logical, save                     :: firstcall = .true.
 
 !-------- Initialization of variables --------
 
@@ -540,7 +539,7 @@ call calving_underwater_ice()
 
 #endif
 
-if (firstcall) firstcall = .false.
+if (firstcall%boundary) firstcall%boundary = .false.
 
 end subroutine boundary
 

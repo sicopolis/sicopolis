@@ -80,7 +80,6 @@ real(dp) :: time_gr, time_kl
 real(dp), dimension(0:JMAX,0:IMAX) :: dist
 real(dp) :: rad_inv
 logical, dimension(0:JMAX,0:IMAX) :: check_point
-logical, save                     :: firstcall = .true.
 
 !-------- Initialization of variables --------
 
@@ -312,7 +311,7 @@ call calving_underwater_ice()
 
 #endif
 
-if (firstcall) firstcall = .false.
+if (firstcall%boundary) firstcall%boundary = .false.
 
 end subroutine boundary
 

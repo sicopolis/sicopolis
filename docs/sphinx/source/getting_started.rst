@@ -53,7 +53,7 @@ Initial configuration
 
    Set the flags ``LIS_FLAG``, ``OPENMP_FLAG`` and ``LARGE_DATA_FLAG`` according to your needs. 
 
-   Default is ``"true"``/``"true"``/``"false"``, which works for all test simulations included in the SICOPOLIS package. ``LIS_FLAG`` and ``OPENMP_FLAG`` can be set to ``"false"`` for simulations with pure shallow-ice dynamics. However, ``"true"`` is required for simulations with shallow-shelf dynamics (for floating ice) or hybrid shallow-ice--shelfy-stream dynamics (for grounded ice). For high-resolution simulations (e.g., Greenland/5 km or Antarctica/8 km), ``LARGE_DATA_FLAG`` must be set to ``"true"``.
+   Default is ``"true"``/``"true"``/``"true"``. ``LIS_FLAG`` and ``OPENMP_FLAG`` can be set to ``"false"`` for simulations with pure shallow-ice dynamics. However, ``"true"`` is required for simulations with shallow-shelf dynamics (for floating ice) or hybrid shallow-ice--shelfy-stream dynamics (for grounded ice). The test simulations included in the repository all work with ``LARGE_DATA_FLAG`` set to ``"false"``. However, for higher-resolution simulations (e.g., Greenland/5 km or Antarctica/8 km), ``"true"`` is required.
 
    Set ``NETCDFHOME`` to the correct path of your NetCDF installation.
 

@@ -40,9 +40,7 @@ module boundary_m
   use sico_variables_m
   use sico_vars_m
   use error_m
-#if defined(ALLOW_TAPENADE)
-  use globals
-#endif
+
   implicit none
 
   public
@@ -118,14 +116,9 @@ real(dp) :: s_stat, beta1, beta2, Pmax, mu, lambda_lti, temp_lti
 real(dp) :: r_aux
 character(len=256) :: ch_aux
 logical, dimension(0:JMAX,0:IMAX) :: check_point
-#if !defined(ALLOW_TAPENADE)
-logical, save                     :: firstcall = .true.
-#endif
+
 #if (TSURFACE==6 && ACCSURFACE==6 && ABLSURFACE==6)
-integer(i4b)       :: n_year_CE_aux
-#if !defined(ALLOW_TAPENADE)
-integer(i4b), save :: n_year_CE_aux_save = -9999
-#endif
+integer(i4b)       :: n_year_CE_surf_clim
 integer(i4b)       :: n_cnt
 real(dp)           :: delta_ts_sum
 character(len= 16) :: ch_year_CE
@@ -145,7 +138,6 @@ real(dp) :: smb_no_ice
 
 #if (RETREAT_MASK==1)
 integer(i4b)       :: n_year_CE_rtr
-integer(i4b), save :: n_year_CE_rtr_save = -9999
 character(len= 16) :: ch_year_CE_rtr
 character(len=256) :: filename_rtr
 real(dp), dimension(0:IMAX,0:JMAX) :: r_mask_retreat_conv
@@ -297,17 +289,18 @@ end if
 
 #elif (TSURFACE==6 && ACCSURFACE==6 && ABLSURFACE==6)
 
-n_year_CE_aux = n_year_CE
+n_year_CE_surf_clim = n_year_CE
 
-if (n_year_CE_aux < TEMP_SMB_ANOM_TIME_MIN) then
-   n_year_CE_aux = TEMP_SMB_ANOM_TIME_MIN
-else if (n_year_CE_aux > TEMP_SMB_ANOM_TIME_MAX) then
-   n_year_CE_aux = TEMP_SMB_ANOM_TIME_MAX
+if (n_year_CE_surf_clim < TEMP_SMB_ANOM_TIME_MIN) then
+   n_year_CE_surf_clim = TEMP_SMB_ANOM_TIME_MIN
+else if (n_year_CE_surf_clim > TEMP_SMB_ANOM_TIME_MAX) then
+   n_year_CE_surf_clim = TEMP_SMB_ANOM_TIME_MAX
 end if
 
-if ( firstcall.or.(n_year_CE_aux /= n_year_CE_aux_save) ) then
+if ( firstcall%boundary &
+     .or.(n_year_CE_surf_clim /= n_year_CE_surf_clim_save) ) then
 
-   write(ch_year_CE, '(i0)') n_year_CE_aux
+   write(ch_year_CE, '(i0)') n_year_CE_surf_clim
 
 !  ------ Surface-temperature anomaly
 
@@ -538,9 +531,9 @@ else
    delta_ts = no_value_neg_2
 end if
 
-!  ------ Save value of n_year_CE_aux
+!  ------ Save value of n_year_CE_surf_clim
 
-n_year_CE_aux_save = n_year_CE_aux
+n_year_CE_surf_clim_save = n_year_CE_surf_clim
 
 #endif
 
@@ -1351,7 +1344,7 @@ n_year_CE_rtr = n_year_CE
 if (n_year_CE_rtr > RETREAT_MASK_TIME_MAX) &
                        n_year_CE_rtr = RETREAT_MASK_TIME_MAX
 
-if (firstcall) r_mask_retreat = 1.0_dp   ! initialization
+if (firstcall%boundary) r_mask_retreat = 1.0_dp   ! initialization
 
 if (n_year_CE_rtr < RETREAT_MASK_TIME_MIN) then
 
@@ -1392,7 +1385,7 @@ n_year_CE_rtr_save = n_year_CE_rtr
 
 #endif
 
-if (firstcall) firstcall = .false.
+if (firstcall%boundary) firstcall%boundary = .false.
 
 end subroutine boundary
 

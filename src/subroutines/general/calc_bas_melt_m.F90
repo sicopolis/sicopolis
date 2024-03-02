@@ -688,8 +688,7 @@ integer(i4b), intent(in) :: n_year_CE
 integer(i4b) :: i, j, n
 
 integer(i4b)       :: ios
-integer(i4b)       :: n_year_CE_aux
-integer(i4b), save :: n_year_CE_aux_save = -9999
+integer(i4b)       :: n_year_CE_bas_melt
 character(len= 16) :: ch_year_CE
 character(len=256) :: filename_with_path
 real(dp), dimension(0:IMAX,0:JMAX,0:NZ_TF_BM) :: tf_bm_aux
@@ -707,8 +706,6 @@ real(dp)     :: cst_bm
 real(dp)     :: weigh
 real(dp)     :: draft
 real(dp)     :: real_n
-
-logical, save :: firstcall_param_2 = .true.
 
 #if defined(ALLOW_TAPENADE) /* Tapenade */
 integer(i4b) :: i_time_in_years
@@ -745,17 +742,18 @@ call myfloor(time_in_years, i_time_in_years)
 
 !-------- Read file with the thermal forcing data of the ocean --------
 
-n_year_CE_aux = n_year_CE
+n_year_CE_bas_melt = n_year_CE
 
-if (n_year_CE_aux < TF_BM_TIME_MIN) then
-   n_year_CE_aux = TF_BM_TIME_MIN
-else if (n_year_CE_aux > TF_BM_TIME_MAX) then
-   n_year_CE_aux = TF_BM_TIME_MAX
+if (n_year_CE_bas_melt < TF_BM_TIME_MIN) then
+   n_year_CE_bas_melt = TF_BM_TIME_MIN
+else if (n_year_CE_bas_melt > TF_BM_TIME_MAX) then
+   n_year_CE_bas_melt = TF_BM_TIME_MAX
 end if
 
-if ( firstcall_param_2.or.(n_year_CE_aux /= n_year_CE_aux_save) ) then
+if ( firstcall%sub_ice_shelf_melting_param_2 &
+     .or.(n_year_CE_bas_melt /= n_year_CE_bas_melt_save) ) then
 
-   write(ch_year_CE, '(i0)') n_year_CE_aux
+   write(ch_year_CE, '(i0)') n_year_CE_bas_melt
 
    if ( (trim(adjustl(TF_BM_FILES)) /= 'none') &
         .and. &
@@ -847,9 +845,9 @@ if ( firstcall_param_2.or.(n_year_CE_aux /= n_year_CE_aux_save) ) then
 
 end if
 
-!  ------ Save value of n_year_CE_aux
+!  ------ Save value of n_year_CE_bas_melt
 
-n_year_CE_aux_save = n_year_CE_aux
+n_year_CE_bas_melt_save = n_year_CE_bas_melt
 
 !-------- Parameters for the parameterization --------
 
@@ -1053,7 +1051,8 @@ do j=0, JMAX
 end do
 end do
 
-if (firstcall_param_2) firstcall_param_2 = .false.
+if (firstcall%sub_ice_shelf_melting_param_2) &
+    firstcall%sub_ice_shelf_melting_param_2 = .false.
 
 #else   /* not (defined(ANT) && FLOATING_ICE_BASAL_MELTING==6) */
 

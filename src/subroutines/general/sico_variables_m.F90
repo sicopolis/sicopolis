@@ -40,7 +40,7 @@ save
 !-------- Field quantities --------
 
 integer(i4b), dimension(0:JMAX,0:IMAX) :: mask
-   !! Ice-land-ocean mask.
+   !! Ice-land-ocean mask:
    !!  0: grounded ice,
    !!  1: ice-free land,
    !!  2: ocean,
@@ -53,7 +53,7 @@ integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_new
    !! New value of mask computed during an integration step
 
 integer(i4b), dimension(0:JMAX,0:IMAX) :: n_cts
-   !! Mask for thermal conditions.
+   !! Mask for thermal conditions:
    !!  -1: cold ice base,
    !!   0: temperate ice base with cold ice above,
    !!   1: temperate ice base with temperate ice layer above (only for POLY)
@@ -68,7 +68,7 @@ integer(i4b), dimension(0:JMAX,0:IMAX) :: kc_cts_new
    !! New value of quantity computed during an integration step
 
 integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_region
-   !! Region mask.
+   !! Region mask:
    !!  0: undefined,
    !!  1: EAIS,
    !!  2: WAIS,
@@ -76,86 +76,86 @@ integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_region
 
 logical :: flag_calc_temp
    !! Flag for computation of the temperature, water content,
-   !! age and flow enhancement factor during an integration step.
-   !!   .true.: temperature etc. computed
+   !! age and flow enhancement factor during an integration step:
+   !!   .true.: temperature etc. computed,
    !!  .false.: temperature etc. not computed
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_inner_point
-   !! Inner-point flag.
+   !! Inner-point flag:
    !!   .true.: inner point,
    !!  .false.: margin point
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_grounding_line_1
-   !! Grounding line flag.
+   !! Grounding line flag:
    !!   .true.: grounding line point
    !!           (grounded ice point with at least
    !!            one floating ice neighbour),
    !!  .false.: otherwise
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_grounding_line_2
-   !! Grounding line flag.
+   !! Grounding line flag:
    !!   .true.: grounding line point
    !!           (floating ice point with at least
    !!            one grounded ice neighbour),
    !!  .false.: otherwise
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_calving_front_1
-   !! Calving front flag.
+   !! Calving front flag:
    !!   .true.: calving front point
    !!           (floating ice point with at least
    !!            one ocean neighbour),
    !!  .false.: otherwise
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_calving_front_2
-   !! Calving front flag.
+   !! Calving front flag:
    !!   .true.: calving front point
    !!           (ocean point with at least
    !!            one floating ice neighbour),
    !!  .false.: otherwise
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_grounded_front_a_1
-   !! Land-terminating grounded front flag.
+   !! Land-terminating grounded front flag:
    !!   .true.: grounded front point
    !!           (grounded ice point with at least
    !!            one ice-free land neighbour),
    !!  .false.: otherwise
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_grounded_front_a_2
-   !! Land-terminating grounded front flag.
+   !! Land-terminating grounded front flag:
    !!   .true.: grounded front point
    !!           (ice-free land point with at least
    !!            one grounded ice neighbour),
    !!  .false.: otherwise
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_grounded_front_b_1
-   !! Marine-terminating grounded front flag.
+   !! Marine-terminating grounded front flag:
    !!   .true.: grounded front point
    !!           (grounded ice point with at least
    !!            one ocean neighbour),
    !!  .false.: otherwise
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_grounded_front_b_2
-   !! Marine-terminating grounded front flag.
+   !! Marine-terminating grounded front flag:
    !!   .true.: grounded front point
    !!           (ocean point with at least
    !!            one grounded ice neighbour),
    !!  .false.: otherwise
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_shelfy_stream_x
-   !! Shelfy stream flag in x-direction, at (i+1/2,j).
-   !!   .true.: shelfy stream point
+   !! Shelfy stream flag in x-direction, at (i+1/2,j):
+   !!   .true.: shelfy stream point,
    !!  .false.: otherwise
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_shelfy_stream_y
-   !! Shelfy stream flag in y-direction, at (i,j+1/2).
-   !!   .true.: shelfy stream point
+   !! Shelfy stream flag in y-direction, at (i,j+1/2):
+   !!   .true.: shelfy stream point,
    !!  .false.: otherwise
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_shelfy_stream
-   !! Shelfy stream flag on the main grid.
+   !! Shelfy stream flag on the main grid:
    !!   .true.: grounded ice,
    !!           and at least one neighbour on the
-   !!           staggered grid is a shelfy stream point
+   !!           staggered grid is a shelfy stream point,
    !!  .false.: otherwise
 
 real(dp), dimension(0:IMAX) :: xi
@@ -178,8 +178,8 @@ real(dp) :: aa
    !! in the upper (kc) ice domain
 
 logical :: flag_aa_nonzero
-   !! Flag for the exponential stretch parameter aa.
-   !!   .true.: aa greater than zero (non-equidistant grid)
+   !! Flag for the exponential stretch parameter aa:
+   !!   .true.: aa greater than zero (non-equidistant grid),
    !!  .false.: aa equal to zero (equidistant grid)
 
 real(dp) :: ea
@@ -275,6 +275,9 @@ real(dp), dimension(0:JMAX,0:IMAX) :: H_t
 real(dp), dimension(0:JMAX,0:IMAX) :: dzs_dxi
    !! Derivative of zs by xi (at i+1/2,j)
 
+real(dp), dimension(0:JMAX,0:IMAX) :: dzs_dx_aux
+   !! Auxiliary variable for dzs_dxi
+
 real(dp), dimension(0:JMAX,0:IMAX) :: dzm_dxi
    !! Derivative of zm by xi (at i+1/2,j)
 
@@ -289,6 +292,9 @@ real(dp), dimension(0:JMAX,0:IMAX) :: dH_t_dxi
 
 real(dp), dimension(0:JMAX,0:IMAX) :: dzs_deta
    !! Derivative of zs by eta (at i,j+1/2)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: dzs_dy_aux
+   !! Auxiliary variable for dzs_deta
 
 real(dp), dimension(0:JMAX,0:IMAX) :: dzm_deta
    !! Derivative of zm by eta (at i,j+1/2)
@@ -354,7 +360,7 @@ real(dp), dimension(0:JMAX,0:IMAX) :: dH_t_dtau
    !! Derivative of H_t by tau (time)
 
 integer(i4b), dimension(0:JMAX,0:IMAX) :: n_slide_region
-   !! Regions for the basal sliding laws.
+   !! Regions for the basal sliding laws
 
 integer(i4b), dimension(0:JMAX,0:IMAX) :: p_weert
    !! Weertman exponent for the basal shear stress
@@ -556,7 +562,7 @@ real(dp), dimension(0:JMAX,0:IMAX) :: calving_apl
    !! Applied calving rate of grounded and floating ice
 
 integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_ablation_type
-   !! Mask indicating ablation type.
+   !! Mask indicating ablation type:
    !!   2: visible (ocean, for later developments),
    !!   1: visible (grounded ice),
    !!  -1: hidden on land,
@@ -603,6 +609,18 @@ real(dp), dimension(0:JMAX,0:IMAX) :: H_c_new
 
 real(dp), dimension(0:JMAX,0:IMAX) :: H_t_new
    !! New value of quantity computed during an integration step
+
+real(dp), dimension(0:JMAX,0:IMAX) :: H_new_flow
+   !! New value of the ice thickness due to glacial flow only
+   !! (no source term considered)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: mb_source
+   !! Source term for the ice-thickness equation
+
+logical :: flag_thk_solver_explicit
+   !! Flag for the type of solver of the ice-thickness equation:
+   !!   .true.: explicit solver,
+   !!  .false.: implicit solver
 
 real(dp), dimension(0:JMAX,0:IMAX) :: zs_ref
    !! Reference elevation for the present-day climatology
@@ -757,6 +775,12 @@ real(dp), dimension(0:KTMAX,0:JMAX,0:IMAX) :: enh_t
 real(dp), dimension(0:KTMAX,0:JMAX,0:IMAX) :: strain_heating_t
    !! Strain heating in the lower (kt) ice domain
 
+real(dp) :: enh_stream
+   !! Flow enhancement factor for ice streams
+
+logical :: flag_enh_stream
+   !! Flag for definition of flow enhancement factor for ice streams
+
 real(dp), dimension(0:KRMAX,0:JMAX,0:IMAX) :: temp_r
    !! Temperature in the bedrock
 
@@ -895,6 +919,79 @@ real(dp), dimension(-190:10) :: KAPPA
 real(dp), dimension(-190:10) :: C
    !! Tabulated values for the specific heat of ice
 
+!-------- Auxiliary variables for the module ice_material_properties_m --------
+
+real(dp), dimension(-256:255) :: RF_imp
+   !! Tabulated values for the rate factor of cold ice
+
+real(dp) :: R_T_imp
+   !! Coefficient of the water-content dependence in the rate factor
+   !! for temperate ice
+
+real(dp), dimension(-256:255) :: KAPPA_imp
+   !! Tabulated values for the heat conductivity of ice
+
+real(dp), dimension(-256:255) :: C_imp
+   !! Tabulated values for the specific heat of ice
+
+integer(i4b) :: n_temp_min_imp
+   !! Lower index limit of properly defined values in
+   !! RF_imp, KAPPA_imp and C_imp (n_temp_min_imp >= -256).
+
+integer(i4b) :: n_temp_max_imp
+   !! Upper index limit of properly defined values in
+   !! RF_imp, KAPPA_imp and C_imp (n_temp_max_imp <= 255).
+
+real(dp) :: RHO_I_imp
+   !! Density of ice
+   !! (only for the Martian ice caps)
+
+real(dp) :: RHO_C_imp
+   !! Density of crustal material (dust)
+   !! (only for the Martian ice caps)
+
+real(dp) :: KAPPA_C_imp
+   !! Heat conductivity of crustal material (dust)
+   !! (only for the Martian ice caps)
+
+real(dp) :: C_C_imp
+   !! Specific heat of crustal material (dust)
+   !! (only for the Martian ice caps)
+
+!-------- Auxiliary variables for the module enth_temp_omega_m
+!         (converting temperature and water content
+!                                 to enthalpy and vice versa) --------
+
+real(dp), dimension(-256:255) :: c_int_table
+   !! Temperature integral of the specific heat of ice;
+   !! index is temperature in degC
+
+real(dp), dimension(-524288:524287) :: c_int_inv_table
+   !! Inverse of the temperature integral of the specific heat of ice;
+   !! index is enthalpy in J/kg (zero for 0 degC)
+
+integer(i4b) :: n_temp_min
+   !! Lower index limit of properly defined values in c_int_table
+   !! (n_temp_min >= -256)
+
+integer(i4b) :: n_temp_max
+   !! Upper index limit of properly defined values in c_int_table
+   !! (n_temp_max <= 255)
+
+integer(i4b) :: n_enth_min
+   !! Lower index limit of properly defined values in c_int_inv_table
+   !! (n_enth_min >= -524288)
+
+integer(i4b) :: n_enth_max
+   !! Upper index limit of properly defined values in c_int_inv_table
+   !! (n_enth_max <= 524287)
+
+real(dp) :: latent_heat
+   !! Latent heat of ice
+
+real(dp) :: latent_heat_inv
+   !! Inverse of the latent heat of ice
+
 !-------- Mathematical constants -------- 
 
 real(dp), parameter :: pi = 3.141592653589793_dp
@@ -964,12 +1061,12 @@ character(len=16) :: ch_domain_short
    !! Short name of the computational domain
 
 integer(i4b) :: forcing_flag
-   !! Flag for the forcing type.
+   !! Flag for the forcing type:
    !!  1: forcing by a spatially constant surface temperature
    !!     anomaly (delta_ts),
    !!  2: forcing by a glacial index (glac_index),
    !!  3: forcing by time-dependent surface temperature
-   !!     and precipitation data.
+   !!     and precipitation data
 
 integer(i4b) :: n_core
    !! Number of positions to be considered in the time-series file
@@ -1091,14 +1188,30 @@ real(dp), dimension(0:JMAX,0:IMAX) :: H_target
    !! Target topography (ice thickness)
 
 logical :: flag_mask_maxextent
-   !! Flag for maximum ice extent.
-   !!   .true.: specified
+   !! Flag for maximum ice extent:
+   !!   .true.: specified,
    !!  .false.: not specified
 
 integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_maxextent
-   !! Maximum ice extent mask.
+   !! Maximum ice extent mask:
    !!  0: not allowed to glaciate,
-   !!  1: allowed to glaciate.
+   !!  1: allowed to glaciate
+
+type(flag_firstcall) :: firstcall
+   !! First-call flags for several routines
+
+integer(i4b) :: n_year_CE_surf_clim_save = -9999
+   !! Time (in years CE) for ISMIP6-type surface climate forcing data
+
+integer(i4b) :: n_year_CE_bas_melt_save = -9999
+   !! Time (in years CE) for the thermal forcing data of the ocean
+   !! for the ISMIP6 non-local sub-ice-shelf melting parameterization
+
+integer(i4b) :: n_year_CE_isc_save = -9999
+   !! Time (in years CE) for ISMIP6-type ice-shelf collapse masks
+
+integer(i4b) :: n_year_CE_rtr_save = -9999
+   !! Time (in years CE) for ISMIP6-type ice-sheet retreat masks
 
 integer(i4b), dimension(0:99) :: ncid_ser
    !! IDs of the NetCDF time-series output files

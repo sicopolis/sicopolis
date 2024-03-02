@@ -107,7 +107,6 @@ real(dp) :: ave_data_i_kl, ave_data_i_gr
 real(dp) :: q_geo_chasm
 logical                           :: flag_in_domain
 logical, dimension(0:JMAX,0:IMAX) :: check_point
-logical, save                     :: firstcall = .true.
 
 #if (TSURFACE==6)
 type (ins) :: temp_now, temp_present
@@ -667,7 +666,7 @@ end do
 
 #endif
 
-if (firstcall) firstcall = .false.
+if (firstcall%boundary) firstcall%boundary = .false.
 
 end subroutine boundary
 

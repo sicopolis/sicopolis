@@ -88,8 +88,6 @@ character(len= 16) :: ch_date, ch_time, ch_zone
 character(len=  4) :: ch_ndat
 logical :: flag_compute_flux_vars_only
 
-logical, save :: firstcall_output1 = .true.
-
 real(dp)         , parameter :: one_year = 1.0_dp
 character(len=64), parameter :: thisroutine = 'output1'
 
@@ -5248,7 +5246,7 @@ end if
 
 end if   ! (.not.flag_compute_flux_vars_only)
 
-if (firstcall_output1) firstcall_output1 = .false.
+if (firstcall%output1) firstcall%output1 = .false.
 
 end subroutine output1
 
@@ -5304,7 +5302,6 @@ character(len=  2) :: ch2_aux
 logical, save      :: grads_nc_tweaks
 
 integer(i4b), save :: counter = 0
-logical,      save :: firstcall_output2 = .true.
 
 character(len=64), parameter :: thisroutine = 'output2'
 
@@ -5643,7 +5640,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
 
 !-------- Extended time-series file in NetCDF format --------
 
-   if (firstcall_output2) then
+   if (firstcall%output2) then
 
 !  ------ Open NetCDF file
 
@@ -6429,7 +6426,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
 
 !  ------ Writing of data on NetCDF file
 
-   if (firstcall_output2) then
+   if (firstcall%output2) then
 
       if (grads_nc_tweaks) then
 
@@ -6640,7 +6637,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
 
 end do   ! n=0, maxval(mask_region)
 
-if (firstcall_output2) firstcall_output2 = .false.
+if (firstcall%output2) firstcall%output2 = .false.
 
 end subroutine output2
 
@@ -7055,7 +7052,6 @@ logical            :: flag_in_domain
 logical, save      :: grads_nc_tweaks
 
 integer(i4b), save :: counter = 0
-logical,      save :: firstcall_output4 = .true.
 
 character(len=64), parameter :: thisroutine = 'output4'
 
@@ -7084,7 +7080,7 @@ if (n_core >= 1) then
       call borehole(field, x_core(n), y_core(n), dxi, deta, 'grid', &
                     H_core(n), flag_in_domain)
 
-      if ( (firstcall_output4).and.(.not.flag_in_domain) ) then
+      if ( (firstcall%output4).and.(.not.flag_in_domain) ) then
          write(6, fmt='(a,i0,a)') &
             ' >>> output4: WARNING: Borehole position ', n, ' out of domain!'
       end if
@@ -7224,7 +7220,7 @@ if (n_core >= 1) then
 
 !-------- Extended time-series file in NetCDF format --------
 
-   if (firstcall_output4) then
+   if (firstcall%output4) then
 
 !  ------ Open NetCDF file
 
@@ -7581,7 +7577,7 @@ if (n_core >= 1) then
 
 !  ------ Writing of data on NetCDF file
 
-   if (firstcall_output4) then
+   if (firstcall%output4) then
 
       if (grads_nc_tweaks) then
 
@@ -7702,7 +7698,7 @@ if (n_core >= 1) then
 
 end if
 
-if (firstcall_output4) firstcall_output4 = .false.
+if (firstcall%output4) firstcall%output4 = .false.
 
 end subroutine output4
 

@@ -35,58 +35,20 @@
 module enth_temp_omega_m
 
 use sico_types_m
+use sico_variables_m, only : c_int_table, c_int_inv_table, &
+                             n_temp_min, n_temp_max, n_enth_min, n_enth_max, &
+                             latent_heat, latent_heat_inv
 use error_m
-#if defined(ALLOW_TAPENADE)
-  use globals
-#endif
 
 implicit none
-save
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-
-real(dp), dimension(-256:255), private :: c_int_table
-   !! Temperature integral of the specific heat of ice.
-   !! Index is temperature in degC.
-
-real(dp), dimension(-524288:524287), private :: c_int_inv_table
-   !! Inverse of the temperature integral of the specific heat
-   !! of ice. Index is enthalpy in J/kg (zero for 0 degC).
-
-integer(i4b), private :: n_temp_min
-   !! Lower index limit of properly defined values in c_int_table
-   !! (n_temp_min >= -256).
-
-integer(i4b), private :: n_temp_max
-   !! Upper index limit of properly defined values in c_int_table
-   !! (n_temp_max <= 255).
-
-integer(i4b), private :: n_enth_min
-   !! Lower index limit of properly defined values in c_int_inv_table
-   !! (n_enth_min >= -524288).
-
-integer(i4b), private :: n_enth_max
-   !! Upper index limit of properly defined values in c_int_inv_table
-   !! (n_enth_max <= 524287).
-
-real(dp), private :: L
-   !! Latent heat of ice.
-
-real(dp), private :: L_inv
-   !! Inverse of the latent heat of ice.
-
-public  :: calc_c_int_table, calc_c_int_inv_table
-public  :: enth_fct_temp_omega, temp_fct_enth, omega_fct_enth
-private :: c_int_val, c_int_inv_val
-
-#else /* Tapenade */
-
-public  :: calc_c_int_table, calc_c_int_inv_table
-public  :: enth_fct_temp_omega, temp_fct_enth, omega_fct_enth
+public :: calc_c_int_table, calc_c_int_inv_table
+public :: enth_fct_temp_omega, temp_fct_enth, omega_fct_enth
 public :: c_int_val, c_int_inv_val
-private :: myfloor_local_ETO
 
-#endif /* Normal vs. Tapenade */
+#if defined(ALLOW_TAPENADE)   /* Tapenade */
+private :: myfloor_local_ETO
+#endif
 
 contains
 
@@ -94,19 +56,19 @@ contains
 !> Computation of the temperature integral of the specific heat of ice as a
 !! table (c_int_table). Further, definition of the latent heat of ice.
 !-------------------------------------------------------------------------------
-subroutine calc_c_int_table(c_table, n_tmp_min, n_tmp_max, L_val)
+subroutine calc_c_int_table(c_table, n_tmp_min, n_tmp_max, latent_heat_val)
 
 implicit none
 
 integer(i4b),                             intent(in) :: n_tmp_min, n_tmp_max
 real(dp), dimension(n_tmp_min:n_tmp_max), intent(in) :: c_table
-real(dp), optional,                       intent(in) :: L_val
+real(dp), optional,                       intent(in) :: latent_heat_val
 
 integer(i4b)       :: n
 real(dp)           :: c_int_zero
 character(len=256) :: errormsgg
 
-!-------- Initialisation --------
+!-------- Initialization --------
 
 c_int_table = 0.0_dp
 
@@ -141,29 +103,13 @@ end do
 
 !-------- Further stuff: Latent heat of ice --------
 
-if ( present(L_val) ) then
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-   L = L_val
-#else /* Tapenade */
-   L_eto = L_val
-#endif /* Normal vs. Tapenade */
-
+if ( present(latent_heat_val) ) then
+   latent_heat = latent_heat_val
 else
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-   L = 3.35e+05_dp   ! in J/kg
-#else /* Tapenade */
-   L_eto = 3.35e+05_dp   ! in J/kg
-#endif /* Normal vs. Tapenade */
-
+   latent_heat = 3.35e+05_dp   ! in J/kg
 end if
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-   L_inv = 1.0_dp/L
-#else /* Tapenade */
-   L_inv = 1.0_dp/L_eto
-#endif /* Normal vs. Tapenade */
+latent_heat_inv = 1.0_dp/latent_heat
 
 end subroutine calc_c_int_table
 
@@ -185,7 +131,7 @@ real(dp)           :: enth_min, enth_max
 real(dp)           :: enth_val, enth_1, enth_2
 character(len=256) :: errormsgg
 
-!-------- Initialisation --------
+!-------- Initialization --------
 
 c_int_inv_table = 0.0_dp
 
@@ -364,11 +310,7 @@ real(dp)              :: enth_fct_temp_omega
 
 real(dp), intent(in)  :: temp_val, omega_val
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-enth_fct_temp_omega = c_int_val(temp_val) + L*omega_val
-#else /* Tapenade */
-enth_fct_temp_omega = c_int_val(temp_val) + L_eto*omega_val
-#endif /* Normal vs. Tapenade */
+enth_fct_temp_omega = c_int_val(temp_val) + latent_heat*omega_val
 
 end function enth_fct_temp_omega
 
@@ -412,7 +354,7 @@ real(dp) :: enth_i
 
 enth_i = c_int_val(temp_m_val)   ! Enthalpy of pure ice at the melting point
 
-omega_fct_enth = max((enth_val-enth_i)*L_inv, 0.0_dp)
+omega_fct_enth = max((enth_val-enth_i)*latent_heat_inv, 0.0_dp)
 
 end function omega_fct_enth
 
@@ -426,7 +368,7 @@ end function omega_fct_enth
 
   implicit none
 
-  integer(i4b)             :: inum
+  integer(i4b)         :: inum
   real(dp), intent(in) :: num
   integer(i4b) :: myfloor_local_ETO
 

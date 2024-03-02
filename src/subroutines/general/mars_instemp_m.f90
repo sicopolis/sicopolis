@@ -42,14 +42,14 @@ module mars_instemp_m
 
    public
 
-   !> Martian surface temperatures
    type ins
-      !> Temperature as a function of time and latitude
+      !! Martian surface temperatures
       real(dp) :: t(0:360,-90:90)
-      !> Annual mean temperature as a function of latitude
+         !! Temperature as a function of time and latitude
       real(dp) :: tam(-90:90)
-      !> Annual maximum temperature as a function of latitude
+         !! Annual mean temperature as a function of latitude
       real(dp) :: tmax(-90:90)
+         !! Annual maximum temperature as a function of latitude
    end type ins
 
 contains

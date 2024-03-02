@@ -39,23 +39,13 @@ module calc_thk_m
 
   implicit none
 
-  real(dp), dimension(0:JMAX,0:IMAX), save :: H_new_flow
-  real(dp), dimension(0:JMAX,0:IMAX), save :: mb_source
-  logical,                            save :: flag_solver_explicit
-
   real(dp), parameter :: eps_H = eps_sp_dp
-                         ! If computations are in double precision,
-                         ! single precision is a good choice
-                         ! for the ice-thickness epsilon
+     !! Small number for the ice-thickness computations
+           ! If computations are in double precision,
+           ! single precision is a good choice for this value
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-  private
-#endif
-  public :: calc_thk_init
-  public :: calc_thk_sia_expl, calc_thk_sia_impl
-  public :: calc_thk_expl
-  public :: calc_thk_mask_update
-  public :: account_mb_source
+  public
+
 contains
 
 !-------------------------------------------------------------------------------
@@ -130,11 +120,11 @@ H_new  = H    ! will be overwritten later
 
 #if (CALCTHK==1 || CALCTHK==4)   /* explicit solver */
 
-  flag_solver_explicit = .true.
+  flag_thk_solver_explicit = .true.
 
 #elif (CALCTHK==2)   /* implicit solver */
 
-  flag_solver_explicit = .false.
+  flag_thk_solver_explicit = .false.
 
 #else
 

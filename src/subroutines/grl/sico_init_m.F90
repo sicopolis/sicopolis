@@ -36,9 +36,7 @@ module sico_init_m
   use sico_variables_m
   use sico_vars_m
   use error_m
-#if defined(ALLOW_TAPENADE)
-  use globals
-#endif
+
   implicit none
 
   public
@@ -46,7 +44,7 @@ module sico_init_m
 contains
 
 !-------------------------------------------------------------------------------
-!> Main routine of sico_init_m: Initialisations for SICOPOLIS.
+!> Main routine of sico_init_m: Initializations for SICOPOLIS.
 !-------------------------------------------------------------------------------
 subroutine sico_init(delta_ts, glac_index, &
                mean_accum, &
@@ -243,7 +241,7 @@ time_init   = 0.0_dp
 time_end    = 0.0_dp
 time_output = 0.0_dp
 
-!-------- Initialisation of the Library of Iterative Solvers Lis,
+!-------- Initialization of the Library of Iterative Solvers Lis,
 !                                                     if required --------
 
 #if (MARGIN==3 || DYNAMICS==2)
@@ -1589,7 +1587,7 @@ call error(errormsg)
 
 if (flag_precip_monthly_mean) then
 
-   precip_ma_present = 0.0_dp   ! initialisation
+   precip_ma_present = 0.0_dp   ! initialization
 
    do n=1, 12   ! month counter
       do i=0, IMAX

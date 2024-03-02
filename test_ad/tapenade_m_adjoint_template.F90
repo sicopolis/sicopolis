@@ -65,7 +65,6 @@ use sico_variables_m_diff
   use ice_material_properties_m_diff
   use enth_temp_omega_m_diff
   use sico_init_m_diff
-  use globals_diff
 
   implicit none
   integer(i4b)                               :: ndat2d, ndat3d

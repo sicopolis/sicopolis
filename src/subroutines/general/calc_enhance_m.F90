@@ -36,17 +36,10 @@ module calc_enhance_m
   use sico_variables_m
   use sico_vars_m
   use error_m
-#if defined(ALLOW_TAPENADE)
-  use globals
-#endif
 
   implicit none
-#if !defined(ALLOW_TAPENADE)
-  real(dp) :: enh_stream
-  logical  :: flag_enh_stream
-#endif
+
   private
-  public :: enh_stream, flag_enh_stream
   public :: calc_enhance_1, calc_enhance_2, calc_enhance_3
   public :: calc_enhance_4, calc_enhance_5
   public :: calc_enhance_hybrid_weighted

@@ -101,11 +101,11 @@
 #define TIME_END0 100.0d0
 !                       Final time of simulation (in a)
 
-#define DTIME0 2.0d0
+#define DTIME0 1.0d0
 !                       Time step (in a) for computation of velocity
 !                       and topography
 
-#define DTIME_TEMP0 10.0d0
+#define DTIME_TEMP0 5.0d0
 !                       Time step (in a) for computation of
 !                       temperature, water content and age of the ice
 

@@ -2,14 +2,15 @@
 !
 !  Module :  d i s c h a r g e _ w o r k e r s _ m
 !
-!! GRL domain:
-!! Ice discharge parameterization for the Greenland ice sheet
-!! (Calov, Robinson, Perrette and Ganopolski, 2015,
-!!  Cryosphere 9, 179-196, doi: 10.5194/tc-9-179-2015).
+!! Ice discharge parameterization for the Greenland ice sheet.
+!!
+!! Reference:
+!! Calov, Robinson, Perrette and Ganopolski, 2015, Cryosphere 9, 179-196,
+!! doi: 10.5194/tc-9-179-2015.
 !!
 !!##### Authors
 !!
-!! Reinhard Calov, Andrey Ganopolski
+!! Reinhard Calov, Andrey Ganopolski, Ralf Greve
 !!
 !!##### License
 !!
@@ -31,8 +32,7 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> GRL domain:
-!! Ice discharge parameterization for the Greenland ice sheet.
+!> Ice discharge parameterization for the Greenland ice sheet.
 !-------------------------------------------------------------------------------
 module discharge_workers_m
 
@@ -40,9 +40,6 @@ module discharge_workers_m
   use sico_variables_m
   use sico_vars_m
   use error_m
-#if defined(ALLOW_TAPENADE)
-  use globals
-#endif
  
 #if !defined(ALLOW_TAPENADE) /* Normal */
   use compare_float_m
@@ -50,49 +47,22 @@ module discharge_workers_m
 
   implicit none
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-  integer(i4b), private :: disc
-  integer(i4b), private :: n_discharge_call, iter_mar_coa
-  real(dp),     private :: c_dis_0, s_dis, c_dis_fac
-  real(dp),     private :: T_sub_PD, alpha_sub, alpha_o, m_H, m_D, r_mar_eff
-  real(dp),     private :: T_sea_freeze
-
-  real(dp),     public  :: dT_glann, dT_sub
-
-  integer(i4b), dimension(0:JMAX,0:IMAX), public  :: mask_mar
-
-  real(dp),     dimension(0:JMAX,0:IMAX), private :: c_dis
-
-  real(dp),     dimension(0:JMAX,0:IMAX), public  :: cst_dist, cos_grad_tc
-  real(dp),     dimension(0:JMAX,0:IMAX), public  :: dis_perp
-
-  private
-#endif /* Normal */
-
-  public :: disc_param, disc_fields, calc_c_dis_0, discharge
+  public
 
 contains
 
-
 !-------------------------------------------------------------------------------
-!> Ice discharge parameters (Greenland).
-!! [Assign ice discharge parameters.]
+!> Assign the ice discharge parameters.
+!!
+!! Author: Reinhard Calov (Potsdam Institute for Climate Impact Research).
 !-------------------------------------------------------------------------------
   subroutine disc_param(dtime)
-
-  ! Author: Reinhard Calov
-  ! Institution: Potsdam Institute for Climate Impact Research  
-  ! Date: 10.6.16    
-
-  ! Purpose: Calculate discharge parameters.
 
   implicit none
 
   real(dp), intent(in) :: dtime
 
   real(dp) :: dtime_mar_coa
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
 
   disc = DISC 
   c_dis_0   = C_DIS_0
@@ -103,56 +73,17 @@ contains
   
   r_mar_eff = R_MAR_EFF *1000.0_dp   ! km -> m
 
-#else /* Tapenade */
-
-  disc_DW = DISC
-  c_dis_0_DW   = C_DIS_0
-  c_dis_fac_DW = C_DIS_FAC
-  
-  m_H_DW = M_H
-  m_D_DW = M_D
-  
-  r_mar_eff_DW = R_MAR_EFF *1000.0_dp   ! km -> m
-
-#endif /* Normal vs. Tapenade */
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-
 #if (defined(S_DIS))
   s_dis = S_DIS
 #else
   s_dis = 1.0_dp   ! default value
 #endif
 
-#else /* Tapenade */
-
-#if (defined(S_DIS))
-  s_dis_DW = S_DIS
-#else
-  s_dis_DW = 1.0_dp   ! default value
-#endif
-
-#endif /* Normal vs. Tapenade */
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-
 #if (defined(ALPHA_SUB))
   alpha_sub = ALPHA_SUB
 #else
   alpha_sub = 0.5_dp   ! default value
 #endif
-
-#else /* Tapenade */
-
-#if (defined(ALPHA_SUB))
-  alpha_sub_DW = ALPHA_SUB
-#else
-  alpha_sub_DW = 0.5_dp   ! default value
-#endif
-
-#endif /* Normal vs. Tapenade */
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
 
 #if (defined(ALPHA_O))
   alpha_o = ALPHA_O
@@ -162,23 +93,7 @@ contains
 
   T_sea_freeze = 0.0_dp - DELTA_TM_SW   ! freezing temperature of sea water
 
-#else /* Tapenade */
-
-#if (defined(ALPHA_O))
-  alpha_o_DW = ALPHA_O
-#else
-  alpha_o_DW = 1.0_dp   ! default value
-#endif
-
-  T_sea_freeze_DW = 0.0_dp - DELTA_TM_SW   ! freezing temperature of sea water
-
-#endif /* Normal vs. Tapenade */
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
   n_discharge_call = -1
-#else /* Tapenade */
-  n_discharge_call_DW = -1
-#endif /* Normal vs. Tapenade */
 
 #if (defined(DTIME_MAR_COA0))
   dtime_mar_coa = DTIME_MAR_COA0*year2sec   ! a -> s
@@ -193,16 +108,12 @@ contains
      call error(errormsg)
   end if
 #else /* Tapenade */
-     print *, ' >>> disc_param: compare_float_m not used in adjoint'
-     print *, '                 applications! double check ' 
-     print *, '                 dtime_mar_coa and dtime are multiples'
+  print *, ' >>> disc_param:'
+  print *, '     compare_float_m not used in adjoint applications.'
+  print *, '     Double check that dtime_mar_coa is a multiple of dtime!'
 #endif /* Normal vs. Tapenade */
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
   iter_mar_coa = nint(dtime_mar_coa/dtime)
-#else /* Tapenade */
-  iter_mar_coa_DW = nint(dtime_mar_coa/dtime)
-#endif /* Normal vs. Tapenade */
 
 #if (GRID > 1)
   errormsg = ' >>> disc_param: GRID==2 not allowed for this application!'
@@ -216,25 +127,21 @@ contains
 
   end subroutine disc_param
 
-
 !-------------------------------------------------------------------------------
-!> Constant in ice discharge parameterization (Greenland).
-!! [Determine (amount of magnitude of) constant in ice discharge
-!! parameterization.]
+!> Compute the constant of the ice discharge parameterization (c_dis_0) from
+!! the condition that the parameterized total discharge equals the discharge
+!! given by the value disc_target.
+!!
+!! Author: Reinhard Calov (Potsdam Institute for Climate Impact Research).
 !-------------------------------------------------------------------------------
   subroutine calc_c_dis_0(dxi, deta)
 
-  ! Author: Reinhard Calov
-  ! Institution: Potsdam Institute for Climate Impact Research
-  ! Date: 8.6.16    
-  ! Purpose: Compute c_dis_0 indirectly from present-day topography 
-  !          from the condition that the parameterized total discharge 
-  !          equals the discharge give by dis_target. Note: This c_dis_0 could
-  !          differ from the optimal one yielded from the siumualted ice thickness.
-  !
-  !          This is very useful, because c_dis_0 can vary a lot for different powers 
-  !          m_D and m_H. This way we easier yield the approximately right value
-  !          for c_dis_0 for given powers m_D and m_H.
+  ! This routine is very useful because c_dis_0 can vary a lot for different
+  ! powers m_D and m_H. This way we easier yield the approximately right value
+  ! for c_dis_0 for given powers m_D and m_H.
+
+  ! However, note that the obtained c_dis_0 could differ from the optimal one
+  ! yielded from the simulated ice thickness.
 
   ! This routine is not to be used regularly, and it is only executed if the
   ! parameter EXEC_MAKE_C_DIS_0 is defined in the header file.
@@ -254,26 +161,16 @@ contains
   H_c = H
   H_t = 0.0_dp
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
   c_dis_0   =  1.0_dp
   c_dis_fac =  1.0_dp
   s_dis     =  1.0_dp
-#else /* Tapenade */
-  c_dis_0_DW   =  1.0_dp
-  c_dis_fac_DW =  1.0_dp
-  s_dis_DW     =  1.0_dp
-#endif /* Normal vs. Tapenade */
 
   call disc_fields()
 
   ! ensure that we get present-day discharge here (disc=1). 
   dT_glann = 0.0_dp
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
   n_discharge_call = -1
-#else /* Tapenade */
-  n_discharge_call_DW = -1
-#endif /* Normal vs. Tapenade */
 
   call discharge(dxi, deta)
 
@@ -310,17 +207,9 @@ contains
 
   write(6, fmt='(a)') ' '
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
   write(6, fmt='(3x,a,es12.4)') 'c_dis_0_init = ', c_dis_0
-#else /* Tapenade */
-  write(6, fmt='(3x,a,es12.4)') 'c_dis_0_init = ', c_dis_0_DW
-#endif /* Normal vs. Tapenade */
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
   c_dis_0 = c_dis_0 * disc_target/disc_tot
-#else /* Tapenade */
-  c_dis_0_DW = c_dis_0_DW * disc_target/disc_tot
-#endif /* Normal vs. Tapenade */
 
   write(6, fmt='(a)') ' '
   write(6, fmt='(3x,a,es12.4)') 'disc_target  = ', disc_target
@@ -328,29 +217,19 @@ contains
 
   write(6, fmt='(a)') ' '
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
   write(6, fmt='(3x,a,es12.4)') '--> c_dis_0  = ', c_dis_0
-#else /* Tapenade */
-  write(6, fmt='(3x,a,es12.4)') '--> c_dis_0  = ', c_dis_0_DW
-#endif /* Normal vs. Tapenade */
 
   end subroutine calc_c_dis_0
 
 !-------------------------------------------------------------------------------
-!> Dependence of ice discharge coefficient on latitude (Greenland).
-!! [Determine dependence of ice discharge coefficient on latitude.
-!! This can be improved. For now I recommend s_dis=1.]
+!> Dependence of ice discharge coefficient on latitude,
+!! dependence of subsurface temperature on longitude and latitude.
+!!
+!! Author: Reinhard Calov (Potsdam Institute for Climate Impact Research).
 !-------------------------------------------------------------------------------
   subroutine disc_fields()
 
-  ! Author: Reinhard Calov
-  ! Institution: Potsdam Institute for Climate Impact Research  
-  ! Date: 8.6.16    
-
-  !   Purpose: Assign fields relevant for ice discharge parameterization
-  !            1. Discharge coefficient field using linear dependence on 
-  !               latitude.
-  !            2. Subsurface temperature dependence on longitude and latitude.
+  ! This can be improved. For now, s_dis=1. is recommended.
 
   implicit none
 
@@ -358,34 +237,20 @@ contains
   real(dp)     :: delta_phi=25.0_dp ! approximately the phi
                                     ! spanning the middle of domain
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-
   c_dis = c_dis_0*c_dis_fac &
                  *(1.0_dp-(1.0_dp-s_dis)*(phi*rad2deg-60.0_dp)/delta_phi)
-
   c_dis = max(c_dis, 0.0_dp)
 
-#else /* Tapenade */
-
-  c_dis_DW = c_dis_0_DW*c_dis_fac_DW &
-                 *(1.0_dp-(1.0_dp-s_dis_DW)*(phi*rad2deg-60.0_dp)/delta_phi)
-
-  c_dis_DW = max(c_dis_DW, 0.0_dp)
-
-#endif /* Normal vs. Tapenade */
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-  T_sub_PD = 3.0_dp ! Can depend on lambda, phi later on
-#else /* Tapenade */
-  T_sub_PD_DW = 3.0_dp ! Can depend on lambda, phi later on
-#endif /* Normal vs. Tapenade */
+  T_sub_PD = 3.0_dp   ! Can depend on lambda, phi later on
 
   end subroutine disc_fields
 
 !-------------------------------------------------------------------------------
-!> Ice discharge parameterization main formula, controler (general).
-!! [Compute ice discharge via a parameterization using distance of ice 
-!! margin to coast and ice thickness as parameters.]
+!> Compute ice discharge via a parameterization using distance of ice
+!! margin to coast and ice thickness as parameters.
+!!
+!! Authors: Reinhard Calov, Andrey Ganopolski
+!! (Potsdam Institute for Climate Impact Research).
 !-------------------------------------------------------------------------------
   subroutine discharge(dxi, deta)
 
@@ -393,27 +258,21 @@ contains
   use ctrl_m, only: myfloor
 #endif /* Tapenade */
 
-  ! Authors: Reinhard Calov, Andrey Ganopolski
-  ! Institution: Potsdam Institute for Climate Impact Research  
-  ! Date: 11.6.16
-
   implicit none
 
   real(dp), intent(in)    :: dxi, deta
+
+  integer(i4b) :: i, j
 
   real(dp), parameter :: alpha_tc=60.0_dp ! maximal allowed angle
   real(dp) :: cos_tc
 
 #ifdef ALLOW_TAPENADE /* Tapenade */
-  integer(i4b) :: i, j, valmodint
-  real(dp) :: tmp, valmod
+  integer(i4b) :: valmodint
+  real(dp)     :: tmp, valmod
 #endif /* Tapenade */
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
   n_discharge_call = n_discharge_call + 1
-#else /* Tapenade */
-  n_discharge_call_DW = n_discharge_call_DW + 1
-#endif /* Normal vs. Tapenade */
 
   cos_tc=dcos(alpha_tc*deg2rad)
 
@@ -428,10 +287,10 @@ contains
 #else /* Tapenade */
 
   ! this is mod broken down algorithmically:
-  tmp = real(n_discharge_call_DW)/real(iter_mar_coa_DW)
+  tmp = real(n_discharge_call)/real(iter_mar_coa)
   call myfloor(tmp, valmodint)
-  valmod = real(n_discharge_call_DW) - real(iter_mar_coa_DW) * real(valmodint)
-  if ((valmod==0) .or. (n_discharge_call_DW==1)) then
+  valmod = real(n_discharge_call) - real(iter_mar_coa) * real(valmodint)
+  if ((valmod==0) .or. (n_discharge_call==1)) then
      write(6, fmt='(10x,a)') 'Computation of mask_mar, cst_dist, cos_grad_tc'
      call marginal_ring(dxi, deta)
      call coastal_distance(dxi, deta)
@@ -439,69 +298,54 @@ contains
 
 #endif /* Normal vs. Tapenade */
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
+  if (disc >= 1) then
 
-  if(disc.ge.1) then !------------------ disc >= 1
-    where(mask_mar.eq.1.and.cos_grad_tc.ge.cos_tc) 
-      dis_perp=c_dis*H**m_H/cst_dist**m_D
-    elsewhere
-      dis_perp=0.0_dp
-    end where
+     do i=0, IMAX
+     do j=0, JMAX
+
+        if (mask_mar(j,i) == 1 .and. cos_grad_tc(j,i) >= cos_tc) then
+           dis_perp(j,i) = c_dis(j,i)*H(j,i)**m_H/cst_dist(j,i)**m_D
+        else
+           dis_perp(j,i) = 0.0_dp
+        end if
+
+     end do
+     end do
     
-    if(disc.eq.2) then !----------------- disc = 2
-      call calc_sub_oc_dT(T_sub_PD, dT_glann, dT_sub)
-      dis_perp=dis_perp*(1.0_dp+alpha_sub*dT_sub) ! actual discharge present-day one corrected 
-                                                ! via sub-ocean temperature anomaly
+     if (disc == 2) then
+
+        call calc_sub_oc_dT(T_sub_PD, dT_glann, dT_sub)
+        dis_perp = dis_perp*(1.0_dp+alpha_sub*dT_sub)
+                            ! actual discharge present-day one corrected
+                            ! via sub-ocean temperature anomaly
     end if
-    dis_perp=max(0.0_dp, dis_perp) ! ensure positive values
-  else if(disc.eq.0) then !-------------- disc = 0
-    dis_perp=0.0_dp
+
+    dis_perp = max(0.0_dp, dis_perp) ! ensure positive values
+
+  else if (disc == 0) then
+
+     dis_perp = 0.0_dp
+
   end if
-
-#else /* Tapenade */
-
-  if(disc_DW.ge.1) then !------------------ disc >= 1
-   do i=0, IMAX
-   do j=0, JMAX
-      if (mask_mar(j,i).eq.1 .and. cos_grad_tc(j,i).ge.cos_tc) then
-         dis_perp(j,i) = c_dis_DW(j,i)*H(j,i)**m_H_DW/cst_dist(j,i)**m_D_DW
-      else
-         dis_perp(j,i) = 0.0_dp
-      end if
-   end do
-   end do
-    if(disc_DW.eq.2) then !----------------- disc = 2
-      call calc_sub_oc_dT(T_sub_PD_DW, dT_glann, dT_sub)
-      dis_perp=dis_perp*(1.0_dp+alpha_sub_DW*dT_sub) ! actual discharge present-day one corrected 
-                                                ! via sub-ocean temperature anomaly
-    end if
-    dis_perp=max(0.0_dp, dis_perp) ! ensure positive values
-  else if(disc_DW.eq.0) then !-------------- disc = 0
-    dis_perp=0.0_dp
-  end if
-
-#endif /* Normal vs. Tapenade */
 
   end subroutine discharge
 
 !-------------------------------------------------------------------------------
-!> Distance to the coast (general).
-!! [Compute distance to the coast for every land point.]
+!> Compute the distance to the coast for every land point.
+!!
+!! Author: Reinhard Calov (Potsdam Institute for Climate Impact Research).
 !-------------------------------------------------------------------------------
   subroutine coastal_distance(dxi, deta)
 
-  ! Author: Reinhard Calov
-  ! Institution: Potsdam Institute for Climate Impact Research  
-  ! Date: 2.11.11
-  ! Methode: Options are:
-  !          i_search=1: Brute force.
-  !          i_search=2: Defining a square with two grid distances side length around the 
-  !                      actual grid point and enlanging the square successively by
-  !                      one grid. Because this should have been a circle, the
-  !                      square is enlarged again if the coast line was found; this time 
-  !                      enlargement is by a rectangles a the respective four side of 
-  !                      the square. Smaller side lenght equals the rectangle root of 2 of the
-  !                      larger side. 
+  ! Options are:
+  !    i_search=1: Brute force.
+  !    i_search=2: Defining a square with two grid distances side length around
+  !                the actual grid point and enlanging the square successively
+  !                by one grid. Because this should have been a circle, the
+  !                square is enlarged again if the coast line was found;
+  !                this time enlargement is by a rectangles a the respective
+  !                four side of the square. Smaller side lenght equals the
+  !                rectangle root of 2 of the larger side. 
 
 #ifdef ALLOW_TAPENADE /* Tapenade */
   use ctrl_m, only: myceiling
@@ -768,20 +612,16 @@ contains
   end subroutine coastal_distance
 
 !-------------------------------------------------------------------------------
-!> Ring along an ice sheet margin (general).
-!! [Compute marginal ring.]
+!> Determine a ring of width r_max_eff along the ice margin towards the
+!! interior of the ice sheet. Small stripes of land are not considered as land.
+!!
+!! For the logics De Morgan is used often.
+!!
+!! Author: Reinhard Calov (Potsdam Institute for Climate Impact Research).
 !-------------------------------------------------------------------------------
   subroutine marginal_ring(dxi, deta)
 
-  ! Author: Reinhard Calov
-  ! Institution: Potsdam Institute for Climate Impact Research  
-  ! Date: 28.10.11
-
-  ! Purpose: Determine an r_max_eff wide ring arong ice margins 
-  ! towards the interior of the ice sheet. Small stripes of land are
-  ! not considered as land. For the logics De Morgan is used often.
-
-  ! Methode: Two staggered loops in i,j. The inner i,j loop acts inside
+  ! Method: Two staggered loops in i,j. The inner i,j loop acts inside
   ! a rectangle defined by r_mar_eff. r_mar_eff should be small compared
   ! to the domain size. 
 
@@ -793,11 +633,7 @@ contains
     integer(i4b) :: count_tmp
     real(dp) :: r_p
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
     if(r_mar_eff.le.1.0e6_dp) then
-#else /* Tapenade */
-    if(r_mar_eff_DW.le.1.0e6_dp) then
-#endif /* Normal vs. Tapenade */
 
       mask_mar=0
       do i_pos=1, IMAX-1
@@ -816,21 +652,13 @@ contains
                    mask(j_pos,i_pos).eq.1.and.mask(j_pos-1,i_pos).eq.0 &
                    .and.mask(j_pos+1,i_pos).eq.3)) then ! outside ice sheet, exclude isolated land stripes
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
           di_eff=int(r_mar_eff/dxi)+1; dj_eff=int(r_mar_eff/deta)+1 ! only for grid=0, 1 yet!
-#else /* Tapenade */
-          di_eff=int(r_mar_eff_DW/dxi)+1; dj_eff=int(r_mar_eff_DW/deta)+1 ! only for grid=0, 1 yet!
-#endif /* Normal vs. Tapenade */
 
           do i=max(i_pos-di_eff,0), min(i_pos+di_eff,IMAX)
           do j=max(j_pos-dj_eff,0), min(j_pos+dj_eff,JMAX)
             r_p=sqrt((xi(i_pos)-xi(i))**2+(eta(j_pos)-eta(j))**2)
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
             if(r_p.le.r_mar_eff.and.(mask(j,i).eq.0.or.mask(j,i).eq.3)) then
-#else /* Tapenade */
-            if(r_p.le.r_mar_eff_DW.and.(mask(j,i).eq.0.or.mask(j,i).eq.3)) then
-#endif /* Normal vs. Tapenade */
 
               mask_mar(j,i)=1
             end if
@@ -840,19 +668,13 @@ contains
       end do
       end do
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-      where(mask.ge.1)
-        mask_mar=1
-      end where
-#else /* Tapenade */
-      do i=0,IMAX
-      do j=0,JMAX
-        if (mask(j,i).ge.1) then
-          mask_mar(j,i)=1
-        end if
+      do i=0, IMAX
+      do j=0, JMAX
+         if (mask(j,i).ge.1) then
+            mask_mar(j,i)=1
+         end if
       end do
       end do
-#endif /* Normal vs. Tapenade */
 
     else ! the ring encompassed entire Greenland 
       mask_mar=1
@@ -861,17 +683,12 @@ contains
   end subroutine marginal_ring
 
 !-------------------------------------------------------------------------------
-!> Anomaly of subsurface temperature (general).
-!! [Compute anomaly of subsurface temperature with a simple parameterization.]
+!> Compute anomaly of subsurface temperature with a simple parameterization
+!! using a global annual temperature anomaly (e.g. from CLIMBER).
+!!
+!! Author: Reinhard Calov (Potsdam Institute for Climate Impact Research).
 !-------------------------------------------------------------------------------
   subroutine calc_sub_oc_dT(T_sub_PD, dT_glann, dT_sub)
-
-  ! Author: Reinhard Calov
-  ! Institution: Potsdam Institute for Climate Impact Research  
-  ! Purpose: Compute anomaly of subsurface temperature
-  !          with a simple parameterization
-  !          using global annual temperature
-  !          anomaly (e.g. from CLIMBER)
 
   implicit none
 
@@ -880,19 +697,11 @@ contains
 
   real(dp) :: T_sub
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-  dT_sub=alpha_o*dT_glann                    ! Sub-ocean temperature anomaly
-  T_sub=max(T_sea_freeze, T_sub_PD)+dT_sub   ! Actual sub-ocean temperature
-  T_sub=max(T_sea_freeze, T_sub)             ! Ocean temperature should stay
-                                             ! above freezing point
-#else /* Tapenade */
-  dT_sub=alpha_o_DW*dT_glann                    ! Sub-ocean temperature anomaly
-  T_sub=max(T_sea_freeze_DW, T_sub_PD)+dT_sub   ! Actual sub-ocean temperature
-  T_sub=max(T_sea_freeze_DW, T_sub)             ! Ocean temperature should stay
+  dT_sub = alpha_o*dT_glann                     ! Sub-ocean temperature anomaly
+  T_sub  = max(T_sea_freeze, T_sub_PD)+dT_sub   ! Actual sub-ocean temperature
+  T_sub  = max(T_sea_freeze, T_sub)             ! Ocean temperature should stay
                                                 ! above freezing point
-#endif /* Normal vs. Tapenade */
-
-  dT_sub=T_sub-T_sub_PD
+  dT_sub = T_sub-T_sub_PD
 
   end subroutine calc_sub_oc_dt
 

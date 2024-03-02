@@ -2,7 +2,7 @@
 !
 !  Module :  s i c o _ t y p e s _ m
 !
-!! Declarations of kind types for SICOPOLIS.
+!! Type declarations for SICOPOLIS.
 !!
 !!##### Authors
 !!
@@ -28,7 +28,7 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> Declarations of kind types for SICOPOLIS.
+!> Type declarations for SICOPOLIS.
 !-------------------------------------------------------------------------------
 module sico_types_m
 
@@ -37,21 +37,39 @@ save
 
 #if !defined(ALLOW_TAPENADE)
 
-! integer, parameter :: i1b = selected_int_kind(2)   !< 1-byte integers
-integer, parameter :: i4b = selected_int_kind(9)   !< 4-byte integers
-integer, parameter :: sp  = kind(1.0)              !< Single-precision reals
-integer, parameter :: dp  = kind(1.0d0)            !< Double-precision reals
+integer, parameter :: i4b = selected_int_kind(9)
+   !! 4-byte integers
+integer, parameter :: sp  = kind(1.0)
+   !! Single-precision reals
+integer, parameter :: dp  = kind(1.0d0)
+   !! Double-precision reals
 
 #else
 
-! integer, parameter :: i1b = 4
-!    ! SHK: found that setting i1b=4 (4-byte integers) is the only way
-!    !      to make OpenAD not have a whirl opcode error
 integer, parameter :: i4b = 4
+   !! 4-byte integers
 integer, parameter :: sp  = 4
+   !! Single-precision reals
 integer, parameter :: dp  = 8
+   !! Double-precision reals
 
 #endif
+
+type flag_firstcall
+   !! First-call flags
+   logical :: boundary = .true.
+      !! First-call flag for the routine 'boundary'
+   logical :: calc_thk_water_bas = .true.
+      !! First-call flag for the routine 'calc_thk_water_bas'
+   logical :: output1 = .true.
+      !! First-call flag for the routine 'output1'
+   logical :: output2 = .true.
+      !! First-call flag for the routine 'output2'
+   logical :: output4 = .true.
+      !! First-call flag for the routine 'output4'
+   logical :: sub_ice_shelf_melting_param_2 = .true.
+      !! First-call flag for the routine 'sub_ice_shelf_melting_param_2'
+end type flag_firstcall
 
 end module sico_types_m
 !

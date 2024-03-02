@@ -36,9 +36,6 @@ module sico_main_loop_m
   use sico_variables_m
   use sico_vars_m
   use error_m
-#if defined(ALLOW_TAPENADE)
-  use globals
-#endif
   
   implicit none
  

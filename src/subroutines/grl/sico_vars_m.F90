@@ -68,6 +68,32 @@ logical :: flag_initmip_asmb
 real(dp), dimension(0:JMAX,0:IMAX) :: smb_anom_initmip
    !! InitMIP SMB anomaly
 
+#if (DISC>0)
+
+integer(i4b) :: disc
+integer(i4b) :: n_discharge_call
+integer(i4b) :: iter_mar_coa
+real(dp)     :: c_dis_0
+real(dp)     :: s_dis
+real(dp)     :: c_dis_fac
+real(dp)     :: T_sub_PD
+real(dp)     :: alpha_sub
+real(dp)     :: alpha_o
+real(dp)     :: m_H
+real(dp)     :: m_D
+real(dp)     :: r_mar_eff
+real(dp)     :: T_sea_freeze
+real(dp)     :: dT_glann
+real(dp)     :: dT_sub
+
+integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_mar
+real(dp),     dimension(0:JMAX,0:IMAX) :: c_dis
+real(dp),     dimension(0:JMAX,0:IMAX) :: cst_dist
+real(dp),     dimension(0:JMAX,0:IMAX) :: cos_grad_tc
+real(dp),     dimension(0:JMAX,0:IMAX) :: dis_perp
+
+#endif
+
 #if (DISC==2)
 
 integer(i4b) :: glann_time_min

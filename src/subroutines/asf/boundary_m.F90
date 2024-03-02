@@ -92,7 +92,6 @@ real(dp) :: gamma_p, zs_thresh, &
             precip_fact, frac_solid
 real(dp) :: s_stat, beta1, beta2, Pmax, mu, lambda_lti, temp_lti
 logical, dimension(0:JMAX,0:IMAX) :: check_point
-logical, save                     :: firstcall = .true.
 
 real(dp), parameter :: &
           inv_twelve = 1.0_dp/12.0_dp, one_third = 1.0_dp/3.0_dp
@@ -665,7 +664,7 @@ call calving_underwater_ice()
 
 #endif
 
-if (firstcall) firstcall = .false.
+if (firstcall%boundary) firstcall%boundary = .false.
 
 end subroutine boundary
 

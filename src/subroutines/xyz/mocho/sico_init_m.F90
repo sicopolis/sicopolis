@@ -44,7 +44,7 @@ module sico_init_m
 contains
 
 !-------------------------------------------------------------------------------
-!> Main routine of sico_init_m: Initialisations for SICOPOLIS.
+!> Main routine of sico_init_m: Initializations for SICOPOLIS.
 !-------------------------------------------------------------------------------
 subroutine sico_init(delta_ts, glac_index, &
                mean_accum, &
@@ -205,7 +205,7 @@ time_init   = 0.0_dp
 time_end    = 0.0_dp
 time_output = 0.0_dp
 
-!-------- Initialisation of the Library of Iterative Solvers Lis,
+!-------- Initialization of the Library of Iterative Solvers Lis,
 !                                                     if required --------
 
 #if (MARGIN==3 || DYNAMICS==2)

@@ -62,7 +62,6 @@ use sico_variables_m_diff
   use ice_material_properties_m_diff
   use enth_temp_omega_m_diff
   use sico_init_m_diff
-  use globals_diff
   USE CTRL_M_DIFF
   USE SICO_TYPES_M
   USE SICO_VARS_M

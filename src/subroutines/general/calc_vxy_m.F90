@@ -36,13 +36,9 @@ module calc_vxy_m
   use sico_variables_m
   use sico_vars_m
   use error_m
-#if defined(ALLOW_TAPENADE)
-  use globals
-#endif
+
   implicit none
-#if !defined(ALLOW_TAPENADE)
-  real(dp), dimension(0:JMAX,0:IMAX), save :: dzs_dx_aux, dzs_dy_aux
-#endif
+
   private
   public :: calc_vxy_b_init, calc_dzs_dxy_aux, &
             calc_vxy_b_sia, calc_vxy_sia, calc_vxy_static, calc_vxy_ssa
@@ -3403,10 +3399,6 @@ end subroutine calc_vxy_ssa_matrix
 !> Computation of the depth-integrated viscosity vis_int_g in the SSA/SStA.
 !-------------------------------------------------------------------------------
 subroutine calc_vis_ssa(dxi, deta, dzeta_c, dzeta_t)
-
-#if (DYNAMICS==2)
-  use calc_enhance_m, only : enh_stream, flag_enh_stream
-#endif
 
 use ice_material_properties_m, only : viscosity
 

@@ -58,8 +58,6 @@ contains
 
   integer(i4b) :: i, j
 
-  logical, save :: firstcall = .true.
-
 #if (BASAL_HYDROLOGY==1)
   real(dp), save                     :: rho_rho_w_ratio
   integer , dimension(0:IMAX,0:JMAX) :: hydro_icemask
@@ -75,7 +73,7 @@ contains
 
 #if (BASAL_HYDROLOGY==1)
 
-  if (firstcall) then
+  if (firstcall%calc_thk_water_bas) then
 
      rho_rho_w_ratio = RHO/RHO_W
 
@@ -179,7 +177,7 @@ contains
   end do
   end do
 
-  if (firstcall) firstcall = .false.
+  if (firstcall%calc_thk_water_bas) firstcall%calc_thk_water_bas = .false.
 
   end subroutine calc_thk_water_bas
 

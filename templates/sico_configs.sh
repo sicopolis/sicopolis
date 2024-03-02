@@ -28,7 +28,7 @@ OPENMP_FLAG="true"
 #              (required if LIS_FLAG="true")
 #   "false" -> OpenMP will not be used
 
-LARGE_DATA_FLAG="false"
+LARGE_DATA_FLAG="true"
 #   "true"  -> no memory restriction on data (more than 2GB possible);
 #              required for very-high-resolution simulations
 #   "false" -> memory restriction on data (max. 2GB possible);
@@ -152,7 +152,7 @@ elif [ "$FC" = "gfortran" ] ; then
 
    case $PROGNAME in
         "sicopolis")
-           FCFLAGS='-O2 -ffree-line-length-none'
+           FCFLAGS='-O3 -ffast-math -ffree-line-length-none'
            ;;
         *)
            FCFLAGS='-O2 -ffree-line-length-none'

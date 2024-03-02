@@ -65,7 +65,9 @@ module hydro_fortfilt_m
   public :: BoxBlur
 
 contains
+
   subroutine naiveGauss (source, filtered, r)
+
     implicit none
     integer, intent(in)                  :: r
     real(dp), intent(in)                 :: source(:,:)
@@ -497,7 +499,7 @@ module hydro_balance_flux_m
   integer, dimension(9), parameter :: dirpp_war = [ 9,8,7,6,5,4,3,2,1 ]
   integer, dimension(9), parameter :: dirpp_tar = [ 4,5,6,3,0,7,2,1,8 ]
 
-  !! HERE BE DRAGONS!!
+  ! HERE BE DRAGONS !
 
 contains
 
@@ -715,7 +717,7 @@ contains
     real(dp),dimension(nx),intent(in) :: x !! grid spacing x
     real(dp),dimension(ny),intent(in) :: y !! grid spacing y
     !
-    integer, dimension(nx,ny),intent(in) :: imask    !!
+    integer, dimension(nx,ny),intent(in) :: imask   !!
     real(dp),dimension(nx,ny),intent(in) :: srf     !! surface to compute the flow direction
     real(dp),dimension(nx,ny),intent(in) :: accum   !! accumulation/source
     real(dp),dimension(nx,ny),intent(in) :: flowdir !! flowdir
@@ -1011,13 +1013,12 @@ module hydro_modelstate_flux_m
   implicit none
 
   type :: modelstate_flux_t
-    real(dp), dimension(:,:), allocatable :: vflux  ! vector flux
-    real(dp), dimension(:,:), allocatable :: sflux  ! scalar flux
+    real(dp), dimension(:,:), allocatable :: vflux  !! vector flux
+    real(dp), dimension(:,:), allocatable :: sflux  !! scalar flux
     real(dp), dimension(:,:), allocatable :: vfluxX
     real(dp), dimension(:,:), allocatable :: vfluxY
-    real(dp), dimension(:,:), allocatable :: dir    ! direction of flux
-    real(dp), dimension(:,:), allocatable :: bwat   ! water layer thickness
-    
+    real(dp), dimension(:,:), allocatable :: dir    !! direction of flux
+    real(dp), dimension(:,:), allocatable :: bwat   !! water layer thickness
   contains
     procedure :: alloc => allocate_flux
     procedure :: dealloc => deallocate_flux
@@ -1025,6 +1026,7 @@ module hydro_modelstate_flux_m
   end type modelstate_flux_t
 
 contains
+
   subroutine allocate_flux (self, nx, ny)
     class (modelstate_flux_t), intent(inout)  :: self
     integer, intent(in)                       :: nx, ny
@@ -1087,7 +1089,6 @@ module hydro_modelstate_geom_m
     real(dp), dimension(:,:), allocatable :: usurf
     real(dp), dimension(:,:), allocatable :: thk
     real(dp), dimension(:,:), allocatable :: topg
-    
     real(dp), dimension(:,:), allocatable :: bmelt
     real(dp), dimension(:,:), allocatable :: temppabase
   contains
@@ -1097,6 +1098,7 @@ module hydro_modelstate_geom_m
   end type modelstate_geom_t
 
 contains
+
   subroutine allocate_geom (self, nx, ny)
     class (modelstate_geom_t), intent(inout)  :: self
     integer, intent(in)                       :: nx, ny
@@ -1163,8 +1165,8 @@ module hydro_modelstate_pot_m
     real(dp), dimension(:,:), allocatable :: pot
     real(dp), dimension(:,:), allocatable :: pot_smooth
     real(dp), dimension(:,:), allocatable :: pot_filled
-    real(dp), dimension(:,:), allocatable :: pot_diff  !! potential difference (amount filled, e.g. 'lake volume')
-
+    real(dp), dimension(:,:), allocatable :: pot_diff
+                 !! potential difference (amount filled, e.g. 'lake volume')
   contains
     procedure :: alloc   => allocate_pot
     procedure :: dealloc => deallocate_pot
@@ -1172,6 +1174,7 @@ module hydro_modelstate_pot_m
   end type modelstate_pot_t
 
 contains
+
   subroutine allocate_pot (self, nx, ny)
     class (modelstate_pot_t), intent(inout)  :: self
     integer, intent(in)                      :: nx, ny
@@ -1223,15 +1226,14 @@ module hydro_modelstate_m
      type(modelstate_geom_t)        :: geometry
      type(modelstate_pot_t)         :: potential
      type(modelstate_flux_t)        :: flux
-
-   contains
+  contains
      procedure :: alloc => hydro_modelstate_alloc
      procedure :: dealloc => hydro_modelstate_dealloc
      procedure :: init => hydro_modelstate_init
-
   end type hydro_modelstate_t
 
 contains
+
   subroutine hydro_modelstate_alloc (self, nx, ny)
     class (hydro_modelstate_t), intent(inout)    :: self
     integer, intent(in)                          :: nx, ny
@@ -1271,7 +1273,6 @@ module hydro_conf_m
      !! Contains all necessary values to run the hydro model
      character(256)     :: infile     !! input  NetCDF file
      character(256)     :: outfile    !! output NetCDF file
-
      character(128)     :: method     !! fluxroutine method (warner, quinn, tarboton)
      character(32)      :: version     !! libhydro version
      character(128)     :: flatresolution !! how flat areas in hyd. pot. should be resolved
@@ -1429,6 +1430,7 @@ module hydro_m
   end type hydro_t
 
 contains
+
   subroutine hydro_potential (potential, geometry, RHO_FRESHWATER, RHO_ICE, G)
     !! Calculate hydraulic potential $\Phi$ from bedrock elevation
     !! $z_b$ and ice thickness $H$.
@@ -1566,7 +1568,7 @@ contains
     !! to each flat point.
     !!
     !! @Warning
-    !! This is not recommended, because flux is not conserved this way!!
+    !! This is not recommended, because flux is not conserved this way!
     !!
     !! 'barnes' --- use the Method of Barnes 2014 to route the
     !! water through a flat area towards the point of lowest elevation
@@ -1604,7 +1606,7 @@ contains
     real(dp), intent(in)                        :: RHO_ICE
     real(dp), intent(in)                        :: RHO_SEAWATER  !! seawater density
     real(dp), intent(in)                        :: min_thickness !! minimum ice thickness to be considered
-    real(dp), dimension(:,:), allocatable       :: H_eq     ! equilibrium height
+    real(dp), dimension(:,:), allocatable       :: H_eq          !! equilibrium height
 
     allocate(H_eq(geometry%nx, geometry%ny))
     H_eq = ( 1.0_dp - RHO_ICE/RHO_SEAWATER ) * geometry%thk

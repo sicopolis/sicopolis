@@ -38,7 +38,6 @@ module discharge_workers_m
 
   use sico_types_m
   use sico_variables_m
-  use sico_vars_m
   use error_m
  
 #if !defined(ALLOW_TAPENADE) /* Normal */

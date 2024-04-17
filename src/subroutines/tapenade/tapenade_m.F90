@@ -62,11 +62,15 @@ use sico_variables_m_diff
   use ice_material_properties_m_diff
   use enth_temp_omega_m_diff
   use sico_init_m_diff
-  USE CTRL_M_DIFF
-  USE SICO_TYPES_M
-  USE SICO_VARS_M
-  USE SICO_MAIN_LOOP_M_DIFF
-  USE SICO_END_M_DIFF
+  use ctrl_m_diff
+  use sico_types_m
+
+#if (defined(EISMINT) || defined(HEINO) || defined(MOCHO) || defined(NMARS) || defined(SMARS) || defined(XYZ))
+  use sico_vars_m
+#endif
+
+  use sico_main_loop_m_diff
+  use sico_end_m_diff
 
   implicit none
   integer(i4b)                               :: ndat2d, ndat3d
@@ -106,7 +110,7 @@ use sico_variables_m_diff
      i = ipoints(p)
      j = jpoints(p)
 
-  CALL SICO_INIT_D(delta_ts, glac_index, mean_accum, dtime, dtime_temp, &
+  call sico_init_d(delta_ts, glac_index, mean_accum, dtime, dtime_temp, &
 &            dtime_wss, dtime_out, dtime_ser, time, time_init, time_end&
 &            , time_output, dxi, deta, dzeta_c, dzeta_t, dzeta_r, z_mar&
 &            , ndat2d, ndat3d, n_output)
@@ -117,13 +121,13 @@ use sico_variables_m_diff
 		            q_geod(j,i) = 1.0
 		
 !-------- Main loop --------
-  CALL SICO_MAIN_LOOP_D(delta_ts, glac_index, mean_accum, dtime, &
+  call sico_main_loop_d(delta_ts, glac_index, mean_accum, dtime, &
 &                 dtime_temp, dtime_wss, dtime_out, dtime_ser, time, &
 &                 time_init, time_end, time_output, dxi, deta, dzeta_c, &
 &                 dzeta_t, dzeta_r, z_mar, ndat2d, ndat3d, n_output)
-  CALL COST_FINAL_D()
+  call cost_final_d()
      
-  CALL SICO_END()
+  call sico_end()
 
 !@ python_automated_tlm IO write @
           write(9999, fmt='(f40.20)') fcd
@@ -150,7 +154,10 @@ use sico_variables_m_diff
    
    use sico_types_m
    use sico_variables_m
-   use sico_vars_m
+
+#if (defined(EISMINT) || defined(HEINO) || defined(MOCHO) || defined(NMARS) || defined(SMARS) || defined(XYZ))
+  use sico_vars_m
+#endif
    
    use sico_init_m
    use sico_main_loop_m

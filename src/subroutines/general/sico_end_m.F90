@@ -34,7 +34,10 @@ module sico_end_m
 
   use sico_types_m
   use sico_variables_m
+
+#if (defined(EISMINT) || defined(HEINO) || defined(MOCHO) || defined(NMARS) || defined(SMARS) || defined(XYZ))
   use sico_vars_m
+#endif
 
   implicit none
 
@@ -62,7 +65,7 @@ contains
   close(unit=12, status='keep')  ! Close time-series files
   close(unit=14, status='keep')
 
-#if (defined(ASF) && WRITE_SER_FILE_STAKES>0)
+#if (defined(ASF) && WRITE_SER_FILE_STAKES==1) /* Austfonna */
   close(unit=41, status='keep')
   close(unit=42, status='keep')
   close(unit=43, status='keep')
@@ -75,10 +78,8 @@ contains
   close(unit=50, status='keep')
 #endif
 
-#if (defined(XYZ))
 #if (defined(HEINO))
   close(unit=15, status='keep')
-#endif
 #endif
 
 #if !(defined(ALLOW_GRDCHK) || defined(ALLOW_TAPENADE))

@@ -140,20 +140,11 @@ function run()
 
    #--------
 
-   # !!! WARNING: Uncommenting the following will overwrite any self-written
-   #              routines in sicopolis/src/subroutines/xyz !!!
-
-   ## cd $PWD/src/subroutines/xyz ; $CP -f ./heino/*90 ./ ; cd $OLDPWD
-   ## 
    ## (./sico.sh ${MULTI_OPTIONS_1} -m repo_heino50_st) \
    ##            >${SICO_SH_OUT_DIR}/out_multi_212.dat 2>&1
 }
 
 ################################################################################
-
-RM=/bin/rm
-CP=/bin/cp
-MV=/bin/mv
 
 check_args $*
 run

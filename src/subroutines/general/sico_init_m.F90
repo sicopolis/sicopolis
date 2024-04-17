@@ -2,7 +2,7 @@
 !
 !  Module :  s i c o _ i n i t _ m
 !
-!! ANT domain: Initializations for SICOPOLIS.
+!! Initializations for SICOPOLIS.
 !!
 !!##### Authors
 !!
@@ -28,13 +28,17 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> ANT domain: Initializations for SICOPOLIS.
+!> Initializations for SICOPOLIS.
 !-------------------------------------------------------------------------------
 module sico_init_m
 
   use sico_types_m
   use sico_variables_m
+
+#if (defined(EISMINT) || defined(HEINO) || defined(MOCHO) || defined(NMARS) || defined(SMARS) || defined(XYZ))
   use sico_vars_m
+#endif
+
   use error_m
 
   implicit none
@@ -65,12 +69,24 @@ subroutine sico_init(delta_ts, glac_index, &
   use netcdf
   use nc_check_m
 
+#if (defined(GRL) && DISC>0)
+#if (!defined(EXEC_MAKE_C_DIS_0))
+  use discharge_workers_m, only: disc_param, disc_fields
+#else /* defined(EXEC_MAKE_C_DIS_0) */
+  use discharge_workers_m, only: disc_param, disc_fields, calc_c_dis_0
+#endif
+#endif
+
 #if (GRID==0 || GRID==1)
   use stereo_proj_m
 #endif
 
   use read_m, only : read_target_topo_nc, &
                      read_scalar_input, read_2d_input, read_kei, read_phys_para
+
+#if (defined(ALLOW_NORMAL) || defined(ALLOW_GRDCHK) || defined(ALLOW_TAPENADE))
+  use read_m, only : read_age_data, read_BedMachine_data
+#endif
 
   use boundary_m
   use init_temp_water_age_m
@@ -87,34 +103,42 @@ subroutine sico_init(delta_ts, glac_index, &
 
 implicit none
 
-integer(i4b),       intent(out) :: ndat2d, ndat3d
-integer(i4b),       intent(out) :: n_output
-real(dp),           intent(out) :: delta_ts, glac_index
-real(dp),           intent(out) :: mean_accum
-real(dp),           intent(out) :: dtime, dtime_temp, dtime_wss, &
-                                   dtime_out, dtime_ser
-real(dp),           intent(out) :: time, time_init, time_end, time_output(100)
-real(dp),           intent(out) :: dxi, deta, dzeta_c, dzeta_t, dzeta_r
-real(dp),           intent(out) :: z_mar
+integer(i4b), intent(out) :: ndat2d, ndat3d
+integer(i4b), intent(out) :: n_output
+real(dp),     intent(out) :: delta_ts, glac_index
+real(dp),     intent(out) :: mean_accum
+real(dp),     intent(out) :: dtime, dtime_temp, dtime_wss
+real(dp),     intent(out) :: dtime_out, dtime_ser
+real(dp),     intent(out) :: time, time_init, time_end, time_output(100)
+real(dp),     intent(out) :: dxi, deta, dzeta_c, dzeta_t, dzeta_r
+real(dp),     intent(out) :: z_mar
 
-integer(i4b)       :: i, j, kc, kt, kr, m, n, ir, jr, n1, n2
-integer(i4b)       :: ios, ios1, ios2, ios3, ios4
-integer(i4b)       :: istat, ierr
-integer(i4b)       :: n_q_geo_mod
-integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_ref
-real(dp)           :: dtime0, dtime_temp0, dtime_wss0, dtime_out0, dtime_ser0
-real(dp)           :: time_init0, time_end0
+integer(i4b) :: i, j, kc, kt, kr, m, n, ir, jr, n1, n2
+integer(i4b) :: ios, ios1, ios2, ios3, ios4
+integer(i4b) :: istat, ierr
+integer(i4b) :: n_q_geo_mod
+real(dp) :: dtime0, dtime_temp0, dtime_wss0, dtime_out0, dtime_ser0
+real(dp) :: time_init0, time_end0
 #if (OUTPUT==2 || OUTPUT==3)
-real(dp)           :: time_output0(N_OUTPUT)
+real(dp) :: time_output0(N_OUTPUT)
 #endif
-real(dp)           :: d_dummy
-real(dp)           :: larmip_qbm_anom_aux(5)
+real(dp) :: d_dummy
+
+#if (defined(ANT))
+real(dp) :: larmip_qbm_anom_aux(5)
+#endif
+
 character(len=256) :: anfdatname, target_topo_dat_name
 character(len=256) :: filename_with_path
 character(len=256) :: shell_command
 character(len=256) :: ch_revision
+character(len= 64) :: ch_var_name
+character(len=  3) :: ch_month(12)
 character          :: ch_dummy
+logical            :: flag_precip_monthly_mean
 logical            :: flag_init_output, flag_3d_output
+
+integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_ref
 
 real(dp), dimension(0:JMAX,0:IMAX) :: field2d_aux
 real(dp), dimension(0:IMAX,0:JMAX) :: field2d_tra_aux
@@ -149,15 +173,23 @@ character(len=64)   :: ch_st_unit, ch_smb_unit
 real(dp), parameter :: temp_C_to_K = 273.15_dp
 #endif
 
+#if (defined(ANT) || defined(GRL))
 character(len=64) :: ch_initmip_smb_anom_file
+#endif
+#if (defined(ANT))
 character(len=64) :: ch_initmip_bmb_anom_file
 character(len=64) :: ch_larmip_regions_file
+#endif
 
 #if (FLOATING_ICE_BASAL_MELTING==6)
 real(dp), dimension(0:IMAX,0:JMAX,0:NZ_TF_BM) :: tf_bm_present_aux
 #endif
 
-#if (ICE_SHELF_COLLAPSE_MASK==1)
+#if (defined(ANT) && ICE_SHELF_COLLAPSE_MASK==1)
+real(dp), dimension(0:IMAX,0:JMAX) :: H_ref_retreat_conv
+#endif
+
+#if (defined(GRL) && RETREAT_MASK==1)
 real(dp), dimension(0:IMAX,0:JMAX) :: H_ref_retreat_conv
 #endif
 
@@ -165,6 +197,8 @@ integer(i4b) :: dimid, ncid, ncv
 !   dimid:       Dimension ID
 !    ncid:       File ID
 !     ncv:       Variable ID
+
+real(dp), parameter :: inv_twelve = 1.0_dp/12.0_dp
 
 character(len=64), parameter :: thisroutine = 'sico_init'
 
@@ -182,29 +216,45 @@ write(unit=6, fmt='(a)') ' '
 ch_domain_long  = 'Antarctica'
 ch_domain_short = 'ant'
 
-#elif (defined(ASF))
-ch_domain_long  = 'Austfonna'
-ch_domain_short = 'asf'
-
-#elif (defined(EISMINT))
-ch_domain_long  = 'EISMINT'
-ch_domain_short = 'eismint'
-
 #elif (defined(GRL))
 ch_domain_long  = 'Greenland'
 ch_domain_short = 'grl'
 
 #elif (defined(NHEM))
-ch_domain_long  = 'Northern hemisphere'
+ch_domain_long  = 'Entire northern hemisphere'
 ch_domain_short = 'nhem'
 
+#elif (defined(LCIS))
+ch_domain_long  = 'Laurentide and Cordilleran ice sheets'
+ch_domain_short = 'lcis'
+
 #elif (defined(SCAND))
-ch_domain_long  = 'Scandinavia and Eurasia'
+ch_domain_long  = 'Fennoscandian and Eurasian ice sheets'
 ch_domain_short = 'scand'
 
 #elif (defined(TIBET))
-ch_domain_long  = 'Tibet'
+ch_domain_long  = 'Tibetan ice sheet'
 ch_domain_short = 'tibet'
+
+#elif (defined(ASF))
+ch_domain_long  = 'Austfonna'
+ch_domain_short = 'asf'
+
+#elif (defined(NPI))
+ch_domain_long  = 'Northern Patagonian ice field'
+ch_domain_short = 'npi'
+
+#elif (defined(MOCHO))
+ch_domain_long  = 'Mocho-Choshuenco ice cap'
+ch_domain_short = 'mocho'
+
+#elif (defined(EISMINT))
+ch_domain_long  = 'EISMINT'
+ch_domain_short = 'eismint'
+
+#elif (defined(HEINO))
+ch_domain_long  = 'ISMIP HEINO'
+ch_domain_short = 'heino'
 
 #elif (defined(NMARS))
 ch_domain_long  = 'North polar cap of Mars'
@@ -214,16 +264,10 @@ ch_domain_short = 'nmars'
 ch_domain_long  = 'South polar cap of Mars'
 ch_domain_short = 'smars'
 
-#elif (defined(XYZ))
-ch_domain_long  = 'XYZ'
-ch_domain_short = 'xyz'
-#if (defined(HEINO))
-ch_domain_long  = trim(ch_domain_long)//'/ISMIP HEINO'
-#endif
-
 #else
-errormsg = ' >>> sico_init: No valid domain specified!'
-call error(errormsg)
+ch_domain_long  = 'Unspecified domain'
+ch_domain_short = 'xyz'
+
 #endif
 
 !-------- Some initial values --------
@@ -301,6 +345,8 @@ call error(errormsg)
 
 #if (GRID==0 || GRID==1)
 
+#if (defined(ANT)) /* Antarctic ice sheet */
+
 if (approx_equal(DX, 64.0_dp, eps_sp_dp)) then
 
    if ( (IMAX /= 95).or.(JMAX /= 95) ) then
@@ -355,9 +401,212 @@ else
    call error(errormsg)
 end if
 
+#elif (defined(GRL)) /* Greenland ice sheet */
+
+if (approx_equal(DX, 40.0_dp, eps_sp_dp)) then
+
+   if ( (IMAX /= 42).or.(JMAX /= 72) ) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 20.0_dp, eps_sp_dp)) then
+
+   if ( (IMAX /= 84).or.(JMAX /= 144) ) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 16.0_dp, eps_sp_dp)) then
+
+   if ( (IMAX /= 105).or.(JMAX /= 180) ) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 10.0_dp, eps_sp_dp)) then
+
+   if ( (IMAX /= 168).or.(JMAX /= 288) ) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 8.0_dp, eps_sp_dp)) then
+
+   if ( (IMAX /= 210).or.(JMAX /= 360) ) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 5.0_dp, eps_sp_dp)) then
+
+   if ( (IMAX /= 336).or.(JMAX /= 576) ) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 4.0_dp, eps_sp_dp)) then
+
+   if ( (IMAX /= 420).or.(JMAX /= 720) ) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else
+   errormsg = ' >>> sico_init: DX wrong!'
+   call error(errormsg)
+end if
+
+#elif (defined(NHEM)) /* Entire northern hemisphere */
+
+if (approx_equal(DX, 80.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 156).or.(JMAX /= 156)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 40.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 312).or.(JMAX /= 312)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 20.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 624).or.(JMAX /= 624)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else
+   errormsg = ' >>> sico_init: DX wrong!'
+   call error(errormsg)
+end if
+
+#elif (defined(LCIS)) /* Laurentide and Cordilleran ice sheets */
+
+if (approx_equal(DX, 80.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 105).or.(JMAX /= 78)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 40.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 210).or.(JMAX /= 156)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 20.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 420).or.(JMAX /= 312)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else
+   errormsg = ' >>> sico_init: DX wrong!'
+   call error(errormsg)
+end if
+
+#elif (defined(SCAND)) /* Fennoscandian and Eurasian ice sheets */
+
+if (approx_equal(DX, 40.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 150).or.(JMAX /= 70)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 20.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 300).or.(JMAX /= 140)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 10.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 600).or.(JMAX /= 280)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else
+   errormsg = ' >>> sico_init: DX wrong!'
+   call error(errormsg)
+end if
+
+#elif (defined(ASF)) /* Austfonna */
+
+if (approx_equal(DX, 4.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 34).or.(JMAX /= 33)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 2.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 68).or.(JMAX /= 66)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 1.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 136).or.(JMAX /= 132)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else
+   errormsg = ' >>> sico_init: DX wrong!'
+   call error(errormsg)
+end if
+
+#endif /* Different computational domains */
+
 #elif (GRID==2)
-errormsg = ' >>> sico_init: GRID==2 not allowed for this application!'
-call error(errormsg)
+
+#if (defined(TIBET)) /* Tibetan ice sheet */
+
+if (      (approx_equal(DLAMBDA, 1.0_dp/3.0_dp, eps_sp_dp)) &
+     .and.(approx_equal(DPHI   , 1.0_dp/3.0_dp, eps_sp_dp)) ) then
+
+   if ((IMAX /= 135).or.(JMAX /= 51)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (      (approx_equal(DLAMBDA, 1.0_dp/6.0_dp, eps_sp_dp)) &
+          .and.(approx_equal(DPHI   , 1.0_dp/6.0_dp, eps_sp_dp)) ) then
+
+   if ((IMAX /= 270).or.(JMAX /= 102)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else if (      (approx_equal(DLAMBDA, 1.0_dp/12.0_dp, eps_sp_dp)) &
+          .and.(approx_equal(DPHI   , 1.0_dp/12.0_dp, eps_sp_dp)) ) then
+
+   if ((IMAX /= 540).or.(JMAX /= 204)) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
+else
+
+   errormsg = ' >>> sico_init: DLAMBDA / DPHI wrong!'
+   call error(errormsg)
+
+end if
+
+#endif
 
 #endif
 
@@ -372,9 +621,8 @@ write(6, fmt='(a)') ' '
 
 #else /* Tapenade */
 
-print *, ' >>> sico_init: not using compare_float for adjoint applications!'
-print *, '                double-check resolutions are integer multiples of'
-print *, '                domain size.'
+print *, ' >>> sico_init: grid compatibility check not performed'
+print *, '          in adjoint applications; check manually.' 
 
 #endif /* Normal vs. Tapenade */
 
@@ -491,7 +739,7 @@ forcing_flag = 2   ! forcing by glac_index
 #elif (TSURFACE == 6)
 
 forcing_flag = 3   ! forcing by time-dependent surface temperature
-                   ! and precipitation data
+                   ! and SMB data
 
 #endif
 
@@ -514,9 +762,13 @@ ndat3d = 1
 
 flag_calc_temp = .true.
 
+#if (defined(ANT) || defined(GRL))
 flag_initmip_asmb = .false.
+#endif
+#if (defined(ANT))
 flag_initmip_abmb = .false.
 flag_larmip       = .false.
+#endif
 
 !-------- General abbreviations --------
 
@@ -808,8 +1060,10 @@ write(10, fmt=trim(fmt3)) 'x0 =', X0
 write(10, fmt=trim(fmt3)) 'y0 =', Y0
 write(10, fmt=trim(fmt3)) 'dx =', DX
 #elif (GRID==2)
-errormsg = ' >>> sico_init: GRID==2 not allowed for this application!'
-call error(errormsg)
+write(10, fmt=trim(fmt3)) 'lambda0 =', LAMBDA_0
+write(10, fmt=trim(fmt3)) 'phi0    =', PHI_0
+write(10, fmt=trim(fmt3)) 'dlambda =', DLAMBDA
+write(10, fmt=trim(fmt3)) 'dphi    =', DPHI
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
@@ -825,6 +1079,9 @@ write(10, fmt=trim(fmt3)) 'dtime      =', dtime0
 write(10, fmt=trim(fmt3)) 'dtime_temp =', dtime_temp0
 #if (REBOUND==2)
 write(10, fmt=trim(fmt3)) 'dtime_wss  =', dtime_wss0
+#endif
+#if (defined(GRL) && DISC>0)
+write(10, fmt=trim(fmt3)) 'dtime_mar_coa =', DTIME_MAR_COA0
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
@@ -1033,10 +1290,23 @@ write(10, fmt=trim(fmt1)) ' '
 write(10, fmt=trim(fmt2)) 'TSURFACE = ', TSURFACE
 
 #if (TSURFACE<=5)
+
+#if (defined(ANT) || defined(GRL)) /* Antarctica or Greenland */
+
 write(10, fmt=trim(fmt2)) 'TEMP_PRESENT_PARA = ', TEMP_PRESENT_PARA
 #if (defined(TEMP_PRESENT_OFFSET))
 write(10, fmt=trim(fmt3))  'TEMP_PRESENT_OFFSET =', TEMP_PRESENT_OFFSET
 #endif
+
+#else /* other than Antarctica or Greenland */
+
+write(10, fmt=trim(fmt1)) 'temp_present file = '//TEMP_PRESENT_FILE
+#if (defined(TOPO_LAPSE_RATE))
+write(10, fmt=trim(fmt3)) 'topo_lapse_rate =', TOPO_LAPSE_RATE
+#endif
+
+#endif
+
 #endif
 
 #if (TSURFACE==1)
@@ -1049,17 +1319,47 @@ write(10, fmt=trim(fmt1)) 'GRIP file = '//GRIP_TEMP_FILE
 write(10, fmt=trim(fmt3)) 'grip_temp_fact =', GRIP_TEMP_FACT
 #elif (TSURFACE==5)
 write(10, fmt=trim(fmt1)) 'Glacial-index file = '//GLAC_IND_FILE
-write(10, fmt=trim(fmt1)) 'temp_ma_anom file = '//TEMP_MA_ANOM_FILE
-write(10, fmt=trim(fmt3)) 'temp_ma_anom fact = ', TEMP_MA_ANOM_FACT
-write(10, fmt=trim(fmt1)) 'temp_mj_anom file = '//TEMP_MJ_ANOM_FILE
-write(10, fmt=trim(fmt3)) 'temp_mj_anom fact = ', TEMP_MJ_ANOM_FACT
+write(10, fmt=trim(fmt1)) 'temp_anom file  = '//TEMP_ANOM_FILE
+write(10, fmt=trim(fmt3)) 'temp_anom fact  = ', TEMP_ANOM_FACT
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
 write(10, fmt=trim(fmt2)) 'ACCSURFACE = ', ACCSURFACE
 
 #if (ACCSURFACE<=5)
-write(10, fmt=trim(fmt1)) 'precip_present_file = '//PRECIP_PRESENT_FILE
+#if (!defined(PRECIP_PRESENT_FILE))
+errormsg = ' >>> sico_init: PRECIP_PRESENT_FILE not defined in the header file!'
+call error(errormsg)
+#endif
+#if (!defined(PRECIP_MA_PRESENT_FILE))
+errormsg = ' >>> sico_init: ' &
+              //'PRECIP_MA_PRESENT_FILE not defined in the header file!'
+call error(errormsg)
+#endif
+#if (defined(PRECIP_PRESENT_FILE) && defined(PRECIP_MA_PRESENT_FILE))
+if ( (trim(adjustl(PRECIP_PRESENT_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(PRECIP_PRESENT_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(PRECIP_PRESENT_FILE)) /= 'NONE') ) then
+   write(10, fmt=trim(fmt1)) 'precip_present_file = '//PRECIP_PRESENT_FILE
+   flag_precip_monthly_mean = .true.
+else if ( (trim(adjustl(PRECIP_MA_PRESENT_FILE)) /= 'none') &
+          .and. &
+          (trim(adjustl(PRECIP_MA_PRESENT_FILE)) /= 'None') &
+          .and. &
+          (trim(adjustl(PRECIP_MA_PRESENT_FILE)) /= 'NONE') ) then
+   write(10, fmt=trim(fmt1)) 'precip_ma_present_file = '//PRECIP_MA_PRESENT_FILE
+   flag_precip_monthly_mean = .false.
+else
+   errormsg = ' >>> sico_init: Neither PRECIP_PRESENT_FILE' &
+            //         end_of_line &
+            //'        nor PRECIP_MA_PRESENT_FILE' &
+            //         end_of_line &
+            //'        specified in the header file!'
+   call error(errormsg)
+end if
+#endif
 #endif
 
 #if (ACCSURFACE==1)
@@ -1143,7 +1443,7 @@ if ( (trim(adjustl(SMB_CORR_FILE)) /= 'none') &
 end if
 #endif
 
-#if (defined(INITMIP_SMB_ANOM_FILE))
+#if ((defined(ANT) || defined(GRL)) && defined(INITMIP_SMB_ANOM_FILE))
 if ( (trim(adjustl(INITMIP_SMB_ANOM_FILE)) /= 'none') &
      .and. &
      (trim(adjustl(INITMIP_SMB_ANOM_FILE)) /= 'None') &
@@ -1157,7 +1457,7 @@ if ( (trim(adjustl(INITMIP_SMB_ANOM_FILE)) /= 'none') &
 end if
 #endif
 
-#if (defined(ICE_SHELF_COLLAPSE_MASK))
+#if (defined(ANT) && defined(ICE_SHELF_COLLAPSE_MASK))
 write(10, fmt=trim(fmt2)) 'ICE_SHELF_COLLAPSE_MASK = ', ICE_SHELF_COLLAPSE_MASK
 #if (ICE_SHELF_COLLAPSE_MASK==1)
 write(10, fmt=trim(fmt1)) 'ICE_SHELF_COLLAPSE_MASK_DIR   = ' &
@@ -1170,6 +1470,39 @@ write(10, fmt=trim(fmt2)) 'ICE_SHELF_COLLAPSE_MASK_TIME_MIN = ', &
                              ICE_SHELF_COLLAPSE_MASK_TIME_MIN
 write(10, fmt=trim(fmt2)) 'ICE_SHELF_COLLAPSE_MASK_TIME_MAX = ', &
                              ICE_SHELF_COLLAPSE_MASK_TIME_MAX
+#endif
+write(10, fmt=trim(fmt1)) ' '
+#endif
+
+#if (defined(GRL) && defined(RETREAT_MASK))
+write(10, fmt=trim(fmt2)) 'RETREAT_MASK = ', RETREAT_MASK
+#if (RETREAT_MASK==1)
+write(10, fmt=trim(fmt1)) 'RETREAT_MASK_DIR   = '//RETREAT_MASK_DIR
+write(10, fmt=trim(fmt1)) 'RETREAT_MASK_FILES = '//RETREAT_MASK_FILES
+write(10, fmt=trim(fmt1)) 'RETREAT_MASK_H_REF_FILE = '//RETREAT_MASK_H_REF_FILE
+write(10, fmt=trim(fmt2)) 'RETREAT_MASK_TIME_MIN = ', RETREAT_MASK_TIME_MIN
+write(10, fmt=trim(fmt2)) 'RETREAT_MASK_TIME_MAX = ', RETREAT_MASK_TIME_MAX
+#endif
+write(10, fmt=trim(fmt1)) ' '
+#endif
+
+#if (defined(GRL) && defined(DISC))
+write(10, fmt=trim(fmt2)) 'DISC = ', DISC
+#if (DISC>0)
+write(10, fmt=trim(fmt3)) 'c_dis_0   =', C_DIS_0
+write(10, fmt=trim(fmt3)) 'c_dis_fac =', C_DIS_FAC
+write(10, fmt=trim(fmt3)) 'm_H       =', M_H
+write(10, fmt=trim(fmt3)) 'm_D       =', M_D
+write(10, fmt=trim(fmt3)) 'r_mar_eff =', R_MAR_EFF
+#if (defined(S_DIS))
+write(10, fmt=trim(fmt3)) 's_dis     =', S_DIS
+#endif
+#if (defined(ALPHA_SUB))
+write(10, fmt=trim(fmt3)) 'alpha_sub =', ALPHA_SUB
+#endif
+#if (defined(ALPHA_O))
+write(10, fmt=trim(fmt3)) 'alpha_o   =', ALPHA_O
+#endif
 #endif
 write(10, fmt=trim(fmt1)) ' '
 #endif
@@ -1283,6 +1616,7 @@ write(10, fmt=trim(fmt3)) 'Omega_qbm  =', OMEGA_QBM
 write(10, fmt=trim(fmt3)) 'alpha_qbm  =', ALPHA_QBM
 #endif
 write(10, fmt=trim(fmt3)) 'H_w_0 =', H_W_0
+write(10, fmt=trim(fmt1)) ' '
 
 #if (FLOATING_ICE_BASAL_MELTING==6)
 write(10, fmt=trim(fmt2)) 'n_bm_regions = ', N_BM_REGIONS
@@ -1305,9 +1639,10 @@ write(10, fmt=trim(fmt2)) 'tf_bm_time_max = ', TF_BM_TIME_MAX
 write(10, fmt=trim(fmt3)) 'zmin_tf_bm =',  ZMIN_TF_BM
 write(10, fmt=trim(fmt2)) 'nz_tf_bm   = ', NZ_TF_BM
 write(10, fmt=trim(fmt3)) 'dz_tf_bm   =',  DZ_TF_BM
+write(10, fmt=trim(fmt1)) ' '
 #endif
 
-#if (defined(INITMIP_BMB_ANOM_FILE))
+#if (defined(ANT) && defined(INITMIP_BMB_ANOM_FILE))
 if ( (trim(adjustl(INITMIP_BMB_ANOM_FILE)) /= 'none') &
      .and. &
      (trim(adjustl(INITMIP_BMB_ANOM_FILE)) /= 'None') &
@@ -1317,10 +1652,11 @@ if ( (trim(adjustl(INITMIP_BMB_ANOM_FILE)) /= 'none') &
    ch_initmip_bmb_anom_file = trim(adjustl(INITMIP_BMB_ANOM_FILE))
    write(10, fmt=trim(fmt1)) 'initmip_bmb_anom file = ' &
                                 // trim(ch_initmip_bmb_anom_file)
+   write(10, fmt=trim(fmt1)) ' '
 end if
 #endif
 
-#if (defined(LARMIP_REGIONS_FILE))
+#if (defined(ANT) && defined(LARMIP_REGIONS_FILE))
 if ( (trim(adjustl(LARMIP_REGIONS_FILE)) /= 'none') &
      .and. &
      (trim(adjustl(LARMIP_REGIONS_FILE)) /= 'None') &
@@ -1336,11 +1672,11 @@ if ( (trim(adjustl(LARMIP_REGIONS_FILE)) /= 'none') &
    write(10, fmt=trim(fmt3)) 'larmip_qbm_anom_3 =', larmip_qbm_anom_aux(3)
    write(10, fmt=trim(fmt3)) 'larmip_qbm_anom_4 =', larmip_qbm_anom_aux(4)
    write(10, fmt=trim(fmt3)) 'larmip_qbm_anom_5 =', larmip_qbm_anom_aux(5)
+   write(10, fmt=trim(fmt1)) ' '
 end if
 #endif
-write(10, fmt=trim(fmt1)) ' '
 
-#endif
+#endif /* MARGIN==3 */
 
 write(10, fmt=trim(fmt2)) 'REBOUND = ', REBOUND
 #if (REBOUND==1)
@@ -1425,6 +1761,11 @@ end do
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
+#if (defined(ASF) && defined(WRITE_SER_FILE_STAKES)) /* Austfonna */
+write(10, fmt=trim(fmt2)) 'WRITE_SER_FILE_STAKES = ', WRITE_SER_FILE_STAKES
+write(10, fmt=trim(fmt1)) ' '
+#endif
+
 call get_environment_variable(name='REPO_REVISION', value=ch_revision, &
                               status=istat, trim_name=.true.)
 write(10, fmt=trim(fmt1)) 'Program version and date: '//VERSION//' / '//DATE
@@ -1497,9 +1838,9 @@ end if
 
 #else /* Tapenade */
 
-print *, ' >>> sico_init: compare_float not used in adjoint applications!'
-print *, '                double check your time step sizes are multples' 
-print *, '                of each other.' 
+print *, ' >>> sico_init: not checking that time steps are '
+print *, '                multiples of each other in adjoint mode;'
+print *, '                check manually.'
 
 #endif /* Normal vs. Tapenade */
 
@@ -1527,129 +1868,127 @@ target_topo_tau_0 = TARGET_TOPO_TAU0 *year2sec   ! a -> s
 
 time = time_init
 
-!-------- Reading of present-day mean-annual precipitation rate --------
+!-------- Reading of present-day
+!         monthly mean or mean annual precipitation rate --------
 
 #if (ACCSURFACE<=5)
 
-#if (GRID==0 || GRID==1)
+#if (defined(PRECIP_PRESENT_FILE) && defined(PRECIP_MA_PRESENT_FILE))
 
-filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
-                     trim(PRECIP_PRESENT_FILE)
-
-call read_2d_input(filename_with_path, &
-                   ch_var_name='precip_ma_present', &
-                   n_var_type=1, n_ascii_header=6, &
-                   field2d_r=field2d_aux)
-
-precip_ma_present = field2d_aux *(1.0e-03_dp*sec2year)*(RHO_W/RHO)
-                                 ! mm/a water equiv. -> m/s ice equiv.
-
-!  ------ Present monthly precipitation rates
-!         (assumed to be equal to the mean annual precipitation rate)
-
-do n=1, 12   ! month counter
-do i=0, IMAX
-do j=0, JMAX
-   precip_present(j,i,n) = precip_ma_present(j,i)
-end do
-end do
-end do
-
-#elif (GRID==2)
-
-errormsg = ' >>> sico_init: GRID==2 not allowed for this application!'
-call error(errormsg)
+if (flag_precip_monthly_mean) then
+   filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                        trim(PRECIP_PRESENT_FILE)
+else
+   filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                        trim(PRECIP_MA_PRESENT_FILE)
+end if
 
 #endif
 
+if (flag_precip_monthly_mean) then
+
+   ch_month = [ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
+                'jul', 'aug', 'sep', 'oct', 'nov', 'dec' ]
+
+   do n=1, 12   ! month counter
+
+      ch_var_name = 'precip_present_' // trim(ch_month(n))
+
+      call read_2d_input(filename_with_path, &
+                         ch_var_name=trim(ch_var_name), &
+                         n_var_type=1, n_ascii_header=6+3*n+(JMAX+1)*(n-1), &
+                         field2d_r=field2d_aux)
+
+      precip_present(:,:,n) = field2d_aux *(1.0e-03_dp*sec2year)*(RHO_W/RHO)
+                                           ! mm/a water equiv. -> m/s ice equiv.
+
+   end do
+
+else
+
+   call read_2d_input(filename_with_path, &
+                      ch_var_name='precip_ma_present', &
+                      n_var_type=1, n_ascii_header=6, &
+                      field2d_r=field2d_aux)
+
+   precip_ma_present = field2d_aux *(1.0e-03_dp*sec2year)*(RHO_W/RHO)
+                                    ! mm/a water equiv. -> m/s ice equiv.
+
+end if
+
+!  ------ Computation of the still undefined present-day
+!         mean annual or monthly mean precipitation rate
+
+if (flag_precip_monthly_mean) then
+
+   precip_ma_present = 0.0_dp   ! initialization
+
+   do n=1, 12   ! month counter
+      do i=0, IMAX
+      do j=0, JMAX
+         precip_ma_present(j,i) = precip_ma_present(j,i) &
+                                  + precip_present(j,i,n)*inv_twelve
+      end do
+      end do
+   end do
+
+else
+
+   do n=1, 12   ! month counter
+      do i=0, IMAX
+      do j=0, JMAX
+         precip_present(j,i,n) = precip_ma_present(j,i)
+                ! monthly means assumed to be equal
+                ! to the mean annual precipitation rate
+      end do
+      end do
+   end do
+
+end if
+
 #endif
 
-!-------- Read reference topography (present-day topography) --------
-
-#if (GRID==0 || GRID==1)
-
-filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
-                     trim(ZS_PRESENT_FILE)
-
-call read_2d_input(filename_with_path, &
-                   ch_var_name='zs', n_var_type=1, n_ascii_header=6, &
-                   field2d_r=field2d_aux)
-
-zs_ref = field2d_aux
-
-#elif (GRID==2)
-
-errormsg = ' >>> sico_init: GRID==2 not allowed for this application!'
-call error(errormsg)
-
-#endif
-
-#if (GRID==0 || GRID==1)
-
-filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
-                     trim(MASK_PRESENT_FILE)
-
-call read_2d_input(filename_with_path, &
-                   ch_var_name='mask', n_var_type=3, n_ascii_header=6, &
-                   field2d_r=field2d_aux)
-
-mask_ref = nint(field2d_aux)
-
-do i=0, IMAX
-do j=0, JMAX
-   if (mask_ref(j,i) >= 2) zs_ref(j,i) = 0.0_dp
-                 ! resetting elevations over the ocean
-                 ! to the present-day sea surface
-end do
-end do
-
-#elif (GRID==2)
-
-errormsg = ' >>> sico_init: GRID==2 not allowed for this application!'
-call error(errormsg)
-
-#endif
-
-!-------- Reading of LGM mean-annual precipitation-rate anomaly --------
+!-------- Reading of LGM monthly-mean precipitation-rate anomalies --------
 
 #if (ACCSURFACE==5)
-
-#if (GRID==0 || GRID==1)
 
 filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
                      trim(PRECIP_ANOM_FILE)
 
-call read_2d_input(filename_with_path, &
-                   ch_var_name='precip_ma_lgm_anom', &
-                   n_var_type=1, n_ascii_header=6, &
-                   field2d_r=field2d_aux)
-
-precip_ma_lgm_anom = field2d_aux
-
-precip_ma_lgm_anom = precip_ma_lgm_anom * PRECIP_ANOM_FACT
-
-#endif
-
-!  ------ LGM monthly precipitation-rate anomalies (assumed to be
-!             equal to the mean annual precipitation-rate anomaly)
+ch_month = [ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
+             'jul', 'aug', 'sep', 'oct', 'nov', 'dec' ]
 
 do n=1, 12   ! month counter
+
+   ch_var_name = 'precip_lgm_anom_' // trim(ch_month(n))
+
+   call read_2d_input(filename_with_path, &
+                      ch_var_name=trim(ch_var_name), &
+                      n_var_type=1, n_ascii_header=6+3*n+(JMAX+1)*(n-1), &
+                      field2d_r=field2d_aux)
+
+   precip_lgm_anom(:,:,n) = field2d_aux
+
+end do
+
+precip_lgm_anom = precip_lgm_anom * PRECIP_ANOM_FACT
+
 do i=0, IMAX
 do j=0, JMAX
 
-   precip_lgm_anom(j,i,n) = max(precip_ma_lgm_anom(j,i), eps)
-                            ! positive values ensured
-
 #if (PRECIP_ANOM_INTERPOL==1)
-   gamma_precip_lgm_anom(j,i,n) = 0.0_dp   ! dummy values
+   do n=1, 12   ! month counter
+      gamma_precip_lgm_anom(j,i,n) = 0.0_dp   ! dummy values
+   end do
 #elif (PRECIP_ANOM_INTERPOL==2)
-   gamma_precip_lgm_anom(j,i,n) = -log(precip_lgm_anom(j,i,n))
+   do n=1, 12   ! month counter
+      gamma_precip_lgm_anom(j,i,n) = -log(precip_lgm_anom(j,i,n))
+   end do
 #else
    errormsg = ' >>> sico_init: Wrong value of switch PRECIP_ANOM_INTERPOL!'
    call error(errormsg)
 #endif
 
-end do
 end do
 end do
 
@@ -1783,8 +2122,6 @@ mask_maxextent = 1   ! default (no constraint)
 
 if (flag_mask_maxextent) then
 
-#if (GRID==0 || GRID==1)
-
 filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
                      trim(MASK_MAXEXTENT_FILE)
 
@@ -1795,50 +2132,96 @@ call read_2d_input(filename_with_path, &
 
 mask_maxextent = nint(field2d_aux)
 
-#elif (GRID==2)
-
-errormsg = ' >>> sico_init: GRID==2 not allowed for this application!'
-call error(errormsg)
-
-#endif
-
 end if
 
 #endif
 
-!-------- Reading of LGM mean-annual and mean-January (summer)
-!                                surface-temperature anomalies --------
+!-------- Reading of present-day topography mask --------
+
+filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                     trim(MASK_PRESENT_FILE)
+
+call read_2d_input(filename_with_path, &
+                   ch_var_name='mask', n_var_type=3, n_ascii_header=6, &
+                   field2d_r=field2d_aux)
+
+mask_ref = nint(field2d_aux)
+
+!-------- Reading of present-day monthly mean surface temperature --------
+
+#if (!defined(ANT) && !defined(GRL)) /* other than Antarctica or Greenland */
+
+#if (TSURFACE<=5)
+
+filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                     trim(TEMP_PRESENT_FILE)
+
+ch_month = [ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
+             'jul', 'aug', 'sep', 'oct', 'nov', 'dec' ]
+
+do n=1, 12   ! month counter
+
+   ch_var_name = 'temp_present_' // trim(ch_month(n))
+
+   call read_2d_input(filename_with_path, &
+                      ch_var_name=trim(ch_var_name), &
+                      n_var_type=1, n_ascii_header=6+3*n+(JMAX+1)*(n-1), &
+                      field2d_r=field2d_aux)
+
+   temp_present(:,:,n) = field2d_aux
+
+end do
+
+#endif
+
+#endif
+
+!-------- Reading of LGM monthly-mean surface-temperature anomalies --------
 
 #if (TSURFACE==5)
 
-#if (GRID==0 || GRID==1)
-
 filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
-                     trim(TEMP_MA_ANOM_FILE)
+                     trim(TEMP_ANOM_FILE)
 
-call read_2d_input(filename_with_path, &
-                   ch_var_name='temp_ma_lgm_anom', &
-                   n_var_type=1, n_ascii_header=6, &
-                   field2d_r=field2d_aux)
+ch_month = [ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', &
+             'jul', 'aug', 'sep', 'oct', 'nov', 'dec' ]
 
-temp_ma_lgm_anom = field2d_aux
+do n=1, 12   ! month counter
 
-filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
-                     trim(TEMP_MJ_ANOM_FILE)
+   ch_var_name = 'temp_lgm_anom_' // trim(ch_month(n))
 
-call read_2d_input(filename_with_path, &
-                   ch_var_name='temp_mj_lgm_anom', &
-                   n_var_type=1, n_ascii_header=6, &
-                   field2d_r=field2d_aux)
+   call read_2d_input(filename_with_path, &
+                      ch_var_name=trim(ch_var_name), &
+                      n_var_type=1, n_ascii_header=6+3*n+(JMAX+1)*(n-1), &
+                      field2d_r=field2d_aux)
 
-temp_mj_lgm_anom = field2d_aux
+   temp_lgm_anom(:,:,n) = field2d_aux
 
-temp_ma_lgm_anom = temp_ma_lgm_anom * TEMP_MA_ANOM_FACT
-temp_mj_lgm_anom = temp_mj_lgm_anom * TEMP_MJ_ANOM_FACT
+end do
+
+temp_lgm_anom = temp_lgm_anom * TEMP_ANOM_FACT
 
 #endif
 
-#endif
+!-------- Present reference elevation
+!         (for precipitation and surface-temperature data) --------
+
+filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                     trim(ZS_PRESENT_FILE)
+
+call read_2d_input(filename_with_path, &
+                   ch_var_name='zs', n_var_type=1, n_ascii_header=6, &
+                   field2d_r=field2d_aux)
+
+zs_ref = field2d_aux
+
+do i=0, IMAX
+do j=0, JMAX
+   if (mask_ref(j,i) >= 2) zs_ref(j,i) = 0.0_dp
+                 ! resetting elevations over the ocean
+                 ! to the present-day sea surface
+end do
+end do
 
 !-------- Read data for delta_ts --------
 
@@ -1967,7 +2350,9 @@ end if
 
 !-------- Reading of ISMIP6 SMB and BMB anomaly data --------
 
-!  ------ SMB (InitMIP)
+!  ------ Antarctica or Greenland: SMB (InitMIP)
+
+#if (defined(ANT) || defined(GRL))
 
 if (flag_initmip_asmb) then
 
@@ -1983,7 +2368,12 @@ if (flag_initmip_asmb) then
       call error(errormsg)
    end if
 
+#if (defined(GRL))
+   call check( nf90_inq_varid(ncid, 'DSMB', ncv) )
+#else
    call check( nf90_inq_varid(ncid, 'asmb', ncv) )
+#endif
+
    call check( nf90_get_var(ncid, ncv, field2d_tra_aux) )
 
    call check( nf90_close(ncid) )
@@ -1999,7 +2389,11 @@ else
    smb_anom_initmip = 0.0_dp
 end if
 
-!  ------ BMB (InitMIP)
+#endif
+
+!  ------ Antarctica only: BMB (InitMIP)
+
+#if (defined(ANT))
 
 if (flag_initmip_abmb) then
 
@@ -2031,7 +2425,11 @@ else
    ab_anom_initmip = 0.0_dp
 end if
 
-!  ------ BMB (LARMIP)
+#endif
+
+!  ------ Antarctica only: BMB (LARMIP)
+
+#if (defined(ANT))
 
 if (flag_larmip) then
 
@@ -2061,11 +2459,28 @@ if (flag_larmip) then
    ab_anom_larmip      = 0.0_dp
    ab_anom_larmip(1:5) = larmip_qbm_anom_aux *sec2year
                                    ! m/a ice equiv. -> m/s ice equiv.
-
 else
    n_larmip_region = 0
    ab_anom_larmip  = 0.0_dp
 end if
+
+#endif
+
+!-------- Greenland only:
+!         Reading of the global annual temperature anomaly
+!         (for parameterizing the sub-ocean temperature anomaly
+!         for the ice discharge parameterization)
+
+#if (defined(GRL) && DISC==2)
+
+filename_with_path = trim(IN_PATH)//'/general/dTg_paleo.dat'
+
+call read_scalar_input(filename_with_path, &
+                       'dT_glann', ndata_glann_max, &
+                       glann_time_min, glann_time_stp, glann_time_max, &
+                       ndata_glann, dT_glann_CLIMBER)
+
+#endif
 
 !-------- Read data for z_sl --------
 
@@ -2180,10 +2595,11 @@ flex_rig_lith = 0.0_dp   ! dummy values
 
 #endif
 
-!-------- Reading of the reference ice thickness for the
-!                                           ice-shelf collapse masks --------
+!-------- Antarctica only:
+!         Reading of the reference ice thickness for the
+!                                  ice-shelf collapse masks --------
 
-#if (ICE_SHELF_COLLAPSE_MASK==1)
+#if (defined(ANT) && ICE_SHELF_COLLAPSE_MASK==1)
 
 filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)// &
                                    '/'//trim(ICE_SHELF_COLLAPSE_MASK_H_REF_FILE)
@@ -2212,6 +2628,38 @@ end do
 
 #endif
 
+!-------- Greenland only:
+!         Reading of the reference ice thickness for the retreat masks --------
+
+#if (defined(GRL) && RETREAT_MASK==1)
+
+filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)// &
+                                   '/'//trim(RETREAT_MASK_H_REF_FILE)
+
+ios = nf90_open(trim(filename_with_path), NF90_NOWRITE, ncid)
+
+if (ios /= nf90_noerr) then
+   errormsg = ' >>> sico_init: Error when opening the file' &
+            //                 end_of_line &
+            //'                for the reference ice thickness' &
+            //                 end_of_line &
+            //'                for the retreat masks!'
+   call error(errormsg)
+end if
+
+call check( nf90_inq_varid(ncid, 'H', ncv) )
+call check( nf90_get_var(ncid, ncv, H_ref_retreat_conv) )
+
+call check( nf90_close(ncid) )
+
+do i=0, IMAX
+do j=0, JMAX
+   H_ref_retreat(j,i) = max(H_ref_retreat_conv(i,j), 0.0_dp)
+end do
+end do
+
+#endif
+
 !-------- Definition of initial values --------
 
 !  ------ Present topography
@@ -2220,34 +2668,29 @@ end do
 
 call topography1(dxi, deta)
 
+#if (defined(GRL) && DISC>0) /* Ice discharge parameterization for Greenland */
+call disc_param(dtime)
+call disc_fields()
+#endif
+
 z_sl      = -1.11e+11_dp   ! dummy values for initial call
 z_sl_mean = -1.11e+11_dp   ! of subroutine boundary
 
 call boundary(time_init, dtime, dxi, deta, &
               delta_ts, glac_index, z_mar)
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
+do i=0, IMAX
+do j=0, JMAX
 
-where ((mask==0).or.(mask==3))
+   if ((mask(j,i)==0).or.(mask(j,i)==3)) then
                  ! grounded or floating ice
-   as_perp_apl = as_perp
-elsewhere        ! mask==1 or 2, ice-free land or sea
-   as_perp_apl = 0.0_dp
-end where
+      as_perp_apl(j,i) = as_perp(j,i)
+   else          ! mask==1 or 2, ice-free land or sea
+      as_perp_apl(j,i) = 0.0_dp
+   end if
 
-#else /* Tapenade */
-
-do j=0,JMAX
-do i=0,IMAX
-  if ((mask(j,i)==0).or.(mask(j,i)==3)) then
-    as_perp_apl(j,i) = as_perp(j,i)
-  else
-    as_perp_apl(j,i) = 0.0_dp
-  end if
 end do
 end do
-
-#endif /* Normal vs. Tapenade */
 
 smb_corr = 0.0_dp
 
@@ -2271,6 +2714,15 @@ H_w     = 0.0_dp
 #else
   errormsg = ' >>> sico_init: TEMP_INIT must be between 1 and 5!'
   call error(errormsg)
+#endif
+
+#if (defined(ALLOW_NORMAL) || defined(ALLOW_GRDCHK) || defined(ALLOW_TAPENADE))
+#if defined(AGE_COST)
+  call read_age_data()
+#endif
+#if defined(BEDMACHINE_COST)
+  call read_BedMachine_data()
+#endif
 #endif
 
 #if (ENHMOD==1)
@@ -2306,6 +2758,11 @@ vis_int_g = 0.0_dp
 #elif (ANF_DAT==2)
 
 call topography2(dxi, deta)
+
+#if (defined(GRL) && DISC>0) /* Ice discharge parameterization for Greenland */
+call disc_param(dtime)
+call disc_fields()
+#endif
 
 z_sl      = -1.11e+11_dp   ! dummy values for initial call
 z_sl_mean = -1.11e+11_dp   ! of subroutine boundary
@@ -2360,31 +2817,26 @@ vis_int_g = 0.0_dp
 
 call topography3(dxi, deta, anfdatname)
 
+#if (defined(GRL) && DISC>0) /* Ice discharge parameterization for Greenland */
+call disc_param(dtime)
+call disc_fields()
+#endif
+
 call boundary(time_init, dtime, dxi, deta, &
               delta_ts, glac_index, z_mar)
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
+do i=0, IMAX
+do j=0, JMAX
 
-where ((mask==0).or.(mask==3))
+   if ((mask(j,i)==0).or.(mask(j,i)==3)) then
                  ! grounded or floating ice
-   as_perp_apl = as_perp
-elsewhere        ! mask==1 or 2, ice-free land or sea
-   as_perp_apl = 0.0_dp
-end where
+      as_perp_apl(j,i) = as_perp(j,i)
+   else          ! mask==1 or 2, ice-free land or sea
+      as_perp_apl(j,i) = 0.0_dp
+   end if
 
-#else /* Tapenade */
-
-do j=0,JMAX
-do i=0,IMAX
-  if ((mask(j,i)==0).or.(mask(j,i)==3)) then
-    as_perp_apl(j,i) = as_perp(j,i)
-  else
-    as_perp_apl(j,i) = 0.0_dp
-  end if
 end do
 end do
-
-#endif /* Normal vs. Tapenade */
 
 smb_corr = 0.0_dp
 
@@ -2432,6 +2884,20 @@ do jr=-JMAX, JMAX
 end do
 end do
 
+#elif (GRID==2)
+
+do ir=-IMAX, IMAX
+do jr=-JMAX, JMAX
+
+   dist_dxdy(jr,ir) = sqrt( (sq_g11_g(JMAX/2,IMAX/2)*real(ir,dp)*dxi)**2 &
+                          + (sq_g22_g(JMAX/2,IMAX/2)*real(jr,dp)*deta)**2 )
+
+                      ! This uses the metric tensor in the center of the domain
+		      ! for the entire domain; quite DIRTY TRICK!
+
+end do
+end do
+
 #endif
 
 !-------- Initial velocities --------
@@ -2462,8 +2928,8 @@ call calc_vxy_static()
 call calc_vz_static()
 
 #else
-   errormsg = ' >>> sico_init: DYNAMICS must be either 0, 1 or 2!'
-   call error(errormsg)
+errormsg = ' >>> sico_init: DYNAMICS must be either 0, 1 or 2!'
+call error(errormsg)
 #endif
 
 call calc_dxyz(dxi, deta, dzeta_c, dzeta_t)
@@ -2533,13 +2999,15 @@ call error(errormsg)
 
 !-------- Initialize time-series files --------
 
-!  ------ Time-series file for the ice sheet on the whole
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
+!  ------ Time-series file for the entire ice sheet
 
 filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.ser'
 
+#if !defined(ALLOW_TAPENADE) /* Normal */
 open(12, iostat=ios, file=trim(filename_with_path), status='new')
+#else /* Tapenade */
+open(12, iostat=ios, file=trim(filename_with_path))
+#endif /* Normal vs. Tapenade */
 
 if (ios /= 0) then
    errormsg = ' >>> sico_init: Error when opening the ser file!'
@@ -2578,16 +3046,16 @@ else if (forcing_flag == 2) then
 
 end if
 
-#else /* Tapenade */
-
-print *, ' >>> sico_init: not writing to the ser file in '
-print *, '                adjoint applications!' 
-
-#endif /* Normal vs. Tapenade */
-
 !  ------ Time-series file for deep boreholes
 
+#if (defined(ANT))
 n_core = 6   ! Vostok, Dome A, Dome C, Dome F, Kohnen, Byrd
+#elif (defined(GRL))
+n_core = 7   ! GRIP, GISP2, Dye3, Camp Century (CC),
+             ! NorthGRIP (NGRIP), NEEM, EastGRIP (EGRIP)
+#else
+n_core = 0   ! No boreholes defined
+#endif
 
 if (n_core > n_core_max) then
    errormsg = ' >>> sico_init: n_core <= n_core_max required!' &
@@ -2595,6 +3063,8 @@ if (n_core > n_core_max) then
             //'        Increase value of n_core_max in sico_variables_m!'
    call error(errormsg)
 end if
+
+#if (defined(ANT))
 
 ch_core(1)     = 'Vostok'
 phi_core(1)    = -78.467_dp *deg2rad    ! Geographical position of Vostok,
@@ -2620,31 +3090,67 @@ ch_core(6)     = 'Byrd'
 phi_core(6)    =  -80.017_dp *deg2rad   ! Geographical position of Byrd,
 lambda_core(6) = -119.517_dp *deg2rad   ! conversion deg -> rad
 
+#elif (defined(GRL))
+
+ch_core(1)     = 'GRIP'
+phi_core(1)    =  72.58722_dp *deg2rad   ! Geographical position of GRIP,
+lambda_core(1) = -37.64222_dp *deg2rad   ! conversion deg -> rad
+ 
+ch_core(2)     = 'GISP2'
+phi_core(2)    =  72.58833_dp *deg2rad   ! Geographical position of GISP2
+lambda_core(2) = -38.45750_dp *deg2rad   ! conversion deg -> rad
+
+ch_core(3)     = 'Dye3'
+phi_core(3)    =  65.15139_dp *deg2rad   ! Geographical position of Dye3,
+lambda_core(3) = -43.81722_dp *deg2rad   ! conversion deg -> rad
+
+ch_core(4)     = 'Camp Century'
+phi_core(4)    =  77.17970_dp *deg2rad   ! Geographical position of CC,
+lambda_core(4) = -61.10975_dp *deg2rad   ! conversion deg -> rad
+
+ch_core(5)     = 'NGRIP'
+phi_core(5)    =  75.09694_dp *deg2rad   ! Geographical position of NGRIP,
+lambda_core(5) = -42.31956_dp *deg2rad   ! conversion deg -> rad
+
+ch_core(6)     = 'NEEM'
+phi_core(6)    =  77.5_dp     *deg2rad   ! Geographical position of NEEM,
+lambda_core(6) = -50.9_dp     *deg2rad   ! conversion deg -> rad
+
+ch_core(7)     = 'EGRIP'
+phi_core(7)    =  75.6299_dp  *deg2rad   ! Geographical position of EGRIP,
+lambda_core(7) = -35.9867_dp  *deg2rad   ! conversion deg -> rad
+
+#endif
+
+if (n_core > 0) then
+
 #if (GRID==0 || GRID==1)   /* Stereographic projection */
 
-do n=1, n_core
+   do n=1, n_core
 
-   if (F_INV > 1.0e+10_dp) then   ! interpreted as infinity, thus no flattening
-                                  ! (spherical planet)
+      if (F_INV > 1.0e+10_dp) then   ! interpreted as infinity,
+                                     ! thus no flattening (spherical planet)
 
-      call stereo_forw_sphere(lambda_core(n), phi_core(n), &
-                              R, LAMBDA0, PHI0, x_core(n), y_core(n))
+         call stereo_forw_sphere(lambda_core(n), phi_core(n), &
+                                 R, LAMBDA0, PHI0, x_core(n), y_core(n))
 
-   else   ! finite inverse flattening (ellipsoidal planet)
+      else   ! finite inverse flattening (ellipsoidal planet)
 
-      call stereo_forw_ellipsoid(lambda_core(n), phi_core(n), &
-                                 A, B, LAMBDA0, PHI0, x_core(n), y_core(n))
+         call stereo_forw_ellipsoid(lambda_core(n), phi_core(n), &
+                                    A, B, LAMBDA0, PHI0, x_core(n), y_core(n))
 
-   end if
+      end if
 
-end do
+   end do
 
 #elif (GRID==2)   /* Geographical coordinates */
 
-x_core = lambda_core
-y_core = phi_core
+   x_core = lambda_core
+   y_core = phi_core
 
 #endif
+
+end if
 
 filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.core'
 
@@ -2659,37 +3165,625 @@ if (ios /= 0) then
    call error(errormsg)
 end if
 
-if ((forcing_flag == 1).or.(forcing_flag == 3)) then
+if (n_core == 0) then
 
-   write(14,1106)
-   write(14,1107)
+   write(14,'(1x,a)') '---------------------'
+   write(14,'(1x,a)') 'No boreholes defined.'
+   write(14,'(1x,a)') '---------------------'
 
-   1106 format('         t(a)      D_Ts(C) z_sl_mean(m)',/, &
-               '                   H_Vo(m)      H_DA(m)      H_DC(m)', &
-               '      H_DF(m)      H_Ko(m)      H_By(m)',/, &
-               '                 v_Vo(m/a)    v_DA(m/a)    v_DC(m/a)', &
-               '    v_DF(m/a)    v_Ko(m/a)    v_By(m/a)',/, &
-               '                   T_Vo(C)      T_DA(C)      T_DC(C)', &
-               '      T_DF(C)      T_Ko(C)      T_By(C)')
-   1107 format('----------------------------------------------------', &
-               '---------------------------------------')
+else
 
-else if (forcing_flag == 2) then
+#if (defined(ANT))
 
-   write(14,1116)
-   write(14,1117)
+   if ((forcing_flag == 1).or.(forcing_flag == 3)) then
 
-   1116 format('         t(a)  glac_ind(1) z_sl_mean(m)',/, &
-               '                   H_Vo(m)      H_DA(m)      H_DC(m)', &
-               '      H_DF(m)      H_Ko(m)      H_By(m)',/, &
-               '                 v_Vo(m/a)    v_DA(m/a)    v_DC(m/a)', &
-               '    v_DF(m/a)    v_Ko(m/a)    v_By(m/a)',/, &
-               '                   T_Vo(C)      T_DA(C)      T_DC(C)', &
-               '      T_DF(C)      T_Ko(C)      T_By(C)')
-   1117 format('----------------------------------------------------', &
-               '---------------------------------------')
+      write(14,1106)
+      write(14,1107)
+
+      1106 format('         t(a)      D_Ts(C) z_sl_mean(m)',/, &
+                  '                   H_Vo(m)      H_DA(m)      H_DC(m)', &
+                  '      H_DF(m)      H_Ko(m)      H_By(m)',/, &
+                  '                 v_Vo(m/a)    v_DA(m/a)    v_DC(m/a)', &
+                  '    v_DF(m/a)    v_Ko(m/a)    v_By(m/a)',/, &
+                  '                   T_Vo(C)      T_DA(C)      T_DC(C)', &
+                  '      T_DF(C)      T_Ko(C)      T_By(C)')
+      1107 format('----------------------------------------------------', &
+                  '---------------------------------------')
+
+   else if (forcing_flag == 2) then
+
+      write(14,1116)
+      write(14,1117)
+
+      1116 format('         t(a)  glac_ind(1) z_sl_mean(m)',/, &
+                  '                   H_Vo(m)      H_DA(m)      H_DC(m)', &
+                  '      H_DF(m)      H_Ko(m)      H_By(m)',/, &
+                  '                 v_Vo(m/a)    v_DA(m/a)    v_DC(m/a)', &
+                  '    v_DF(m/a)    v_Ko(m/a)    v_By(m/a)',/, &
+                  '                   T_Vo(C)      T_DA(C)      T_DC(C)', &
+                  '      T_DF(C)      T_Ko(C)      T_By(C)')
+      1117 format('----------------------------------------------------', &
+                  '---------------------------------------')
+
+   end if
+
+#elif (defined(GRL))
+
+   if ((forcing_flag == 1).or.(forcing_flag == 3)) then
+
+      write(14,1106)
+      write(14,1107)
+
+      1106 format('         t(a)      D_Ts(C) z_sl_mean(m)',/, &
+                  '                   H_GR(m)      H_G2(m)      H_D3(m)', &
+                  '      H_CC(m)      H_NG(m)      H_NE(m)      H_EG(m)',/, &
+                  '                 v_GR(m/a)    v_G2(m/a)    v_D3(m/a)', &
+                  '    v_CC(m/a)    v_NG(m/a)    v_NE(m/a)    v_EG(m/a)',/, &
+                  '                   T_GR(C)      T_G2(C)      T_D3(C)', &
+                  '      T_CC(C)      T_NG(C)      T_NE(C)      T_EG(C)')
+      1107 format('----------------------------------------------------', &
+                  '----------------------------------------------------')
+
+   else if (forcing_flag == 2) then
+
+      write(14,1116)
+      write(14,1117)
+
+      1116 format('         t(a)  glac_ind(1) z_sl_mean(m)',/, &
+                  '                   H_GR(m)      H_G2(m)      H_D3(m)', &
+                  '      H_CC(m)      H_NG(m)      H_NE(m)      H_EG(m)',/, &
+                  '                 v_GR(m/a)    v_G2(m/a)    v_D3(m/a)', &
+                  '    v_CC(m/a)    v_NG(m/a)    v_NE(m/a)    v_EG(m/a)',/, &
+                  '                   T_GR(C)      T_G2(C)      T_D3(C)', &
+                  '      T_CC(C)      T_NG(C)      T_NE(C)      T_EG(C)')
+      1117 format('----------------------------------------------------', &
+                  '----------------------------------------------------')
+
+   end if
+
+#endif
 
 end if
+
+!  ------ Time-series file for mass balance stakes etc.
+
+#if (defined(ASF) && WRITE_SER_FILE_STAKES==1) /* Austfonna */
+
+n_surf = 163   ! 19 mass balance stakes + 18 cores (Pinglot) 
+               ! 10 points on flowlines (Duvebreen & B3)
+	       ! 116 points along ELA
+
+if (n_surf > n_surf_max) then
+   errormsg = ' >>> sico_init: n_surf <= n_surf_max required!' &
+            //         end_of_line &
+            //'        Increase value of n_surf_max in sico_vars_m!'
+   call error(errormsg)
+end if
+
+!    ---- Mass balance stakes
+
+phi_surf(1)    =  79.8322_dp *deg2rad    ! Geographical position
+lambda_surf(1) =  24.0043_dp *deg2rad    ! at 79.8322N, 24.0043E
+
+phi_surf(2)    =  79.3613_dp *deg2rad    ! Geographical position
+lambda_surf(2) =  23.5622_dp *deg2rad    ! at 79.3613N, 23.5622E
+
+phi_surf(3)    =  79.4497_dp *deg2rad    ! Geographical position
+lambda_surf(3) =  23.6620_dp *deg2rad    ! at 79.4497N, 23.6620E
+
+phi_surf(4)    =  79.5388_dp *deg2rad    ! Geographical position
+lambda_surf(4) =  23.7644_dp *deg2rad    ! at 79.5388N, 23.7644E
+
+phi_surf(5)    =  79.6421_dp *deg2rad    ! Geographical position
+lambda_surf(5) =  23.8834_dp *deg2rad    ! at 79.6421N, 23.8834E
+
+phi_surf(6)    =  79.7302_dp *deg2rad    ! Geographical position
+lambda_surf(6) =  23.9872_dp *deg2rad    ! at 79.7302N, 23.9872E
+
+phi_surf(7)    =  79.5829_dp *deg2rad    ! Geographical position
+lambda_surf(7) =  24.6716_dp *deg2rad    ! at 79.5829N, 24.6716E
+
+phi_surf(8)    =  79.7171_dp *deg2rad    ! Geographical position
+lambda_surf(8) =  22.1832_dp *deg2rad    ! at 79.7171N, 22.1832E
+
+phi_surf(9)    =  79.7335_dp *deg2rad    ! Geographical position
+lambda_surf(9) =  22.4169_dp *deg2rad    ! at 79.7335N, 22.4169E
+
+phi_surf(10)    =  79.7519_dp *deg2rad   ! Geographical position
+lambda_surf(10) =  22.6407_dp *deg2rad   ! at 79.7519N, 22.6407E
+
+phi_surf(11)    =  79.7670_dp *deg2rad   ! Geographical position
+lambda_surf(11) =  22.8271_dp *deg2rad   ! at 79.7670N, 22.8271E
+
+phi_surf(12)    =  79.7827_dp *deg2rad   ! Geographical position
+lambda_surf(12) =  23.1220_dp *deg2rad   ! at 79.7827N, 23.1220E
+
+phi_surf(13)    =  79.5884_dp *deg2rad   ! Geographical position
+lambda_surf(13) =  25.5511_dp *deg2rad   ! at 79.5884N, 25.5511E
+
+phi_surf(14)    =  79.6363_dp *deg2rad   ! Geographical position
+lambda_surf(14) =  25.3582_dp *deg2rad   ! at 79.6363N, 25.3582E
+
+phi_surf(15)    =  80.0638_dp *deg2rad   ! Geographical position
+lambda_surf(15) =  24.2605_dp *deg2rad   ! at 80.0638N, 24.2605E
+
+phi_surf(16)    =  79.9426_dp *deg2rad   ! Geographical position
+lambda_surf(16) =  24.2433_dp *deg2rad   ! at 79.9426N, 24.2433E
+
+phi_surf(17)    =  79.8498_dp *deg2rad   ! Geographical position
+lambda_surf(17) =  26.6449_dp *deg2rad   ! at 79.8498N, 26.6449E
+
+phi_surf(18)    =  79.8499_dp *deg2rad   ! Geographical position
+lambda_surf(18) =  26.1354_dp *deg2rad   ! at 79.8499N, 26.1354E
+
+phi_surf(19)    =  79.8499_dp *deg2rad   ! Geographical position
+lambda_surf(19) =  25.7261_dp *deg2rad   ! at 79.8499N, 25.7261E
+
+!    ---- Pinglot's shallow cores
+
+phi_surf(20)    =  79.833333_dp *deg2rad    ! Geographical position
+lambda_surf(20) =  24.935833_dp *deg2rad    ! at 79.833333N, 24.935833E
+
+phi_surf(21)    =  79.783333_dp *deg2rad    ! Geographical position
+lambda_surf(21) =  25.400000_dp *deg2rad    ! at 79.783333N, 25.400000E
+
+phi_surf(22)    =  79.750000_dp *deg2rad    ! Geographical position
+lambda_surf(22) =  23.866667_dp *deg2rad    ! at 79.750000N, 23.866667E
+
+phi_surf(23)    =  79.615000_dp *deg2rad    ! Geographical position
+lambda_surf(23) =  23.490556_dp *deg2rad    ! at 79.615000N, 23.490556E
+
+phi_surf(24)    =  79.797778_dp *deg2rad    ! Geographical position
+lambda_surf(24) =  23.997500_dp *deg2rad    ! at 79.797778N, 23.997500E
+
+phi_surf(25)    =  79.765000_dp *deg2rad    ! Geographical position
+lambda_surf(25) =  24.809722_dp *deg2rad    ! at 79.765000N, 24.809722E
+
+phi_surf(26)    =  79.874722_dp *deg2rad    ! Geographical position
+lambda_surf(26) =  23.541667_dp *deg2rad    ! at 79.874722N, 23.541667E
+
+phi_surf(27)    =  79.697778_dp *deg2rad    ! Geographical position
+lambda_surf(27) =  25.096111_dp *deg2rad    ! at 79.697778N, 25.096111E
+
+phi_surf(28)    =  79.897500_dp *deg2rad    ! Geographical position
+lambda_surf(28) =  23.230278_dp *deg2rad    ! at 79.897500N, 23.230278E
+
+phi_surf(29)    =  79.874444_dp *deg2rad    ! Geographical position
+lambda_surf(29) =  24.046111_dp *deg2rad    ! at 79.874444N, 24.046111E
+
+phi_surf(30)    =  79.962500_dp *deg2rad    ! Geographical position
+lambda_surf(30) =  24.169722_dp *deg2rad    ! at 79.962500N, 24.169722E
+
+phi_surf(31)    =  79.664444_dp *deg2rad    ! Geographical position
+lambda_surf(31) =  25.235833_dp *deg2rad    ! at 79.664444N, 25.235833E
+
+phi_surf(32)    =  79.681111_dp *deg2rad    ! Geographical position
+lambda_surf(32) =  23.713056_dp *deg2rad    ! at 79.681111N, 23.713056E
+
+phi_surf(33)    =  79.554167_dp *deg2rad    ! Geographical position
+lambda_surf(33) =  23.796944_dp *deg2rad    ! at 79.554167N, 23.796944E
+
+phi_surf(34)    =  79.511667_dp *deg2rad    ! Geographical position
+lambda_surf(34) =  24.032778_dp *deg2rad    ! at 79.511667N, 24.032778E
+
+phi_surf(35)    =  79.552222_dp *deg2rad    ! Geographical position
+lambda_surf(35) =  22.799167_dp *deg2rad    ! at 79.552222N, 22.799167E
+
+phi_surf(36)    =  79.847778_dp *deg2rad    ! Geographical position
+lambda_surf(36) =  25.788611_dp *deg2rad    ! at 79.847778N, 25.788611E
+
+phi_surf(37)    =  79.830000_dp *deg2rad    ! Geographical position
+lambda_surf(37) =  24.001389_dp *deg2rad    ! at 79.830000N, 24.001389E
+
+!    ---- Flowline points
+
+phi_surf(38)    =  80.1427268586056_dp *deg2rad    ! Geographical position of
+lambda_surf(38) =  23.9534492294493_dp *deg2rad    ! Duve-1
+
+phi_surf(39)    =  80.1124108950185_dp *deg2rad    ! Geographical position of
+lambda_surf(39) =  24.0629399381155_dp *deg2rad    ! Duve-2
+
+phi_surf(40)    =  80.0765637664780_dp *deg2rad    ! Geographical position of
+lambda_surf(40) =  24.0481674197519_dp *deg2rad    ! Duve-3
+
+phi_surf(41)    =  80.0409891299823_dp *deg2rad    ! Geographical position of
+lambda_surf(41) =  24.0074110976581_dp *deg2rad    ! Duve-4
+
+phi_surf(42)    =  80.0049393359201_dp *deg2rad    ! Geographical position of
+lambda_surf(42) =  23.9894145095442_dp *deg2rad    ! Duve-5
+
+phi_surf(43)    =  79.4994665039616_dp *deg2rad    ! Geographical position of
+lambda_surf(43) =  25.4790616341716_dp *deg2rad    ! B3-1
+
+phi_surf(44)    =  79.4973763443781_dp *deg2rad    ! Geographical position of
+lambda_surf(44) =  25.2826485444194_dp *deg2rad    ! B3-2
+
+phi_surf(45)    =  79.5028080484427_dp *deg2rad    ! Geographical position of
+lambda_surf(45) =  25.0844021770897_dp *deg2rad    ! B3-3
+
+phi_surf(46)    =  79.5131051861579_dp *deg2rad    ! Geographical position of
+lambda_surf(46) =  24.8934874838598_dp *deg2rad    ! B3-4
+
+phi_surf(47)    =  79.5275754154375_dp *deg2rad    ! Geographical position of
+lambda_surf(47) =  24.7125320718015_dp *deg2rad    ! B3-5
+
+!    ---- Basin control points on ELA (N:450m, S:300m)
+
+phi_surf(48)    =  79.6232572730302_dp *deg2rad    ! Geographical position of
+lambda_surf(48) =  22.4297425686265_dp *deg2rad    ! Eton-1
+
+phi_surf(49)    =  79.6355048663362_dp *deg2rad    ! Geographical position of
+lambda_surf(49) =  22.5023513660534_dp *deg2rad    ! Eton-2
+
+phi_surf(50)    =  79.6477359930900_dp *deg2rad    ! Geographical position of
+lambda_surf(50) =  22.5751300038166_dp *deg2rad    ! Eton-3
+
+phi_surf(51)    =  79.6599505942585_dp *deg2rad    ! Geographical position of
+lambda_surf(51) =  22.6480788556811_dp *deg2rad    ! Eton-4
+
+phi_surf(52)    =  79.6730674725108_dp *deg2rad    ! Geographical position of
+lambda_surf(52) =  22.7116449352996_dp *deg2rad    ! Eton-5
+
+phi_surf(53)    =  79.6907455504277_dp *deg2rad    ! Geographical position of
+lambda_surf(53) =  22.7278148586532_dp *deg2rad    ! Eton-6
+
+phi_surf(54)    =  79.7084227767215_dp *deg2rad    ! Geographical position of
+lambda_surf(54) =  22.7440404597164_dp *deg2rad    ! Eton-7
+
+phi_surf(55)    =  79.7260991471427_dp *deg2rad    ! Geographical position of
+lambda_surf(55) =  22.7603220234687_dp *deg2rad    ! Eton-8
+
+phi_surf(56)    =  79.7437746574126_dp *deg2rad    ! Geographical position of
+lambda_surf(56) =  22.7766598368173_dp *deg2rad    ! Eton-9
+
+phi_surf(57)    =  79.7615003936967_dp *deg2rad    ! Geographical position of
+lambda_surf(57) =  22.7895141723757_dp *deg2rad    ! Eton-10
+
+phi_surf(58)    =  79.7794141201101_dp *deg2rad    ! Geographical position of
+lambda_surf(58) =  22.7893415392149_dp *deg2rad    ! B-16s-1
+
+phi_surf(59)    =  79.7973278451020_dp *deg2rad    ! Geographical position of
+lambda_surf(59) =  22.7891690597211_dp *deg2rad    ! B-16s-2
+
+phi_surf(60)    =  79.8152415686728_dp *deg2rad    ! Geographical position of
+lambda_surf(60) =  22.7889967333372_dp *deg2rad    ! B-16s-3
+
+phi_surf(61)    =  79.8331552908230_dp *deg2rad    ! Geographical position of
+lambda_surf(61) =  22.7888245595023_dp *deg2rad    ! B-16s-4
+
+phi_surf(62)    =  79.8504448969531_dp *deg2rad    ! Geographical position of
+lambda_surf(62) =  22.8027142916594_dp *deg2rad    ! B-16n-1
+
+phi_surf(63)    =  79.8662041154283_dp *deg2rad    ! Geographical position of
+lambda_surf(63) =  22.8510765245997_dp *deg2rad    ! B-16n-2
+
+phi_surf(64)    =  79.8819561232071_dp *deg2rad    ! Geographical position of
+lambda_surf(64) =  22.8995882814793_dp *deg2rad    ! B-16n-3
+
+phi_surf(65)    =  79.8977008864609_dp *deg2rad    ! Geographical position of
+lambda_surf(65) =  22.9482501953580_dp *deg2rad    ! B-16n-4
+
+phi_surf(66)    =  79.9134383711667_dp *deg2rad    ! Geographical position of
+lambda_surf(66) =  22.9970629023954_dp *deg2rad    ! B-16n-5
+
+phi_surf(67)    =  79.9291685431056_dp *deg2rad    ! Geographical position of
+lambda_surf(67) =  23.0460270418662_dp *deg2rad    ! B-16n-6
+
+phi_surf(68)    =  79.9448913678619_dp *deg2rad    ! Geographical position of
+lambda_surf(68) =  23.0951432561750_dp *deg2rad    ! B-16n-7
+
+phi_surf(69)    =  79.9606068108212_dp *deg2rad    ! Geographical position of
+lambda_surf(69) =  23.1444121908719_dp *deg2rad    ! B-16n-8
+
+phi_surf(70)    =  79.9741572381786_dp *deg2rad    ! Geographical position of
+lambda_surf(70) =  23.2092211687201_dp *deg2rad    ! Botnevika-1
+
+phi_surf(71)    =  79.9859141894524_dp *deg2rad    ! Geographical position of
+lambda_surf(71) =  23.2868821248161_dp *deg2rad    ! Botnevika-2
+
+phi_surf(72)    =  79.9976529206869_dp *deg2rad    ! Geographical position of
+lambda_surf(72) =  23.3647236505600_dp *deg2rad    ! Botnevika-3
+
+phi_surf(73)    =  80.0093733670701_dp *deg2rad    ! Geographical position of
+lambda_surf(73) =  23.4427461021207_dp *deg2rad    ! Botnevika-4
+
+phi_surf(74)    =  80.0201320622880_dp *deg2rad    ! Geographical position of
+lambda_surf(74) =  23.5253067161782_dp *deg2rad    ! Botnevika-5
+
+phi_surf(75)    =  80.0308022109253_dp *deg2rad    ! Geographical position of
+lambda_surf(75) =  23.6083570802514_dp *deg2rad    ! Botnevika-6
+
+phi_surf(76)    =  80.0414516357850_dp *deg2rad    ! Geographical position of
+lambda_surf(76) =  23.6915833394057_dp *deg2rad    ! Botnevika-7
+
+phi_surf(77)    =  80.0520802696857_dp *deg2rad    ! Geographical position of
+lambda_surf(77) =  23.7749857156754_dp *deg2rad    ! Botnevika-8
+
+phi_surf(78)    =  80.0547633949370_dp *deg2rad    ! Geographical position of
+lambda_surf(78) =  23.8736736708044_dp *deg2rad    ! Duvebreen-1
+
+phi_surf(79)    =  80.0548013447126_dp *deg2rad    ! Geographical position of
+lambda_surf(79) =  23.9773687987851_dp *deg2rad    ! Duvebreen-2
+
+phi_surf(80)    =  80.0548073397268_dp *deg2rad    ! Geographical position of
+lambda_surf(80) =  24.0810636270044_dp *deg2rad    ! Duvebreen-3
+
+phi_surf(81)    =  80.0547813803758_dp *deg2rad    ! Geographical position of
+lambda_surf(81) =  24.1847574925018_dp *deg2rad    ! Duvebreen-4
+
+phi_surf(82)    =  80.0646160588300_dp *deg2rad    ! Geographical position of
+lambda_surf(82) =  24.2700368789878_dp *deg2rad    ! Duvebreen-5
+
+phi_surf(83)    =  80.0750999374003_dp *deg2rad    ! Geographical position of
+lambda_surf(83) =  24.3542380951582_dp *deg2rad    ! Duvebreen-6
+
+phi_surf(84)    =  80.0846920877530_dp *deg2rad    ! Geographical position of
+lambda_surf(84) =  24.4407004402100_dp *deg2rad    ! Duvebreen-7
+
+phi_surf(85)    =  80.0875193831616_dp *deg2rad    ! Geographical position of
+lambda_surf(85) =  24.5434121380084_dp *deg2rad    ! Schweigaardbreen-1
+
+phi_surf(86)    =  80.0903153574351_dp *deg2rad    ! Geographical position of
+lambda_surf(86) =  24.6461808494348_dp *deg2rad    ! Schweigaardbreen-2
+
+phi_surf(87)    =  80.0924166470023_dp *deg2rad    ! Geographical position of
+lambda_surf(87) =  24.7486469216956_dp *deg2rad    ! Schweigaardbreen-3
+
+phi_surf(88)    =  80.0864319373603_dp *deg2rad    ! Geographical position of
+lambda_surf(88) =  24.8467147281595_dp *deg2rad    ! Schweigaardbreen-4
+
+phi_surf(89)    =  80.0804188683848_dp *deg2rad    ! Geographical position of
+lambda_surf(89) =  24.9446644540260_dp *deg2rad    ! Schweigaardbreen-5
+
+phi_surf(90)    =  80.0743774931913_dp *deg2rad    ! Geographical position of
+lambda_surf(90) =  25.0424957604751_dp *deg2rad    ! Schweigaardbreen-6
+
+phi_surf(91)    =  80.0713340422000_dp *deg2rad    ! Geographical position of
+lambda_surf(91) =  25.1439126047994_dp *deg2rad    ! Nilsenbreen B-12-1
+
+phi_surf(92)    =  80.0700730909331_dp *deg2rad    ! Geographical position of
+lambda_surf(92) =  25.2475056357563_dp *deg2rad    ! Nilsenbreen B-12-2
+
+phi_surf(93)    =  80.0687803205250_dp *deg2rad    ! Geographical position of
+lambda_surf(93) =  25.3510715226335_dp *deg2rad    ! Nilsenbreen B-12-3
+
+phi_surf(94)    =  80.0647501708291_dp *deg2rad    ! Geographical position of
+lambda_surf(94) =  25.4519066363393_dp *deg2rad    ! Sexebreen B-11-1
+
+phi_surf(95)    =  80.0595181102431_dp *deg2rad    ! Geographical position of
+lambda_surf(95) =  25.5506489732496_dp *deg2rad    ! Leighbreen-1
+
+phi_surf(96)    =  80.0494857323914_dp *deg2rad    ! Geographical position of
+lambda_surf(96) =  25.6365356440635_dp *deg2rad    ! Leighbreen-2
+
+phi_surf(97)    =  80.0394316265850_dp *deg2rad    ! Geographical position of
+lambda_surf(97) =  25.7222505219501_dp *deg2rad    ! Leighbreen-3
+
+phi_surf(98)    =  80.0293558606091_dp *deg2rad    ! Geographical position of
+lambda_surf(98) =  25.8077937609009_dp *deg2rad    ! Leighbreen-4
+
+phi_surf(99)    =  80.0192585021221_dp *deg2rad    ! Geographical position of
+lambda_surf(99) =  25.8931655175225_dp *deg2rad    ! Leighbreen-5
+
+phi_surf(100)    =  80.0091396186553_dp *deg2rad    ! Geographical position of
+lambda_surf(100) =  25.9783659510134_dp *deg2rad    ! Leighbreen-6
+
+phi_surf(101)    =  79.9989992776120_dp *deg2rad    ! Geographical position of
+lambda_surf(101) =  26.0633952231408_dp *deg2rad    ! Leighbreen-7
+
+phi_surf(102)    =  79.9888375462661_dp *deg2rad    ! Geographical position of
+lambda_surf(102) =  26.1482534982178_dp *deg2rad    ! Leighbreen-8
+
+phi_surf(103)    =  79.9786544917617_dp *deg2rad    ! Geographical position of
+lambda_surf(103) =  26.2329409430807_dp *deg2rad    ! Leighbreen-9
+
+phi_surf(104)    =  79.9683923353960_dp *deg2rad    ! Geographical position of
+lambda_surf(104) =  26.3172101192864_dp *deg2rad    ! Leighbreen-10
+
+phi_surf(105)    =  80.0241705082505_dp *deg2rad    ! Geographical position of
+lambda_surf(105) =  26.7558248932553_dp *deg2rad    ! Worsleybreen-1 (B9-1)
+
+phi_surf(106)    =  80.0069243536208_dp *deg2rad    ! Geographical position of
+lambda_surf(106) =  26.7836310921011_dp *deg2rad    ! Worsleybreen-2 (B9-2)
+
+phi_surf(107)    =  79.9896760170551_dp *deg2rad    ! Geographical position of
+lambda_surf(107) =  26.8113433337043_dp *deg2rad    ! Worsleybreen-3 (B9-3)
+
+phi_surf(108)    =  79.9723667157507_dp *deg2rad    ! Geographical position of
+lambda_surf(108) =  26.8350524380302_dp *deg2rad    ! Worsleybreen-4 (B9-4)
+
+phi_surf(109)    =  79.9545472297622_dp *deg2rad    ! Geographical position of
+lambda_surf(109) =  26.8248911276131_dp *deg2rad    ! B8-1
+
+phi_surf(110)    =  79.9367274171506_dp *deg2rad    ! Geographical position of
+lambda_surf(110) =  26.8147665774914_dp *deg2rad    ! B8-2
+
+phi_surf(111)    =  79.9189072796258_dp *deg2rad    ! Geographical position of
+lambda_surf(111) =  26.8046785944172_dp *deg2rad    ! B8-3
+
+phi_surf(112)    =  79.9009446914988_dp *deg2rad    ! Geographical position of
+lambda_surf(112) =  26.7957185084455_dp *deg2rad    ! B7-1
+
+phi_surf(113)    =  79.8843576455373_dp *deg2rad    ! Geographical position of
+lambda_surf(113) =  26.7616970403497_dp *deg2rad    ! B7-2
+
+phi_surf(114)    =  79.8676428266616_dp *deg2rad    ! Geographical position of
+lambda_surf(114) =  26.7251472990965_dp *deg2rad    ! B7-3
+
+phi_surf(115)    =  79.8509238637717_dp *deg2rad    ! Geographical position of
+lambda_surf(115) =  26.6887177159393_dp *deg2rad    ! B7-4
+
+phi_surf(116)    =  79.8342007771708_dp *deg2rad    ! Geographical position of
+lambda_surf(116) =  26.6524077251556_dp *deg2rad    ! B7-5
+
+phi_surf(117)    =  79.8189961177120_dp *deg2rad    ! Geographical position of
+lambda_surf(117) =  26.6017802396904_dp *deg2rad    ! B6-1
+
+phi_surf(118)    =  79.8054200039019_dp *deg2rad    ! Geographical position of
+lambda_surf(118) =  26.5357666498664_dp *deg2rad    ! B6-2
+
+phi_surf(119)    =  79.7918304753589_dp *deg2rad    ! Geographical position of
+lambda_surf(119) =  26.4699273874801_dp *deg2rad    ! B6-3
+
+phi_surf(120)    =  79.7782275858515_dp *deg2rad    ! Geographical position of
+lambda_surf(120) =  26.4042619219016_dp *deg2rad    ! B6-4
+
+phi_surf(121)    =  79.7646113889145_dp *deg2rad    ! Geographical position of
+lambda_surf(121) =  26.3387697236600_dp *deg2rad    ! B6-5
+
+phi_surf(122)    =  79.7518386380187_dp *deg2rad    ! Geographical position of
+lambda_surf(122) =  26.2683717557144_dp *deg2rad    ! B5-1
+
+phi_surf(123)    =  79.7395107596368_dp *deg2rad    ! Geographical position of
+lambda_surf(123) =  26.1954158840248_dp *deg2rad    ! B5-2
+
+phi_surf(124)    =  79.7271664326874_dp *deg2rad    ! Geographical position of
+lambda_surf(124) =  26.1226336416600_dp *deg2rad    ! B5-3
+
+phi_surf(125)    =  79.7148057168060_dp *deg2rad    ! Geographical position of
+lambda_surf(125) =  26.0500246274899_dp *deg2rad    ! B5-4
+
+phi_surf(126)    =  79.7024286714212_dp *deg2rad    ! Geographical position of
+lambda_surf(126) =  25.9775884402940_dp *deg2rad    ! B5-5
+
+phi_surf(127)    =  79.6900353557545_dp *deg2rad    ! Geographical position of
+lambda_surf(127) =  25.9053246787703_dp *deg2rad    ! B5-6
+
+phi_surf(128)    =  79.6776258288211_dp *deg2rad    ! Geographical position of
+lambda_surf(128) =  25.8332329415456_dp *deg2rad    ! B5-7
+
+phi_surf(129)    =  79.6652001494302_dp *deg2rad    ! Geographical position of
+lambda_surf(129) =  25.7613128271851_dp *deg2rad    ! B5-8
+
+phi_surf(130)    =  79.6527583761852_dp *deg2rad    ! Geographical position of
+lambda_surf(130) =  25.6895639342015_dp *deg2rad    ! B5-9
+
+phi_surf(131)    =  79.6403005674845_dp *deg2rad    ! Geographical position of
+lambda_surf(131) =  25.6179858610658_dp *deg2rad    ! B5-10
+
+phi_surf(132)    =  79.6272788783125_dp *deg2rad    ! Geographical position of
+lambda_surf(132) =  25.5497696493382_dp *deg2rad    ! B4-1
+
+phi_surf(133)    =  79.6138476738577_dp *deg2rad    ! Geographical position of
+lambda_surf(133) =  25.4840259325117_dp *deg2rad    ! B4-2
+
+phi_surf(134)    =  79.6004029370116_dp *deg2rad    ! Geographical position of
+lambda_surf(134) =  25.4184506246986_dp *deg2rad    ! B4-3
+
+phi_surf(135)    =  79.5869447205062_dp *deg2rad    ! Geographical position of
+lambda_surf(135) =  25.3530432378053_dp *deg2rad    ! B4-4
+
+phi_surf(136)    =  79.5734730768545_dp *deg2rad    ! Geographical position of
+lambda_surf(136) =  25.2878032846200_dp *deg2rad    ! B4-5
+
+phi_surf(137)    =  79.5599880583521_dp *deg2rad    ! Geographical position of
+lambda_surf(137) =  25.2227302788170_dp *deg2rad    ! B4-6
+
+phi_surf(138)    =  79.5464897170775_dp *deg2rad    ! Geographical position of
+lambda_surf(138) =  25.1578237349623_dp *deg2rad    ! B4-7
+
+phi_surf(139)    =  79.5340825476013_dp *deg2rad    ! Geographical position of
+lambda_surf(139) =  25.0873713598923_dp *deg2rad    ! B3-1
+
+phi_surf(140)    =  79.5231871974923_dp *deg2rad    ! Geographical position of
+lambda_surf(140) =  25.0091720580033_dp *deg2rad    ! B3-2
+
+phi_surf(141)    =  79.5122726145574_dp *deg2rad    ! Geographical position of
+lambda_surf(141) =  24.9311335486110_dp *deg2rad    ! B3-3
+
+phi_surf(142)    =  79.5013388593293_dp *deg2rad    ! Geographical position of
+lambda_surf(142) =  24.8532556096146_dp *deg2rad    ! B3-4
+
+phi_surf(143)    =  79.4881304535468_dp *deg2rad    ! Geographical position of
+lambda_surf(143) =  24.7885573077964_dp *deg2rad    ! B3-5
+
+phi_surf(144)    =  79.4734132097634_dp *deg2rad    ! Geographical position of
+lambda_surf(144) =  24.7326565135170_dp *deg2rad    ! B3-6
+
+phi_surf(145)    =  79.4586860312332_dp *deg2rad    ! Geographical position of
+lambda_surf(145) =  24.6769105936574_dp *deg2rad    ! B3-7
+
+phi_surf(146)    =  79.4439489597131_dp *deg2rad    ! Geographical position of
+lambda_surf(146) =  24.6213190006049_dp *deg2rad    ! B3-8
+
+phi_surf(147)    =  79.4321693404700_dp *deg2rad    ! Geographical position of
+lambda_surf(147) =  24.5500779464491_dp *deg2rad    ! B2-1
+
+phi_surf(148)    =  79.4223453273505_dp *deg2rad    ! Geographical position of
+lambda_surf(148) =  24.4684716320257_dp *deg2rad    ! B2-2
+
+phi_surf(149)    =  79.4125002037095_dp *deg2rad    ! Geographical position of
+lambda_surf(149) =  24.3870150299917_dp *deg2rad    ! B2-3
+
+phi_surf(150)    =  79.4026340289842_dp *deg2rad    ! Geographical position of
+lambda_surf(150) =  24.3057080421768_dp *deg2rad    ! B2-4
+
+phi_surf(151)    =  79.3927468625203_dp *deg2rad    ! Geographical position of
+lambda_surf(151) =  24.2245505685362_dp *deg2rad    ! B2-5
+
+phi_surf(152)    =  79.3909641358607_dp *deg2rad    ! Geographical position of
+lambda_surf(152) =  24.1356247611452_dp *deg2rad    ! Brasvellbreen-1
+
+phi_surf(153)    =  79.3950618239069_dp *deg2rad    ! Geographical position of
+lambda_surf(153) =  24.0409163942958_dp *deg2rad    ! Brasvellbreen-2
+
+phi_surf(154)    =  79.3991312122811_dp *deg2rad    ! Geographical position of
+lambda_surf(154) =  23.9461351693152_dp *deg2rad    ! Brasvellbreen-3
+
+phi_surf(155)    =  79.4031722671433_dp *deg2rad    ! Geographical position of
+lambda_surf(155) =  23.8512815066396_dp *deg2rad    ! Brasvellbreen-4
+
+phi_surf(156)    =  79.4071849548373_dp *deg2rad    ! Geographical position of
+lambda_surf(156) =  23.7563558291274_dp *deg2rad    ! Brasvellbreen-5
+
+phi_surf(157)    =  79.4111692418918_dp *deg2rad    ! Geographical position of
+lambda_surf(157) =  23.6613585620463_dp *deg2rad    ! Brasvellbreen-6
+
+phi_surf(158)    =  79.4127149901435_dp *deg2rad    ! Geographical position of
+lambda_surf(158) =  23.5647431017868_dp *deg2rad    ! Brasvellbreen-7
+
+phi_surf(159)    =  79.4129320057492_dp *deg2rad    ! Geographical position of
+lambda_surf(159) =  23.4672773246991_dp *deg2rad    ! Brasvellbreen-8
+
+phi_surf(160)    =  79.4131190508990_dp *deg2rad    ! Geographical position of
+lambda_surf(160) =  23.3698071241014_dp *deg2rad    ! Brasvellbreen-9
+
+phi_surf(161)    =  79.4132761235192_dp *deg2rad    ! Geographical position of
+lambda_surf(161) =  23.2723330506382_dp *deg2rad    ! Brasvellbreen-10
+
+phi_surf(162)    =  79.4134032217989_dp *deg2rad    ! Geographical position of
+lambda_surf(162) =  23.1748556552727_dp *deg2rad    ! Brasvellbreen-11
+
+phi_surf(163)    =  79.4135003441905_dp *deg2rad    ! Geographical position of
+lambda_surf(163) =  23.0773754892604_dp *deg2rad    ! Brasvellbreen-12
+
+#if (GRID==0 || GRID==1) /* Stereographic projection */
+
+do n=1, n_surf
+
+   if (F_INV > 1.0e+10_dp) then   ! interpreted as infinity, thus no flattening
+                                  ! (spherical planet)
+
+      call stereo_forw_sphere(lambda_surf(n), phi_surf(n), &
+                              R, LAMBDA0, PHI0, x_surf(n), y_surf(n))
+
+   else   ! finite inverse flattening (ellipsoidal planet)
+
+      call stereo_forw_ellipsoid(lambda_surf(n), phi_surf(n), &
+                                 A, B, LAMBDA0, PHI0, x_surf(n), y_surf(n))
+
+   end if
+
+end do
+
+#elif (GRID==2) /* Geographical coordinates */
+
+x_surf = lambda_surf
+y_surf = phi_surf
+
+#endif
+
+#endif /* (defined(ASF) && WRITE_SER_FILE_STAKES==1) Austfonna */
 
 !-------- Output of the initial state --------
 
@@ -2766,8 +3860,14 @@ end if
 #endif
 
 if (flag_init_output) then
+
    call output2(time_init, dxi, deta, delta_ts, glac_index)
    call output4(time_init, dxi, deta, delta_ts, glac_index)
+
+#if (defined(ASF) && WRITE_SER_FILE_STAKES==1) /* Austfonna */
+   call output5(time, dxi, deta, delta_ts, glac_index)
+#endif
+
 end if
 
 #else /* Tapenade */
@@ -2776,6 +3876,29 @@ print *, ' >>> sico_init: not producing initial, typical outputs'
 print *, '                in adjoint mode.'
 
 #endif /* Normal vs. Tapenade */
+
+#if (defined(GRL) && defined(EXEC_MAKE_C_DIS_0))
+
+#if (DISC>0)
+
+call calc_c_dis_0(dxi, deta)
+
+errormsg = ' >>> sico_init: Routine calc_c_dis_0 successfully completed,' &
+         //         end_of_line &
+         //'        c_dis_0 written on file out_run_name.dat' &
+         //         end_of_line &
+         //'        (in directory specified by OUT_PATH).' &
+         //         end_of_line &
+         //'        Execution of SICOPOLIS stopped.'
+call error(errormsg)   ! actually not an error,
+                       ! just a regular stop with an info message
+
+#else
+  errormsg = ' >>> sico_init: EXEC_MAKE_C_DIS_0 requires DISC>0!'
+  call error(errormsg)
+#endif
+
+#endif
 
 end subroutine sico_init
 
@@ -2867,11 +3990,23 @@ zb = zl
 
 !-------- Further stuff --------
 
+#if (GRID==0 || GRID==1)
+
 dxi  = DX *1000.0_dp   ! km -> m
 deta = DX *1000.0_dp   ! km -> m
 
 xi0  = X0 *1000.0_dp   ! km -> m
 eta0 = Y0 *1000.0_dp   ! km -> m
+
+#elif (GRID==2)
+
+dxi  = DLAMBDA *deg2rad
+deta = DPHI    *deg2rad
+
+xi0  = LAMBDA_0 *deg2rad
+eta0 = PHI_0    *deg2rad
+
+#endif
 
 freeboard_ratio = (RHO_SW-RHO)/RHO_SW
 
@@ -2881,11 +4016,6 @@ do j=0, JMAX
    if (mask(j,i) <= 1) then
 
       zb(j,i) = zl(j,i)   ! ensure consistency
-
-      if (zs(j,i) < zb(j,i)) then
-         zs(j,i) = zb(j,i)
-         mask(j,i) = 1
-      end if
 
    else if (mask(j,i) == 2) then
 
@@ -2906,18 +4036,10 @@ do j=0, JMAX
 #elif (MARGIN==2 && MARINE_ICE_FORMATION==2)
       mask(j,i) = 0   ! floating ice becomes "underwater ice"
       H_ice   = zs(j,i)-zb(j,i)   ! ice thickness
-      if (H_ice < 0.0_dp) then
-         H_ice = 0.0_dp
-         mask(j,i) = 2
-      end if
       zs(j,i) = zl(j,i)+H_ice
       zb(j,i) = zl(j,i)
 #elif (MARGIN==3)
       H_ice = zs(j,i)-zb(j,i)   ! ice thickness
-      if (H_ice < 0.0_dp) then
-         H_ice = 0.0_dp
-         mask(j,i) = 2
-      end if
       zs(j,i) = freeboard_ratio*H_ice   ! ensure properly
       zb(j,i) = zs(j,i)-H_ice           ! floating ice
 #endif
@@ -3022,10 +4144,14 @@ end if
 
 #endif
 
-if (mask_region(0,0) == -1) then   ! set default values for mask_region
+if (mask_region(0,0) == -1) then
+
+#if (defined(ANT)) /* Antarctic ice sheet */
 
    do i=0, IMAX
    do j=0, JMAX
+
+      ! Set default values for mask_region
 
       if ( (phi(j,i) > -77.5_dp*deg2rad) &
            .and. &
@@ -3049,6 +4175,12 @@ if (mask_region(0,0) == -1) then   ! set default values for mask_region
 
    end do
    end do
+
+#else /* not Antarctic ice sheet */
+
+   mask_region = 0   ! regions undefined
+
+#endif
 
 end if
 
@@ -3103,11 +4235,23 @@ mask = nint(field2d_aux)
 
 !-------- Further stuff --------
 
+#if (GRID==0 || GRID==1)
+
 dxi  = DX *1000.0_dp   ! km -> m
 deta = DX *1000.0_dp   ! km -> m
 
 xi0  = X0 *1000.0_dp   ! km -> m
 eta0 = Y0 *1000.0_dp   ! km -> m
+
+#elif (GRID==2)
+
+dxi  = DLAMBDA *deg2rad
+deta = DPHI    *deg2rad
+
+xi0  = LAMBDA_0 *deg2rad
+eta0 = PHI_0    *deg2rad
+
+#endif
 
 do i=0, IMAX
 do j=0, JMAX
@@ -3227,10 +4371,14 @@ end if
 
 #endif
 
-if (mask_region(0,0) == -1) then   ! set default values for mask_region
+if (mask_region(0,0) == -1) then
+
+#if (defined(ANT)) /* Antarctic ice sheet */
 
    do i=0, IMAX
    do j=0, JMAX
+
+      ! Set default values for mask_region
 
       if ( (phi(j,i) > -77.5_dp*deg2rad) &
            .and. &
@@ -3254,6 +4402,12 @@ if (mask_region(0,0) == -1) then   ! set default values for mask_region
 
    end do
    end do
+
+#else /* not Antarctic ice sheet */
+
+   mask_region = 0   ! regions undefined
+
+#endif
 
 end if
 
@@ -3304,8 +4458,17 @@ zl0 = field2d_aux
 
 !-------- Further stuff --------
 
+#if (GRID==0 || GRID==1)
+
 dxi  = DX *1000.0_dp   ! km -> m
 deta = DX *1000.0_dp   ! km -> m
+
+#elif (GRID==2)
+
+dxi  = DLAMBDA *deg2rad
+deta = DPHI    *deg2rad
+
+#endif
 
 !-------- Geographic coordinates, metric tensor,
 !                                 gradients of the topography --------
@@ -3381,10 +4544,14 @@ end if
 
 #endif
 
-if (mask_region(0,0) == -1) then   ! set default values for mask_region
+if (mask_region(0,0) == -1) then
+
+#if (defined(ANT)) /* Antarctic ice sheet */
 
    do i=0, IMAX
    do j=0, JMAX
+
+      ! Set default values for mask_region
 
       if ( (phi(j,i) > -77.5_dp*deg2rad) &
            .and. &
@@ -3408,6 +4575,12 @@ if (mask_region(0,0) == -1) then   ! set default values for mask_region
 
    end do
    end do
+
+#else /* not Antarctic ice sheet */
+
+   mask_region = 0   ! regions undefined
+
+#endif
 
 end if
 

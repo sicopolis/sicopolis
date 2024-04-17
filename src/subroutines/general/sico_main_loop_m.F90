@@ -34,7 +34,11 @@ module sico_main_loop_m
   
   use sico_types_m
   use sico_variables_m
+
+#if (defined(EISMINT) || defined(HEINO) || defined(MOCHO) || defined(NMARS) || defined(SMARS) || defined(XYZ))
   use sico_vars_m
+#endif
+
   use error_m
   
   implicit none
@@ -463,7 +467,7 @@ contains
 
      call output4(time, dxi, deta, delta_ts, glac_index)
 
-#if (defined(ASF) && WRITE_SER_FILE_STAKES>0)
+#if (defined(ASF) && WRITE_SER_FILE_STAKES==1) /* Austfonna */
      call output5(time, dxi, deta, delta_ts, glac_index)
 #endif
 

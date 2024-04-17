@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-12-07'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2024-03-20'
 !                      Date of last change
 
 !-------- Domain --------
@@ -12,15 +12,17 @@
 #define GRL
 !                 Simulated domain:
 !                   ANT     - Antarctica
-!                   ASF     - Austfonna
-!                   EISMINT - EISMINT (Phase 2 SGE and modifications)
 !                   GRL     - Greenland
-!                   NHEM    - Northern hemisphere
-!                   SCAND   - Scandinavia
-!                   TIBET   - Tibet
+!                   NHEM    - Entire northern hemisphere
+!                   LCIS    - Laurentide and Cordilleran ice sheets
+!                   SCAND   - Fennoscandian and Eurasian ice sheets
+!                   ASF     - Austfonna
+!                   NPI     - North Patagonian ice field
+!                   MOCHO   - Mocho-Choshuenco ice cap
+!                   EISMINT - EISMINT (Phase 2 SGE and modifications)
+!                   HEINO   - ISMIP HEINO
 !                   NMARS   - North polar cap of Mars
 !                   SMARS   - South polar cap of Mars
-!                   XYZ     - Various domains
 
 !-------- Physical parameter file --------
 

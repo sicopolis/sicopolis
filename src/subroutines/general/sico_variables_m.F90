@@ -362,6 +362,9 @@ real(dp), dimension(0:JMAX,0:IMAX) :: dH_t_dtau
 integer(i4b), dimension(0:JMAX,0:IMAX) :: n_slide_region
    !! Regions for the basal sliding laws
 
+integer(i4b), dimension(0:JMAX,0:IMAX) :: n_bm_region
+   !! Regions for ice shelf basal melting
+
 integer(i4b), dimension(0:JMAX,0:IMAX) :: p_weert
    !! Weertman exponent for the basal shear stress
 
@@ -535,6 +538,9 @@ real(dp), dimension(0:JMAX,0:IMAX) :: as_perp
 real(dp), dimension(0:JMAX,0:IMAX) :: as_perp_apl
    !! Applied accumulation-ablation function (SMB)
 
+real(dp), dimension(0:JMAX,0:IMAX) :: smb_corr_in
+   !! Prescribed SMB correction read from file
+
 real(dp), dimension(0:JMAX,0:IMAX) :: smb_corr_prescribed
    !! Prescribed SMB correction
 
@@ -632,25 +638,12 @@ real(dp), dimension(0:JMAX,0:IMAX) :: accum_present
 real(dp), dimension(0:JMAX,0:IMAX) :: precip_ma_present
    !! Present-day mean annual precipitation rate at the ice surface
 
-real(dp), dimension(0:JMAX,0:IMAX) :: precip_ma_lgm_anom
-   !! LGM anomaly (ratio LGM/present) of the mean annual precipitation rate
-   !! at the ice surface
-
 real(dp), dimension(0:JMAX,0:IMAX) :: temp_ma_present
    !! Present-day mean annual surface temperature
 
 real(dp), dimension(0:JMAX,0:IMAX) :: temp_mj_present
    !! Present-day mean summer (northern hemisphere: July,
    !! southern hemisphere: January) surface temperature
-
-real(dp), dimension(0:JMAX,0:IMAX) :: temp_ma_lgm_anom
-   !! LGM anomaly (difference LGM - present) of the
-   !! mean annual surface temperature
-
-real(dp), dimension(0:JMAX,0:IMAX) :: temp_mj_lgm_anom
-   !! LGM anomaly (difference LGM - present) of the mean summer
-   !! (northern hemisphere: July, southern hemisphere: January)
-   !! surface temperature
 
 real(dp), dimension(-JMAX:JMAX,-IMAX:IMAX) :: dist_dxdy
    !! Distance between grid points with delta_i=ir, delta_j=jr
@@ -666,10 +659,10 @@ real(dp), dimension(0:JMAX,0:IMAX,12) :: precip_lgm_anom
 real(dp), dimension(0:JMAX,0:IMAX,12) :: gamma_precip_lgm_anom
    !! Negative natural logarithm of precip_lgm_anom(j,i,n)
 
-real(dp), dimension(0:JMAX,0:IMAX,12) :: temp_mm_present
+real(dp), dimension(0:JMAX,0:IMAX,12) :: temp_present
    !! Present-day mean monthly surface temperature
 
-real(dp), dimension(0:JMAX,0:IMAX,12) :: temp_mm_lgm_anom
+real(dp), dimension(0:JMAX,0:IMAX,12) :: temp_lgm_anom
    !! LGM anomaly (difference LGM - present) of the mean monthly
    !! surface temperature
 
@@ -992,7 +985,182 @@ real(dp) :: latent_heat
 real(dp) :: latent_heat_inv
    !! Inverse of the latent heat of ice
 
-!-------- Mathematical constants -------- 
+!-------- ISMIP6-like climate forcing --------
+
+#if (TSURFACE==6 && ACCSURFACE==6 && ABLSURFACE==6)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: temp_maat_climatol
+   !! Surface-temperature (MAAT) climatology
+
+real(dp), dimension(0:JMAX,0:IMAX) :: smb_climatol
+   !! SMB climatology
+
+real(dp), dimension(0:JMAX,0:IMAX) :: temp_maat_anom
+   !! Surface-temperature (MAAT) anomaly
+
+real(dp), dimension(0:JMAX,0:IMAX) :: smb_anom
+   !! SMB anomaly
+
+real(dp), dimension(0:JMAX,0:IMAX) :: dtemp_maat_dz
+   !! Surface-temperature (MAAT) vertical gradient
+
+real(dp), dimension(0:JMAX,0:IMAX) :: dsmb_dz
+   !! SMB vertical gradient
+
+#endif
+
+!-------- ISMIP6 InitMIP --------
+
+#if (defined(ANT) || defined(GRL)) /* Antarctica or Greenland */
+
+logical :: flag_initmip_asmb
+   !! Flag for use of InitMIP SMB anomaly
+
+real(dp), dimension(0:JMAX,0:IMAX) :: smb_anom_initmip
+   !! InitMIP SMB anomaly
+
+#endif
+
+#if (defined(ANT)) /* Antarctica */
+
+logical :: flag_initmip_abmb
+   !! Flag for use of InitMIP sub-ice-shelf-melt anomaly
+
+real(dp), dimension(0:JMAX,0:IMAX) :: ab_anom_initmip
+   !! InitMIP sub-ice-shelf-melt anomaly
+
+logical :: flag_larmip
+   !! Flag for use of LARMIP sub-ice-shelf-melt anomaly
+
+integer(i4b), dimension(0:JMAX,0:IMAX) :: n_larmip_region
+   !! LARMIP regions for ice shelf basal melting
+
+real(dp), dimension(0:7) :: ab_anom_larmip
+   !! LARMIP sub-ice-shelf-melt anomaly
+
+#endif
+
+!-------- ISMIP6-like oceanic forcing --------
+
+#if (FLOATING_ICE_BASAL_MELTING==6)
+
+real(dp), dimension(0:NZ_TF_BM) :: z_tf_bm_present
+   !! Equidistant depth points of the
+   !! present-day thermal forcing data of the ocean
+
+real(dp), dimension(0:NZ_TF_BM,0:JMAX,0:IMAX) :: tf_bm_present
+   !! Present-day thermal forcing data of the ocean
+
+real(dp), dimension(0:NZ_TF_BM) :: z_tf_bm
+   !! Equidistant depth points of the
+   !! thermal forcing data of the ocean
+
+real(dp), dimension(0:NZ_TF_BM,0:JMAX,0:IMAX) :: tf_bm
+   !! Thermal forcing data of the ocean
+
+#endif
+
+!-------- ISMIP6-like prescribed ice-shelf collapse
+!                                or grounded-ice retreat --------
+
+#if (defined(ANT) && ICE_SHELF_COLLAPSE_MASK==1) /* Antarctica */
+
+real(dp), dimension(0:JMAX,0:IMAX) :: H_ref_retreat
+   !! Reference ice thickness for the ice-shelf collapse mask
+
+real(dp), dimension(0:JMAX,0:IMAX) :: r_mask_retreat
+   !! Ice-shelf collapse mask
+
+#endif
+
+#if (defined(GRL) && RETREAT_MASK==1) /* Greenland */
+
+real(dp), dimension(0:JMAX,0:IMAX) :: H_ref_retreat
+   !! Reference ice thickness for the retreat mask
+
+real(dp), dimension(0:JMAX,0:IMAX) :: r_mask_retreat
+   !! Retreat mask
+
+#endif
+
+!-------- Ice discharge parameterization for Greenland --------
+
+#if (defined(GRL) && DISC>0) /* Greenland */
+
+integer(i4b) :: disc
+integer(i4b) :: n_discharge_call
+integer(i4b) :: iter_mar_coa
+real(dp)     :: c_dis_0
+real(dp)     :: s_dis
+real(dp)     :: c_dis_fac
+real(dp)     :: T_sub_PD
+real(dp)     :: alpha_sub
+real(dp)     :: alpha_o
+real(dp)     :: m_H
+real(dp)     :: m_D
+real(dp)     :: r_mar_eff
+real(dp)     :: T_sea_freeze
+real(dp)     :: dT_glann
+real(dp)     :: dT_sub
+
+integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_mar
+real(dp),     dimension(0:JMAX,0:IMAX) :: c_dis
+real(dp),     dimension(0:JMAX,0:IMAX) :: cst_dist
+real(dp),     dimension(0:JMAX,0:IMAX) :: cos_grad_tc
+real(dp),     dimension(0:JMAX,0:IMAX) :: dis_perp
+
+#if (DISC==2)
+
+integer(i4b) :: glann_time_min
+   !! Minimum time of the data values for the
+   !! global annual temperature anomaly
+
+integer(i4b) :: glann_time_stp
+   !! Time step of the data values for the
+   !! global annual temperature anomaly
+
+integer(i4b) :: glann_time_max
+   !! Maximum time of the data values for the
+   !! global annual temperature anomaly
+
+integer(i4b) :: ndata_glann
+   !! Number of data values for the global annual temperature anomaly
+
+integer(i4b) , parameter :: ndata_glann_max = 262143
+   !! Maximum allowed value of ndata_glann
+
+real(dp), dimension(0:ndata_glann_max) :: dT_glann_CLIMBER
+   !! Data values for the global annual temperature anomaly
+
+#endif
+
+#endif
+
+!-------- Austfonna: Additional output for prescribed sites --------
+
+#if (defined(ASF) && WRITE_SER_FILE_STAKES==1) /* Austfonna */
+
+integer(i4b) :: n_surf
+   !! Number of surface points for which time-series data are written 
+
+integer(i4b), parameter :: n_surf_max = 256
+   !! Maximum allowed value of n_surf
+
+real(dp), dimension(n_surf_max) :: lambda_surf
+   !! Geographical longitude of the prescribed surface points
+
+real(dp), dimension(n_surf_max) :: phi_surf
+   !! Geographical latitude of the prescribed surface points
+
+real(dp), dimension(n_surf_max) :: x_surf
+   !! Coordinate xi (= x) of the prescribed surface points
+
+real(dp), dimension(n_surf_max) :: y_surf
+   !! Coordinate eta (= y) of the prescribed surface points
+
+#endif
+
+!-------- Mathematical constants --------
 
 real(dp), parameter :: pi = 3.141592653589793_dp
    !! Constant pi
@@ -1039,7 +1207,7 @@ real(dp), parameter :: eps_dp = myepsilon_dp
 
 #endif /* Normal vs. Tapenade */
 
-!-------- Further quantities -------- 
+!-------- Further quantities --------
 
 real(dp) :: year2sec
    !! 1 year (1 a) in seconds

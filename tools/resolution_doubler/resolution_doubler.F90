@@ -2,20 +2,14 @@
 !
 !  Program   : r e s o l u t i o n _ d o u b l e r . F 9 0
 !
-!> @file
-!!
 !! Doubling the horizontal resolution of a NetCDF time-slice output file
 !! produced by SICOPOLIS.
 !!
-!! @section Date
+!!##### Authors
 !!
-!! 2024-01-02
+!! Ralf Greve
 !!
-!! @section Copyright
-!!
-!! Copyright 2011-2024 Ralf Greve
-!!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -26,12 +20,12 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------- Inclusion of specification header --------
@@ -40,11 +34,9 @@
 
 !-------------------------------------------------------------------------------
 !> Declarations of kind types.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module resolution_doubler_types
 
-! integer, parameter :: i1b = selected_int_kind(2)   !< 1-byte integers
-! integer, parameter :: i2b = selected_int_kind(4)   ! 2-byte integers
 integer, parameter :: i4b = selected_int_kind(9)   ! 4-byte integers
 integer, parameter :: sp  = kind(1.0)              ! single-precision reals
 integer, parameter :: dp  = kind(1.0d0)            ! double-precision reals
@@ -53,7 +45,7 @@ end module resolution_doubler_types
 
 !-------------------------------------------------------------------------------
 !> Declarations of global variables.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module resolution_doubler_vars
 
 use resolution_doubler_types
@@ -215,7 +207,7 @@ end module resolution_doubler_vars
 !> Main program:
 !! Doubling the horizontal resolution of a NetCDF time-slice output file
 !! produced by SICOPOLIS.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 program resolution_doubler
 
 use resolution_doubler_types
@@ -243,7 +235,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Reading of data of time-slice files *.nc (NetCDF format).
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine read_nc(run_name, ergnum, forcing_flag)
 
 use resolution_doubler_types
@@ -809,7 +801,7 @@ end subroutine read_nc
 
 !-------------------------------------------------------------------------------
 !> Interpolation of data to double resolution.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine double_res_interpol
 
 use resolution_doubler_types
@@ -1784,7 +1776,7 @@ end subroutine double_res_interpol
 
 !-------------------------------------------------------------------------------
 !> Writing of double resolution data on NetCDF file.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine write_nc_double(run_name, ergnum, forcing_flag)
 
 use resolution_doubler_types
@@ -4706,7 +4698,7 @@ end subroutine write_nc_double
 
 !-------------------------------------------------------------------------------
 !> Set the value of the institution string ch_institution.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine set_ch_institution(ch_institution)
 
 use resolution_doubler_types
@@ -4748,7 +4740,7 @@ end subroutine set_ch_institution
 
 !-------------------------------------------------------------------------------
 !> NetCDF error capturing.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine check(status)
 
 use resolution_doubler_types

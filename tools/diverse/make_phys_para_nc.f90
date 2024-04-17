@@ -2,19 +2,13 @@
 !
 !  Program   : m a k e _ p h y s _ p a r a _ n c
 !
-!> @file
-!!
 !! Generating NetCDF files for the physical parameters required by SICOPOLIS.
 !!
-!! @section Date
+!!##### Authors
 !!
-!! 2024-01-02
+!! Ralf Greve
 !!
-!! @section Copyright
-!!
-!! Copyright 2021-2024 Ralf Greve
-!!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -25,12 +19,12 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
    ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -38,7 +32,7 @@
    ! To be compiled with netCDF. Using the SICOPOLIS set-up,
    ! this can be done by executing the following commands:
    !
-   !    source ../../runs/sico_configs.sh
+   !    source ../../sico_configs.sh
    !    $FC make_phys_para_nc.f90 -o make_phys_para_nc.x $FCFLAGS
    !
    ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -46,7 +40,7 @@
 !-------------------------------------------------------------------------------
 !> Main program:
 !! Generating NetCDF files for the physical parameters required by SICOPOLIS.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 program make_phys_para_nc
 
 use netcdf
@@ -90,14 +84,15 @@ ch_domain = 'NPI'
 !   SCAND - Scandinavia
 !   TIBET - Tibet
 
-!!! !   NMARS - North polar cap of Mars [not yet considered]
-!!! !   SMARS - South polar cap of Mars [not yet considered]
+    !   NMARS - North polar cap of Mars [not yet considered]
+    !   SMARS - South polar cap of Mars [not yet considered]
 
 !   EISMINT    - EISMINT (Phase 2 SGE and modifications)
 !   CALVINGMIP - Calving MIP
 !   VIALOV     - 3D Vialov profile
 !   HEINO      - ISMIP HEINO
 
+!   LCIS   - Laurentide and Cordilleran ice sheets
 !   MOCHO  - Mocho-Choshuenco ice cap
 !   NPI    - North Patagonian ice field
 !   SHMARS - Southern hemisphere of Mars
@@ -233,6 +228,9 @@ select case(ch_domain)
    case ('TIBET')
       LATD0 =  35.0_dp
       LOND0 =  90.0_dp
+   case ('LCIS')
+      LATD0 =  60.0_dp
+      LOND0 = -94.0_dp
    case ('MOCHO')
       LATD0 = -40.0_dp
       LOND0 = -72.5_dp
@@ -251,10 +249,8 @@ select case(ch_domain)
       LOND0 = very_large   ! undefined
 end select
 
-! LATD0: standard parallel (degrees N)
-!        \!/ In the ASCII files, this is called PHI0 (in rad) \!/
-! LOND0: Reference longitude (degrees E)
-!        \!/ In the ASCII files, this is called LAMBDA0 (in rad) \!/
+      ! LATD0: standard parallel (degrees N)
+      ! LOND0: Reference longitude (degrees E)
 
 !  ------ Rate factor RF(T)
 !         [RF] = 1/(s*Pa3), [T] = degC

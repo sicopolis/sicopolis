@@ -132,29 +132,41 @@ write(unit=6, fmt='(a)') ' '
 ch_domain_long  = 'Antarctica'
 ch_domain_short = 'ant'
 
-#elif (defined(ASF))
-ch_domain_long  = 'Austfonna'
-ch_domain_short = 'asf'
-
-#elif (defined(EISMINT))
-ch_domain_long  = 'EISMINT'
-ch_domain_short = 'eismint'
-
 #elif (defined(GRL))
 ch_domain_long  = 'Greenland'
 ch_domain_short = 'grl'
 
 #elif (defined(NHEM))
-ch_domain_long  = 'Northern hemisphere'
+ch_domain_long  = 'Entire northern hemisphere'
 ch_domain_short = 'nhem'
 
+#elif (defined(LCIS))
+ch_domain_long  = 'Laurentide and Cordilleran ice sheets'
+ch_domain_short = 'lcis'
+
 #elif (defined(SCAND))
-ch_domain_long  = 'Scandinavia and Eurasia'
+ch_domain_long  = 'Fennoscandian and Eurasian ice sheets'
 ch_domain_short = 'scand'
 
-#elif (defined(TIBET))
-ch_domain_long  = 'Tibet'
-ch_domain_short = 'tibet'
+#elif (defined(ASF))
+ch_domain_long  = 'Austfonna'
+ch_domain_short = 'asf'
+
+#elif (defined(NPI))
+ch_domain_long  = 'Northern Patagonian ice field'
+ch_domain_short = 'npi'
+
+#elif (defined(MOCHO))
+ch_domain_long  = 'Mocho-Choshuenco ice cap'
+ch_domain_short = 'mocho'
+
+#elif (defined(EISMINT))
+ch_domain_long  = 'EISMINT'
+ch_domain_short = 'eismint'
+
+#elif (defined(HEINO))
+ch_domain_long  = 'ISMIP HEINO'
+ch_domain_short = 'heino'
 
 #elif (defined(NMARS))
 ch_domain_long  = 'North polar cap of Mars'
@@ -164,17 +176,9 @@ ch_domain_short = 'nmars'
 ch_domain_long  = 'South polar cap of Mars'
 ch_domain_short = 'smars'
 
-#elif (defined(XYZ))
-ch_domain_long  = 'XYZ'
-ch_domain_short = 'xyz'
-#if (defined(HEINO))
-ch_domain_long  = trim(ch_domain_long)//'/ISMIP HEINO'
-#endif
-
 #else
-
-errormsg = ' >>> sico_init: No valid domain specified!'
-call error(errormsg)
+ch_domain_long  = 'Unspecified domain'
+ch_domain_short = 'xyz'
 
 #endif
 

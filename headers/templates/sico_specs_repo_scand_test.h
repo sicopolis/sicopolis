@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-11-09'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2024-03-20'
 !                      Date of last change
 
 !-------- Domain --------
@@ -12,15 +12,17 @@
 #define SCAND
 !                 Simulated domain:
 !                   ANT     - Antarctica
-!                   ASF     - Austfonna
-!                   EISMINT - EISMINT (Phase 2 SGE and modifications)
 !                   GRL     - Greenland
-!                   NHEM    - Northern hemisphere
-!                   SCAND   - Scandinavia
-!                   TIBET   - Tibet
+!                   NHEM    - Entire northern hemisphere
+!                   LCIS    - Laurentide and Cordilleran ice sheets
+!                   SCAND   - Fennoscandian and Eurasian ice sheets
+!                   ASF     - Austfonna
+!                   NPI     - North Patagonian ice field
+!                   MOCHO   - Mocho-Choshuenco ice cap
+!                   EISMINT - EISMINT (Phase 2 SGE and modifications)
+!                   HEINO   - ISMIP HEINO
 !                   NMARS   - North polar cap of Mars
 !                   SMARS   - South polar cap of Mars
-!                   XYZ     - Various domains
 
 !-------- Physical parameter file --------
 
@@ -594,10 +596,6 @@
 
 !-------- Surface temperature --------
 
-#define TEMP_MM_PRESENT_FILE 'scand_lw_40_tempmm.dat'
-!                       Name of the file containing the present-day
-!                       monthly-mean surface-temperature data
-
 #define TSURFACE 5
 !                         1 : delta_ts = DELTA_TS0, steady state
 !                         3 : Sinusoidal air-temperature forcing
@@ -608,7 +606,15 @@
 !                             (e.g., GRIP, Vostok)
 !                         5 : Surface temperature interpolated by using
 !                             present values, LGM anomalies and a
-!                             glacial index
+!                             glacial index (requires ACCSURFACE==5)
+
+#define TEMP_PRESENT_FILE 'scand_lw_40_tempmm.dat'
+!                       Name of the file containing the present-day
+!                       monthly-mean surface-temperature data
+
+#define TOPO_LAPSE_RATE 6.5d0
+!                       Topographic lapse rate (in K/km)
+!                       (decrease of surface temperature with elevation)
 
 #define DELTA_TS0 0.0d0
 !                       Constant air-temperature deviation for steady
@@ -622,11 +628,11 @@
 !                       Period (in a) for sinusoidal air-temperature
 !                       forcing (only for TSURFACE==3)
 
-#define GRIP_TEMP_FILE 'grip95_temp_nosmooth_100ka.dat'
+#define GRIP_TEMP_FILE 'none'
 !                       Name of the file containing the ice-core
 !                       air-temperature forcing (only for TSURFACE==4)
 
-#define GRIP_TEMP_FACT 0.875d0
+#define GRIP_TEMP_FACT 1.0d0
 !                       Modification factor for ice-core air-temperature
 !                       forcing (only for TSURFACE==4)
 
@@ -634,20 +640,16 @@
 !                       Name of the file containing the glacial-index
 !                       forcing (only for TSURFACE==5)
 
-#define TEMP_MM_ANOM_FILE 'scand_uk_40_tempmm_anom.dat'
+#define TEMP_ANOM_FILE 'scand_uk_40_tempmm_anom.dat'
 !                       Name of the file containing the LGM
 !                       monthly-mean surface-temperature-anomaly data
 !                       (difference LGM - present; only for TSURFACE==5)
 
-#define TEMP_MM_ANOM_FACT 1.0d0
+#define TEMP_ANOM_FACT 1.0d0
 !                       Modification factor for the anomaly data of
-!                       TEMP_MM_ANOM_FILE (for TSURFACE==5)
+!                       TEMP_ANOM_FILE (for TSURFACE==5)
 
 !-------- Surface precipitation --------
-
-#define PRECIP_MM_PRESENT_FILE 'scand_lw_40_precmm.dat'
-!                       Name of the file containing the present-day
-!                       monthly-mean precipitation data
 
 #define ACCSURFACE 5
 !                         1 : Precipitation is constant factor ACCFACT
@@ -659,6 +661,23 @@
 !                         5 : Precipitation interpolated by using
 !                             present values, LGM anomalies and a
 !                             glacial index (requires TSURFACE==5)
+
+#define PRECIP_PRESENT_FILE 'scand_lw_40_precmm.dat'
+!                       Name of the file containing the present-day
+!                       monthly mean precipitation data
+!                       ('none' if no such file is to be specified)
+!                       (for ACCSURFACE<=5)
+
+#define PRECIP_MA_PRESENT_FILE 'none'
+!                       Name of the file containing the present-day
+!                       mean annual precipitation data
+!                       ('none' if no such file is to be specified)
+!                       (for ACCSURFACE<=5)
+
+!                       [Either PRECIP_PRESENT_FILE or PRECIP_MA_PRESENT_FILE
+!                       must be specified. If both are specified,
+!                       PRECIP_PRESENT_FILE will be used,
+!                       while PRECIP_MA_PRESENT_FILE will be ignored.]
 
 #define ACCFACT 1.0d0
 !                       Constant ratio between actual and present
@@ -683,14 +702,14 @@
 !                       Elevation threshold for elevation desertification, in m
 !                       (only for ELEV_DESERT==1 and ACCSURFACE==1, 2, 3)
 
-#define PRECIP_MM_ANOM_FILE 'scand_uk_40_precmm_anom.dat'
+#define PRECIP_ANOM_FILE 'scand_uk_40_precmm_anom.dat'
 !                       Name of the file containing the LGM
 !                       monthly-mean precipitation-anomaly data
 !                       (ratio LGM/present; only for ACCSURFACE==5)
 
-#define PRECIP_MM_ANOM_FACT 1.0d0
+#define PRECIP_ANOM_FACT 1.0d0
 !                       Modification factor for the anomaly data of
-!                       PRECIP_MM_ANOM_FILE (for ACCSURFACE==5)
+!                       PRECIP_ANOM_FILE (for ACCSURFACE==5)
 
 #define PRECIP_ANOM_INTERPOL 2
 !                         1 : Interpolation with a linear function
@@ -709,6 +728,7 @@
 !                         3 : Dependency on instantaneous surface temperature
 !                             (statistical approach by
 !                             Huybrechts and de Wolde 1999)
+!                         (for ACCSURFACE<=5)
 
 !-------- Surface ablation --------
 

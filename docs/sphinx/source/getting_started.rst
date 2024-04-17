@@ -93,7 +93,7 @@ Directory ``src``
 
   Subdirectory ``subroutines/eismint``: subroutines specific for the EISMINT simplified geometry experiments.
 
-  Accordingly subdirectories ``subroutines/asf``, ``nhem``, ``scand``, ``tibet``, ``nmars`` and ``smars`` for Austfonna, the northern hemisphere, Scandinavia, Tibet and the north and south polar caps of Mars, respectively.
+  Accordingly subdirectories ``subroutines/nhem``, ``nmars`` and ``smars`` for the northern hemisphere, and the north and south polar caps of Mars, respectively.
 
   Subdirectory ``subroutines/tapenade``: AD-specific subroutines and files.
 
@@ -110,7 +110,7 @@ Directory ``sico_in``
 
   Subdirectory ``eismint``: input files specific for the EISMINT simplified geometry experiments.
 
-  Accordingly subdirectories ``asf``, ``nhem``, ``scand``, ``tibet``, ``nmars`` and ``smars`` for Austfonna, the northern hemisphere, Scandinavia, Tibet and the north and south polar caps of Mars, respectively.
+  Accordingly subdirectories ``nhem``, ``nmars`` and ``smars`` for the northern hemisphere, and the north and south polar caps of Mars, respectively.
 
   Subdirectory ``xyz``: For :ref:`creating new domains <new_domain>`.
 

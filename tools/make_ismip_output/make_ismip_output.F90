@@ -2,20 +2,14 @@
 !
 !  Program   : m a k e _ i s m i p _ o u t p u t . F 9 0
 !
-!> @file
-!!
 !! Generating ISMIP6 output from the time-dependent NetCDF data produced by
 !! SICOPOLIS.
 !!
-!! @section Date
+!!##### Authors
 !!
-!! 2024-01-02
+!! Ralf Greve, Chris Chambers
 !!
-!! @section Copyright
-!!
-!! Copyright 2010-2024 Ralf Greve, Chris Chambers
-!!
-!! @section License
+!!##### License
 !!
 !! This file is part of SICOPOLIS.
 !!
@@ -26,12 +20,12 @@
 !!
 !! SICOPOLIS is distributed in the hope that it will be useful,
 !! but WITHOUT ANY WARRANTY; without even the implied warranty of
-!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 !! GNU General Public License for more details.
 !!
 !! You should have received a copy of the GNU General Public License
-!! along with SICOPOLIS.  If not, see <http://www.gnu.org/licenses/>.
-!<
+!! along with SICOPOLIS. If not, see <https://www.gnu.org/licenses/>.
+!
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------- Settings --------
@@ -51,10 +45,9 @@
 
 !-------------------------------------------------------------------------------
 !> Declarations of kind types.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module make_ismip_output_common
 
-! integer, parameter :: i1b = selected_int_kind(2)   !< 1-byte integers
 integer, parameter :: i4b = selected_int_kind(9)   ! 4-byte integers
 integer, parameter :: sp  = kind(1.0)              ! single-precision reals
 integer, parameter :: dp  = kind(1.0d0)            ! double-precision reals
@@ -72,7 +65,7 @@ end module make_ismip_output_common
 !> Main program:
 !! Generating ISMIP6 output from the time-dependent NetCDF data produced by
 !! SICOPOLIS.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 program make_ismip_output
 
 use make_ismip_output_common
@@ -300,7 +293,7 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Reading and processing of data of the time-dependent NetCDF data.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine read_nc(run_name, n_variable_dim, n_variable_type, ergnum, n, &
                    mapping_r, &
                    mapping_grid_mapping_name_r, &
@@ -932,7 +925,7 @@ do j=0, JMAX
    end if
 
    ligroundf_r(i,j)  = no_value_large_dp
-                       !!! q_gl_g_erg(i,j) * rho/year_to_year_or_sec
+                       !%% q_gl_g_erg(i,j) * rho/year_to_year_or_sec
                                                 ! m/a -> kg/(m2*a) | kg/(m2*s)
 
    if ((mask_erg(i,j)==0).or.(mask_erg(i,j)==3)) &
@@ -1013,7 +1006,7 @@ end subroutine read_nc
 
 !-------------------------------------------------------------------------------
 !> Initialization of ISMIP6 NetCDF file.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine init_ismip_netcdf(run_name, n_variable_dim, n_variable_type, &
                    mapping_grid_mapping_name_val, &
                    mapping_ellipsoid_val, &
@@ -1533,23 +1526,23 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Total calving and ice front melting flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
-!!! !      -- tendligroundf
-!!! 
-!!! call check( nf90_inq_dimid(ncid, 'time', nc1d) )
-!!!
-!!! #if (NETCDF4_ENABLED==1)
-!!! call check( nf90_def_var(ncid, 'tendligroundf', NF90_FLOAT, nc1d, ncv, &
-!!!             deflate_level=n_deflate_level, shuffle=flag_shuffle) )
-!!! #else
-!!! call check( nf90_def_var(ncid, 'tendligroundf', NF90_FLOAT, nc1d, ncv) )
-!!! #endif
-!!!
-!!! buffer = 'kg '//ch_time_unit//'-1'
-!!! call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
-!!! buffer = 'tendency_of_land_ice_mass_due_to_flux_at_grounding_line'
-!!! call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
-!!! buffer = 'Total grounding line flux'
-!!! call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+!%% !      -- tendligroundf
+!%%
+!%% call check( nf90_inq_dimid(ncid, 'time', nc1d) )
+!%%
+!%% #if (NETCDF4_ENABLED==1)
+!%% call check( nf90_def_var(ncid, 'tendligroundf', NF90_FLOAT, nc1d, ncv, &
+!%%             deflate_level=n_deflate_level, shuffle=flag_shuffle) )
+!%% #else
+!%% call check( nf90_def_var(ncid, 'tendligroundf', NF90_FLOAT, nc1d, ncv) )
+!%% #endif
+!%%
+!%% buffer = 'kg '//ch_time_unit//'-1'
+!%% call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
+!%% buffer = 'tendency_of_land_ice_mass_due_to_flux_at_grounding_line'
+!%% call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
+!%% buffer = 'Total grounding line flux'
+!%% call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
 end if
 
@@ -2342,30 +2335,30 @@ call check( nf90_put_att(ncid, ncv, 'missing_value', &
                                     real(no_value_large_dp,sp)) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
-!!! !      -- ligroundf
-!!! 
-!!! call check( nf90_inq_dimid(ncid, 'x', nc3d(1)) )
-!!! call check( nf90_inq_dimid(ncid, 'y', nc3d(2)) )
-!!! call check( nf90_inq_dimid(ncid, 'time', nc3d(3)) )
-!!!
-!!! #if (NETCDF4_ENABLED==1)
-!!! call check( nf90_def_var(ncid, 'ligroundf', NF90_FLOAT, nc3d, ncv, &
-!!!             deflate_level=n_deflate_level, shuffle=flag_shuffle) )
-!!! #else
-!!! call check( nf90_def_var(ncid, 'ligroundf', NF90_FLOAT, nc3d, ncv) )
-!!! #endif
-!!!
-!!! buffer = 'kg m-2 '//ch_time_unit//'-1'
-!!! call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
-!!! buffer = 'land_ice_specific_mass_flux_at_grounding_line'
-!!! call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
-!!! buffer = 'Grounding line flux'
-!!! call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-!!! call check( nf90_put_att(ncid, ncv, '_FillValue', &
-!!!                                     real(no_value_large_dp,sp)) )
-!!! call check( nf90_put_att(ncid, ncv, 'missing_value', &
-!!!                                     real(no_value_large_dp,sp)) )
-!!! call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+!%% !      -- ligroundf
+!%%
+!%% call check( nf90_inq_dimid(ncid, 'x', nc3d(1)) )
+!%% call check( nf90_inq_dimid(ncid, 'y', nc3d(2)) )
+!%% call check( nf90_inq_dimid(ncid, 'time', nc3d(3)) )
+!%%
+!%% #if (NETCDF4_ENABLED==1)
+!%% call check( nf90_def_var(ncid, 'ligroundf', NF90_FLOAT, nc3d, ncv, &
+!%%             deflate_level=n_deflate_level, shuffle=flag_shuffle) )
+!%% #else
+!%% call check( nf90_def_var(ncid, 'ligroundf', NF90_FLOAT, nc3d, ncv) )
+!%% #endif
+!%%
+!%% buffer = 'kg m-2 '//ch_time_unit//'-1'
+!%% call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
+!%% buffer = 'land_ice_specific_mass_flux_at_grounding_line'
+!%% call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
+!%% buffer = 'Grounding line flux'
+!%% call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+!%% call check( nf90_put_att(ncid, ncv, '_FillValue', &
+!%%                                     real(no_value_large_dp,sp)) )
+!%% call check( nf90_put_att(ncid, ncv, 'missing_value', &
+!%%                                     real(no_value_large_dp,sp)) )
+!%% call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 end if
 
@@ -2379,7 +2372,7 @@ end subroutine init_ismip_netcdf
 
 !-------------------------------------------------------------------------------
 !> Writing of ISMIP6 NetCDF file.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine write_ismip_netcdf(run_name, n_variable_dim, n_variable_type, &
                     n, ncid, mapping_aux, &
                     year2sec_aux, &
@@ -2655,10 +2648,10 @@ nc1cor(1) = n
 nc1cnt(1) = 1
 call check( nf90_put_var(ncid, ncv, tendlifmassbf_val, start=nc1cor, count=nc1cnt) )
 
-!!! call check( nf90_inq_varid(ncid, 'tendligroundf', ncv) )
-!!! nc1cor(1) = n
-!!! nc1cnt(1) = 1
-!!! call check( nf90_put_var(ncid, ncv, tendligroundf_val, start=nc1cor, count=nc1cnt) )
+!%% call check( nf90_inq_varid(ncid, 'tendligroundf', ncv) )
+!%% nc1cor(1) = n
+!%% nc1cnt(1) = 1
+!%% call check( nf90_put_var(ncid, ncv, tendligroundf_val, start=nc1cor, count=nc1cnt) )
 
 end if
 
@@ -2955,14 +2948,14 @@ nc3cnt(2) = JMAX + 1
 nc3cnt(3) = 1
 call check( nf90_put_var(ncid, ncv, lifmassbf_val, start=nc3cor, count=nc3cnt) )
 
-!!! call check( nf90_inq_varid(ncid, 'ligroundf', ncv) )
-!!! nc3cor(1) = 1
-!!! nc3cor(2) = 1
-!!! nc3cor(3) = n
-!!! nc3cnt(1) = IMAX + 1
-!!! nc3cnt(2) = JMAX + 1
-!!! nc3cnt(3) = 1
-!!! call check( nf90_put_var(ncid, ncv, ligroundf_val, start=nc3cor, count=nc3cnt) )
+!%% call check( nf90_inq_varid(ncid, 'ligroundf', ncv) )
+!%% nc3cor(1) = 1
+!%% nc3cor(2) = 1
+!%% nc3cor(3) = n
+!%% nc3cnt(1) = IMAX + 1
+!%% nc3cnt(2) = JMAX + 1
+!%% nc3cnt(3) = 1
+!%% call check( nf90_put_var(ncid, ncv, ligroundf_val, start=nc3cor, count=nc3cnt) )
 
 end if
 
@@ -2972,7 +2965,7 @@ end subroutine write_ismip_netcdf
 
 !-------------------------------------------------------------------------------
 !> Closing of ISMIP6 NetCDF file.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine close_ismip_netcdf(ncid)
 
 use make_ismip_output_common
@@ -2994,7 +2987,7 @@ end subroutine close_ismip_netcdf
 
 !-------------------------------------------------------------------------------
 !> Set the value of the institution string ch_institution.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine set_ch_institution(ch_institution)
 
 use make_ismip_output_common
@@ -3036,7 +3029,7 @@ end subroutine set_ch_institution
 
 !-------------------------------------------------------------------------------
 !> NetCDF error capturing.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 subroutine check(status)
 
 use make_ismip_output_common

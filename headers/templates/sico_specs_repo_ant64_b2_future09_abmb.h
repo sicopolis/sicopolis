@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2023-12-07'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2024-04-10'
 !                      Date of last change
 
 !-------- Domain --------
@@ -12,15 +12,17 @@
 #define ANT
 !                 Simulated domain:
 !                   ANT     - Antarctica
-!                   ASF     - Austfonna
-!                   EISMINT - EISMINT (Phase 2 SGE and modifications)
 !                   GRL     - Greenland
-!                   NHEM    - Northern hemisphere
-!                   SCAND   - Scandinavia
-!                   TIBET   - Tibet
+!                   NHEM    - Entire northern hemisphere
+!                   LCIS    - Laurentide and Cordilleran ice sheets
+!                   SCAND   - Fennoscandian and Eurasian ice sheets
+!                   ASF     - Austfonna
+!                   NPI     - North Patagonian ice field
+!                   MOCHO   - Mocho-Choshuenco ice cap
+!                   EISMINT - EISMINT (Phase 2 SGE and modifications)
+!                   HEINO   - ISMIP HEINO
 !                   NMARS   - North polar cap of Mars
 !                   SMARS   - South polar cap of Mars
-!                   XYZ     - Various domains
 
 !-------- Physical parameter file --------
 
@@ -728,10 +730,22 @@
 !                         7 : Implied SMB by Calov+ (2018, Cryosphere 12)
 !                             (requires ABLSURFACE==7)
 
-#define PRECIP_PRESENT_FILE 'ant_sr_dev1.0_64_prec_a.dat'
+#define PRECIP_PRESENT_FILE 'none'
 !                       Name of the file containing the present-day
-!                       precipitation data
+!                       monthly mean precipitation data
+!                       ('none' if no such file is to be specified)
 !                       (for ACCSURFACE<=5)
+
+#define PRECIP_MA_PRESENT_FILE 'ant_sr_dev1.0_64_prec_a.dat'
+!                       Name of the file containing the present-day
+!                       mean annual precipitation data
+!                       ('none' if no such file is to be specified)
+!                       (for ACCSURFACE<=5)
+
+!                       [Either PRECIP_PRESENT_FILE or PRECIP_MA_PRESENT_FILE
+!                       must be specified. If both are specified,
+!                       PRECIP_PRESENT_FILE will be used,
+!                       while PRECIP_MA_PRESENT_FILE will be ignored.]
 
 #define ACCFACT 1.0d0
 !                       Constant ratio between actual and present

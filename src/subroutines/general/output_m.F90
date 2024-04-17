@@ -34,14 +34,18 @@ module output_m
 
   use sico_types_m
   use sico_variables_m
+
+#if (defined(EISMINT) || defined(HEINO) || defined(MOCHO) || defined(NMARS) || defined(SMARS) || defined(XYZ))
   use sico_vars_m
+#endif
+
   use error_m
 
   implicit none
 
   private
   public :: output1, output2, output4, borehole
-#if (defined(ASF))
+#if (defined(ASF) && WRITE_SER_FILE_STAKES==1) /* Austfonna */
   public :: output5
 #endif
 
@@ -5577,8 +5581,6 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
 
 !  ------ Time-series data for the sediment region of HEINO
 
-#if (defined(XYZ))
-
 #if (defined(HEINO))
 
 !    ---- Average ice thickness, average basal temperature rel. to pmp,
@@ -5633,8 +5635,6 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       end if
 
    end if   ! ((n==0).and.(.not.flag_compute_flux_vars_only))
-
-#endif
 
 #endif
 
@@ -6689,24 +6689,10 @@ end if
 
 !-------- Computing scalar variables --------
 
-#if (defined(ANT) \
-      || defined(GRL) \
-      || defined(SCAND) \
-      || defined(NHEM) \
-      || defined(TIBET) \
-      || defined(ASF) \
-      || defined(EISMINT) \
-      || defined(XYZ))   /* terrestrial ice sheet */
-
-rhosw_rho_ratio = RHO_SW/RHO
-
-#elif (defined(NMARS) || defined(SMARS))   /* Martian ice sheet */
-
+#if (defined(NMARS) || defined(SMARS))   /* Martian ice sheet */
 rhosw_rho_ratio = 0.0_dp   ! dummy value
-
-#else
-errormsg = ' >>> scalar_variables: No valid domain specified!'
-call error(errormsg)
+#else   /* terrestrial ice sheet */
+rhosw_rho_ratio = RHO_SW/RHO
 #endif
 
 V_grounded = 0.0_dp
@@ -6736,19 +6722,10 @@ do j=0, JMAX
          V_grounded = V_grounded + H(j,i)     *cell_area(j,i)
          V_temp     = V_temp     + H_temp(j,i)*cell_area(j,i)
 
-#if (defined(ANT) \
-      || defined(GRL) \
-      || defined(SCAND) \
-      || defined(NHEM) \
-      || defined(TIBET) \
-      || defined(ASF) \
-      || defined(EISMINT) \
-      || defined(XYZ))   /* terrestrial ice sheet */
-
+#if (!defined(NMARS) && !defined(SMARS))   /* terrestrial ice sheet */
          V_gr_redu = V_gr_redu &
                      + rhosw_rho_ratio &
                           *max((z_sl(j,i)-zl(j,i)),0.0_dp)*cell_area(j,i)
-
 #endif
 
          A_grounded = A_grounded + cell_area(j,i)
@@ -6794,21 +6771,7 @@ end do
 
 !  ------ Unit conversion
 
-#if (defined(ANT) \
-      || defined(GRL) \
-      || defined(SCAND) \
-      || defined(NHEM) \
-      || defined(TIBET) \
-      || defined(ASF) \
-      || defined(EISMINT) \
-      || (defined(XYZ) && !defined(SHMARS)))   /* terrestrial ice sheet */
-
-A_surf = 3.61132e+14_dp   ! global ocean area, in m2
-
-V_af   = V_grounded - V_gr_redu
-V_sle  = V_af*(RHO/RHO_W)/A_surf   ! m3 ice equiv./m2 -> m water equiv.
-
-#elif (defined(NMARS) || defined(SMARS))   /* Martian ice sheet */
+#if (defined(NMARS) || defined(SMARS))   /* Martian ice sheet */
 
 A_surf = 1.44371391e+14_dp   ! surface area of Mars, in m2
             ! Source: https://solarsystem.nasa.gov/planets/mars/by-the-numbers/
@@ -6825,6 +6788,13 @@ A_surf = 1.44371391e+14_dp   ! surface area of Mars, in m2
             !         (accessed on 2019-11-23)
 
 V_af   = V_grounded
+V_sle  = V_af*(RHO/RHO_W)/A_surf   ! m3 ice equiv./m2 -> m water equiv.
+
+#else   /* terrestrial ice sheet */
+
+A_surf = 3.61132e+14_dp   ! global ocean area, in m2
+
+V_af   = V_grounded - V_gr_redu
 V_sle  = V_af*(RHO/RHO_W)/A_surf   ! m3 ice equiv./m2 -> m water equiv.
 
 #endif
@@ -7702,7 +7672,7 @@ if (firstcall%output4) firstcall%output4 = .false.
 
 end subroutine output4
 
-#if (defined(ASF))
+#if (defined(ASF) && WRITE_SER_FILE_STAKES==1) /* Austfonna */
 
 !-------------------------------------------------------------------------------
 !> Writing of time-series data for all defined surface points on file
@@ -7914,7 +7884,7 @@ deallocate(zl_surf, zs_surf, accum_surf, as_perp_surf, &
 
 end subroutine output5
 
-#endif   /* (defined(ASF)) */
+#endif /* (defined(ASF) && WRITE_SER_FILE_STAKES==1) Austfonna*/
 
 !-------------------------------------------------------------------------------
 !> Computation of an arbitrary field quantity for a given borehole

@@ -43,7 +43,7 @@ are applied, where :math:`h` is the surface topography, :math:`b` the ice-base t
 
 Nudging is equivalent to applying an SMB correction, which is diagnosed by the model.
 
-For the cases ``THK_EVOL >= 1``, the maximum ice extent can be constrained spatially by a prescribed mask file, specified by the parameter ``MASK_MAXEXTENT_FILE`` (file to be located in ``sico_in/ant`` for Antarctica, ``sico_in/grl`` for Greenland, etc.). If set to ``'none'`` or undefined, no spatial constraint is applied.
+For the cases ``THK_EVOL >= 1``, the maximum ice extent can be constrained spatially by a prescribed mask file, specified by the parameter ``MASK_MAXEXTENT_FILE``. This file, in either NetCDF (``*.nc``, recommended) or ASCII (any other file extension) format, is to be located in ``sico_in/ant`` for Antarctica, ``sico_in/grl`` for Greenland, etc. The mask must be a 2D integer array that matches the horizontal grid, with values ``1`` for grid points allowed to glaciate, and ``0`` for grid points not allowed to glaciate. For NetCDF, the required variable name of the mask is ``mask_maxextent``. If ``MASK_MAXEXTENT_FILE`` is set to ``'none'`` or undefined, no spatial constraint is applied.
 
 The numerical scheme for solving the ice-thickness equation can be chosen by the parameter ``CALCTHK``\:
 

@@ -1,6 +1,6 @@
 !-------------------------------------------------------------------------------
 !> Check if point is inside a general polygon.
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 module point_in_polygon_m
 
 #if (defined(MODEL_SICOPOLIS))
@@ -41,7 +41,7 @@ contains
 !!   An improved version of the algorithm of Nordbeck and Rydstedt
 !!   by S. W. Sloan (1985, Adv. Eng. Software 7(1), 45-47),
 !!   modified and ported to Fortran 90 by R. Greve (December 2018)
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   subroutine point_in_polygon(n, smalld, larged, xc, yc, xq, yq, mindst)
 
   implicit none
@@ -190,7 +190,7 @@ contains
 !!   clockwise order
 !!   det is zero if at least two of the points are coincident
 !!   or if all three points are collinear
-!<------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
   function det(x1, x2, x3, y1, y2, y3)
 
   implicit none

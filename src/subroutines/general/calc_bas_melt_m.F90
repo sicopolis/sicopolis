@@ -34,7 +34,11 @@ module calc_bas_melt_m
 
   use sico_types_m
   use sico_variables_m
+
+#if (defined(EISMINT) || defined(HEINO) || defined(MOCHO) || defined(NMARS) || defined(SMARS) || defined(XYZ))
   use sico_vars_m
+#endif
+
   use error_m
 
   implicit none
@@ -623,9 +627,9 @@ call error(errormsg)
 
 #endif
 
-#if (defined(ANT))   /* Antarctic ice sheet */
+!  ------ Correction for ISMIP6 InitMIP
 
-!  ------ Correction for ISMIP InitMIP
+#if (defined(ANT)) /* Antarctic ice sheet */
 
 if (flag_initmip_abmb) then
 
@@ -647,14 +651,18 @@ if (flag_initmip_abmb) then
 
 end if
 
-!  ------ Correction for ISMIP LARMIP
+#endif
+
+!  ------ Correction for ISMIP6 LARMIP
+
+#if (defined(ANT)) /* Antarctic ice sheet */
 
 if (flag_larmip) then
    n             = n_larmip_region(j,i)
    Q_bm_floating = Q_bm_floating + ab_anom_larmip(n)
 end if
 
-#endif   /* Antarctic ice sheet */
+#endif
 
 end subroutine sub_ice_shelf_melting_param_1
 
@@ -1004,9 +1012,9 @@ do j=0, JMAX
          if ((mask(j,i)==2).and.(Q_bm(j,i) < 0.0_dp)) Q_bm(j,i) = 0.0_dp
                                      ! avoid negative values for the open ocean
 
-#if (defined(ANT))   /* Antarctic ice sheet */
+!    ---- Correction for ISMIP6 InitMIP
 
-!    ---- Correction for ISMIP InitMIP
+#if (defined(ANT)) /* Antarctic ice sheet */
 
          if (flag_initmip_abmb) then
 
@@ -1028,14 +1036,18 @@ do j=0, JMAX
 
          end if
 
-!    ---- Correction for ISMIP LARMIP
+#endif
+
+!    ---- Correction for ISMIP6 LARMIP
+
+#if (defined(ANT)) /* Antarctic ice sheet */
 
          if (flag_larmip) then
             n         = n_larmip_region(j,i)
             Q_bm(j,i) = Q_bm(j,i) + ab_anom_larmip(n)
          end if
 
-#endif   /* Antarctic ice sheet */
+#endif
 
 !  ------ Melting rate over abyssal ocean
 

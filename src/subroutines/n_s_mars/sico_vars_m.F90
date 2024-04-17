@@ -2,7 +2,7 @@
 !
 !  Module :  s i c o _ v a r s _ m
 !
-!! NMARS domain: Declarations of global variables for SICOPOLIS.
+!! NMARS/SMARS domains: Declarations of global variables for SICOPOLIS.
 !!
 !!##### Authors
 !!
@@ -28,7 +28,7 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> NMARS domain: Declarations of global variables for SICOPOLIS.
+!> NMARS/SMARS domains: Declarations of global variables for SICOPOLIS.
 !-------------------------------------------------------------------------------
 module sico_vars_m
 

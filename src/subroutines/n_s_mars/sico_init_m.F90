@@ -2,7 +2,7 @@
 !
 !  Module :  s i c o _ i n i t _ m
 !
-!! NMARS domain: Initializations for SICOPOLIS.
+!! NMARS/SMARS domains: Initializations for SICOPOLIS.
 !!
 !!##### Authors
 !!
@@ -28,7 +28,7 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> NMARS domain: Initializations for SICOPOLIS.
+!> NMARS/SMARS domains: Initializations for SICOPOLIS.
 !-------------------------------------------------------------------------------
 module sico_init_m
 
@@ -257,6 +257,8 @@ call error(errormsg)
 
 #if (GRID==0 || GRID==1)
 
+#if (defined(NMARS))
+
 if (approx_equal(DX, 20.0_dp, eps_sp_dp)) then
 
    if ((IMAX /= 90).or.(JMAX /= 90)) then
@@ -279,15 +281,44 @@ else if (approx_equal(DX, 5.0_dp, eps_sp_dp)) then
    end if
 
 else
-
    errormsg = ' >>> sico_init: Wrong value for DX!'
    call error(errormsg)
-
 end if
+
+#elif (defined(SMARS))
+
+if (approx_equal(DX, 20.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 120).or.(JMAX /= 120)) then
+      errormsg = ' >>> sico_init: Wrong values for IMAX and JMAX!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 10.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 240).or.(JMAX /= 240)) then
+      errormsg = ' >>> sico_init: Wrong values for IMAX and JMAX!'
+      call error(errormsg)
+   end if
+
+else if (approx_equal(DX, 5.0_dp, eps_sp_dp)) then
+
+   if ((IMAX /= 480).or.(JMAX /= 480)) then
+      errormsg = ' >>> sico_init: Wrong values for IMAX and JMAX!'
+      call error(errormsg)
+   end if
+
+else
+   errormsg = ' >>> sico_init: Wrong value for DX!'
+   call error(errormsg)
+end if
+
+#endif
 
 #elif (GRID==2)
 
-errormsg = ' >>> sico_init: GRID==2 not allowed for nmars application!'
+errormsg &
+   = ' >>> sico_init: GRID==2 not allowed for nmars/smars applications!'
 call error(errormsg)
 
 #endif
@@ -714,14 +745,22 @@ write(10, fmt=trim(fmt3)) 'sine_amplit     =', SINE_AMPLIT
 write(10, fmt=trim(fmt3)) 'sine_period     =', SINE_PERIOD
 #endif
 #if (TSURFACE==1 || TSURFACE==2 || TSURFACE==3)
+#if (defined(NMARS))
 write(10, fmt=trim(fmt3)) 'temp0_ma_90N    =', TEMP0_MA_90N
+#elif (defined(SMARS))
+write(10, fmt=trim(fmt3)) 'temp0_ma_90S    =', TEMP0_MA_90S
+#endif
 #endif
 #if (TSURFACE==1 || TSURFACE==2 || TSURFACE==3 || TSURFACE==4 || TSURFACE==5)
 write(10, fmt=trim(fmt3)) 'c_ma            =', C_MA
 write(10, fmt=trim(fmt3)) 'gamma_ma        =', GAMMA_MA
 #endif
 #if (TSURFACE==5)
+#if (defined(NMARS))
 write(10, fmt=trim(fmt1)) 'Insolation file = '//INSOL_MA_90N_FILE
+#elif (defined(SMARS))
+write(10, fmt=trim(fmt1)) 'Insolation file = '//INSOL_MA_90S_FILE
+#endif
 #endif
 #if (TSURFACE==4 || TSURFACE==5 || TSURFACE==6)
 write(10, fmt=trim(fmt3)) 'albedo          =', ALBEDO
@@ -751,7 +790,7 @@ write(10, fmt=trim(fmt1)) 'sea-level file  = '//SEA_LEVEL_FILE
 write(10, fmt=trim(fmt1)) ' '
 
 #if (MARGIN==2)
-#if ( MARINE_ICE_CALVING==2 || MARINE_ICE_CALVING==3 )
+#if (MARINE_ICE_CALVING==2 || MARINE_ICE_CALVING==3)
 write(10, fmt=trim(fmt3)) 'z_mar          =', Z_MAR
 write(10, fmt=trim(fmt1)) ' '
 #elif (MARINE_ICE_CALVING==4 || MARINE_ICE_CALVING==5 || MARINE_ICE_CALVING==6 || MARINE_ICE_CALVING==7)
@@ -1199,7 +1238,8 @@ mask_chasm = nint(field2d_aux)
 
 #if (SEA_LEVEL==3)
 
-errormsg = ' >>> sico_init: SEA_LEVEL==3 not allowed for nmars application!'
+errormsg &
+   = ' >>> sico_init: SEA_LEVEL==3 not allowed for nmars/smars applications!'
 call error(errormsg)
 
 #endif
@@ -1214,8 +1254,13 @@ cp_data     = 0.0_dp
 
 #if (TSURFACE==5 || TSURFACE==6)
 
+#if (defined(NMARS))
 filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
                      trim(INSOL_MA_90N_FILE)
+#elif (defined(SMARS))
+filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                     trim(INSOL_MA_90S_FILE)
+#endif
 
 open(21, iostat=ios, file=trim(filename_with_path), status='old')
 
@@ -1670,7 +1715,11 @@ write(12,1103)
 
 !  ------ Time-series file for selected positions ("deep boreholes")
 
+#if (defined(NMARS))
 n_core = 3   ! Points NP (north pole), C1, C2 (in Chasma Borealis)
+#else
+n_core = 0   ! No sites defined
+#endif
 
 if (n_core > n_core_max) then
    errormsg = ' >>> sico_init: n_core <= n_core_max required!' &
@@ -1678,6 +1727,8 @@ if (n_core > n_core_max) then
             //'        Increase value of n_core_max in sico_variables_m!'
    call error(errormsg)
 end if
+
+#if (defined(NMARS))
 
 ch_core(1)     = 'North Pole'
 lambda_core(1) =    0.0_dp  ! dummy
@@ -1697,6 +1748,8 @@ phi_core(3)    =    0.0_dp  ! dummy
 x_core(3)      = -300.0_dp *1.0e+03_dp    ! Point C2,
 y_core(3)      = -280.0_dp *1.0e+03_dp    ! conversion km -> m
 
+#endif
+
 filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.core'
 
 open(14, iostat=ios, file=trim(filename_with_path), status='new')
@@ -1706,15 +1759,29 @@ if (ios /= 0) then
    call error(errormsg)
 end if
 
-if (forcing_flag == 1) then
+if (n_core == 0) then
 
-   write(14,1106)
-   write(14,1107)
+   write(14,'(1x,a)') '---------------------'
+   write(14,'(1x,a)') 'No boreholes defined.'
+   write(14,'(1x,a)') '---------------------'
 
-   1106 format('         t(a)      D_Ts(C) z_sl_mean(m)',/, &
-               '                   H_NP(m)      H_C1(m)      H_C2(m)',/, &
-               '                 v_NP(m/a)    v_C1(m/a)    v_C2(m/a)')
-   1107 format('----------------------------------------------------')
+else
+
+#if (defined(NMARS))
+
+   if (forcing_flag == 1) then
+
+      write(14,1106)
+      write(14,1107)
+
+      1106 format('         t(a)      D_Ts(C) z_sl_mean(m)',/, &
+                  '                   H_NP(m)      H_C1(m)      H_C2(m)',/, &
+                  '                 v_NP(m/a)    v_C1(m/a)    v_C2(m/a)')
+      1107 format('----------------------------------------------------')
+
+   end if
+
+#endif
 
 end if
 

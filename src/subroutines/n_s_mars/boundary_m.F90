@@ -2,10 +2,10 @@
 !
 !  Module :  b o u n d a r y _ m
 !
-!! NMARS domain:
+!! NMARS/SMARS domains:
 !! Mars Atmosphere-Ice Coupler MAIC-1.5.
 !! Computation of the surface temperature (must be less than 0 degC)
-!! and of the accumulation-ablation rate for the north polar cap of Mars.
+!! and of the accumulation-ablation rate for the polar caps of Mars.
 !! Computation of the geothermal heat flux.
 !!
 !!##### Authors
@@ -32,10 +32,10 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> NMARS domain:
+!> NMARS/SMARS domains:
 !! Mars Atmosphere-Ice Coupler MAIC-1.5.
 !! Computation of the surface temperature (must be less than 0 degC)
-!! and of the accumulation-ablation rate for the north polar cap of Mars.
+!! and of the accumulation-ablation rate for the polar caps of Mars.
 !! Computation of the geothermal heat flux.
 !-------------------------------------------------------------------------------
 module boundary_m
@@ -55,7 +55,7 @@ contains
 !> Main routine of boundary_m:
 !! Mars Atmosphere-Ice Coupler MAIC-1.5:
 !! Computation of the surface temperature (must be less than 0 degC)
-!! and of the accumulation-ablation rate for the north polar cap of Mars.
+!! and of the accumulation-ablation rate for the polar caps of Mars.
 !! Computation of the geothermal heat flux.
 !-------------------------------------------------------------------------------
 subroutine boundary(time, dtime, dxi, deta, &
@@ -112,10 +112,16 @@ logical, dimension(0:JMAX,0:IMAX) :: check_point
 type (ins) :: temp_now, temp_present
 #endif
 
-real(dp), parameter :: &
-          time_present  = 0.0_dp, &     ! Present time [s]
-          zs_90_present = -2.0e+03_dp   ! Present elevation of the
-                                        ! north pole [m]
+real(dp), parameter :: time_present = 0.0_dp   ! Present time [s]
+
+#if (defined(NMARS))
+real(dp), parameter :: zs_90_present = -2.0e+03_dp
+                        ! Present elevation of the north pole [m]
+#elif (defined(SMARS))
+real(dp), parameter :: zs_90_present = 3.85e+03_dp
+                        ! Present elevation of the south pole [m]
+#endif
+
 real(dp), parameter :: &
           sol     = 590.0_dp, &   ! Solar constant [W/m2]
           epsilon = 1.0_dp,   &   ! Emissivity
@@ -126,9 +132,15 @@ real(dp), parameter :: &
           R_H2O      = 461.5_dp,  &     ! Gas constant [J/(kg*K)]
           temp0_ref  = 173.0_dp         ! Atmopheric reference temperature [K]
 
-real(dp), parameter :: &
-          temp_s_min = -125.0_dp   ! Minimum ice-surface temperature 
-                                   ! (sublimation temperature of CO2) [C]
+#if (defined(NMARS))
+real(dp), parameter :: temp_s_min = -125.0_dp
+                          ! Minimum ice-surface temperature 
+                          ! (sublimation temperature of CO2) [C]
+#elif (defined(SMARS))
+real(dp), parameter :: temp_s_min = -128.0_dp
+                          ! Minimum ice-surface temperature 
+                          ! (sublimation temperature of CO2) [C]
+#endif
 
 !-------- Initialization of variables --------
 
@@ -170,9 +182,9 @@ obliq_ampl = 0.5_dp*(obliq_ampl_max+obliq_ampl_min) &
 obliq      = obliq0 + obliq_ampl*sin(2.0_dp*pi*time/t_obliq_main)
 
 ecc  = 0.0_dp   ! Values not correct, but influence
-ecc0 = 0.0_dp   ! on mean-annual north-polar insolation is negligible
+ecc0 = 0.0_dp   ! on mean-annual north-/south-polar insolation is negligible
 
-!  ------ Mean annual insolation at the north pole
+!  ------ Mean annual insolation at the north/south pole
 
 insol_ma_90_now     = (sol/pi)*sin(obliq)/sqrt(1.0_dp-ecc**2)
 
@@ -181,7 +193,7 @@ insol_ma_90_present = (sol/pi)*sin(obliq0)/sqrt(1.0_dp-ecc0**2)
 
 #elif (TSURFACE==5 || TSURFACE==6)
 
-!  ------ Mean annual insolation at the north pole
+!  ------ Mean annual insolation at the north/south pole
 
 ndata_insol = (insol_time_max-insol_time_min)/insol_time_stp
 
@@ -339,7 +351,7 @@ end if
 
 #if (TSURFACE==4 || TSURFACE==5)
 
-!  ------ Mean-annual surface temperature at the north pole
+!  ------ Mean-annual surface temperature at the north/south pole
 
 temp_ma_90 = sqrt(sqrt(insol_ma_90_now*(1.0_dp-ALBEDO)/(epsilon*sigma))) &
              -273.15_dp   ! K -> C
@@ -350,20 +362,25 @@ temp_ma_90_present &
         = sqrt(sqrt(insol_ma_90_present*(1.0_dp-ALBEDO)/(epsilon*sigma))) &
           -273.15_dp   ! K -> C
 
-!  ------ Surface-temperature deviation at the north pole
+!  ------ Surface-temperature deviation at the north/south pole
 
 delta_ts = temp_ma_90 - temp_ma_90_present
 
 #elif (TSURFACE==6)
 
-!  ------ Mean-annual surface temperature at the north pole
+!  ------ Mean-annual surface temperature at the north/south pole
 
 call setinstemp(temp_now, &
                 ecc = ecc_now, ave = ave_now*rad2deg, &
                 obl = obl_now*rad2deg, sa = ALBEDO, ct = 148.7_dp)
 
-temp_ma_90 = instam(temp_now, 90.0_dp) + (DELTA_TS0) &
-                                       - 273.15_dp   ! K -> C
+#if (defined(NMARS))
+temp_ma_90 = instam(temp_now,  90.0_dp) + (DELTA_TS0) &
+                                        - 273.15_dp   ! K -> C
+#elif (defined(SMARS))
+temp_ma_90 = instam(temp_now, -90.0_dp) + (DELTA_TS0) &
+                                        - 273.15_dp   ! K -> C
+#endif
 
 !    ---- Present value
 
@@ -371,10 +388,15 @@ call setinstemp(temp_present, &
                 ecc = ecc_present, ave = ave_present*rad2deg, &
                 obl = obl_present*rad2deg, sa = ALBEDO, ct = 148.7_dp)
 
-temp_ma_90_present = instam(temp_present, 90.0_dp) + (DELTA_TS0) &
-                                                   - 273.15_dp   ! K -> C
+#if (defined(NMARS))
+temp_ma_90_present = instam(temp_present,  90.0_dp) + (DELTA_TS0) &
+                                                    - 273.15_dp   ! K -> C
+#elif (defined(SMARS))
+temp_ma_90_present = instam(temp_present, -90.0_dp) + (DELTA_TS0) &
+                                                    - 273.15_dp   ! K -> C
+#endif
 
-!  ------ Surface-temperature deviation at the north pole
+!  ------ Surface-temperature deviation at the north/south pole
 
 delta_ts = temp_ma_90 - temp_ma_90_present
 
@@ -471,7 +493,7 @@ end do
 
 call borehole(zs, 0.0_dp, 0.0_dp, dxi, deta, 'grid', &
               zs_90, flag_in_domain)
-                             ! zs_90: elevation of the north pole
+                             ! zs_90: elevation of the north/south pole
 
 do i=0, IMAX
 do j=0, JMAX
@@ -480,17 +502,21 @@ do j=0, JMAX
 
 #if (TSURFACE==1 || TSURFACE==2 || TSURFACE==3)
 
+#if (defined(NMARS))
    temp_ma_90_present = TEMP0_MA_90N
+#elif (defined(SMARS))
+   temp_ma_90_present = TEMP0_MA_90S
+#endif
 
    temp_ma(j,i) = temp_ma_90_present &
                   + (GAMMA_MA)*(zs(j,i)-zs_90_present) &
-                  + (C_MA*rad2deg)*((90.0_dp*deg2rad)-phi(j,i))
+                  + (C_MA*rad2deg)*((90.0_dp*deg2rad)-abs(phi(j,i)))
 
 #elif (TSURFACE==4 || TSURFACE==5)
 
    temp_ma(j,i) = temp_ma_90_present &
                   + (GAMMA_MA)*(zs(j,i)-zs_90_present) &
-                  + (C_MA*rad2deg)*((90.0_dp*deg2rad)-phi(j,i))
+                  + (C_MA*rad2deg)*((90.0_dp*deg2rad)-abs(phi(j,i)))
 
 #endif
 

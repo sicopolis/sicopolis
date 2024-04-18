@@ -985,6 +985,44 @@ real(dp) :: latent_heat
 real(dp) :: latent_heat_inv
    !! Inverse of the latent heat of ice
 
+!-------- Temperature-to-precipitation conversion --------
+
+#if (ACCSURFACE==2 || ACCSURFACE==3)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: gamma_s
+   !! Temperature-to-precipitation conversion coefficient
+
+#endif
+
+!-------- PDD and LTI parameters --------
+
+#if (ABLSURFACE==1 || ABLSURFACE==2)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: beta1
+   !! PDD factor for snow melt
+
+real(dp), dimension(0:JMAX,0:IMAX) :: beta2
+   !! PDD factor for ice melt
+
+real(dp), dimension(0:JMAX,0:IMAX) :: s_stat
+   !! Standard deviation of air-temperature fluctuations
+
+real(dp), dimension(0:JMAX,0:IMAX) :: Pmax
+   !! Saturation factor for the formation of superimposed ice
+
+real(dp), dimension(0:JMAX,0:IMAX) :: mu
+   !! Firn-warming correction
+
+#elif (ABLSURFACE==3)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: lambda_lti
+   !! Melting coefficient for the LTI method
+
+real(dp), dimension(0:JMAX,0:IMAX) :: temp_lti
+   !! Threshold summer temperature for the LTI method
+
+#endif
+
 !-------- ISMIP6-like climate forcing --------
 
 #if (TSURFACE==6 && ACCSURFACE==6 && ABLSURFACE==6)

@@ -111,13 +111,12 @@ real(dp), dimension(0:JMAX,0:IMAX)      :: temp_diff
 real(dp), dimension(0:JMAX,0:IMAX) :: accum_prescribed
 real(dp), dimension(0:JMAX,0:IMAX) :: runoff_prescribed
 
-real(dp), dimension(0:JMAX,0:IMAX)    :: gamma_s
 real(dp), dimension(0:JMAX,0:IMAX)    :: precip_fact
 real(dp), dimension(0:JMAX,0:IMAX,12) :: precip_fact_mm
 
-real(dp), dimension(0:JMAX,0:IMAX) :: s_stat, inv_sqrt2_s_stat, &
-                                      beta1, beta2, Pmax, mu
-real(dp), dimension(0:JMAX,0:IMAX) :: lambda_lti, temp_lti
+#if (SOLID_PRECIP==3)
+real(dp), dimension(0:JMAX,0:IMAX) :: s_stat_solid_precip, inv_sqrt2_s_stat
+#endif
 
 real(dp) :: gamma_t
 real(dp) :: theta_ma, theta_ma_offset, c_ma, kappa_ma, gamma_ma, &
@@ -1063,8 +1062,6 @@ zs_thresh = ZS_THRESH            ! Elevation threshold, in m
 
 #if (ACCSURFACE==2 || ACCSURFACE==3)
 gamma_s = GAMMA_S
-#else
-gamma_s = 0.0_dp
 #endif
 
 #elif (ACCSURFACE==4)
@@ -1110,17 +1107,16 @@ temp_snow = temp_rain   ! Threshold instantaneous temperature for &
                         ! precipitation = 100% snow, in degC
 
 #if (defined(S_STAT_0))
-s_stat = S_STAT_0    ! Standard deviation of the air termperature
-                     ! (same parameter as in the PDD model)
+s_stat_solid_precip = S_STAT_0   ! Standard deviation of the air temperature
+                                 ! (same parameter as in the PDD model)
 #else
-errormsg = ' >>> boundary: ' &
-           // 'Parameters for PDD model not defined in run-specs header!'
-call error(errormsg)
+s_stat_solid_precip = 5.0_dp     ! Value by Huybrechts and de Wolde (1999),
+                                 ! in degC
 #endif
 
 do i=0, IMAX
 do j=0, JMAX
-   inv_sqrt2_s_stat(j,i) = 1.0_dp/(sqrt(2.0_dp)*s_stat(j,i))
+   inv_sqrt2_s_stat(j,i) = 1.0_dp/(sqrt(2.0_dp)*s_stat_solid_precip(j,i))
 end do
 end do
 
@@ -1150,7 +1146,6 @@ call error(errormsg)
 lambda_lti = LAMBDA_LTI  *(0.001_dp*sec2year)*(RHO_W/RHO)
                          ! (mm WE)/(a*degC) -> (m IE)/(s*degC)
 temp_lti   = TEMP_LTI
-mu         = 0.0_dp      ! no superimposed ice considered
 
 #endif
 
@@ -1486,7 +1481,7 @@ runoff = runoff + runoff_prescribed
 !         including empirical firn-warming correction due to
 !         refreezing meltwater when superimposed ice is formed
 
-#if (TSURFACE<=5)
+#if ((TSURFACE<=5) && (ABLSURFACE==1 || ABLSURFACE==2))
 
 do i=0, IMAX
 do j=0, JMAX
@@ -1498,7 +1493,7 @@ do j=0, JMAX
 end do
 end do
 
-#elif (TSURFACE==6)
+#else
 
 temp_s = temp_ma
 

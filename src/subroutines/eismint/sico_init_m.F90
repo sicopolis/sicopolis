@@ -1470,12 +1470,18 @@ call topography3(dxi, deta, anfdatname)
 call boundary(time_init, dtime, dxi, deta, &
               delta_ts, glac_index, z_mar)
 
-where ((mask==0).or.(mask==3))
-                 ! grounded or floating ice
-   as_perp_apl = as_perp
-elsewhere        ! mask==1 or 2, ice-free land or sea
-   as_perp_apl = 0.0_dp
-end where
+do i=0, IMAX
+do j=0, JMAX
+
+   if ((mask(j,i)==0).or.(mask(j,i)==3)) then
+                    ! grounded or floating ice
+      as_perp_apl(j,i) = as_perp(j,i)
+   else             ! mask==1 or 2, ice-free land or sea
+      as_perp_apl(j,i) = 0.0_dp
+   end if
+
+end do
+end do
 
 smb_corr = 0.0_dp
 

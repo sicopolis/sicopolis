@@ -53,15 +53,13 @@ module calc_thk_m
 contains
 
 !-------------------------------------------------------------------------------
-!> Initialisations for the ice thickness computation.
+!> Initializations for the ice thickness computation.
 !-------------------------------------------------------------------------------
 subroutine calc_thk_init()
 
 implicit none
 
-#if defined(ALLOW_TAPENADE) /* Tapenade */
 integer(i4b) :: i, j
-#endif /* Tapenade */
 
 #if (defined(CALCZS))
   errormsg = ' >>> calc_thk_init: Replace CALCZS by CALCTHK in header file!'
@@ -71,7 +69,7 @@ integer(i4b) :: i, j
   call error(errormsg)
 #endif
 
-!-------- Computation/initialisation of the ice base topography
+!-------- Computation/initialization of the ice base topography
 !                                       and its time derivative --------
 
 #if (MARGIN==1 || MARGIN==2)   /* only grounded ice */
@@ -81,31 +79,17 @@ dzb_dtau = dzl_dtau
 
 #elif (MARGIN==3)   /* grounded and floating ice */
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-
-where (mask <= 1)   ! grounded ice or ice-free land
-   zb_new   = zl_new
-   dzb_dtau = dzl_dtau
-elsewhere   ! (mask >= 2; ocean or floating ice)
-   zb_new   = zb       ! initialisation,
-   dzb_dtau = 0.0_dp   ! will be overwritten later
-end where
-
-#else /* Tapenade */
-
 do i=0, IMAX
 do j=0, JMAX
-   if (mask(j,i) <= 1) then    ! grounded ice or ice-free land
+   if (mask(j,i) <= 1) then   ! grounded ice or ice-free land
       zb_new(j,i)   = zl_new(j,i)
       dzb_dtau(j,i) = dzl_dtau(j,i)
-   else
-      zb_new(j,i)   = zb(j,i)       ! initialisation,
-      dzb_dtau(j,i) = 0.0_dp        ! will be overwritten later
-   endif
+   else   ! ocean or floating ice
+      zb_new(j,i)   = zb(j,i)  ! initialization,
+      dzb_dtau(j,i) = 0.0_dp   ! will be overwritten later
+   end if
 end do
 end do
-
-#endif /* Normal vs. Tapenade */
 
 #else
 
@@ -114,10 +98,10 @@ call error(errormsg)
 
 #endif
 
-!-------- Initialisation of the ice thickness
+!-------- Initialization of the ice thickness
 !                               and surface topography --------
 
-zs_new = zs   ! initialisation,
+zs_new = zs   ! initialization,
 H_new  = H    ! will be overwritten later
 
 !-------- Solver type --------
@@ -541,23 +525,6 @@ end do
 
 !-------- Solution of the explicit scheme --------
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-
-where (flag_inner_point)   ! inner point
-
-   H_new = H + dtime*mb_source &
-             - dt_darea &
-               * (  ( vx_m_2*upH_x_2*sq_g22_x_2*deta   &
-                     -vx_m_1*upH_x_1*sq_g22_x_1*deta ) &
-                  + ( vy_m_2*upH_y_2*sq_g11_y_2*dxi    &
-                     -vy_m_1*upH_y_1*sq_g11_y_1*dxi  ) )
-
-elsewhere
-   H_new = 0.0_dp   ! zero-thickness boundary condition
-end where
-
-#else /* Tapenade */
-
 do i=0, IMAX
 do j=0, JMAX
 
@@ -576,8 +543,6 @@ do j=0, JMAX
 
 end do
 end do
-
-#endif /* Normal vs. Tapenade */
 
 !-------- Applying the source term --------
 
@@ -1718,20 +1683,11 @@ end do
 
 !-------- Reset disconnected "ocean islands" to ice-free land --------
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-
-where ((mask == 2).and.(mask_connect == 0)) mask = 1
-
-#else /* Tapenade */
-
 do i=0, IMAX
 do j=0, JMAX
-   if ((mask(j,i) == 2).and.(mask_connect(j,i) == 0)) &
-      mask(j,i) = 1
+   if ((mask(j,i) == 2).and.(mask_connect(j,i) == 0)) mask(j,i) = 1
 end do
 end do
-
-#endif /* Normal vs. Tapenade */
 
 end subroutine ocean_connect
 

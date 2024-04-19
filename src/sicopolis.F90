@@ -5,7 +5,7 @@
 !
 #define       MODEL_SICOPOLIS
 #define       VERSION '24'
-#define       DATE    '2024-04-18'
+#define       DATE    '2024-04-19'
 !
 !! Main program of SICOPOLIS.
 !!
@@ -289,9 +289,9 @@ character(len=32) :: arg
 logical :: ISPLAIN, ISTAPE, ISADJOINT
 #endif /* Tapenade */
 
-#if (!defined(ALLOW_GRDCHK) && !defined(ALLOW_TAPENADE)) /* Normal */
-
 !-------- Initializations --------
+
+#if (!defined(ALLOW_GRDCHK) && !defined(ALLOW_TAPENADE)) /* Normal */
 
 !@ begin tapenade_extract @
 
@@ -321,16 +321,21 @@ call sico_main_loop(delta_ts, glac_index, &
 
 call sico_end()
 
-!-------- End of program --------
+!-------- Tapenade-specific routines --------
 
 #else /* Tapenade */
+
 #if (defined(ALLOW_GRDCHK))
 call grdchk_main
 #endif
+
 #if (defined(ALLOW_TAPENADE))
 call adjoint_master
 #endif
+
 #endif /* Normal vs. Tapenade */
+
+!-------- End of program --------
 
 end program sicopolis
 

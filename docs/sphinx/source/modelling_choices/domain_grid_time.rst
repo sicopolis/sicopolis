@@ -21,10 +21,18 @@ SICOPOLIS provides several pre-defined model domains. They can be chosen by defi
   !             Simulated domain:
   !               ANT     - Antarctica
   !               GRL     - Greenland
-  !               NHEM    - Northern hemisphere
+  !               NHEM    - Entire northern hemisphere
+  !               LCIS    - Laurentide and Cordilleran ice sheets
+  !               SCAND   - Fennoscandian and Eurasian ice sheets
+  !               TIBET   - Tibetan ice sheet
+  !               ASF     - Austfonna
+  !               NPI     - North Patagonian ice field
+  !               MOCHO   - Mocho-Choshuenco ice cap
   !               EISMINT - EISMINT (Phase 2 SGE and modifications)
+  !               HEINO   - ISMIP HEINO
   !               NMARS   - North polar cap of Mars
   !               SMARS   - South polar cap of Mars
+  !               XYZ     - Unspecified domain
 
 This example would select the domain for the Greenland ice sheet. Correspondingly for the other listed domains.
 
@@ -33,25 +41,24 @@ This example would select the domain for the Greenland ice sheet. Correspondingl
 Setting up a new domain
 -----------------------
 
-In addition to the pre-defined domains, there is an unspecified domain XYZ. This framework allows creating new domains (some ice cap, simple testing geometry...) quite easily. The directory ``src/subroutines/xyz``, which hosts the domain-specific subroutines, is by default empty. If you want to create a new domain, copy the subroutines from the most similar existing domain, e.g., starting from Antarctica::
-
-  cp src/subroutines/ant/*.F90 src/subroutines/xyz/
-
-Then modify the routines according to your needs. Input files (topography etc.) must be placed in ``sico_in/xyz`` and specified in the run-specs header file \*.h as usual. The domain must be defined by the domain code
+In addition to the pre-defined domains, there is an unspecified domain XYZ. This framework allows creating and testing new domains (e.g., some ice cap) quite easily. Create a run-specs header (by using an existing one as a template). Define the domain code as
 
 .. code-block:: fortran
 
   #define XYZ
 
-in the header. For flexible testing, it is recommended to deactivate the compatibility check between horizontal resolution and number of grid points\:
+in the header. Input files (topography etc.) must be placed in ``sico_in/xyz`` and specified in the header as usual. With the parameter ``XYZ_SPECIAL_MODULES``, it can be selected whether common or special modules will be used\:
 
 .. code-block:: fortran
 
-  #define CHECK_RES_IMAX_JMAX 0
+  #define XYZ_SPECIAL_MODULES 0
+  !               Only for unspecified domain XYZ:
+  !                   0 : Common modules will be used
+  !                   1 : Special modules 'boundary_m', 'sico_init_m'
+  !                       and 'sico_vars_m' (in 'src/subroutines/xyz/')
+  !                       will be used
 
-If the new domain requires new global variables, they can be defined in the module ``src/subroutines/xyz/sico_vars.F90``.
-
-The subroutines for ISMIP HEINO (Calov et al. :cite:`calov_etal_2010`) are available in ``src/subroutines/xyz/heino``, and the input files are in ``sico_in/xyz``. If you copy the subroutines from ``src/subroutines/xyz/heino`` to ``src/subroutines/xyz``, you can run ISMIP HEINO experiments (e.g., the run ``repo_heino50_st`` for which a run-specs header file is available).
+In case of ``0`` (default), no further coding is required. In case of ``1``, the special modules ``boundary_m`` (climate forcing), ``sico_init_m`` (initializations) and ``sico_vars_m`` (additional global variables) must be created in ``src/subroutines/xyz/`` (by using existing ones as templates).
 
 .. _spatial_grid:
 

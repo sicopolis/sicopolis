@@ -85,34 +85,26 @@ Directory ``headers``
 Directory ``src``
   Main program file ``sicopolis.F90``.
 
-  Subdirectory ``subroutines/general``: general subroutines, for any modelled domain.
+  Subdirectory ``subroutines/general``: general modules, for any modelled domain.
   
-  Subdirectory ``subroutines/ant``: subroutines specific for the Antarctic ice sheet.
+  Subdirectories ``subroutines/eismint``, ``subroutines/heino``, ``subroutines/mocho``, ``subroutines/n_s_mars``: special modules for EISMINT (Huybrechts et al. :cite:`huybrechts_etal_1996`, Payne et al. :cite:`payne_etal_2000`), ISMIP HEINO (Calov et al. :cite:`calov_etal_2010`), the Mocho-Choshuenco ice cap, and the north and south polar caps of Mars, respectively.
 
-  Subdirectory ``subroutines/grl``: subroutines specific for the Greenland ice sheet.
+  Subdirectory ``subroutines/tapenade``: AD-specific modules, scripts and files.
 
-  Subdirectory ``subroutines/eismint``: subroutines specific for the EISMINT simplified geometry experiments.
-
-  Accordingly subdirectories ``subroutines/nhem``, ``nmars`` and ``smars`` for the northern hemisphere, and the north and south polar caps of Mars, respectively.
-
-  Subdirectory ``subroutines/tapenade``: AD-specific subroutines and files.
-
-  Subdirectory ``subroutines/xyz``: For :ref:`creating new domains <new_domain>`.
+  Subdirectory ``subroutines/xyz``: For :ref:`creating new domains <new_domain>` (by default contains only placeholder files).
 
 Directory ``sico_in``
   Input data files for SICOPOLIS.
 
   Subdirectory ``general``: general input files, for any modelled domain.
 
-  Subdirectory ``ant``: input files specific for the Antarctic ice sheet. 
+  Subdirectory ``ant``: input files for the Antarctic ice sheet. 
 
-  Subdirectory ``grl``: input files specific for the Greenland ice sheet.
+  Subdirectory ``grl``: input files for the Greenland ice sheet.
 
-  Subdirectory ``eismint``: input files specific for the EISMINT simplified geometry experiments.
+  Subdirectories ``nhem``, ``lcis``, ``scand``, ``tibet``, ``asf``, ``npi``, ``mocho``, ``eismint``, ``heino``, ``nmars``, ``smars``: input files for the other :ref:`pre-defined domains <defined_domain>`.
 
-  Accordingly subdirectories ``nhem``, ``nmars`` and ``smars`` for the northern hemisphere, and the north and south polar caps of Mars, respectively.
-
-  Subdirectory ``xyz``: For :ref:`creating new domains <new_domain>`.
+  Subdirectory ``xyz``: For :ref:`creating new domains <new_domain>` (by default empty).
 
   .. note::
     These subdirectories also contain README files that describe the input data and provide the corresponding references.

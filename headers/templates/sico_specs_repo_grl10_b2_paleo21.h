@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2024-03-20'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2024-04-30'
 !                      Date of last change
 
 !-------- Domain --------
@@ -16,6 +16,7 @@
 !                   NHEM    - Entire northern hemisphere
 !                   LCIS    - Laurentide and Cordilleran ice sheets
 !                   SCAND   - Fennoscandian and Eurasian ice sheets
+!                   TIBET   - Tibetan ice sheet
 !                   ASF     - Austfonna
 !                   NPI     - North Patagonian ice field
 !                   MOCHO   - Mocho-Choshuenco ice cap
@@ -23,6 +24,14 @@
 !                   HEINO   - ISMIP HEINO
 !                   NMARS   - North polar cap of Mars
 !                   SMARS   - South polar cap of Mars
+!                   XYZ     - Unspecified domain
+
+#define XYZ_SPECIAL_MODULES 0
+!                   Only for unspecified domain XYZ:
+!                       0 : Common modules will be used
+!                       1 : Special modules 'boundary_m', 'sico_init_m'
+!                           and 'sico_vars_m' (in 'src/subroutines/xyz/')
+!                           will be used
 
 !-------- Physical parameter file --------
 
@@ -694,23 +703,14 @@
 !                       Name of the file containing the glacial-index
 !                       forcing (only for TSURFACE==5)
 
-#define TEMP_MA_ANOM_FILE 'none'
+#define TEMP_ANOM_FILE 'none'
 !                       Name of the file containing the LGM
-!                       mean-annual surface-temperature-anomaly data 
-!                       (difference LGM - present; for TSURFACE==5)
+!                       monthly-mean surface-temperature-anomaly data
+!                       (difference LGM - present; only for TSURFACE==5)
 
-#define TEMP_MJ_ANOM_FILE 'none'
-!                       Name of the file containing the LGM
-!                       mean-July surface-temperature-anomaly data 
-!                       (difference LGM - present; for TSURFACE==5)
-
-#define TEMP_MA_ANOM_FACT 1.0d0
+#define TEMP_ANOM_FACT 1.0d0
 !                       Modification factor for the anomaly data of
-!                       TEMP_MA_ANOM_FILE (for TSURFACE==5)
-
-#define TEMP_MJ_ANOM_FACT 1.0d0
-!                       Modification factor for the anomaly data of
-!                       TEMP_MJ_ANOM_FILE (for TSURFACE==5)
+!                       TEMP_ANOM_FILE (for TSURFACE==5)
 
 !-------- Surface precipitation --------
 
@@ -777,8 +777,8 @@
 !                       (only for ELEV_DESERT==1 and ACCSURFACE==1, 2, 3)
 
 #define PRECIP_ANOM_FILE 'none'
-!                       Name of the file containing the
-!                       LGM precipitation-anomaly data 
+!                       Name of the file containing the LGM
+!                       monthly-mean precipitation-anomaly data
 !                       (ratio LGM/present; only for ACCSURFACE==5)
 
 #define PRECIP_ANOM_FACT 1.0d0

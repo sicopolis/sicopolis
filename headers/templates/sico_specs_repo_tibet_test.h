@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2024-04-15'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2024-04-28'
 !                      Date of last change
 
 !-------- Domain --------
@@ -24,6 +24,14 @@
 !                   HEINO   - ISMIP HEINO
 !                   NMARS   - North polar cap of Mars
 !                   SMARS   - South polar cap of Mars
+!                   XYZ     - Unspecified domain
+
+#define XYZ_SPECIAL_MODULES 0
+!                   Only for unspecified domain XYZ:
+!                       0 : Common modules will be used
+!                       1 : Special modules 'boundary_m', 'sico_init_m'
+!                           and 'sico_vars_m' (in 'src/subroutines/xyz/')
+!                           will be used
 
 !-------- Physical parameter file --------
 

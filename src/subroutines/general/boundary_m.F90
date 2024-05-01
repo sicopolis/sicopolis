@@ -998,7 +998,11 @@ do j=0, JMAX
 !  ------ Correction of present monthly temperature with elevation changes
 !         and temperature deviation delta_ts
 
-   temp_diff(j,i) = gamma_t*(zs_ref(j,i)-zs(j,i)) + delta_ts
+#if (defined(ANT) || defined(GRL)) /* Antarctica or Greenland */
+   temp_diff(j,i) = delta_ts
+#else /* other than Antarctica or Greenland */
+   temp_diff(j,i) = gamma_t*(zs_ref_temp(j,i)-zs(j,i)) + delta_ts
+#endif
 
    do n=1, 12   ! month counter
       temp_mm(j,i,n) = temp_present(j,i,n) + temp_diff(j,i)
@@ -1009,7 +1013,11 @@ do j=0, JMAX
 !  ------ Correction of present monthly temperature with LGM anomaly and
 !         glacial index as well as elevation changes
 
-   temp_diff(j,i) = gamma_t*(zs_ref(j,i)-zs(j,i))
+#if (defined(ANT) || defined(GRL)) /* Antarctica or Greenland */
+   temp_diff(j,i) = 0.0_dp
+#else /* other than Antarctica or Greenland */
+   temp_diff(j,i) = gamma_t*(zs_ref_temp(j,i)-zs(j,i))
+#endif
 
    do n=1, 12   ! month counter
       temp_mm(j,i,n) = temp_present(j,i,n) &
@@ -1033,7 +1041,7 @@ do j=0, JMAX
 
    temp_ma(j,i) = temp_maat_climatol(j,i) &
                      + temp_maat_anom(j,i) &
-                     + dtemp_maat_dz(j,i)*(zs(j,i)-zs_ref(j,i))
+                     + dtemp_maat_dz(j,i)*(zs(j,i)-zs_ref_climatol(j,i))
 
    do n=1, 12   ! month counter
       temp_mm(j,i,n) = temp_ma(j,i)
@@ -1135,12 +1143,12 @@ do j=0, JMAX
 
 #elif (ELEV_DESERT==1)
 
-   if (zs_ref(j,i) < zs_thresh) then
+   if (zs_ref_precip(j,i) < zs_thresh) then
       precip_fact(j,i) &
          = exp(gamma_p*(max(zs(j,i),zs_thresh)-zs_thresh))
    else
       precip_fact(j,i) &
-         = exp(gamma_p*(max(zs(j,i),zs_thresh)-zs_ref(j,i)))
+         = exp(gamma_p*(max(zs(j,i),zs_thresh)-zs_ref_precip(j,i)))
    end if
 
 #else
@@ -1380,7 +1388,7 @@ as_perp = accum - runoff
 
 #elif (ACCSURFACE==6 && ABLSURFACE==6)
 
-as_perp = smb_climatol  + smb_anom + dsmb_dz*(zs-zs_ref)
+as_perp = smb_climatol  + smb_anom + dsmb_dz*(zs-zs_ref_climatol)
 
 accum  =  max(as_perp, 0.0_dp)
 runoff = -min(as_perp, 0.0_dp)

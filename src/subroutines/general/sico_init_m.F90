@@ -138,7 +138,16 @@ character          :: ch_dummy
 logical            :: flag_precip_monthly_mean
 logical            :: flag_init_output, flag_3d_output
 
-integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_ref
+integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_present
+real(dp),     dimension(0:JMAX,0:IMAX) :: zs_present
+
+#if (TSURFACE<=5)
+logical :: flag_temp_zs_ref_file
+#endif
+
+#if (ACCSURFACE<=5)
+logical :: flag_precip_zs_ref_file
+#endif
 
 real(dp), dimension(0:JMAX,0:IMAX) :: field2d_aux
 real(dp), dimension(0:IMAX,0:JMAX) :: field2d_tra_aux
@@ -1355,6 +1364,8 @@ write(10, fmt=trim(fmt2)) 'TSURFACE = ', TSURFACE
 
 #if (TSURFACE<=5)
 
+flag_temp_zs_ref_file = .false.
+
 #if (defined(ANT) || defined(GRL)) /* Antarctica or Greenland */
 
 write(10, fmt=trim(fmt2)) 'TEMP_PRESENT_PARA = ', TEMP_PRESENT_PARA
@@ -1367,6 +1378,17 @@ write(10, fmt=trim(fmt3))  'TEMP_PRESENT_OFFSET =', TEMP_PRESENT_OFFSET
 write(10, fmt=trim(fmt1)) 'temp_present file = '//TEMP_PRESENT_FILE
 #if (defined(TOPO_LAPSE_RATE))
 write(10, fmt=trim(fmt3)) 'topo_lapse_rate =', TOPO_LAPSE_RATE
+#endif
+
+#if (defined(TEMP_ZS_REF_FILE))
+if ( (trim(adjustl(TEMP_ZS_REF_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(TEMP_ZS_REF_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(TEMP_ZS_REF_FILE)) /= 'NONE') ) then
+   flag_temp_zs_ref_file = .true.
+   write(10, fmt=trim(fmt1)) 'temp_zs_ref_file = '//TEMP_ZS_REF_FILE
+end if
 #endif
 
 #endif
@@ -1391,15 +1413,18 @@ write(10, fmt=trim(fmt1)) ' '
 write(10, fmt=trim(fmt2)) 'ACCSURFACE = ', ACCSURFACE
 
 #if (ACCSURFACE<=5)
+
 #if (!defined(PRECIP_PRESENT_FILE))
 errormsg = ' >>> sico_init: PRECIP_PRESENT_FILE not defined in the header file!'
 call error(errormsg)
 #endif
+
 #if (!defined(PRECIP_MA_PRESENT_FILE))
 errormsg = ' >>> sico_init: ' &
               //'PRECIP_MA_PRESENT_FILE not defined in the header file!'
 call error(errormsg)
 #endif
+
 #if (defined(PRECIP_PRESENT_FILE) && defined(PRECIP_MA_PRESENT_FILE))
 if ( (trim(adjustl(PRECIP_PRESENT_FILE)) /= 'none') &
      .and. &
@@ -1424,6 +1449,19 @@ else
    call error(errormsg)
 end if
 #endif
+
+flag_precip_zs_ref_file = .false.
+#if (defined(PRECIP_ZS_REF_FILE))
+if ( (trim(adjustl(PRECIP_ZS_REF_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(PRECIP_ZS_REF_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(PRECIP_ZS_REF_FILE)) /= 'NONE') ) then
+   flag_precip_zs_ref_file = .true.
+   write(10, fmt=trim(fmt1)) 'precip_zs_ref_file = '//PRECIP_ZS_REF_FILE
+end if
+#endif
+
 #endif
 
 #if (ACCSURFACE==1)
@@ -1932,6 +1970,35 @@ target_topo_tau_0 = TARGET_TOPO_TAU0 *year2sec   ! a -> s
 
 time = time_init
 
+!-------- Reading of present-day ice-land-ocean mask mask
+!                                and surface elevation --------
+
+filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                     trim(MASK_PRESENT_FILE)
+
+call read_2d_input(filename_with_path, &
+                   ch_var_name='mask', n_var_type=3, n_ascii_header=6, &
+                   field2d_r=field2d_aux)
+
+mask_present = nint(field2d_aux)
+
+filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                     trim(ZS_PRESENT_FILE)
+
+call read_2d_input(filename_with_path, &
+                   ch_var_name='zs', n_var_type=1, n_ascii_header=6, &
+                   field2d_r=field2d_aux)
+
+zs_present = field2d_aux
+
+do i=0, IMAX
+do j=0, JMAX
+   if (mask_present(j,i) >= 2) zs_present(j,i) = max(zs_present(j,i), 0.0_dp)
+                 ! resetting negative elevations (bathymetry data)
+                 ! to the present-day sea surface
+end do
+end do
+
 !-------- Reading of present-day
 !         monthly mean or mean annual precipitation rate --------
 
@@ -2200,17 +2267,6 @@ end if
 
 #endif
 
-!-------- Reading of present-day topography mask --------
-
-filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
-                     trim(MASK_PRESENT_FILE)
-
-call read_2d_input(filename_with_path, &
-                   ch_var_name='mask', n_var_type=3, n_ascii_header=6, &
-                   field2d_r=field2d_aux)
-
-mask_ref = nint(field2d_aux)
-
 !-------- Reading of present-day monthly mean surface temperature --------
 
 #if (!defined(ANT) && !defined(GRL)) /* other than Antarctica or Greenland */
@@ -2267,25 +2323,55 @@ temp_lgm_anom = temp_lgm_anom * TEMP_ANOM_FACT
 
 #endif
 
-!-------- Present reference elevation
-!         (for precipitation and surface-temperature data) --------
+!-------- Reference elevations
+!         (for surface-temperature and precipitation data) --------
 
-filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
-                     trim(ZS_PRESENT_FILE)
+#if (TSURFACE<=5)
 
-call read_2d_input(filename_with_path, &
-                   ch_var_name='zs', n_var_type=1, n_ascii_header=6, &
-                   field2d_r=field2d_aux)
+if (flag_temp_zs_ref_file) then
 
-zs_ref = field2d_aux
+#if (defined(TEMP_ZS_REF_FILE))
+   filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                        trim(TEMP_ZS_REF_FILE)
+#endif
 
-do i=0, IMAX
-do j=0, JMAX
-   if (mask_ref(j,i) >= 2) zs_ref(j,i) = 0.0_dp
-                 ! resetting elevations over the ocean
-                 ! to the present-day sea surface
-end do
-end do
+   call read_2d_input(filename_with_path, &
+                      ch_var_name='zs', n_var_type=1, n_ascii_header=6, &
+                      field2d_r=field2d_aux)
+
+   zs_ref_temp = max(field2d_aux, 0.0_dp)
+            ! resetting negative elevations (bathymetry data)
+            ! to the present-day sea surface
+
+
+else
+   zs_ref_temp = zs_present
+end if
+
+#endif
+
+#if (ACCSURFACE<=5)
+
+if (flag_precip_zs_ref_file) then
+
+#if (defined(PRECIP_ZS_REF_FILE))
+   filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                        trim(PRECIP_ZS_REF_FILE)
+#endif
+
+   call read_2d_input(filename_with_path, &
+                      ch_var_name='zs', n_var_type=1, n_ascii_header=6, &
+                      field2d_r=field2d_aux)
+
+   zs_ref_precip = max(field2d_aux, 0.0_dp)
+            ! resetting negative elevations (bathymetry data)
+            ! to the present-day sea surface
+
+else
+   zs_ref_precip = zs_present
+end if
+
+#endif
 
 !-------- Read data for delta_ts --------
 
@@ -2346,8 +2432,8 @@ if (ios == nf90_noerr) then
 else
    do i=0, IMAX
    do j=0, JMAX
-      zs_ref_conv(i,j) = zs_ref(j,i)
-                         ! use previously read reference topography
+      zs_ref_conv(i,j) = zs_present(j,i)
+                         ! use previously read present-day topography
    end do
    end do
 end if
@@ -2379,7 +2465,7 @@ do j=0, JMAX
       call error(errormsg)
    end if
 
-   zs_ref(j,i) = zs_ref_conv(i,j)
+   zs_ref_climatol(j,i) = zs_ref_conv(i,j)
 
 end do
 end do

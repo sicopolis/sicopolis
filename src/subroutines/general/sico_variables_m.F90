@@ -628,8 +628,20 @@ logical :: flag_thk_solver_explicit
    !!   .true.: explicit solver,
    !!  .false.: implicit solver
 
-real(dp), dimension(0:JMAX,0:IMAX) :: zs_ref
+#if (TSURFACE<=5)
+real(dp), dimension(0:JMAX,0:IMAX) :: zs_ref_temp
+   !! Reference elevation for the present-day surface temperature
+#endif
+
+#if (ACCSURFACE<=5)
+real(dp), dimension(0:JMAX,0:IMAX) :: zs_ref_precip
+   !! Reference elevation for the present-day precipitation
+#endif
+
+#if (TSURFACE==6 && ACCSURFACE==6 && ABLSURFACE==6)
+real(dp), dimension(0:JMAX,0:IMAX) :: zs_ref_climatol
    !! Reference elevation for the present-day climatology
+#endif
 
 real(dp), dimension(0:JMAX,0:IMAX) :: accum_present
    !! Present-day accumulation rate at the ice surface

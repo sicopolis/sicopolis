@@ -2027,7 +2027,7 @@ if (flag_precip_monthly_mean) then
 
       call read_2d_input(filename_with_path, &
                          ch_var_name=trim(ch_var_name), &
-                         n_var_type=1, n_ascii_header=6+3*n+(JMAX+1)*(n-1), &
+                         n_var_type=0, n_ascii_header=6+3*n+(JMAX+1)*(n-1), &
                          field2d_r=field2d_aux)
 
       precip_present(:,:,n) = field2d_aux *(1.0e-03_dp*sec2year)*(RHO_W/RHO)
@@ -2095,7 +2095,7 @@ do n=1, 12   ! month counter
 
    call read_2d_input(filename_with_path, &
                       ch_var_name=trim(ch_var_name), &
-                      n_var_type=1, n_ascii_header=6+3*n+(JMAX+1)*(n-1), &
+                      n_var_type=0, n_ascii_header=6+3*n+(JMAX+1)*(n-1), &
                       field2d_r=field2d_aux)
 
    precip_lgm_anom(:,:,n) = field2d_aux
@@ -2285,7 +2285,7 @@ do n=1, 12   ! month counter
 
    call read_2d_input(filename_with_path, &
                       ch_var_name=trim(ch_var_name), &
-                      n_var_type=1, n_ascii_header=6+3*n+(JMAX+1)*(n-1), &
+                      n_var_type=0, n_ascii_header=6+3*n+(JMAX+1)*(n-1), &
                       field2d_r=field2d_aux)
 
    temp_present(:,:,n) = field2d_aux
@@ -2312,7 +2312,7 @@ do n=1, 12   ! month counter
 
    call read_2d_input(filename_with_path, &
                       ch_var_name=trim(ch_var_name), &
-                      n_var_type=1, n_ascii_header=6+3*n+(JMAX+1)*(n-1), &
+                      n_var_type=0, n_ascii_header=6+3*n+(JMAX+1)*(n-1), &
                       field2d_r=field2d_aux)
 
    temp_lgm_anom(:,:,n) = field2d_aux

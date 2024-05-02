@@ -730,7 +730,7 @@
 !                         7 : Implied SMB by Calov+ (2018, Cryosphere 12)
 !                             (requires ABLSURFACE==7)
 
-#define PRECIP_PRESENT_FILE 'grl_rembo_10_precmm.dat'
+#define PRECIP_PRESENT_FILE 'grl_rembo_10_precip.nc'
 !                       Name of the file containing the present-day
 !                       monthly mean precipitation data
 !                       ('none' if no such file is to be specified)
@@ -747,7 +747,7 @@
 !                       PRECIP_PRESENT_FILE will be used,
 !                       while PRECIP_MA_PRESENT_FILE will be ignored.]
 
-#define PRECIP_ZS_REF_FILE 'grl_rembo_10_zs_ref.dat'
+#define PRECIP_ZS_REF_FILE 'grl_rembo_10_precip.nc'
 !                       Name of the file containing the reference topography
 !                       for the data in
 !                       PRECIP_PRESENT_FILE or PRECIP_MA_PRESENT_FILE

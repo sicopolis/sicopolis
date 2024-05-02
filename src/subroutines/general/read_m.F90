@@ -1152,15 +1152,19 @@ contains
 
   integer(i4b)       :: i, j
   integer(i4b)       :: n
-  integer(i4b)       :: ios
+  integer(i4b)       :: ios, ierr
+  character(len=256) :: ch_var_name_aux
   character(len=256) :: filename_aux
   character(len=  3) :: ch_nc_test
+  character(len=  3) :: ch_month
   character          :: ch_dummy
   logical            :: flag_nc
+  logical            :: flag_nc_mm
 
-  integer(i4b), dimension(0:IMAX,0:JMAX) :: mask_aux_conv
-  integer(i4b), dimension(0:IMAX,0:JMAX) :: n_aux_conv
-  real(dp)    , dimension(0:IMAX,0:JMAX) :: r_aux_conv
+  integer(i4b), dimension(0:IMAX,0:JMAX)    :: mask_aux_conv
+  integer(i4b), dimension(0:IMAX,0:JMAX)    :: n_aux_conv
+  real(dp)    , dimension(0:IMAX,0:JMAX)    :: r_aux_conv
+  real(dp)    , dimension(0:IMAX,0:JMAX,12) :: r_aux_conv_mm
 
   integer(i4b) :: ncid, ncv
   !     ncid:      ID of the output file
@@ -1171,6 +1175,10 @@ contains
 
   write(ch_imax, fmt='(i8)') IMAX
   write(fmt4,    fmt='(a)')  '('//trim(adjustl(ch_imax))//'(i1),i1)'
+
+  ch_var_name_aux = trim(adjustl(ch_var_name))
+
+  flag_nc_mm = .false.
 
 !-------- Determining file type --------
 
@@ -1193,20 +1201,43 @@ contains
 
      if (ios /= nf90_noerr) then
         errormsg = ' >>> read_2d_input: Error when opening the ' &
-                         // trim(adjustl(ch_var_name)) // ' NetCDF file!'
+                         // trim(ch_var_name_aux) // ' NetCDF file!'
         call error(errormsg)
      end if
 
-     call check( nf90_inq_varid(ncid, trim(adjustl(ch_var_name)), ncv) )
+     ierr = nf90_inq_varid(ncid, trim(ch_var_name_aux), ncv)
 
-     if (n_var_type==1) then
+     if ((ierr /= nf90_noerr).and.(n_var_type==0)) then
+
+        ch_var_name_aux = adjustr(ch_var_name_aux)
+        n               = len(ch_var_name_aux)
+        ch_month        = ch_var_name_aux(n-2:n)
+        ch_var_name_aux = ch_var_name_aux(1:n-4)
+        ch_var_name_aux = adjustl(ch_var_name_aux)
+        flag_nc_mm      = .true.
+
+        ierr = nf90_inq_varid(ncid, trim(ch_var_name_aux), ncv)
+                  ! Trying again without the month code ('_jan', '_feb' etc.)
+     end if
+
+     if (ierr /= nf90_noerr) then
+        errormsg = ' >>> read_2d_input: NetCDF variable ' &
+                         // trim(ch_var_name_aux) // ' not present!'
+        call error(errormsg)
+     end if
+
+     if ((n_var_type==0).and.(flag_nc_mm)) then
+        call check( nf90_get_var(ncid, ncv, r_aux_conv_mm) )
+     else if ((n_var_type==0).and.(.not.flag_nc_mm)) then
+        call check( nf90_get_var(ncid, ncv, r_aux_conv) )
+     else if (n_var_type==1) then
         call check( nf90_get_var(ncid, ncv, r_aux_conv) )
      else if (n_var_type==2) then
         call check( nf90_get_var(ncid, ncv, n_aux_conv) )
      else if (n_var_type==3) then
         call check( nf90_get_var(ncid, ncv, mask_aux_conv) )
      else
-        errormsg = ' >>> read_2d_input: n_var_type must be between 1 and 3!'
+        errormsg = ' >>> read_2d_input: n_var_type must be between 0 and 3!'
         call error(errormsg)
      end if
 
@@ -1214,18 +1245,18 @@ contains
 
   else   ! ASCII file
 
-     if (n_var_type==1) then
+     if ((n_var_type==0).or.(n_var_type==1)) then
         open(21, iostat=ios, file=trim(filename_aux), recl=rcl1, status='old')
      else if ((n_var_type==2).or.(n_var_type==3)) then
         open(21, iostat=ios, file=trim(filename_aux), recl=rcl2, status='old')
      else
-        errormsg = ' >>> read_2d_input: n_var_type must be between 1 and 3!'
+        errormsg = ' >>> read_2d_input: n_var_type must be between 0 and 3!'
         call error(errormsg)
      end if
 
      if (ios /= 0) then
         errormsg = ' >>> read_2d_input: Error when opening the ' &
-                         // trim(adjustl(ch_var_name)) // ' ASCII file!'
+                         // trim(ch_var_name_aux) // ' ASCII file!'
         call error(errormsg)
      end if
 
@@ -1233,14 +1264,14 @@ contains
 
      do j=JMAX, 0, -1
 
-        if (n_var_type==1) then
+        if ((n_var_type==0).or.(n_var_type==1)) then
            read(21, fmt=*) (r_aux_conv(i,j), i=0,IMAX)
         else if (n_var_type==2) then
            read(21, fmt=*) (n_aux_conv(i,j), i=0,IMAX)
         else if (n_var_type==3) then
            read(21, fmt=trim(fmt4)) (mask_aux_conv(i,j), i=0,IMAX)
         else
-           errormsg = ' >>> read_2d_input: n_var_type must be between 1 and 3!'
+           errormsg = ' >>> read_2d_input: n_var_type must be between 0 and 3!'
            call error(errormsg)
         end if
 
@@ -1250,19 +1281,54 @@ contains
 
   end if
 
-!-------- Converting read 2D field --------
+!-------- Converting read field --------
 
   do i=0, IMAX
   do j=0, JMAX
 
-     if (n_var_type==1) then
+     if ((n_var_type==0).and.(flag_nc_mm)) then
+        if (ch_month == 'jan') then
+           field2d_r(j,i) = r_aux_conv_mm(i,j, 1)
+        else if (ch_month == 'feb') then
+           field2d_r(j,i) = r_aux_conv_mm(i,j, 2)
+        else if (ch_month == 'mar') then
+           field2d_r(j,i) = r_aux_conv_mm(i,j, 3)
+        else if (ch_month == 'apr') then
+           field2d_r(j,i) = r_aux_conv_mm(i,j, 4)
+        else if (ch_month == 'may') then
+           field2d_r(j,i) = r_aux_conv_mm(i,j, 5)
+        else if (ch_month == 'jun') then
+           field2d_r(j,i) = r_aux_conv_mm(i,j, 6)
+        else if (ch_month == 'jul') then
+           field2d_r(j,i) = r_aux_conv_mm(i,j, 7)
+        else if (ch_month == 'aug') then
+           field2d_r(j,i) = r_aux_conv_mm(i,j, 8)
+        else if (ch_month == 'sep') then
+           field2d_r(j,i) = r_aux_conv_mm(i,j, 9)
+        else if (ch_month == 'oct') then
+           field2d_r(j,i) = r_aux_conv_mm(i,j,10)
+        else if (ch_month == 'nov') then
+           field2d_r(j,i) = r_aux_conv_mm(i,j,11)
+        else if (ch_month == 'dec') then
+           field2d_r(j,i) = r_aux_conv_mm(i,j,12)
+        else
+           errormsg = ' >>> read_2d_input: Month code ' // ch_month &
+                    //         end_of_line &
+                    //'        invalid when trying to convert variable ' &
+                    //         end_of_line &
+                    //'        ' // trim(ch_var_name_aux) // '!'
+           call error(errormsg)
+        end if
+     else if ((n_var_type==0).and.(.not.flag_nc_mm)) then
+        field2d_r(j,i) = r_aux_conv(i,j)
+     else if (n_var_type==1) then
         field2d_r(j,i) = r_aux_conv(i,j)
      else if (n_var_type==2) then
         field2d_r(j,i) = real(n_aux_conv(i,j),dp)
      else if (n_var_type==3) then
         field2d_r(j,i) = real(mask_aux_conv(i,j),dp)
      else
-        errormsg = ' >>> read_2d_input: n_var_type must be between 1 and 3!'
+        errormsg = ' >>> read_2d_input: n_var_type must be between 0 and 3!'
         call error(errormsg)
      end if
 

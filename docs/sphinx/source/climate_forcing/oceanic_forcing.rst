@@ -72,7 +72,7 @@ For the Antarctic ice sheet, two additional options are available\:
       = \frac{\rho_\mathrm{sw}c_\mathrm{sw}\gamma_\mathrm{t}}{\rho L}
         \,\Omega\,\bigg(\frac{d}{d_0}\bigg)^\alpha \,T_\mathrm{f}\,,
 
-  where :math:`\rho` and :math:`\rho_\mathrm{sw}` are the ice and sea-water densities, :math:`L` is the latent heat of melting (all defined in the physical-parameter file), :math:`c_\mathrm{sw}=3974\,\mathrm{J\,kg^{-1}\,K^{-1}}` is the specific heat of sea water, :math:`\gamma_\mathrm{t}=5\times{}10^{-5}\,\mathrm{m\,s^{-1}}` is the exchange velocity for temperature and :math:`d_0=200\,\mathrm{m}` is the reference draft.
+  where :math:`\rho` and :math:`\rho_\mathrm{sw}` are the ice and sea-water densities, :math:`L` is the latent heat of melting (all defined in the run-specs header), :math:`c_\mathrm{sw}=3974\,\mathrm{J\,kg^{-1}\,K^{-1}}` is the specific heat of sea water, :math:`\gamma_\mathrm{t}=5\times{}10^{-5}\,\mathrm{m\,s^{-1}}` is the exchange velocity for temperature and :math:`d_0=200\,\mathrm{m}` is the reference draft.
 
   The parameters :math:`\Omega` and :math:`\alpha` result from a tuning procedure for eight different sectors, using observed present-day melt rates as a target (as explained in the main part and appendix of Greve and Galton-Fenzi :cite:`greve_galton-fenzi_2017`). For the thermal forcing :math:`T_\mathrm{f}`, :math:`T_\mathrm{oc}` is chosen for each sector as the sector-averaged temperature at 500 metres depth just outside the ice-shelf cavity (computed with data from the World Ocean Atlas 2009 :cite:`locarnini_etal_2010`), while :math:`T_\mathrm{b}` is computed by Eq. |nbsp| :eq:`eq_ice_shelf_bas_temp`.
 

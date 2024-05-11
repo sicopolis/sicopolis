@@ -137,22 +137,9 @@ A header consists of a pretty large number of preprocessor directives of the for
 
   #define PARAMETER value
 
-These allow specifying many aspects of a simulation and are documented in the headers themselves. See also the ":ref:`modelling_choices`" section.
+These allow specifying many aspects of a simulation (domain, physical parameters, grid, resolution, times, ...) and are documented in the headers themselves. See also the ":ref:`modelling_choices`" section.
 
 For a number of :ref:`test simulations <test_simulations>`, the run-specs header files are contained in the SICOPOLIS repository. Further examples can be found in the several paper-accompanying datasets on `Zenodo <https://zenodo.org/communities/sicopolis/>`__.
-
-.. _getting_started-phys_para:
-
-Physical-parameter files
-========================
-
-In these files, a number of physical parameters (densities, acceleration due to gravity, heat conductivity, specific heat, latent heat, etc.) are defined. SICOPOLIS expects them in the respective directory for the input files (``sico_in/ant`` for Antarctica, ``sico_in/grl`` for Greenland, etc.) If the name of the file is ``phys_para_xxx.dat``, it must be specified in the run-specs header file as
-
-.. code-block:: fortran
-
-  #define PHYS_PARA_FILE 'phys_para_xxx.dat'
-
-The physical-parameter files can be provided in either ASCII or NetCDF format. The file type is recognized automatically by the extension (``*.nc`` for NetCDF, otherwise ASCII is assumed).
 
 .. _getting_started-run_simulation:
 

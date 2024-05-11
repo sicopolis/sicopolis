@@ -118,7 +118,8 @@ real(dp) :: gamma_slide_aux(N_SLIDE_REGIONS)
 
 character(len=64), parameter :: fmt1 = '(a)', &
                                 fmt2 = '(a,i0)', &
-                                fmt3 = '(a,es12.4)'
+                                fmt3 = '(a,es13.5)', &
+                                fmt4 = '(a,es20.12)'
 
 write(unit=6, fmt='(a)') ' '
 write(unit=6, fmt='(a)') ' -------- sico_init --------'
@@ -202,7 +203,7 @@ time_output = 0.0_dp
   call lis_initialize(ierr)
 #endif
 
-!-------- Read physical parameters --------
+!-------- Physical parameters --------
 
 #if (defined(YEAR_SEC))
 year2sec = YEAR_SEC
@@ -214,7 +215,127 @@ year2sec = 3.1556925445e+07_dp
 
 sec2year = 1.0_dp/year2sec
 
+#if (defined(PARAM_RHO))
+RHO = real(PARAM_RHO,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_RHO not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PARAM_RHO_W))
+RHO_W = real(PARAM_RHO_W,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_RHO_W not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PARAM_RHO_SW))
+RHO_SW = real(PARAM_RHO_SW,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_RHO_SW not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PARAM_L))
+L = real(PARAM_L,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_L not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PARAM_G))
+G = real(PARAM_G,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_G not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PARAM_NUE))
+NUE = real(PARAM_NUE,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_NUE not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PARAM_BETA))
+BETA = real(PARAM_BETA,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_BETA not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PARAM_DELTA_TM_SW))
+DELTA_TM_SW = real(PARAM_DELTA_TM_SW,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_DELTA_TM_SW not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PARAM_OMEGA_MAX))
+OMEGA_MAX = real(PARAM_OMEGA_MAX,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_OMEGA_MAX not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PARAM_H_R))
+H_R = real(PARAM_H_R,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_H_R not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PARAM_RHO_C_R))
+RHO_C_R = real(PARAM_RHO_C_R,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_RHO_C_R not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PARAM_KAPPA_R))
+KAPPA_R = real(PARAM_KAPPA_R,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_KAPPA_R not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PARAM_RHO_A))
+RHO_A = real(PARAM_RHO_A,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_RHO_A not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PARAM_R_T))
+R_T = real(PARAM_R_T,dp)
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PARAM_R_T not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (!defined(RF_KAPPA_C_FILE))
+errormsg = ' >>> sico_init: ' &
+           // 'File RF_KAPPA_C_FILE not defined in run-specs header!'
+call error(errormsg)
+#endif
+
 call read_phys_para()
+     ! read tabulated values of the
+     ! rate factor, heat conductivity and specific heat
 
 call ice_mat_eqs_pars(RF, R_T, KAPPA, C, -190, 10)
 
@@ -349,6 +470,63 @@ dtime0      = DTIME0
 dtime_temp0 = DTIME_TEMP0
 
 !-------- Further initializations --------
+
+#if (defined(PLANET_R))
+R = real(PLANET_R,dp)   ! mean radius of the planet
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PLANET_R not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PLANET_A))
+A = real(PLANET_A,dp)   ! semi-major axis of the planet
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PLANET_A not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(PLANET_F_INV))
+F_INV = real(PLANET_F_INV,dp)  ! inverse flattening of the planet
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter PLANET_F_INV not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+if (F_INV > 1.0e+10_dp) then   ! interpreted as infinity -> no flattening
+   B = A
+else   ! finite inverse flattening
+   B = A - A/F_INV
+end if
+
+#if (GRID==0 || GRID==1)
+
+#if (defined(STEREO_PROJ_LATD0))
+PHI0 = real(STEREO_PROJ_LATD0,dp) *deg2rad   ! deg -> rad
+              ! central meridian of the stereographic projection
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter STEREO_PROJ_LATD0 not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#if (defined(STEREO_PROJ_LOND0))
+LAMBDA0 = real(STEREO_PROJ_LOND0,dp) *deg2rad   ! deg -> rad
+              ! standard parallel of the stereographic projection
+#else
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter STEREO_PROJ_LOND0 not defined in run-specs header!'
+call error(errormsg)
+#endif
+
+#else
+
+PHI0    = 0.0_dp   ! dummy value
+LAMBDA0 = 0.0_dp   ! dummy value
+
+#endif
 
 dzeta_c = 1.0_dp/real(KCMAX,dp)
 dzeta_t = 1.0_dp/real(KTMAX,dp)
@@ -599,11 +777,97 @@ write(10, fmt=trim(fmt1)) 'Computational domain:'
 write(10, fmt=trim(fmt1)) trim(ch_domain_long)
 write(10, fmt=trim(fmt1)) ' '
 
-write(10, fmt=trim(fmt1)) 'Physical-parameter file = ' &
-                          // trim(adjustl(PHYS_PARA_FILE))
+#if (defined(PARAM_RHO))
+write(10, fmt=trim(fmt3)) 'RHO         =', PARAM_RHO
+#endif
+
+#if (defined(PARAM_RHO_W))
+write(10, fmt=trim(fmt3)) 'RHO_W       =', PARAM_RHO_W
+#endif
+
+#if (defined(PARAM_RHO_SW))
+write(10, fmt=trim(fmt3)) 'RHO_SW      =', PARAM_RHO_SW
+#endif
+
+#if (defined(PARAM_L))
+write(10, fmt=trim(fmt3)) 'L           =', PARAM_L
+#endif
+
+#if (defined(PARAM_G))
+write(10, fmt=trim(fmt3)) 'G           =', PARAM_G
+#endif
+
+#if (defined(PARAM_NUE))
+write(10, fmt=trim(fmt3)) 'NUE         =', PARAM_NUE
+#endif
+
+#if (defined(PARAM_BETA))
+write(10, fmt=trim(fmt3)) 'BETA        =', PARAM_BETA
+#endif
+
+#if (defined(PARAM_DELTA_TM_SW))
+write(10, fmt=trim(fmt3)) 'DELTA_TM_SW =', PARAM_DELTA_TM_SW
+#endif
+
+#if (defined(PARAM_OMEGA_MAX))
+write(10, fmt=trim(fmt3)) 'OMEGA_MAX   =', PARAM_OMEGA_MAX
+#endif
+
+#if (defined(PARAM_H_R))
+write(10, fmt=trim(fmt3)) 'H_R         =', PARAM_H_R
+#endif
+
+#if (defined(PARAM_RHO_C_R))
+write(10, fmt=trim(fmt3)) 'RHO_C_R     =', PARAM_RHO_C_R
+#endif
+
+#if (defined(PARAM_KAPPA_R))
+write(10, fmt=trim(fmt3)) 'KAPPA_R     =', PARAM_KAPPA_R
+#endif
+
+#if (defined(PARAM_RHO_A))
+write(10, fmt=trim(fmt3)) 'RHO_A       =', PARAM_RHO_A
+#endif
+
+#if (defined(PARAM_R_T))
+write(10, fmt=trim(fmt3)) 'R_T         =', PARAM_R_T
+#endif
+
+write(10, fmt=trim(fmt1)) ' '
+
+#if (defined(RF_KAPPA_C_FILE))
+write(10, fmt=trim(fmt1)) 'RF_KAPPA_C_FILE = ' &
+                          // trim(adjustl(RF_KAPPA_C_FILE))
+#endif
 write(10, fmt=trim(fmt1)) ' '
 
 write(10, fmt=trim(fmt2)) 'GRID = ', GRID
+write(10, fmt=trim(fmt1)) ' '
+
+#if (defined(PLANET_R))
+write(10, fmt=trim(fmt4)) 'R =', PLANET_R
+#endif
+
+#if (defined(PLANET_A))
+write(10, fmt=trim(fmt4)) 'A =', PLANET_A
+#endif
+
+#if (defined(PLANET_F_INV))
+write(10, fmt=trim(fmt4)) 'F_INV =', PLANET_F_INV
+#endif
+
+#if (GRID==0 || GRID==1)
+
+#if (defined(STEREO_PROJ_LATD0))
+write(10, fmt=trim(fmt3)) 'LATD0 =', STEREO_PROJ_LATD0
+#endif
+
+#if (defined(STEREO_PROJ_LOND0))
+write(10, fmt=trim(fmt3)) 'LOND0 =', STEREO_PROJ_LOND0
+#endif
+
+#endif
+
 write(10, fmt=trim(fmt1)) ' '
 
 write(10, fmt=trim(fmt2)) 'imax  = ', IMAX
@@ -660,9 +924,6 @@ write(10, fmt=trim(fmt3)) 'temp_init_val =', TEMP_INIT_VAL
 write(10, fmt=trim(fmt1)) 'Initial-value file = '//ANFDATNAME
 write(10, fmt=trim(fmt1)) 'Path to initial-value file = '//ANF_DAT_PATH
 #endif
-write(10, fmt=trim(fmt1)) ' '
-
-write(10, fmt=trim(fmt1)) 'Physical-parameter file = '//PHYS_PARA_FILE
 write(10, fmt=trim(fmt1)) ' '
 
 #if (defined(THK_EVOL))

@@ -78,13 +78,13 @@ In principle, SICOPOLIS allows using any orthogonal coordinates on the Earth's (
 
 * ``2``: Geographic coordinates (longitude/latitude).
 
-For the cases ``0`` and ``1``, a polar stereoraphic projection for an ellipsoidal planet model is employed. The projection parameters are defined in the physical-parameter file:
+For the cases ``0`` and ``1``, a polar stereoraphic projection for an ellipsoidal planet model is employed. The projection parameters are defined in the run-specs header:
 
-* ``R`` (:math:`=R_\mathrm{e}`, mean radius of planet, in m),
-* ``A`` (:math:`=A`, semi-major axis of planet, in m),
-* ``F_INV`` (:math:`=F_\mathrm{inv}`, inverse flattening of planet),
-* ``LATD0`` (:math:`=\varphi_0`, standard parallel, in deg, +/-- for N/S),
-* ``LOND0`` (:math:`=\lambda_0`, central meridian, in deg, +/-- for E/W).
+* ``PLANET_R`` (:math:`=R_\mathrm{e}`, mean radius of planet, in m),
+* ``PLANET_A`` (:math:`=A`, semi-major axis of planet, in m),
+* ``PLANET_F_INV`` (:math:`=F_\mathrm{inv}`, inverse flattening of planet),
+* ``STEREO_PROJ_LATD0`` (:math:`=\varphi_0`, standard parallel, in deg, +/-- for N/S),
+* ``STEREO_PROJ_LOND0`` (:math:`=\lambda_0`, central meridian, in deg, +/-- for E/W).
 
 For case ``2`` (geographic coordinates), only the parameters ``R``, ``A`` and ``F_INV`` are relevant.
 

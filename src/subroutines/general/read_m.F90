@@ -1396,7 +1396,8 @@ contains
   end subroutine read_kei
 
 !-------------------------------------------------------------------------------
-!> Reading of physical parameters.
+!> Reading of physical parameters
+!! (tabulated values of the rate factor, heat conductivity and specific heat).
 !-------------------------------------------------------------------------------
   subroutine read_phys_para()
 
@@ -1427,8 +1428,10 @@ contains
 
 !-------- Determining file type --------
 
-  filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
-                       trim(PHYS_PARA_FILE)
+#if (defined(RF_KAPPA_C_FILE))
+  filename_with_path = trim(IN_PATH)//'/general/'// &
+                       trim(RF_KAPPA_C_FILE)
+#endif
 
   filename_aux = adjustr(filename_with_path)
   n            = len(filename_aux)
@@ -1451,205 +1454,23 @@ contains
 
      if (ios /= nf90_noerr) then
         errormsg = ' >>> read_phys_para: ' &
-                         // 'Error when opening the phys_para NetCDF file!'
+                         // 'Error when opening the RF_KAPPA_C NetCDF file!'
         call error(errormsg)
      end if
 
   else   ! ASCII file
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-     open(n_unit, iostat=ios, file=trim(filename_aux), status='old')
-#else /* Tapenade */
      open(n_unit, iostat=ios, file=trim(filename_aux))
-#endif /* Normal vs. Tapenade */
 
      if (ios /= 0) then
-        errormsg = ' >>> read_phys_para: Error when opening the phys_para file!'
+        errormsg = ' >>> read_phys_para: ' &
+                         // 'Error when opening the RF_KAPPA_C file!'
         call error(errormsg)
      end if
 
   end if
 
-!  ------ Reading parameters
-
-#if (!defined(NMARS) && !defined(SMARS))   /* not Martian polar caps */
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'RHO', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, RHO), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'RHO', RHO)
-  end if
-
-#else   /* Martian polar caps */
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'RHO_I', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, RHO_I), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'RHO_I', RHO_I)
-  end if
-
-#endif
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'RHO_W', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, RHO_W), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'RHO_W', RHO_W)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'RHO_SW', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, RHO_SW), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'RHO_SW', RHO_SW)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'L', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, L), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'L', L)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'G', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, G), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'G', G)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'NUE', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, NUE), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'NUE', NUE)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'BETA', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, BETA), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'BETA', BETA)
-  end if
-
-#if (!defined(NMARS) && !defined(SMARS))   /* not Martian polar caps */
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'DELTA_TM_SW', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, DELTA_TM_SW), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'DELTA_TM_SW', DELTA_TM_SW)
-  end if
-
-#endif
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'OMEGA_MAX', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, OMEGA_MAX), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'OMEGA_MAX', OMEGA_MAX)
-  end if
-
-#if (defined(NMARS) || defined(SMARS))   /* Martian polar caps */
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'RHO_C', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, RHO_C), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'RHO_C', RHO_C)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'KAPPA_C', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, KAPPA_C), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'KAPPA_C', KAPPA_C)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'C_C', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, C_C), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'C_C', C_C)
-  end if
-
-#endif
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'H_R', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, H_R), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'H_R', H_R)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'RHO_C_R', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, RHO_C_R), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'RHO_C_R', RHO_C_R)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'KAPPA_R', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, KAPPA_R), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'KAPPA_R', KAPPA_R)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'RHO_A', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, RHO_A), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'RHO_A', RHO_A)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'R_T', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, R_T), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'R_T', R_T)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'R', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, R), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'R', R)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'A', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, A), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'A', A)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'F_INV', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, F_INV), thisroutine )
-  else
-     call read_phys_para_value(n_unit, 'F_INV', F_INV)
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'LATD0', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, PHI0), thisroutine )
-     PHI0 = PHI0 *deg2rad   ! deg -> rad
-  else
-     call read_phys_para_value(n_unit, 'LATD0', PHI0)
-     PHI0 = PHI0 *deg2rad   ! deg -> rad
-  end if
-
-  if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'LOND0', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, LAMBDA0), thisroutine )
-     LAMBDA0 = LAMBDA0 *deg2rad   ! deg -> rad
-  else
-     call read_phys_para_value(n_unit, 'LOND0', LAMBDA0)
-     LAMBDA0 = LAMBDA0 *deg2rad   ! deg -> rad
-  end if
+!  ------ Reading the rate factor, heat conductivity and specific heat
 
   if (flag_nc) then
      call check( nf90_inq_varid(ncid, 'RF', ncv), thisroutine )
@@ -1686,18 +1507,10 @@ contains
      close(n_unit, status='keep')
   end if
 
-!-------- Semi-minor axis from semi-major axis and inverse flattening --------
-
-  if (F_INV > 1.0e+10_dp) then   ! interpreted as infinity, thus no flattening
-     B = A
-  else   ! finite inverse flattening
-     B = A - A/F_INV
-  end if
-
   end subroutine read_phys_para
 
 !-------------------------------------------------------------------------------
-!> Reading of a value of a physical parameter from the phys_para file.
+!> Reading of a value of a physical parameter from the input file.
 !-------------------------------------------------------------------------------
   subroutine read_phys_para_value(n_unit, ch_para, d_para)
 
@@ -1737,7 +1550,7 @@ contains
         n_equals = index(ch_line, '=')
 #else /* Tapenade: cannot differentiate through index function */
         n_equals = 15   ! assuming the equals sign to be
-                        ! always in row 15 of the phys_para file
+                        ! always in row 15 of the input file
 #endif /* Normal vs. Tapenade */
 
         ch_para_2a = ch_line(1:n_equals-1)
@@ -1750,7 +1563,7 @@ contains
            errormsg = ' >>> read_phys_para_value:' &
                     //         end_of_line &
                     //'        Trying to read ' // trim(ch_para_1a) &
-                    //         ' from ' // PHYS_PARA_FILE // ',' &
+                    //         ' from the RF_KAPPA_C file,' &
                     //         end_of_line &
                     //'        but equals sign (=) is not in row ' &
                     //         trim(ch_equals)//'!'
@@ -1777,8 +1590,8 @@ contains
               //         end_of_line &
               //'        Trying to read '//trim(ch_para_1a)//', ' &
               //         end_of_line &
-              //'        but found '//trim(ch_para_2a)//' in file ' &
-              //         PHYS_PARA_FILE // '!'
+              //'        but found ' &
+              //         trim(ch_para_2a)//' in the RF_KAPPA_C file!'
      call error(errormsg)
   end if
 

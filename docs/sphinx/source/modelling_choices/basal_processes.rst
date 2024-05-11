@@ -37,7 +37,7 @@ A further, relevant parameter is ``Q_LITHO``\:
 
 * ``1``: Coupled heat-conducting bedrock.
 
-If set to ``0``, the GHF is imposed directly at the grounded ice base, which is suitable for steady-state simulations because it reduces the time required to reach the steady state. However, for transient simulations, ``1`` is the preferred setting. The GHF is then imposed at the base of the lithosphere layer (thickness defined by variable ``H_R`` in the physical-parameter file, see ":ref:`getting_started-phys_para`"), so that the thermal inertia of the lithosphere is properly accounted for.
+If set to ``0``, the GHF is imposed directly at the grounded ice base, which is suitable for steady-state simulations because it reduces the time required to reach the steady state. However, for transient simulations, ``1`` is the preferred setting. The GHF is then imposed at the base of the lithosphere layer (thickness defined by the parameter ``H_R`` in the run-specs header), so that the thermal inertia of the lithosphere is properly accounted for.
 
 .. _basal_hydrology:
 

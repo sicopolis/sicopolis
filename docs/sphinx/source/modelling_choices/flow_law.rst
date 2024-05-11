@@ -16,4 +16,4 @@ Several options for the flow law of polycrystalline ice are available. They can 
 For the cases ``FLOW_LAW = 1, 2 or 3``, the additional parameter ``FIN_VISC`` allows choosing between the unmodified flow law with an infinite-viscosity limit for low strain rates (``FIN_VISC = 1``), or using a regularized flow law with a finite-viscosity limit (``FIN_VISC = 2``). The latter is defined by a non-vanishing residual stress :math:`\sigma_0` (parameter ``SIGMA_RES``; see Greve and Blatter :cite:`greve_blatter_2009`, Section 4.3.2).
 
 .. note::
-  The rate factor :math:`A(T')` must fit the flow law unit- and value-wise. It is defined in the :ref:`physical-parameter files <getting_started-phys_para>` as a list for integer temperature values (between which linear interpolation is applied).
+  The rate factor :math:`A(T')` must fit the flow law unit- and value-wise. It is defined as a list for integer temperature values, to be read from a file specified in the run-specs header (parameter ``RF_KAPPA_C_FILE``). Between integer temperatures, linear interpolation is applied.

@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2024-04-28'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2024-05-10'
 !                      Date of last change
 
 !-------- Domain --------
@@ -33,10 +33,55 @@
 !                           and 'sico_vars_m' (in 'src/subroutines/xyz/')
 !                           will be used
 
-!-------- Physical parameter file --------
+!-------- Physical parameters --------
 
-#define PHYS_PARA_FILE 'phys_para_heino.dat'
-!                       Name of the file containing the physical parameters
+#define PARAM_RHO 910.0d0
+!       Density of ice (in kg/m3)
+
+#define PARAM_RHO_W 1000.0d0
+!       Density of pure water (in kg/m3)
+
+#define PARAM_RHO_SW 1028.0d0
+!       Density of sea water (in kg/m3)
+
+#define PARAM_L 3.35d+05
+!       Latent heat (in J/kg)
+
+#define PARAM_G 9.81d0
+!       Gravity acceleration (in m/s2)
+
+#define PARAM_NUE 1.0d-06
+!       Water diffusivity (in kg/(m*s)) 
+
+#define PARAM_BETA 8.7d-04
+!       Clausius-Clapeyron gradient (in K/m)
+
+#define PARAM_DELTA_TM_SW 1.85d0
+!       Melting point depression of sea water
+!       due to its average salinity (in degC)
+
+#define PARAM_OMEGA_MAX 0.01d0
+!       Threshold value for the water content
+
+#define PARAM_H_R 2000.0d0
+!       Thickness of the modelled lithosphere layer (in m)
+
+#define PARAM_RHO_C_R 2.0d+06
+!       Density times specific heat of the lithosphere (in J/(m3*K))
+
+#define PARAM_KAPPA_R 3.0d0
+!       Heat conductivity of the lithosphere (in W/(m*K))
+
+#define PARAM_RHO_A 3300.0d0
+!       Density of the asthenosphere (in kg/m3)
+
+#define PARAM_R_T 0.0d0
+!       Coefficient of the water-content dependence in the rate factor
+!       for temperate
+
+#define RF_KAPPA_C_FILE 'RF_KAPPA_C_emtp2sge.dat'
+!       Name of the file containing the tabulated values of the
+!       temperature-dependent rate factor, heat conductivity and specific heat
 
 !-------- Type of grid, spatial resolution --------
 
@@ -47,6 +92,23 @@
 !                           with distortion correction
 !                       2 : Geographical coordinates (longitude/latitude)
 !                           [not allowed for this application]
+
+#define PLANET_R 6371000.0d0
+!                       Radius of the Earth (in m)
+
+#define PLANET_A 6378137.0d0
+!                       Semi-major axis of the Earth (in m)
+
+#define PLANET_F_INV 298.257223563d0
+!                       Inverse flattening of the Earth
+
+#define STEREO_PROJ_LATD0 71.0d0
+!                       Standard parallel (in degN)
+!                       (only for GRID==0, 1)
+
+#define STEREO_PROJ_LOND0 0.0d0
+!                       Central meridian (in degE)
+!                       (only for GRID==0, 1)
 
 #define X0 0.0d0
 !                       x coordinate (in km) of the origin point (i,j) = (0,0),

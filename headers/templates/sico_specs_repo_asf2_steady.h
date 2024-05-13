@@ -79,7 +79,7 @@
 !       Coefficient of the water-content dependence in the rate factor
 !       for temperate
 
-#define RF_KAPPA_C_FILE 'RF_KAPPA_C_GrWeHu98.dat'
+#define RF_KAPPA_C_FILE 'RF_KAPPA_C_GrWeHu98.nc'
 !       Name of the file containing the tabulated values of the
 !       temperature-dependent rate factor, heat conductivity and specific heat
 

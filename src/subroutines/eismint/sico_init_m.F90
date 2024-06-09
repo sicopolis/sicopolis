@@ -1920,35 +1920,35 @@ write(12,1103)
    1103 format('----------------------------------------------------', &
                '---------------------------------------')
 
-!  ------ Time-series file for selected positions ("deep boreholes")
+!  ------ Time-series file for specified sites (i.e., ice cores)
 
-n_core = 2   ! central dome, position halfway to coast
+n_site = 2   ! central dome, position halfway to coast
 
-if (n_core > n_core_max) then
-   errormsg = ' >>> sico_init: n_core <= n_core_max required!' &
+if (n_site > n_site_max) then
+   errormsg = ' >>> sico_init: n_site <= n_site_max required!' &
             //         end_of_line &
-            //'        Increase value of n_core_max in sico_variables_m!'
+            //'        Increase value of n_site_max in sico_variables_m!'
    call error(errormsg)
 end if
 
-ch_core(1)     = 'P1'
-lambda_core(1) = 0.0_dp   ! dummy
-phi_core(1)    = 0.0_dp   ! dummy
-x_core(1)      = 0.5_dp*xi(0) +0.5_dp*xi(IMAX)    ! Position of the centre
-y_core(1)      = 0.5_dp*eta(0)+0.5_dp*eta(JMAX)   ! of the domain
+ch_site(1)     = 'P1'
+lambda_site(1) = 0.0_dp   ! dummy
+phi_site(1)    = 0.0_dp   ! dummy
+x_site(1)      = 0.5_dp*xi(0) +0.5_dp*xi(IMAX)    ! Position of the centre
+y_site(1)      = 0.5_dp*eta(0)+0.5_dp*eta(JMAX)   ! of the domain
 
-ch_core(2)     = 'P2'
-lambda_core(2) = 0.0_dp   ! dummy
-phi_core(2)    = 0.0_dp   ! dummy
-x_core(2)      = 0.25_dp*xi(0) +0.75_dp*xi(IMAX)    ! Position halfway to the
-y_core(2)      = 0.5_dp *eta(0)+0.5_dp *eta(JMAX)   ! right margin of the domain
+ch_site(2)     = 'P2'
+lambda_site(2) = 0.0_dp   ! dummy
+phi_site(2)    = 0.0_dp   ! dummy
+x_site(2)      = 0.25_dp*xi(0) +0.75_dp*xi(IMAX)    ! Position halfway to the
+y_site(2)      = 0.5_dp *eta(0)+0.5_dp *eta(JMAX)   ! right margin of the domain
 
-filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.core'
+filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.site'
 
 open(14, iostat=ios, file=trim(filename_with_path), status='new')
 
 if (ios /= 0) then
-   errormsg = ' >>> sico_init: Error when opening the core file!'
+   errormsg = ' >>> sico_init: Error when opening the site file!'
    call error(errormsg)
 end if
 

@@ -1286,27 +1286,27 @@ integer(i4b) :: forcing_flag
    !!  3: forcing by time-dependent surface temperature
    !!     and precipitation data
 
-integer(i4b) :: n_core
+integer(i4b) :: n_site
    !! Number of positions to be considered in the time-series file
-   !! for deep boreholes
+   !! for specified sites (i.e., ice cores)
 
-integer(i4b), parameter :: n_core_max = 256
-   !! Maximum allowed value of n_core
+integer(i4b), parameter :: n_site_max = 256
+   !! Maximum allowed value of n_site
 
-real(dp), dimension(n_core_max) :: lambda_core
-   !! Geographical longitude of the prescribed borehole positions
+real(dp), dimension(n_site_max) :: lambda_site
+   !! Geographical longitude of the prescribed sites
 
-real(dp), dimension(n_core_max) :: phi_core
-   !! Geographical latitude of the prescribed borehole positions
+real(dp), dimension(n_site_max) :: phi_site
+   !! Geographical latitude of the prescribed sites
 
-real(dp), dimension(n_core_max) :: x_core
-   !! Coordinate xi (= x) of the prescribed borehole positions
+real(dp), dimension(n_site_max) :: x_site
+   !! Coordinate xi (= x) of the prescribed sites
 
-real(dp), dimension(n_core_max) :: y_core
-   !! Coordinate eta (= y) of the prescribed borehole positions
+real(dp), dimension(n_site_max) :: y_site
+   !! Coordinate eta (= y) of the prescribed sites
 
-character(len=16), dimension(n_core_max) :: ch_core
-   !! Names of the prescribed borehole positions
+character(len=16), dimension(n_site_max) :: ch_site
+   !! Names of the prescribed sites
 
 integer(i4b) :: grip_time_min
    !! Minimum time of the data values for the surface temperature anomaly
@@ -1434,8 +1434,9 @@ integer(i4b) :: n_year_CE_rtr_save = -9999
 integer(i4b), dimension(0:99) :: ncid_ser
    !! IDs of the NetCDF time-series output files
 
-integer(i4b) :: ncid_core
-   !! ID of the NetCDF time-series output file for the deep ice cores
+integer(i4b) :: ncid_site
+   !! ID of the NetCDF time-series output file for the specified sites
+   !! (i.e., ice cores)
 
 real(dp), dimension(-10000:10000) :: kei
    !! Tabulated values of the kei function (Kelvin function of zero order)

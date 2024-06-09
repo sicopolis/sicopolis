@@ -90,10 +90,11 @@ contains
           ! Closing of NetCDF time-series output files
   end do
 
-  if (n_core >= 1) then
-     call check( nf90_sync(ncid_core),  thisroutine )
-     call check( nf90_close(ncid_core), thisroutine )
-          ! Closing of NetCDF time-series output file for the deep ice cores
+  if (n_site >= 1) then
+     call check( nf90_sync(ncid_site),  thisroutine )
+     call check( nf90_close(ncid_site), thisroutine )
+          ! Closing of NetCDF time-series output file for the specified sites
+          ! (i.e., ice cores)
   end if
 
 #endif

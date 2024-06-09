@@ -582,6 +582,13 @@ else if (approx_equal(DX, 4.0_dp, eps_sp_dp)) then
       call error(errormsg)
    end if
 
+else if (approx_equal(DX, 2.0_dp, eps_sp_dp)) then
+
+   if ( (IMAX /= 840).or.(JMAX /= 1440) ) then
+      errormsg = ' >>> sico_init: IMAX and/or JMAX wrong!'
+      call error(errormsg)
+   end if
+
 else
    errormsg = ' >>> sico_init: DX wrong!'
    call error(errormsg)
@@ -3460,98 +3467,98 @@ else if (forcing_flag == 2) then
 
 end if
 
-!  ------ Time-series file for deep boreholes
+!  ------ Time-series file for specified sites (i.e., ice cores)
 
 #if (defined(ANT))
-n_core = 6   ! Vostok, Dome A, Dome C, Dome F, Kohnen, Byrd
+n_site = 6   ! Vostok, Dome A, Dome C, Dome F, Kohnen, Byrd
 #elif (defined(GRL))
-n_core = 7   ! GRIP, GISP2, Dye3, Camp Century (CC),
+n_site = 7   ! GRIP, GISP2, Dye3, Camp Century (CC),
              ! NorthGRIP (NGRIP), NEEM, EastGRIP (EGRIP)
 #else
-n_core = 0   ! No boreholes defined
+n_site = 0   ! No sites defined
 #endif
 
-if (n_core > n_core_max) then
-   errormsg = ' >>> sico_init: n_core <= n_core_max required!' &
+if (n_site > n_site_max) then
+   errormsg = ' >>> sico_init: n_site <= n_site_max required!' &
             //         end_of_line &
-            //'        Increase value of n_core_max in sico_variables_m!'
+            //'        Increase value of n_site_max in sico_variables_m!'
    call error(errormsg)
 end if
 
 #if (defined(ANT))
 
-ch_core(1)     = 'Vostok'
-phi_core(1)    = -78.467_dp *deg2rad    ! Geographical position of Vostok,
-lambda_core(1) = 106.8_dp   *deg2rad    ! conversion deg -> rad
+ch_site(1)     = 'Vostok'
+phi_site(1)    = -78.467_dp *deg2rad    ! Geographical position of Vostok,
+lambda_site(1) = 106.8_dp   *deg2rad    ! conversion deg -> rad
  
-ch_core(2)     = 'Dome A'
-phi_core(2)    = -80.367_dp *deg2rad    ! Geographical position of Dome A,
-lambda_core(2) =  77.35_dp  *deg2rad    ! conversion deg -> rad
+ch_site(2)     = 'Dome A'
+phi_site(2)    = -80.367_dp *deg2rad    ! Geographical position of Dome A,
+lambda_site(2) =  77.35_dp  *deg2rad    ! conversion deg -> rad
 
-ch_core(3)     = 'Dome C'
-phi_core(3)    = -75.1_dp *deg2rad      ! Geographical position of Dome C,
-lambda_core(3) = 123.4_dp *deg2rad      ! conversion deg -> rad
+ch_site(3)     = 'Dome C'
+phi_site(3)    = -75.1_dp *deg2rad      ! Geographical position of Dome C,
+lambda_site(3) = 123.4_dp *deg2rad      ! conversion deg -> rad
 
-ch_core(4)     = 'Dome F'
-phi_core(4)    = -77.317_dp *deg2rad    ! Geographical position of Dome F,
-lambda_core(4) =  39.7_dp   *deg2rad    ! conversion deg -> rad
+ch_site(4)     = 'Dome F'
+phi_site(4)    = -77.317_dp *deg2rad    ! Geographical position of Dome F,
+lambda_site(4) =  39.7_dp   *deg2rad    ! conversion deg -> rad
 
-ch_core(5)     = 'Kohnen'
-phi_core(5)    = -75.0_dp   *deg2rad    ! Geographical position of Kohnen,
-lambda_core(5) =   0.067_dp *deg2rad    ! conversion deg -> rad
+ch_site(5)     = 'Kohnen'
+phi_site(5)    = -75.0_dp   *deg2rad    ! Geographical position of Kohnen,
+lambda_site(5) =   0.067_dp *deg2rad    ! conversion deg -> rad
 
-ch_core(6)     = 'Byrd'
-phi_core(6)    =  -80.017_dp *deg2rad   ! Geographical position of Byrd,
-lambda_core(6) = -119.517_dp *deg2rad   ! conversion deg -> rad
+ch_site(6)     = 'Byrd'
+phi_site(6)    =  -80.017_dp *deg2rad   ! Geographical position of Byrd,
+lambda_site(6) = -119.517_dp *deg2rad   ! conversion deg -> rad
 
 #elif (defined(GRL))
 
-ch_core(1)     = 'GRIP'
-phi_core(1)    =  72.58722_dp *deg2rad   ! Geographical position of GRIP,
-lambda_core(1) = -37.64222_dp *deg2rad   ! conversion deg -> rad
+ch_site(1)     = 'GRIP'
+phi_site(1)    =  72.58722_dp *deg2rad   ! Geographical position of GRIP,
+lambda_site(1) = -37.64222_dp *deg2rad   ! conversion deg -> rad
  
-ch_core(2)     = 'GISP2'
-phi_core(2)    =  72.58833_dp *deg2rad   ! Geographical position of GISP2
-lambda_core(2) = -38.45750_dp *deg2rad   ! conversion deg -> rad
+ch_site(2)     = 'GISP2'
+phi_site(2)    =  72.58833_dp *deg2rad   ! Geographical position of GISP2
+lambda_site(2) = -38.45750_dp *deg2rad   ! conversion deg -> rad
 
-ch_core(3)     = 'Dye3'
-phi_core(3)    =  65.15139_dp *deg2rad   ! Geographical position of Dye3,
-lambda_core(3) = -43.81722_dp *deg2rad   ! conversion deg -> rad
+ch_site(3)     = 'Dye3'
+phi_site(3)    =  65.15139_dp *deg2rad   ! Geographical position of Dye3,
+lambda_site(3) = -43.81722_dp *deg2rad   ! conversion deg -> rad
 
-ch_core(4)     = 'Camp Century'
-phi_core(4)    =  77.17970_dp *deg2rad   ! Geographical position of CC,
-lambda_core(4) = -61.10975_dp *deg2rad   ! conversion deg -> rad
+ch_site(4)     = 'Camp Century'
+phi_site(4)    =  77.17970_dp *deg2rad   ! Geographical position of CC,
+lambda_site(4) = -61.10975_dp *deg2rad   ! conversion deg -> rad
 
-ch_core(5)     = 'NGRIP'
-phi_core(5)    =  75.09694_dp *deg2rad   ! Geographical position of NGRIP,
-lambda_core(5) = -42.31956_dp *deg2rad   ! conversion deg -> rad
+ch_site(5)     = 'NGRIP'
+phi_site(5)    =  75.09694_dp *deg2rad   ! Geographical position of NGRIP,
+lambda_site(5) = -42.31956_dp *deg2rad   ! conversion deg -> rad
 
-ch_core(6)     = 'NEEM'
-phi_core(6)    =  77.5_dp     *deg2rad   ! Geographical position of NEEM,
-lambda_core(6) = -50.9_dp     *deg2rad   ! conversion deg -> rad
+ch_site(6)     = 'NEEM'
+phi_site(6)    =  77.5_dp     *deg2rad   ! Geographical position of NEEM,
+lambda_site(6) = -50.9_dp     *deg2rad   ! conversion deg -> rad
 
-ch_core(7)     = 'EGRIP'
-phi_core(7)    =  75.6299_dp  *deg2rad   ! Geographical position of EGRIP,
-lambda_core(7) = -35.9867_dp  *deg2rad   ! conversion deg -> rad
+ch_site(7)     = 'EGRIP'
+phi_site(7)    =  75.6299_dp  *deg2rad   ! Geographical position of EGRIP,
+lambda_site(7) = -35.9867_dp  *deg2rad   ! conversion deg -> rad
 
 #endif
 
-if (n_core > 0) then
+if (n_site > 0) then
 
 #if (GRID==0 || GRID==1)   /* Stereographic projection */
 
-   do n=1, n_core
+   do n=1, n_site
 
       if (F_INV > 1.0e+10_dp) then   ! interpreted as infinity,
                                      ! thus no flattening (spherical planet)
 
-         call stereo_forw_sphere(lambda_core(n), phi_core(n), &
-                                 R, LAMBDA0, PHI0, x_core(n), y_core(n))
+         call stereo_forw_sphere(lambda_site(n), phi_site(n), &
+                                 R, LAMBDA0, PHI0, x_site(n), y_site(n))
 
       else   ! finite inverse flattening (ellipsoidal planet)
 
-         call stereo_forw_ellipsoid(lambda_core(n), phi_core(n), &
-                                    A, B, LAMBDA0, PHI0, x_core(n), y_core(n))
+         call stereo_forw_ellipsoid(lambda_site(n), phi_site(n), &
+                                    A, B, LAMBDA0, PHI0, x_site(n), y_site(n))
 
       end if
 
@@ -3559,14 +3566,14 @@ if (n_core > 0) then
 
 #elif (GRID==2)   /* Geographical coordinates */
 
-   x_core = lambda_core
-   y_core = phi_core
+   x_site = lambda_site
+   y_site = phi_site
 
 #endif
 
 end if
 
-filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.core'
+filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.site'
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
 open(14, iostat=ios, file=trim(filename_with_path), status='new')
@@ -3575,15 +3582,15 @@ open(14, iostat=ios, file=trim(filename_with_path))
 #endif /* Normal vs. Tapenade */
 
 if (ios /= 0) then
-   errormsg = ' >>> sico_init: Error when opening the core file!'
+   errormsg = ' >>> sico_init: Error when opening the site file!'
    call error(errormsg)
 end if
 
-if (n_core == 0) then
+if (n_site == 0) then
 
-   write(14,'(1x,a)') '---------------------'
-   write(14,'(1x,a)') 'No boreholes defined.'
-   write(14,'(1x,a)') '---------------------'
+   write(14,'(1x,a)') '-----------------'
+   write(14,'(1x,a)') 'No sites defined.'
+   write(14,'(1x,a)') '-----------------'
 
 else
 

@@ -2010,57 +2010,57 @@ write(12,1103)
 1103 format('----------------------------------------------------', &
             '---------------------------------------')
 
-!  ------ Time-series file for selected positions ("deep boreholes")
+!  ------ Time-series file for specified sites (i.e., ice cores)
 
 #if (defined(NMARS))
-n_core = 3   ! Points NP (north pole), C1, C2 (in Chasma Borealis)
+n_site = 3   ! Points NP (north pole), C1, C2 (in Chasma Borealis)
 #else
-n_core = 0   ! No sites defined
+n_site = 0   ! No sites defined
 #endif
 
-if (n_core > n_core_max) then
-   errormsg = ' >>> sico_init: n_core <= n_core_max required!' &
+if (n_site > n_site_max) then
+   errormsg = ' >>> sico_init: n_site <= n_site_max required!' &
             //         end_of_line &
-            //'        Increase value of n_core_max in sico_variables_m!'
+            //'        Increase value of n_site_max in sico_variables_m!'
    call error(errormsg)
 end if
 
 #if (defined(NMARS))
 
-ch_core(1)     = 'North Pole'
-lambda_core(1) =    0.0_dp  ! dummy
-phi_core(1)    =    0.0_dp  ! dummy
-x_core(1)      =    0.0_dp *1.0e+03_dp    ! North pole,
-y_core(1)      =    0.0_dp *1.0e+03_dp    ! conversion km -> m
+ch_site(1)     = 'North Pole'
+lambda_site(1) =    0.0_dp  ! dummy
+phi_site(1)    =    0.0_dp  ! dummy
+x_site(1)      =    0.0_dp *1.0e+03_dp    ! North pole,
+y_site(1)      =    0.0_dp *1.0e+03_dp    ! conversion km -> m
 
-ch_core(2)     = 'C1'
-lambda_core(2) =    0.0_dp  ! dummy
-phi_core(2)    =    0.0_dp  ! dummy
-x_core(2)      = -150.0_dp *1.0e+03_dp    ! Point C1,
-y_core(2)      = -290.0_dp *1.0e+03_dp    ! conversion km -> m
+ch_site(2)     = 'C1'
+lambda_site(2) =    0.0_dp  ! dummy
+phi_site(2)    =    0.0_dp  ! dummy
+x_site(2)      = -150.0_dp *1.0e+03_dp    ! Point C1,
+y_site(2)      = -290.0_dp *1.0e+03_dp    ! conversion km -> m
 
-ch_core(3)     = 'C2'
-lambda_core(3) =    0.0_dp  ! dummy
-phi_core(3)    =    0.0_dp  ! dummy
-x_core(3)      = -300.0_dp *1.0e+03_dp    ! Point C2,
-y_core(3)      = -280.0_dp *1.0e+03_dp    ! conversion km -> m
+ch_site(3)     = 'C2'
+lambda_site(3) =    0.0_dp  ! dummy
+phi_site(3)    =    0.0_dp  ! dummy
+x_site(3)      = -300.0_dp *1.0e+03_dp    ! Point C2,
+y_site(3)      = -280.0_dp *1.0e+03_dp    ! conversion km -> m
 
 #endif
 
-filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.core'
+filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.site'
 
 open(14, iostat=ios, file=trim(filename_with_path), status='new')
 
 if (ios /= 0) then
-   errormsg = ' >>> sico_init: Error when opening the core file!'
+   errormsg = ' >>> sico_init: Error when opening the site file!'
    call error(errormsg)
 end if
 
-if (n_core == 0) then
+if (n_site == 0) then
 
-   write(14,'(1x,a)') '---------------------'
-   write(14,'(1x,a)') 'No boreholes defined.'
-   write(14,'(1x,a)') '---------------------'
+   write(14,'(1x,a)') '-----------------'
+   write(14,'(1x,a)') 'No sites defined.'
+   write(14,'(1x,a)') '-----------------'
 
 else
 

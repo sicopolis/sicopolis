@@ -2086,29 +2086,29 @@ write(12,1103)
    1103 format('----------------------------------------------------', &
                '---------------------------------------')
 
-!  ------ Time-series file for deep boreholes
+!  ------ Time-series file for specified sites (i.e., ice cores)
 
-n_core = 0   ! No boreholes defined
+n_site = 0   ! No sites defined
 
-if (n_core > n_core_max) then
-   errormsg = ' >>> sico_init: n_core <= n_core_max required!' &
+if (n_site > n_site_max) then
+   errormsg = ' >>> sico_init: n_site <= n_site_max required!' &
             //         end_of_line &
-            //'        Increase value of n_core_max in sico_variables_m!'
+            //'        Increase value of n_site_max in sico_variables_m!'
    call error(errormsg)
 end if
 
-filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.core'
+filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.site'
 
 open(14, iostat=ios, file=trim(filename_with_path), status='new')
 
 if (ios /= 0) then
-   errormsg = ' >>> sico_init: Error when opening the core file!'
+   errormsg = ' >>> sico_init: Error when opening the site file!'
    call error(errormsg)
 end if
 
-write(14,'(1x,a)') '---------------------'
-write(14,'(1x,a)') 'No boreholes defined.'
-write(14,'(1x,a)') '---------------------'
+write(14,'(1x,a)') '-----------------'
+write(14,'(1x,a)') 'No sites defined.'
+write(14,'(1x,a)') '-----------------'
 
 !-------- Output of the initial state --------
 

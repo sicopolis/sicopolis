@@ -201,8 +201,8 @@ Output files are written by default to the directory ``sico_out/<run_name>``. Th
   * Maximum basal temperature (relative to pmp), Tbh\_max
   * (Some more in the NetCDF file, execute ``ncdump -h <run_name>_ser.nc`` for a listing)
 
-``<run_name>.core``, ``<run_name>_core.nc``:
-  Time-series files (ASCII, NetCDF) that contain for selected locations xxx:
+``<run_name>.site``, ``<run_name>_site.nc``:
+  Time-series files (ASCII, NetCDF) that contain for selected sites (i.e., ice cores) xxx:
 
   * Time, t
   * Surface temperature anomaly, D\_Ts, or glacial index, glac\_ind (forcing)
@@ -210,7 +210,7 @@ Output files are written by default to the directory ``sico_out/<run_name>``. Th
   * Thickness, H\_xxx
   * Surface velocity, v\_xxx
   * Basal temperature, T\_xxx
-  * (Some more in the NetCDF file, execute ``ncdump -h <run_name>_core.nc`` for a listing)
+  * (Some more in the NetCDF file, execute ``ncdump -h <run_name>_site.nc`` for a listing)
 
   | For the Greenland ice sheet, these data are written for seven locations:
   | GRIP (xxx=GR), GISP2 (xxx=G2), Dye 3 (xxx=D3), Camp Century (xxx=CC), NorthGRIP (xxx=NG), NEEM (xxx=NE), EastGRIP (xxx=EG).
@@ -221,7 +221,7 @@ Output files are written by default to the directory ``sico_out/<run_name>``. Th
 ``<run_name>0001.nc``, ``<run_name>0002.nc``, ...:
   Complete set of fields (topography, velocity, temperature etc., written in NetCDF format) for selected time slices.
 
-Writing of output files can be controlled by the several parameters in the "Data output" section of the run-specs headers. For example, simulation ``repo_emtp2sge25_expA`` writes scalar variables into the time-series files ``repo_emtp2sge25_expA{.ser,.core,_ser.nc,_core.nc}`` every 100 years. In addition, it produces three time-slice files ``repo_emtp2sge25_expA0001.nc``, ``repo_emtp2sge25_expA0002.nc`` and ``repo_emtp2sge25_expA0003.nc``, which correspond to the times :math:`t=5\,\mathrm{ka}`, :math:`50\,\mathrm{ka}` and :math:`200\,\mathrm{ka}`, respectively.
+Writing of output files can be controlled by the several parameters in the "Data output" section of the run-specs headers. For example, simulation ``repo_emtp2sge25_expA`` writes scalar variables into the time-series files ``repo_emtp2sge25_expA{.ser,.site,_ser.nc,_site.nc}`` every 100 years. In addition, it produces three time-slice files ``repo_emtp2sge25_expA0001.nc``, ``repo_emtp2sge25_expA0002.nc`` and ``repo_emtp2sge25_expA0003.nc``, which correspond to the times :math:`t=5\,\mathrm{ka}`, :math:`50\,\mathrm{ka}` and :math:`200\,\mathrm{ka}`, respectively.
 
 .. note::
   By default, when trying to re-run a simulation, already existing output will not be overwritten, and an error message will be produced. However, overwriting can be enforced by executing ``sico.sh`` (or ``multi_sico_*.sh``) with the option ``-f``.

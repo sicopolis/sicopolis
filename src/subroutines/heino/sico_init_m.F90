@@ -1785,65 +1785,65 @@ write(15,1109)
             '                  H_ave(m)   Tbh_ave(C)     Atb(m^2)')
 1109 format('----------------------------------------------------')
 
-!  ------ Time-series file for selected positions ("deep boreholes")
+!  ------ Time-series file for specified sites (i.e., ice cores)
 
-n_core = 7   ! Points P1 - P7
+n_site = 7   ! Points P1 - P7
 
-if (n_core > n_core_max) then
-   errormsg = ' >>> sico_init: n_core <= n_core_max required!' &
+if (n_site > n_site_max) then
+   errormsg = ' >>> sico_init: n_site <= n_site_max required!' &
             //         end_of_line &
-            //'        Increase value of n_core_max in sico_variables_m!'
+            //'        Increase value of n_site_max in sico_variables_m!'
    call error(errormsg)
 end if
 
-ch_core(1)     = 'P1'
-lambda_core(1) =    0.0_dp  ! dummy
-phi_core(1)    =    0.0_dp  ! dummy
-x_core(1)      = 3900.0_dp *1.0e+03_dp    ! Point P1,
-y_core(1)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
+ch_site(1)     = 'P1'
+lambda_site(1) =    0.0_dp  ! dummy
+phi_site(1)    =    0.0_dp  ! dummy
+x_site(1)      = 3900.0_dp *1.0e+03_dp    ! Point P1,
+y_site(1)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
 
-ch_core(2)     = 'P2'
-lambda_core(2) =    0.0_dp  ! dummy
-phi_core(2)    =    0.0_dp  ! dummy
-x_core(2)      = 3800.0_dp *1.0e+03_dp    ! Point P2,
-y_core(2)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
+ch_site(2)     = 'P2'
+lambda_site(2) =    0.0_dp  ! dummy
+phi_site(2)    =    0.0_dp  ! dummy
+x_site(2)      = 3800.0_dp *1.0e+03_dp    ! Point P2,
+y_site(2)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
 
-ch_core(3)     = 'P3'
-lambda_core(3) =    0.0_dp  ! dummy
-phi_core(3)    =    0.0_dp  ! dummy
-x_core(3)      = 3700.0_dp *1.0e+03_dp    ! Point P3,
-y_core(3)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
+ch_site(3)     = 'P3'
+lambda_site(3) =    0.0_dp  ! dummy
+phi_site(3)    =    0.0_dp  ! dummy
+x_site(3)      = 3700.0_dp *1.0e+03_dp    ! Point P3,
+y_site(3)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
 
-ch_core(4)     = 'P4'
-lambda_core(4) =    0.0_dp  ! dummy
-phi_core(4)    =    0.0_dp  ! dummy
-x_core(4)      = 3500.0_dp *1.0e+03_dp    ! Point P4,
-y_core(4)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
+ch_site(4)     = 'P4'
+lambda_site(4) =    0.0_dp  ! dummy
+phi_site(4)    =    0.0_dp  ! dummy
+x_site(4)      = 3500.0_dp *1.0e+03_dp    ! Point P4,
+y_site(4)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
 
-ch_core(5)     = 'P5'
-lambda_core(5) =    0.0_dp  ! dummy
-phi_core(5)    =    0.0_dp  ! dummy
-x_core(5)      = 3200.0_dp *1.0e+03_dp    ! Point P5,
-y_core(5)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
+ch_site(5)     = 'P5'
+lambda_site(5) =    0.0_dp  ! dummy
+phi_site(5)    =    0.0_dp  ! dummy
+x_site(5)      = 3200.0_dp *1.0e+03_dp    ! Point P5,
+y_site(5)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
 
-ch_core(6)     = 'P6'
-lambda_core(6) =    0.0_dp  ! dummy
-phi_core(6)    =    0.0_dp  ! dummy
-x_core(6)      = 2900.0_dp *1.0e+03_dp    ! Point P6,
-y_core(6)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
+ch_site(6)     = 'P6'
+lambda_site(6) =    0.0_dp  ! dummy
+phi_site(6)    =    0.0_dp  ! dummy
+x_site(6)      = 2900.0_dp *1.0e+03_dp    ! Point P6,
+y_site(6)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
 
-ch_core(7)     = 'P7'
-lambda_core(7) =    0.0_dp  ! dummy
-phi_core(7)    =    0.0_dp  ! dummy
-x_core(7)      = 2600.0_dp *1.0e+03_dp    ! Point P7,
-y_core(7)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
+ch_site(7)     = 'P7'
+lambda_site(7) =    0.0_dp  ! dummy
+phi_site(7)    =    0.0_dp  ! dummy
+x_site(7)      = 2600.0_dp *1.0e+03_dp    ! Point P7,
+y_site(7)      = 2000.0_dp *1.0e+03_dp    ! conversion km -> m
 
-filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.core'
+filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.site'
 
 open(14, iostat=ios, file=trim(filename_with_path), status='new')
 
 if (ios /= 0) then
-   errormsg = ' >>> sico_init: Error when opening the core file!'
+   errormsg = ' >>> sico_init: Error when opening the site file!'
    call error(errormsg)
 end if
 

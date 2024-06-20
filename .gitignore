@@ -15,6 +15,7 @@ my_*
 
 *._*
 *DS_Store*
+*.nfs*
 
 /headers/*.h
 /headers/*.py
@@ -31,6 +32,7 @@ my_*
 /src/*.dat
 /src/driver*
 /src/*.msg
+/src/*.out
 /src/html/
 /src/*.gcda
 /src/*.gcno

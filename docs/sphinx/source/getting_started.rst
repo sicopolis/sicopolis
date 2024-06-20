@@ -25,9 +25,10 @@ Clone the Git repository (recommended)
 
     git clone https://gitlab.awi.de/sicopolis/sicopolis.git
 
-  (Cloning with SSH instead of HTTPS is also available. See the above GitLab front page link for details.)
-
   You should then have a new directory ``sicopolis`` that contains the entire program package.
+
+  .. note::
+    Cloning with SSH instead of HTTPS is not yet available on AWI's GitLab system.
 
 Download an archive
   Go to https://gitlab.awi.de/sicopolis/sicopolis/-/tree/main, click on the download symbol and choose the desired format (zip, tar.gz, tar.bz2, tar).

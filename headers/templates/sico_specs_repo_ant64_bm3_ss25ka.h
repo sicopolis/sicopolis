@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2024-05-10'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2024-06-12'
 !                      Date of last change
 
 !-------- Domain --------
@@ -1155,8 +1155,7 @@
 !                           (GHF imposed directly at the grounded ice base)
 !                       1 : Coupled heat-conducting bedrock
 !                           (GHF imposed at the base of the
-!                           thermal lithosphere layer of thickness H_R,
-!                           defined in the physical-parameter file)
+!                           thermal lithosphere layer of thickness PARAM_H_R)
 
 !-------- Basal melting at the marine ice front --------
 

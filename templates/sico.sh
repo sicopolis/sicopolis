@@ -10,11 +10,7 @@ LANG=C
 #
 #  Authors: Malte Thoma, Thomas Goelles, Ralf Greve, Fuyuki Saito
 #
-#  Date: 2024-01-08
-#
-#    Execute script 
-#       ./sico.sh -m <run_name> [further options...]
-#    where <run_name> is the name of the simulation.
+#  Date: 2024-06-18
 #
 ################################################################################
 
@@ -49,6 +45,7 @@ function usage()
    "                                    only needed if THK_EVOL=2 or 3,\n"\
    "                                    or if ACCSURFACE=7 and ABLSURFACE=7\n"\
    "     [-f] => force overwriting the output directory\n"\
+   "     [-o <num_core>] => number of cores to be used, default is 1\n"\
    "     [-n] => skip make clean\n"\
    "     [-b] => skip execution, build only\n"\
    "     [-c <FILE>] => configuration file FILE instead of sico_configs.sh\n"\
@@ -62,7 +59,7 @@ function usage()
 
 function check_args()
 {
-   while getopts a:bc:d:fhi:m:nt:uz? OPT ; do
+   while getopts a:bc:d:fhi:m:no:t:uz? OPT ; do
      case $OPT in
        a) ANF_DAT_PATH=$OPTARG ;;
        b) BUILD_ONLY="TRUE";;
@@ -72,6 +69,7 @@ function check_args()
        i) local INDIRIN=$OPTARG ;;
        m) RUN=$OPTARG ;;
        n) SKIP_MAKECLEAN="TRUE";;
+       o) local NUM_CORE=$OPTARG ;;
        t) TARGET_TOPO_PATH=$OPTARG ;;
        u) local REDUNDANT_OPTION_U="TRUE";;
        z) local REDUNDANT_OPTION_Z="TRUE";;
@@ -122,7 +120,14 @@ function check_args()
    # Checking for existing output
    if [ "$FORCE" ]; then $RM -rf $RESDIR 2> /dev/null ; fi
    if [ -e $RESDIR ]; then error "$RESDIR exists. Use -f to overwrite."; fi
-   
+
+   # Number of cores
+   if [ ! "$NUM_CORE" ]; then
+      OMP_NUM_THREADS=1; export OMP_NUM_THREADS
+   else
+      OMP_NUM_THREADS=${NUM_CORE}; export OMP_NUM_THREADS
+   fi
+
    # Handling the ANF_DAT_PATH
    # Reading variables from header
    ANF_DAT=$(sed -n 's%#define ANF_DAT % %p'  $HEADER)

@@ -2,6 +2,17 @@
 LANG=C
 
 ################################################################################
+#
+#  m u l t i _ s i c o _ 1 . s h
+#
+#  bash script for multiple execution of sico.sh
+#  (compilation, linking and execution of the program SICOPOLIS).
+#
+#  Author: Ralf Greve
+#
+#  Date: 2024-06-18
+#
+################################################################################
 
 function error()
 {
@@ -27,6 +38,7 @@ function usage()
    "     [-i <dir>] => individual input directory, default is sico_in\n"\
    "     [-d <dir>] => individual output directory, default is sico_out/<run_name>\n"\
    "     [-f] => force overwriting the output directory\n"\
+   "     [-o <num_core>] => number of cores to be used, default is 1\n"\
    "     [-n] => skip make clean\n"\
    "     [-b] => skip execution, build only\n"\
    "     [-c <FILE>] => configuration file FILE instead of sico_configs.sh\n"\
@@ -40,7 +52,7 @@ function usage()
 
 function check_args()
 {
-   while getopts bc:d:fhi:nuz? OPT ; do
+   while getopts bc:d:fhi:no:uz? OPT ; do
      case $OPT in
        b) local BUILD_ONLY="TRUE";;
        c) local CONFIG=$OPTARG ;;
@@ -48,6 +60,7 @@ function check_args()
        f) local FORCE="TRUE";;
        i) local INDIR=$OPTARG ;;
        n) local SKIP_MAKECLEAN="TRUE";;
+       o) local NUM_CORE=$OPTARG ;;
        u) local REDUNDANT_OPTION_U="TRUE";;
        z) local REDUNDANT_OPTION_Z="TRUE";;
      h|?) usage; exit 1;;
@@ -77,6 +90,10 @@ function check_args()
       MULTI_OPTIONS_1="$MULTI_OPTIONS_1 -i $INDIR"
    fi
 
+   if [ "$NUM_CORE" ]; then
+      MULTI_OPTIONS_1="$MULTI_OPTIONS_1 -o $NUM_CORE"
+   fi
+
    if [ "$SKIP_MAKECLEAN" ]; then
       MULTI_OPTIONS_1="$MULTI_OPTIONS_1 -n"
       MULTI_OPTIONS_2="$MULTI_OPTIONS_2 -n"
@@ -104,9 +121,6 @@ function check_args()
 
 function run()
 {
-   OMP_NUM_THREADS=1; export OMP_NUM_THREADS
-   #              (number of threads for the SSA solver using OpenMP)
-
    SICO_SH_OUT_DIR="tmp"
    #              (directory for output files of script sico.sh)
 

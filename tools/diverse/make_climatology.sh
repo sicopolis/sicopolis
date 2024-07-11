@@ -1,9 +1,11 @@
 #!/bin/bash
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# make_climatology.sh   Date: 2022-06-05
+# make_climatology.sh   Date: 2024-07-11
 #
-# Description:
+# -----------
+# Description
+# -----------
 #
 #   Generate climatology (SMB, ST, reference elevation) for a given
 #   time interval from a SICOPOLIS output file.
@@ -14,16 +16,47 @@
 #   in the run-specs header, and the output file must be valid for the
 #   desired time interval (this is not checked!).
 #
-#   Example:
+# --------
+# Examples
+# --------
 #
-#      ./make_climatology.sh \
-#         -d /work/sicopolis/grl05_paleo_clim \
-#         -m grl05_paleo_clim -n 0004 -y 1960 -z 1989
+#   ./make_climatology.sh \
+#      -d /work/sicopolis/ant08_spinup_clim \
+#      -m ant08_spinup_clim -n 0003 -y 1960 -z 1989
 #
-#      -> create climatology (grl05_paleo_clim_1960-1989.nc)
-#            from output file grl05_paleo_clim0004.nc
-#               in directory /work/sicopolis/grl05_paleo_clim
-#                  for the period 1960-1989.
+#     -> create climatology (ant08_spinup_clim_1960-1989.nc)
+#           from output file ant08_spinup_clim0003.nc
+#              in directory /work/sicopolis/ant08_spinup_clim
+#                 for the period 1960-1989.
+#
+#   ---------
+#
+#   ./make_climatology.sh \
+#      -d /work/sicopolis/ant08_hist_clim \
+#      -m ant08_hist_clim -n 0002 -t -y 1995 -z 2014
+#
+#     -> create climatology (ant08_hist_clim_1995-2014.nc)
+#           from output file ant08_hist_clim_2d_0002.nc
+#              in directory /work/sicopolis/ant08_hist_clim
+#                 for the period 1995-2014.
+#
+#   ---------
+#
+#   ./make_climatology.sh \
+#      -d /work/sicopolis/grl05_paleo_clim \
+#      -m grl05_paleo_clim -n 0004 -y 1960 -z 1989
+#
+#     -> create climatology (grl05_paleo_clim_1960-1989.nc)
+#           from output file grl05_paleo_clim0004.nc
+#              in directory /work/sicopolis/grl05_paleo_clim
+#                 for the period 1960-1989.
+#
+# ----
+# Note
+# ----
+#
+#   The resulting climatology file must be moved to
+#   sico_in/ant/ (for Antarctica) or sico_in/grl/ (for Greenland).
 #
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

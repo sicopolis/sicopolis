@@ -83,7 +83,34 @@ logical :: flag_calc_temp
 logical, dimension(0:JMAX,0:IMAX) :: flag_inner_point
    !! Inner-point flag:
    !!   .true.: inner point,
-   !!  .false.: margin point
+   !!  .false.: otherwise (margin point)
+
+logical, dimension(0:JMAX,0:IMAX) :: flag_inner_inner_point
+   !! Inner-point flag:
+   !!   .true.: inner point (outermost two grid points excepted),
+   !!  .false.: otherwise (margin point, or margin-neighbour point)
+
+logical, dimension(0:JMAX,0:IMAX) :: flag_sg_x
+   !! Flag for staggered grid in x-direction:
+   !!   .true.: staggered-grid point in x-direction,
+   !!  .false.: otherwise
+
+logical, dimension(0:JMAX,0:IMAX) :: flag_sg_y
+   !! Flag for staggered grid in y-direction:
+   !!   .true.: staggered-grid point in y-direction,
+   !!  .false.: otherwise
+
+logical, dimension(0:JMAX,0:IMAX) :: flag_sg_x_inner_y
+   !! Flag for staggered grid in x-direction and inner point in y-direction:
+   !!   .true.: staggered-grid point in x-direction
+   !!           and inner point in y-direction,
+   !!  .false.: otherwise
+
+logical, dimension(0:JMAX,0:IMAX) :: flag_sg_y_inner_x
+   !! Flag for staggered grid in y-direction and inner point in x-direction:
+   !!   .true.: staggered-grid point in y-direction
+   !!           and inner point in x-direction,
+   !!  .false.: otherwise
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_grounding_line_1
    !! Grounding line flag:
@@ -1466,6 +1493,11 @@ integer(i4b), dimension((IMAX+1)*(JMAX+1)) :: n2i
 
 integer(i4b), dimension((IMAX+1)*(JMAX+1)) :: n2j
    !! Conversion from linear index n to 2d index j
+
+logical :: flag_grads_nc_tweaks
+   !! Flag for optimizing NetCDF output for viewing with GrADS:
+   !!   .true.: optimized output,
+   !!  .false.: normal NetCDF output (default)
 
 real(dp), parameter :: no_value_pos_1 =  1.11e+11_dp
    !! Positive no-value parameter

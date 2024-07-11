@@ -5,7 +5,7 @@
 !
 #define       MODEL_SICOPOLIS
 #define       VERSION '24'
-#define       DATE    '2024-06-08'
+#define       DATE    '2024-06-27'
 !
 !! Main program of SICOPOLIS.
 !!
@@ -42,7 +42,7 @@
 !                                               (only if required) --------
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
-#if (CALCTHK==3 || CALCTHK==6 || MARGIN==3 || DYNAMICS==2)
+#if (MARGIN==3 || DYNAMICS==2 || DYNAMICS==3)
 #include "lisf.h"
 #endif
 #endif /* Normal */

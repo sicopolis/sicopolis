@@ -243,17 +243,17 @@ contains
 !! the retreat mask due to oceanic forcing or the ice-shelf collapse mask
 !! (counted as calving).
 !-------------------------------------------------------------------------------
-  subroutine calving_retreat_mask(time, dtime)
+  subroutine calving_retreat_mask(time, dtime, i, j)
 
   implicit none
 
-  real(dp), intent(in) :: time, dtime
+  integer(i4b), intent(in) :: i, j
+  real(dp)    , intent(in) :: time, dtime
 
-  integer(i4b) :: i, j
-  real(dp), dimension(0:JMAX,0:IMAX) :: H_new_tmp, dHdt_retreat
-  real(dp), dimension(0:JMAX,0:IMAX) :: calv_retreat_mask
-  real(dp)                           :: dtime_inv
-  real(dp)                           :: dtime_1year, dtime_1year_inv
+  real(dp) :: H_new_tmp, dHdt_retreat
+  real(dp) :: calv_retreat_mask
+  real(dp) :: dtime_inv
+  real(dp) :: dtime_1year, dtime_1year_inv
 
   dtime_inv       = 1.0_dp/dtime
   dtime_1year     = year2sec   ! 1 year (in seconds)
@@ -261,37 +261,31 @@ contains
 
 !-------- Saving computed H_new before any adjustments --------
 
-  H_new_tmp = H_new
+  H_new_tmp = H_new(j,i)
 
 !-------- Adjustment due to the retreat mask --------
 
   dHdt_retreat = 0.0_dp   ! initialization
 
-  do i=0, IMAX
-  do j=0, JMAX
-
 #if (RETREAT_MASK==1)
-     if (H_new(j,i) > 0.0_dp) then
+  if (H_new(j,i) > 0.0_dp) then
 #elif (ICE_SHELF_COLLAPSE_MASK==1)
-     if ((H_new(j,i) > 0.0_dp).and.(mask(j,i)==3)) then
+  if ((H_new(j,i) > 0.0_dp).and.(mask(j,i)==3)) then
 #endif
 
-        dHdt_retreat(j,i) = -(1.0_dp-r_mask_retreat(j,i))*H_ref_retreat(j,i) &
-                                                         *dtime_1year_inv
+     dHdt_retreat = -(1.0_dp-r_mask_retreat(j,i))*H_ref_retreat(j,i) &
+                                                 *dtime_1year_inv
 
-        H_new(j,i) = max((H_new(j,i) + dHdt_retreat(j,i)*dtime), 0.0_dp)
+     H_new(j,i) = max((H_new(j,i) + dHdt_retreat*dtime), 0.0_dp)
 
-     end if
-
-  end do
-  end do
+  end if
 
 !-------- Computation of the mass balance adjustment --------
 
-  calv_retreat_mask = (H_new_tmp-H_new)*dtime_inv
+  calv_retreat_mask = (H_new_tmp-H_new(j,i))*dtime_inv
                       ! calving is counted as positive for mass loss
 
-  calving = calving + calv_retreat_mask
+  calving(j,i) = calving(j,i) + calv_retreat_mask
 
   end subroutine calving_retreat_mask
 

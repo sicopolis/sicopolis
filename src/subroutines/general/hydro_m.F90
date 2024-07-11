@@ -350,11 +350,15 @@ contains
   end subroutine siftDown
 
   subroutine show (self)
+    !$ use omp_lib
     class (queue), intent(in)     :: self
     integer                       :: i
+
+  !$omp parallel do private(i) shared(self)
   do i=1,self%currentSize
     write (*,'(i4, i4, f7.2, i4)') self%heaplist(i)
   end do
+  !$omp end parallel do
 
   end subroutine
 

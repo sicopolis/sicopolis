@@ -1,23 +1,43 @@
 #!/bin/bash
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# make_H_ref.sh   Date: 2022-06-05
+# make_H_ref.sh   Date: 2024-07-11
 #
-# Description:
+# -----------
+# Description
+# -----------
 #
 #   Generate reference ice thickness for a given time from a
 #   SICOPOLIS output file.
 #
-#   Example:
+# --------
+# Examples
+# --------
 #
-#      ./make_H_ref.sh \
-#         -d /work/sicopolis/grl05_hist \
-#         -m grl05_hist -n 0001 -y 2015
+#   ./make_H_ref.sh \
+#      -d /work/sicopolis/ant08_hist \
+#      -m ant08_hist -n 0001 -y 2015
 #
-#      -> create reference ice thickness (grl05_hist0001_H_ref_2015.nc)
-#            from output file grl05_hist0001.nc
-#               in directory /work/sicopolis/grl05_hist
-#                  for the year 2015.
+#     -> create reference ice thickness (ant08_hist0001_H_ref_2015.nc)
+#           from output file ant08_hist0001.nc
+#              in directory /work/sicopolis/ant08_hist
+#                 for the year 2015.
+#
+#   ./make_H_ref.sh \
+#      -d /work/sicopolis/grl05_hist \
+#      -m grl05_hist -n 0001 -y 2015
+#
+#     -> create reference ice thickness (grl05_hist0001_H_ref_2015.nc)
+#           from output file grl05_hist0001.nc
+#              in directory /work/sicopolis/grl05_hist
+#                 for the year 2015.
+#
+# ----
+# Note
+# ----
+#
+#   The resulting reference-ice-thickness file must be moved to
+#   sico_in/ant/ (for Antarctica) or sico_in/grl/ (for Greenland).
 #
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

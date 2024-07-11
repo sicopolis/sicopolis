@@ -111,7 +111,7 @@ real(dp), dimension(0:JMAX,0:IMAX)      :: temp_diff
 real(dp), dimension(0:JMAX,0:IMAX) :: accum_prescribed
 real(dp), dimension(0:JMAX,0:IMAX) :: runoff_prescribed
 
-real(dp), dimension(0:JMAX,0:IMAX)    :: precip_fact
+real(dp), dimension(0:JMAX,0:IMAX)    :: precip_fact, precip_fact_elev_desert
 real(dp), dimension(0:JMAX,0:IMAX,12) :: precip_fact_mm
 
 #if (SOLID_PRECIP==3)
@@ -1060,22 +1060,18 @@ temp_maat = temp_ma
 
 !-------- Accumulation-ablation function as_perp --------
 
-#if (ACCSURFACE<=3)
-
-#if (ELEV_DESERT==1)
+#if (ACCSURFACE<=5 && ELEV_DESERT==1)
 gamma_p   = GAMMA_P*1.0e-03_dp   ! Precipitation lapse rate
                                  ! for elevation desertification, in m^(-1)
 zs_thresh = ZS_THRESH            ! Elevation threshold, in m
 #endif
 
-#elif (ACCSURFACE==4)
-
+#if (ACCSURFACE==4)
 alpha_p =  22.47_dp
 beta_p  =   0.046_dp
 temp_0  = 273.15_dp
 alpha_t =   0.67_dp
 beta_t  =  88.9_dp
-
 #endif
 
 #if (ACCSURFACE<=5)
@@ -1133,21 +1129,21 @@ do j=0, JMAX
 
 !  ------ Accumulation
 
-#if (ACCSURFACE<=3)
-
 !    ---- Elevation desertification of precipitation
+
+#if (ACCSURFACE<=5)
 
 #if (ELEV_DESERT==0)
 
-   precip_fact(j,i) = 1.0_dp   ! no elevation desertification
+   precip_fact_elev_desert(j,i) = 1.0_dp   ! no elevation desertification
 
 #elif (ELEV_DESERT==1)
 
    if (zs_ref_precip(j,i) < zs_thresh) then
-      precip_fact(j,i) &
+      precip_fact_elev_desert(j,i) &
          = exp(gamma_p*(max(zs(j,i),zs_thresh)-zs_thresh))
    else
-      precip_fact(j,i) &
+      precip_fact_elev_desert(j,i) &
          = exp(gamma_p*(max(zs(j,i),zs_thresh)-zs_ref_precip(j,i)))
    end if
 
@@ -1155,10 +1151,6 @@ do j=0, JMAX
    errormsg = ' >>> boundary: Parameter ELEV_DESERT must be either 0 or 1!'
    call error(errormsg)
 #endif
-
-   do n=1, 12   ! month counter
-      precip(j,i,n) = precip_present(j,i,n)*precip_fact(j,i)
-   end do
 
 #endif
 
@@ -1177,7 +1169,8 @@ do j=0, JMAX
    precip(j,i,0) = 0.0_dp   ! initialization value for mean annual precip
 
    do n=1, 12   ! month counter
-      precip(j,i,n) = precip(j,i,n)*precip_fact(j,i)
+      precip(j,i,n) = precip_present(j,i,n)*precip_fact(j,i) &
+                                           *precip_fact_elev_desert(j,i)
                                                   ! monthly precip
       precip(j,i,0) = precip(j,i,0) + precip(j,i,n)*inv_twelve
                                                   ! mean annual precip
@@ -1195,7 +1188,8 @@ do j=0, JMAX
                          *(1.0_dp+beta_p*(temp_inv-temp_inv_present))
 
    do n=1, 12   ! month counter
-      precip(j,i,n) = precip_present(j,i,n)*precip_fact(j,i)
+      precip(j,i,n) = precip_present(j,i,n)*precip_fact(j,i) &
+                                           *precip_fact_elev_desert(j,i)
                                                   ! monthly precip
       precip(j,i,0) = precip(j,i,0) + precip(j,i,n)*inv_twelve
                                                   ! mean annual precip
@@ -1216,7 +1210,8 @@ do j=0, JMAX
                               ! interpolation with an exponential function
 #endif
 
-      precip(j,i,n) = precip_present(j,i,n)*precip_fact_mm(j,i,n)
+      precip(j,i,n) = precip_present(j,i,n)*precip_fact_mm(j,i,n) &
+                                           *precip_fact_elev_desert(j,i)
                                                       ! monthly precip
       precip(j,i,0) = precip(j,i,0) + precip(j,i,n)*inv_twelve
                                                       ! mean annual precip

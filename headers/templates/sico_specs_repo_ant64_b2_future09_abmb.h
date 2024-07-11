@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2024-06-12'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2024-06-27'
 !                      Date of last change
 
 !-------- Domain --------
@@ -819,18 +819,18 @@
 !                       (in 1/C, only for ACCSURFACE==2, 3)
 
 #define ELEV_DESERT 0
-!                         0 : No elevation desertification
-!                         1 : Elevation desertification accounted for
-!                             (only for ACCSURFACE==1, 2, 3)
+!                       0 : No elevation desertification
+!                       1 : Elevation desertification accounted for
+!                           (only for ACCSURFACE<=5)
 
-#define GAMMA_P     -log(2.0d0)
+#define GAMMA_P -log(2.0d0)
 !                       Precipitation lapse rate for elevation desertification,
 !                       in km^(-1)
-!                       (only for ELEV_DESERT==1 and ACCSURFACE==1, 2, 3)
+!                       (only for ELEV_DESERT==1 and ACCSURFACE<=5)
 
-#define ZS_THRESH   1500.0d0
+#define ZS_THRESH 1500.0d0
 !                       Elevation threshold for elevation desertification, in m
-!                       (only for ELEV_DESERT==1 and ACCSURFACE==1, 2, 3)
+!                       (only for ELEV_DESERT==1 and ACCSURFACE<=5)
 
 #define PRECIP_ANOM_FILE 'none'
 !                       Name of the file containing the LGM

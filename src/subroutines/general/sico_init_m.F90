@@ -1221,6 +1221,8 @@ time_output0(20) = TIME_OUT0_20
 
 #endif
 
+call set_flag_grads_nc_tweaks()
+
 !-------- Maximum ice extent yes/no --------
 
 #if (!defined(MASK_MAXEXTENT_FILE) || THK_EVOL==0)
@@ -1740,7 +1742,7 @@ write(10, fmt=trim(fmt3)) 'accfact =', ACCFACT
 #elif (ACCSURFACE==2 || ACCSURFACE==3)
 write(10, fmt=trim(fmt3)) 'gamma_s =', GAMMA_S
 #endif
-#if (ACCSURFACE<=3)
+#if (ACCSURFACE<=5)
 write(10, fmt=trim(fmt2)) 'ELEV_DESERT = ', ELEV_DESERT
 #if (ELEV_DESERT == 1)
 write(10, fmt=trim(fmt3)) 'gamma_p   =', GAMMA_P
@@ -3284,15 +3286,33 @@ Q_b_tot = Q_bm + Q_tld
 
 #endif
 
-!-------- Inner-point flag --------
+!-------- Inner-point and staggered-grid flags --------
 
-flag_inner_point = .true.
+flag_inner_point            = .true.
+flag_inner_point(0   ,:   ) = .false.
+flag_inner_point(JMAX,:   ) = .false.
+flag_inner_point(:   ,0   ) = .false.
+flag_inner_point(:   ,IMAX) = .false.
 
-flag_inner_point(0,:)    = .false.
-flag_inner_point(JMAX,:) = .false.
+flag_inner_inner_point                = flag_inner_point
+flag_inner_inner_point(1     ,:     ) = .false.
+flag_inner_inner_point(JMAX-1,:     ) = .false.
+flag_inner_inner_point(:     ,1     ) = .false.
+flag_inner_inner_point(:     ,IMAX-1) = .false.
 
-flag_inner_point(:,0)    = .false.
-flag_inner_point(:,IMAX) = .false.
+flag_sg_x         = .true.
+flag_sg_x(:,IMAX) = .false.
+
+flag_sg_y         = .true.
+flag_sg_y(JMAX,:) = .false.
+
+flag_sg_x_inner_y         = flag_sg_x
+flag_sg_x_inner_y(0   ,:) = .false.
+flag_sg_x_inner_y(JMAX,:) = .false.
+
+flag_sg_y_inner_x         = flag_sg_y
+flag_sg_y_inner_x(:,0   ) = .false.
+flag_sg_y_inner_x(:,IMAX) = .false.
 
 !-------- Distance between grid points with delta_i=ir, delta_j=jr --------
 
@@ -5006,6 +5026,42 @@ if (mask_region(0,0) == -1) then
 end if
 
 end subroutine topography3
+
+!-------------------------------------------------------------------------------
+!> Set the value of the auxiliary variable flag_grads_nc_tweaks.
+!-------------------------------------------------------------------------------
+  subroutine set_flag_grads_nc_tweaks()
+
+  implicit none
+
+  character(len=16) :: ch_value
+
+  flag_grads_nc_tweaks = .false.   ! default
+
+!-------- Try environment variable --------
+
+  call get_environment_variable('SICO_GRADS_NC_TWEAKS', ch_value)
+
+  if ( (trim(ch_value)=='true') &
+       .or.(trim(ch_value)=='True').or.(trim(ch_value)=='TRUE') ) &
+     flag_grads_nc_tweaks = .true.
+
+  if ( (trim(ch_value)=='yes') &   ! obsolete, but still supported
+       .or.(trim(ch_value)=='Yes').or.(trim(ch_value)=='YES') &
+       .or.(trim(ch_value)=='y').or.(trim(ch_value)=='Y') ) &
+     flag_grads_nc_tweaks = .true.
+
+!-------- Try preprocessor switch --------
+
+#if (defined(GRADS_NC_TWEAKS))
+#if (GRADS_NC_TWEAKS==1)
+  flag_grads_nc_tweaks = .true.
+#else
+  flag_grads_nc_tweaks = .false.
+#endif
+#endif
+
+  end subroutine set_flag_grads_nc_tweaks
 
 !-------------------------------------------------------------------------------
 

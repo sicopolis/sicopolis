@@ -57,11 +57,13 @@ contains
 !-------------------------------------------------------------------------------
   subroutine calc_dxyz(dxi, deta, dzeta_c, dzeta_t)
 
+  !$ use omp_lib
+
   implicit none
 
   real(dp), intent(in) :: dxi, deta, dzeta_c, dzeta_t
 
-  integer(i4b)                       :: i, j, kc, kt
+  integer(i4b)                       :: i, j, ij, kc, kt
   real(dp)                           :: dxi_inv, deta_inv
   real(dp), dimension(0:JMAX,0:IMAX) :: fact_x, fact_y
   real(dp), dimension(0:KCMAX)       :: fact_z_c
@@ -75,49 +77,46 @@ contains
   real(dp)                           :: shear_x_help, shear_y_help
   real(dp)                           :: lambda_shear_help
 
-!-------- Term abbreviations --------
+!-------- Abbreviations --------
 
   dxi_inv  = 1.0_dp/dxi
   deta_inv = 1.0_dp/deta
 
-  fact_x   = dxi_inv *insq_g11_g
-  fact_y   = deta_inv*insq_g22_g
+!-------- Loop over (i,j) --------
 
-  do kc=0, KCMAX
-     if (flag_aa_nonzero) then
-        fact_z_c(kc)  = (ea-1.0_dp)/(aa*eaz_c(kc)*dzeta_c)
-     else
-        fact_z_c(kc)  = 1.0_dp/dzeta_c
-     end if
-  end do
+  !$omp parallel do default(shared) private(ij, i, j, kc, kt) &
+  !$omp private(fact_z_c, fact_z_t, H_c_inv, H_t_inv) &
+  !$omp private(lxy_c, lyx_c, lxz_c, lzx_c, lyz_c, lzy_c) &
+  !$omp private(lxy_t, lyx_t, lxz_t, lzx_t, lyz_t, lzy_t) &
+  !$omp private(shear_c_squared, shear_t_squared) &
+  !$omp private(abs_v_ssa_inv, nx, ny) &
+  !$omp private(shear_x_help, shear_y_help, lambda_shear_help)
+  do ij=1, (IMAX+1)*(JMAX+1)
 
-  fact_z_t  = 1.0_dp/dzeta_t
+     i = n2i(ij)   ! i=0...IMAX
+     j = n2j(ij)   ! j=0...JMAX
 
-!-------- Initialisation --------
+!-------- Term abbreviations --------
 
-  dxx_c          = 0.0_dp
-  dyy_c          = 0.0_dp
-  dxy_c          = 0.0_dp
-  dxz_c          = 0.0_dp
-  dyz_c          = 0.0_dp
-  de_c           = 0.0_dp
-  lambda_shear_c = 0.0_dp
+     fact_x(j,i) = dxi_inv *insq_g11_g(j,i)
+     fact_y(j,i) = deta_inv*insq_g22_g(j,i)
 
-  dxx_t          = 0.0_dp
-  dyy_t          = 0.0_dp
-  dxy_t          = 0.0_dp
-  dxz_t          = 0.0_dp
-  dyz_t          = 0.0_dp
-  de_t           = 0.0_dp
-  lambda_shear_t = 0.0_dp
+     do kc=0, KCMAX
+        if (flag_aa_nonzero) then
+           fact_z_c(kc) = (ea-1.0_dp)/(aa*eaz_c(kc)*dzeta_c)
+        else
+           fact_z_c(kc) = 1.0_dp/dzeta_c
+        end if
+     end do
+
+     fact_z_t  = 1.0_dp/dzeta_t
 
 !-------- Computation --------
 
-  do i=1, IMAX-1
-  do j=1, JMAX-1
-
-     if ((mask(j,i) == 0).or.(mask(j,i) == 3)) then
-                                                 ! grounded or floating ice
+     if ( flag_inner_point(j,i) &
+          .and. &
+          ((mask(j,i) == 0).or.(mask(j,i) == 3)) ) then
+                               ! inner point, and grounded or floating ice
 
         H_c_inv = 1.0_dp/(abs(H_c(j,i))+eps_dp)
 
@@ -411,7 +410,7 @@ contains
         lambda_shear_t(:,j,i) = min(lambda_shear_t(:,j,i), 1.0_dp)
 #endif
 
-     else   ! mask(j,i) == 1 or 2; ice-free land or ocean
+     else   ! margin point; or ice-free land or ocean
 
         dxx_c(:,j,i)          = 0.0_dp
         dyy_c(:,j,i)          = 0.0_dp
@@ -432,7 +431,7 @@ contains
      end if
 
   end do
-  end do
+  !$omp end parallel do
 
   end subroutine calc_dxyz
 

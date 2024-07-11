@@ -5303,7 +5303,6 @@ real(dp), save     :: time_add_offset_val
 character(len= 16) :: ch_date, ch_time, ch_zone
 character(len=256) :: filename, filename_with_path, buffer
 character(len=  2) :: ch2_aux
-logical, save      :: grads_nc_tweaks
 
 integer(i4b), save :: counter = 0
 
@@ -5698,9 +5697,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
 
 !  ------ Definition of the dimensions
 
-      call set_grads_nc_tweaks(grads_nc_tweaks)
-
-      if (grads_nc_tweaks) then
+      if (flag_grads_nc_tweaks) then
          call check( nf90_def_dim(ncid(n), 'x', 1, ncd), thisroutine )
          call check( nf90_def_dim(ncid(n), 'y', 1, ncd), thisroutine )
       end if
@@ -5709,7 +5706,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
 
 !  ------ Definition of the variables
 
-      if (grads_nc_tweaks) then
+      if (flag_grads_nc_tweaks) then
 
 !    ---- x
 
@@ -5782,7 +5779,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
                   thisroutine )
       call check( nf90_put_att(ncid(n), ncv, 'axis', 't'), thisroutine )
 
-      if (grads_nc_tweaks) then
+      if (flag_grads_nc_tweaks) then
 
 !    ---- Time offset
 
@@ -6428,7 +6425,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
 
    if (firstcall%output2) then
 
-      if (grads_nc_tweaks) then
+      if (flag_grads_nc_tweaks) then
 
          nc1cor = [ 1 ]
 
@@ -6456,7 +6453,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
 
       call check( nf90_inq_varid(ncid(n), 't', ncv), thisroutine )
 
-      if (.not.grads_nc_tweaks) then
+      if (.not.flag_grads_nc_tweaks) then
          call check( nf90_put_var(ncid(n), ncv, time_val, &
                                   start=nc1cor), thisroutine )
       else
@@ -7019,7 +7016,6 @@ real(dp), save     :: time_add_offset_val
 character(len= 16) :: ch_date, ch_time, ch_zone
 character(len=256) :: filename, filename_with_path, buffer
 logical            :: flag_in_domain
-logical, save      :: grads_nc_tweaks
 
 integer(i4b), save :: counter = 0
 
@@ -7243,9 +7239,7 @@ if (n_site >= 1) then
 
 !  ------ Definition of the dimensions
 
-      call set_grads_nc_tweaks(grads_nc_tweaks)
-
-      if (grads_nc_tweaks) then
+      if (flag_grads_nc_tweaks) then
          call check( nf90_def_dim(ncid, 'x', 1, ncd), thisroutine )
          call check( nf90_def_dim(ncid, 'y', 1, ncd), thisroutine )
       end if
@@ -7255,7 +7249,7 @@ if (n_site >= 1) then
 
 !  ------ Definition of the variables
 
-      if (grads_nc_tweaks) then
+      if (flag_grads_nc_tweaks) then
 
 !    ---- x
 
@@ -7328,7 +7322,7 @@ if (n_site >= 1) then
                   thisroutine )
       call check( nf90_put_att(ncid, ncv, 'axis', 't'), thisroutine )
 
-      if (grads_nc_tweaks) then
+      if (flag_grads_nc_tweaks) then
 
 !    ---- Time offset
 
@@ -7549,7 +7543,7 @@ if (n_site >= 1) then
 
    if (firstcall%output4) then
 
-      if (grads_nc_tweaks) then
+      if (flag_grads_nc_tweaks) then
 
          nc1cor = [ 1 ]
 
@@ -7586,7 +7580,7 @@ if (n_site >= 1) then
 
    call check( nf90_inq_varid(ncid, 't', ncv), thisroutine )
 
-   if (.not.grads_nc_tweaks) then
+   if (.not.flag_grads_nc_tweaks) then
       call check( nf90_put_var(ncid, ncv, time_val, &
                                start=nc1cor), thisroutine )
    else
@@ -8075,44 +8069,6 @@ end subroutine output5
   end if
 
   end subroutine set_ch_institution
-
-!-------------------------------------------------------------------------------
-!> Set the value of the auxiliary variable grads_nc_tweaks.
-!-------------------------------------------------------------------------------
-  subroutine set_grads_nc_tweaks(grads_nc_tweaks)
-
-  implicit none
-
-  logical, intent(out) :: grads_nc_tweaks
-
-  character(len=16) :: ch_value
-
-  grads_nc_tweaks = .false.
-
-!-------- Try environment variable --------
-
-  call get_environment_variable('SICO_GRADS_NC_TWEAKS', ch_value)
-
-  if ( (trim(ch_value)=='true') &
-       .or.(trim(ch_value)=='True').or.(trim(ch_value)=='TRUE') ) &
-     grads_nc_tweaks = .true.
-
-  if ( (trim(ch_value)=='yes') &   ! obsolete, but still supported
-       .or.(trim(ch_value)=='Yes').or.(trim(ch_value)=='YES') &
-       .or.(trim(ch_value)=='y').or.(trim(ch_value)=='Y') ) &
-     grads_nc_tweaks = .true.
-
-!-------- Try preprocessor switch --------
-
-#if (defined(GRADS_NC_TWEAKS))
-#if (GRADS_NC_TWEAKS==1)
-  grads_nc_tweaks = .true.
-#else
-  grads_nc_tweaks = .false.
-#endif
-#endif
-
-  end subroutine set_grads_nc_tweaks
 
 !-------------------------------------------------------------------------------
 

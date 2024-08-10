@@ -87,10 +87,30 @@ n_slide_regions = 1
 n_slide_regions = N_SLIDE_REGIONS
 #endif
 
+#if (SLIDE_LAW==0)
+
+p_weert_aux = 1
+q_weert_aux = 0
+c_slide_aux = 0.0_dp   ! no-slip
+gamma_slide_aux = 1.0_dp
+
+#elif (SLIDE_LAW==1)
+
 p_weert_aux = P_WEERT
 q_weert_aux = Q_WEERT
 c_slide_aux = C_SLIDE
 gamma_slide_aux = GAMMA_SLIDE
+
+#else
+
+errormsg = ' >>> calc_vxy_b_init: SLIDE_LAW must be 0 or 1!' &
+         //         end_of_line &
+         //'        Change obsolete SLIDE_LAW = 2 or 3' &
+         //         end_of_line &
+         //'        to SLIDE_LAW = 1, BASAL_WATER_PRESSURE = 2.'
+call error(errormsg)
+
+#endif
 
 do n=1, n_slide_regions
    gamma_slide_inv_aux(n) = 1.0_dp/max(gamma_slide_aux(n), eps)
@@ -382,6 +402,8 @@ end subroutine calc_dzs_dxy_aux
 !-------------------------------------------------------------------------------
 subroutine calc_vxy_b_sia(time)
 
+use calc_pressure_water_bas_m
+
 implicit none
 
 real(dp), intent(in) :: time
@@ -465,14 +487,15 @@ end if
 !  ------ Basal pressure p_b, basal water pressure p_b_w,
 !         reduced pressure p_b_red
 
+call calc_pressure_water_bas()   ! compute p_b_w
+
 do i=0, IMAX
 do j=0, JMAX
 
    if ((mask(j,i) == 0).or.(mask(j,i) == 3)) then
                      ! grounded or floating ice
 
-      p_b(j,i)   = max(RHO*G*H(j,i), 0.0_dp)
-      p_b_w(j,i) = RHO_SW*G*max((z_sl(j,i)-zb(j,i)), 0.0_dp)
+      p_b(j,i) = max(RHO*G*H(j,i), 0.0_dp)
 
       if (mask(j,i) == 0) then
          p_b_red(j,i) = max(p_b(j,i)-p_b_w(j,i), 0.0_dp)
@@ -487,7 +510,6 @@ do j=0, JMAX
    else   ! ice-free land or ocean
 
       p_b(j,i)         = 0.0_dp
-      p_b_w(j,i)       = 0.0_dp
       p_b_red(j,i)     = 0.0_dp
       p_b_red_lim(j,i) = 0.0_dp
 
@@ -545,23 +567,13 @@ do j=0, JMAX
 
 !  ------ Abbreviations
 
-#if (SLIDE_LAW==1)
-      cvxy1 = c_slide(j,i) &
-              * ( (tau_b(j,i)+eps_dp)**(p_weert(j,i)-1) &
-                  /(p_b(j,i)+eps_dp)**q_weert(j,i) ) &
-              * p_b(j,i)
-      ctau1 = 1.0_dp/(c_slide(j,i)+eps_dp)**p_weert_inv(j,i) &
-              * (p_b(j,i)+eps_dp)**(q_weert(j,i)*p_weert_inv(j,i))
-              ! Basal sliding at pressure melting
-#elif (SLIDE_LAW==2)
-      cvxy1 = c_slide(j,i) &
-              * ( (tau_b(j,i)+eps_dp)**(p_weert(j,i)-1) &
-                  /(p_b_red_lim(j,i)+eps_dp)**q_weert(j,i) ) &
-              * p_b(j,i)
-      ctau1 = 1.0_dp/(c_slide(j,i)+eps_dp)**p_weert_inv(j,i) &
-              * (p_b_red_lim(j,i)+eps_dp)**(q_weert(j,i)*p_weert_inv(j,i))
-              ! Basal sliding at pressure melting
-#elif (SLIDE_LAW==3)
+#if (SLIDE_LAW==0)
+
+      cvxy1 = 0.0_dp   ! No-slip
+      ctau1 = 1.0_dp/eps_dp
+
+#elif (SLIDE_LAW==1)
+
       cvxy1 = c_slide(j,i) &
               * ( (tau_b(j,i)+eps_dp)**(p_weert(j,i)-1) &
                   /(p_b_red_lim(j,i)+eps_dp)**q_weert(j,i) ) &
@@ -569,10 +581,16 @@ do j=0, JMAX
       ctau1 = 1.0_dp/(c_slide(j,i)+eps_dp)**p_weert_inv(j,i) &
               * (p_b_red(j,i)+eps_dp)**(q_weert(j,i)*p_weert_inv(j,i))
               ! Basal sliding at pressure melting
+
 #else
-      errormsg = ' >>> calc_vxy_b_sia: ' &
-                    //'SLIDE_LAW must be 1, 2 or 3!'
+
+      errormsg = ' >>> calc_vxy_b_sia: SLIDE_LAW must be 0 or 1!' &
+               //         end_of_line &
+               //'        Change obsolete SLIDE_LAW = 2 or 3' &
+               //         end_of_line &
+               //'        to SLIDE_LAW = 1, BASAL_WATER_PRESSURE = 2.'
       call error(errormsg)
+
 #endif
 
 !  ------ d_help_b, c_drag
@@ -1410,6 +1428,8 @@ end subroutine calc_vxy_sia
 !-------------------------------------------------------------------------------
 subroutine calc_vxy_static()
 
+use calc_pressure_water_bas_m
+
 implicit none
 
 real(dp) :: flui_init
@@ -1423,7 +1443,8 @@ real(dp) :: flui_init
 c_slide = 0.0_dp
 p_weert = 0
 q_weert = 0
-p_b_w   = 0.0_dp
+
+call calc_pressure_water_bas()   ! compute p_b_w
 
 d_help_b = 0.0_dp
 c_drag   = 0.0_dp

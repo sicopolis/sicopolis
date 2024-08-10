@@ -60,25 +60,26 @@ contains
                       ndat2d, ndat3d, n_output)
 !@ end tapenade_extract @
  
-    use boundary_m
+  use boundary_m
   
 #if (CALCMOD==0 || CALCMOD==1 || CALCMOD==-1)
-    use calc_temp_m
+  use calc_temp_m
 #elif (CALCMOD==2 || CALCMOD==3)
-    use calc_temp_enth_m
+  use calc_temp_enth_m
 #endif
   
-    use calc_enhance_m
-    use flag_update_gf_gl_cf_m
-    use calc_vxy_m
-    use calc_vz_m
-    use calc_dxyz_m
-    use calc_gia_m
-    use calc_thk_m
-    use calc_temp_melt_bas_m
-    use calc_bas_melt_m
-    use calc_thk_water_bas_m
-    use output_m
+  use calc_enhance_m
+  use flag_update_gf_gl_cf_m
+  use calc_vxy_m
+  use calc_vz_m
+  use calc_dxyz_m
+  use calc_gia_m
+  use calc_thk_m
+  use calc_temp_melt_bas_m
+  use calc_bas_melt_m
+  use calc_thk_water_bas_m
+  use calc_pressure_water_bas_m
+  use output_m
  
   implicit none
 
@@ -315,23 +316,29 @@ contains
   H_t = H_t_new
   
   !-------- Melting temperature --------
-  
+
   call calc_temp_melt()
-  
+
   !-------- Basal temperature --------
-  
+
   call calc_temp_bas()
-  
+
   !-------- Basal melting rate --------
-  
+
   call calc_qbm(time, dzeta_c, dzeta_r)
-  
+
   !-------- Effective thickness of subglacial water  --------
-  
+
   call calc_thk_water_bas()
-  
+
+  !-------- Basal water pressure --------
+
+  call calc_pressure_water_bas()
+
   !-------- Data output --------
+
 #if !(defined(ALLOW_GRDCHK) || defined(ALLOW_TAPENADE))
+
   !  ------ Time-slice data
   
 #if (OUTPUT==1)
@@ -482,9 +489,11 @@ contains
 #endif
 
 #endif   /* !ALLOW_GRDCHK & !ALLOW_TAPENADE */
+
   end do main_loop   ! End of main loop (time integration)
 
-    end subroutine sico_main_loop
+  end subroutine sico_main_loop
+
 !-------------------------------------------------------------------------------
   
 end module sico_main_loop_m

@@ -5,7 +5,7 @@
 !
 #define       MODEL_SICOPOLIS
 #define       VERSION '24'
-#define       DATE    '2024-06-27'
+#define       DATE    '2024-08-08'
 !
 !! Main program of SICOPOLIS.
 !!
@@ -105,6 +105,8 @@
 #if (defined(GRL) && DISC>0)
 #include "subroutines/general/discharge_workers_m.F90"
 #endif
+
+#include "subroutines/general/calc_pressure_water_bas_m.F90"
 
 #include "subroutines/general/calc_enhance_m.F90"
 

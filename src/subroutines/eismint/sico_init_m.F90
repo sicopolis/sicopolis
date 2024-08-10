@@ -1263,6 +1263,8 @@ write(10, fmt=trim(fmt2)) 'MELT_DRAIN = ', MELT_DRAIN
 
 write(10, fmt=trim(fmt2)) 'SLIDE_LAW = ', SLIDE_LAW
 
+#if (SLIDE_LAW==1)
+
 #if (defined(N_SLIDE_REGIONS))
 write(10, fmt=trim(fmt2)) 'N_SLIDE_REGIONS = ', N_SLIDE_REGIONS
 #if (N_SLIDE_REGIONS>1)
@@ -1274,6 +1276,10 @@ write(10, fmt=trim(fmt1)) 'SLIDE_REGIONS_FILE = '//SLIDE_REGIONS_FILE
 n_slide_regions = 1
 #else
 n_slide_regions = N_SLIDE_REGIONS
+#endif
+
+#if (defined(BASAL_WATER_PRESSURE))
+write(10, fmt=trim(fmt2)) 'BASAL_WATER_PRESSURE = ', BASAL_WATER_PRESSURE
 #endif
 
 c_slide_aux = C_SLIDE
@@ -1315,14 +1321,15 @@ write(10, fmt=trim(fmt3)) 'c_slide_filter_width =', C_SLIDE_FILTER_WIDTH
 #if (defined(TIME_RAMP_UP_SLIDE))
 write(10, fmt=trim(fmt3)) 'time_ramp_up_slide =', TIME_RAMP_UP_SLIDE
 #endif
-#if (SLIDE_LAW==2 || SLIDE_LAW==3)
 write(10, fmt=trim(fmt3)) 'red_pres_limit_fact =', RED_PRES_LIMIT_FACT
-#endif
 #if (BASAL_HYDROLOGY==1 && defined(HYDRO_SLIDE_SAT_FCT) && defined(C_HW_SLIDE) && defined(HW0_SLIDE))
 write(10, fmt=trim(fmt2)) 'HYDRO_SLIDE_SAT_FCT = ', HYDRO_SLIDE_SAT_FCT
 write(10, fmt=trim(fmt3)) 'c_Hw_slide =', C_HW_SLIDE
 write(10, fmt=trim(fmt3)) 'Hw0_slide  =', HW0_SLIDE
 #endif
+
+#endif
+
 write(10, fmt=trim(fmt1)) ' '
 
 if (n_q_geo_mod==1) then

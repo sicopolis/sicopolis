@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2024-06-27'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2024-08-08'
 !                      Date of last change
 
 !-------- Domain --------
@@ -887,14 +887,8 @@
 !-------- Basal sliding --------
 
 #define SLIDE_LAW 1
-!                       1 : Weertman-type sliding,
-!                           full ice pressure in denominator
-!                       2 : Weertman-type sliding,
-!                           reduced pressure (ice minus water) in denominator,
-!                           limiter RED_PRES_LIMIT_FACT applied for SIA and SStA
-!                       3 : Weertman-type sliding,
-!                           reduced pressure (ice minus water) in denominator,
-!                           limiter RED_PRES_LIMIT_FACT applied for SIA only
+!                       0 : No-slip
+!                       1 : Weertman-Budd sliding law
 
 #define N_SLIDE_REGIONS 1
 !                       Number of regions with different sliding laws
@@ -903,10 +897,15 @@
 !                       File defining the regions for the sliding laws
 !                       (only for N_SLIDE_REGIONS > 1)
 
+#define BASAL_WATER_PRESSURE 0
+!                       Basal water pressure:
+!                       0 : Zero everywhere
+!                       1 : Ocean pressure without cut-off (can become negative)
+!                       2 : Ocean pressure with cut-off
+
 #define C_SLIDE 11.2d0
 !                       Sliding coefficient, in m/[a*Pa^(p-q)]
 !                       (N_SLIDE_REGIONS separate values).
-!                       Set to 0.0d0 for no-slip conditions.
 
 #define C_SLIDE_FILTER_WIDTH 0.0d0
 !                       Filtering width (spatial smoothing by Gaussian filter)
@@ -939,10 +938,10 @@
 !                       (no gradual ramp-up).
 
 #define RED_PRES_LIMIT_FACT 0.35d0
-!                       Limiter for the reduced pressure (ice minus water),
-!                       ensures that the reduced pressure cannot become smaller
+!                       Limiter for the reduced pressure (ice minus water);
+!                       ensures that, for SIA dynamics,
+!                       the reduced pressure cannot become smaller
 !                       than RED_PRES_LIMIT_FACT times the ice pressure
-!                       (for SLIDE_LAW==2,3)
 
 #define HYDRO_SLIDE_SAT_FCT 0
 !                       Saturation function for water-film-enhanced basal sliding

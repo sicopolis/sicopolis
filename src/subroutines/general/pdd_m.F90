@@ -68,9 +68,9 @@ contains
   real(dp) :: inv_sqrt2pi, inv_s_stat, inv_sqrt2
   real(dp) :: pdd_sum
 
-  real(dp), parameter :: time_year     = 1.0_dp, &        ! period 1 year
-                         time_year_inv = 1.0_dp/time_year, &
-                         d_time        = 1.0_dp/12.0_dp   ! time-step 1 month
+  real(dp), parameter :: one_year     = 1.0_dp           ! period 1 year
+  real(dp), parameter :: one_year_inv = 1.0_dp/one_year
+  real(dp), parameter :: dtime_pdd    = one_year/12.0_dp ! time-step 1 month
 
 #if defined(ALLOW_TAPENADE) /* Tapenade */
   real(dp)  :: my_erfc_retval
@@ -89,19 +89,19 @@ contains
                + ( s_stat*inv_sqrt2pi*exp(-0.5_dp*(temp_mm(n)*inv_s_stat)**2) &
                    + 0.5_dp*temp_mm(n) &
                            *erfc(-temp_mm(n)*inv_s_stat*inv_sqrt2) ) &
-                 *d_time   ! positive degree days (in a*degC)
+                 *dtime_pdd   ! positive degree days (in a*degC)
 #else /* Tapenade */
      call my_erfc(-temp_mm(n)*inv_s_stat*inv_sqrt2, my_erfc_retval)
      pdd_sum = pdd_sum &
                + ( s_stat*inv_sqrt2pi*exp(-0.5_dp*(temp_mm(n)*inv_s_stat)**2) &
                    + 0.5_dp*temp_mm(n) &
                            *my_erfc_retval ) &
-                 *d_time   ! positive degree days (in a*degC)
+                 *dtime_pdd   ! positive degree days (in a*degC)
 #endif /* Normal vs. Tapenade */
 
   end do
 
-  ET   = pdd_sum*time_year_inv   ! temperature excess (degC)
+  ET = pdd_sum*one_year_inv   ! temperature excess (degC)
 
   end subroutine pdd
 

@@ -185,11 +185,15 @@ ch_domain_short = 'xyz'
 
 n_output = 0
 
-dtime       = 0.0_dp
-dtime_temp  = 0.0_dp
-dtime_wss   = 0.0_dp
-dtime_out   = 0.0_dp
-dtime_ser   = 0.0_dp
+delta_ts   = 0.0_dp
+glac_index = 0.0_dp
+z_mar      = 0.0_dp
+
+dtime      = 0.0_dp
+dtime_temp = 0.0_dp
+dtime_wss  = 0.0_dp
+dtime_out  = 0.0_dp
+dtime_ser  = 0.0_dp
 
 time        = 0.0_dp
 time_init   = 0.0_dp
@@ -1159,6 +1163,9 @@ write(10, fmt=trim(fmt3)) 'temp_init_val =', TEMP_INIT_VAL
 write(10, fmt=trim(fmt1)) 'Initial-value file = '//ANFDATNAME
 write(10, fmt=trim(fmt1)) 'Path to initial-value file = '//ANF_DAT_PATH
 #endif
+#if (ANF_DAT==3 && defined(RESTART))
+write(10, fmt=trim(fmt2)) 'RESTART = ', RESTART
+#endif
 write(10, fmt=trim(fmt1)) ' '
 
 #if (defined(THK_EVOL))
@@ -1740,6 +1747,8 @@ vis_int_g = 0.0_dp
 
 call topography3(dxi, deta, anfdatname)
 
+#if (!(ANF_DAT==3 && RESTART==1))
+
 call boundary(time_init, dtime, dxi, deta, &
               delta_ts, glac_index, z_mar)
 
@@ -1758,7 +1767,11 @@ end do
 
 smb_corr = 0.0_dp
 
+#endif /* !(ANF_DAT==3 && RESTART==1) */
+
 Q_b_tot = Q_bm + Q_tld
+
+#if (!(ANF_DAT==3 && RESTART==1))
 
 #if (ENHMOD==1)
    call calc_enhance_1()
@@ -1778,6 +1791,8 @@ Q_b_tot = Q_bm + Q_tld
    errormsg = ' >>> sico_init: Parameter ENHMOD must be between 1 and 5!'
    call error(errormsg)
 #endif
+
+#endif /* !(ANF_DAT==3 && RESTART==1) */
 
 #endif
 
@@ -1829,6 +1844,8 @@ call flag_update_gf_gl_cf()
 call calc_vxy_b_init()
 call calc_dzs_dxy_aux(dxi, deta)
 
+#if (!(ANF_DAT==3 && RESTART==1))
+
 #if (DYNAMICS==1 || DYNAMICS==2)
 
 call calc_vxy_b_sia(time)
@@ -1850,11 +1867,11 @@ call calc_vxy_static()
 call calc_vz_static()
 
 #else
-
 errormsg = ' >>> sico_init: DYNAMICS must be either 0, 1 or 2!'
 call error(errormsg)
-
 #endif
+
+#endif /* !(ANF_DAT==3 && RESTART==1) */
 
 call calc_dxyz(dxi, deta, dzeta_c, dzeta_t)
 

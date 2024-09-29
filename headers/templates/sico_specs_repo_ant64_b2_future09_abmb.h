@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2024-08-08'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2024-09-29'
 !                      Date of last change
 
 !-------- Domain --------
@@ -536,8 +536,13 @@
 !                         (only for ANF_DAT==1 and TEMP_INIT==1)
 
 #define ANFDATNAME 'repo_ant64_b2_spinup090004.nc'
-!                             Initial-value file (only for ANF_DAT==3,
-!                                  or for ANF_DAT==1 and TEMP_INIT==5)
+!                         Initial-value file (only for ANF_DAT==3,
+!                         or for ANF_DAT==1 and TEMP_INIT==5)
+
+#define RESTART 0
+!                         Restart method (only for ANF_DAT==3):
+!                         0 : Legacy restart
+!                         1 : Improved restart (smoother transition)
 
 !-------- Lithosphere (bedrock) modelling --------
 

@@ -5,7 +5,7 @@
 !
 #define       MODEL_SICOPOLIS
 #define       VERSION '24'
-#define       DATE    '2024-09-29'
+#define       DATE    '2024-09-30'
 !
 !! Main program of SICOPOLIS.
 !!
@@ -222,15 +222,6 @@ integer(i4b) :: ndat3d
 integer(i4b) :: n_output
    !! Number of time-slice files to be produced (for OUTPUT==2, 3)
 
-real(dp) :: delta_ts
-   !! Time-dependent surface-temperature anomaly
-
-real(dp) :: glac_index
-   !! Time-dependent glacial index
-
-real(dp) :: mean_accum
-   !! Mean present accumulation over land
-
 real(dp) :: dtime
    !! Time step for computation of velocity and topography
 
@@ -278,9 +269,6 @@ real(dp) :: dzeta_r
    !! Grid spacing in z-direction in the bedrock (kr) domain
    !! (in sigma-coordinate zeta_r)
 
-real(dp) :: z_mar
-   !! Minimum bedrock (sea bed) elevation allowed to be covered by marine ice
-
 !tapenade sicopolis_independents_cost
 
 !@ end tapenade_extract @
@@ -297,22 +285,16 @@ logical :: ISPLAIN, ISTAPE, ISADJOINT
 
 !@ begin tapenade_extract @
 
-call sico_init(delta_ts, glac_index, &
-     mean_accum, &
-     dtime, dtime_temp, dtime_wss, dtime_out, dtime_ser, &
+call sico_init(dtime, dtime_temp, dtime_wss, dtime_out, dtime_ser, &
      time, time_init, time_end, time_output, &
      dxi, deta, dzeta_c, dzeta_t, dzeta_r, &
-     z_mar, &
      ndat2d, ndat3d, n_output)
 
 !-------- Main loop --------
 
-call sico_main_loop(delta_ts, glac_index, &
-     mean_accum, &
-     dtime, dtime_temp, dtime_wss, dtime_out, dtime_ser, &
+call sico_main_loop(dtime, dtime_temp, dtime_wss, dtime_out, dtime_ser, &
      time, time_init, time_end, time_output, &
      dxi, deta, dzeta_c, dzeta_t, dzeta_r, &
-     z_mar, &
      ndat2d, ndat3d, n_output)
 
 !tapenade end subroutine sicopolis_tapenade

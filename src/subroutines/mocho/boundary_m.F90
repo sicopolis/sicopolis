@@ -52,8 +52,7 @@ contains
 !! Computation of the surface temperature (must be less than 0 degC)
 !! and of the accumulation-ablation function.
 !-------------------------------------------------------------------------------
-subroutine boundary(time, dtime, dxi, deta, &
-                    delta_ts, glac_index, z_mar)
+subroutine boundary(time, dtime, dxi, deta)
 
 #if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
   use calving_m
@@ -65,11 +64,10 @@ implicit none
 
 real(dp), intent(in) :: time, dtime, dxi, deta
 
-real(dp), intent(out)   :: delta_ts, glac_index, z_mar
-
-! Further return variables
+! Return variables
 ! (defined as global variables in module sico_variables_m):
 !
+!    delta_ts, glac_index, z_mar,
 !    accum(j,i), runoff(j,i), as_perp(j,i), calving(j,i), temp_s(j,i)
 
 integer(i4b) :: i, j

@@ -139,7 +139,7 @@ end subroutine calc_thk_init
 !-------------------------------------------------------------------------------
 !> Explicit solver for the diffusive SIA ice surface equation.
 !-------------------------------------------------------------------------------
-subroutine calc_thk_sia_expl(time, dtime, dxi, deta, z_mar)
+subroutine calc_thk_sia_expl(time, dtime, dxi, deta)
 
 !$ use omp_lib
 
@@ -150,7 +150,6 @@ subroutine calc_thk_sia_expl(time, dtime, dxi, deta, z_mar)
 implicit none
 
 real(dp), intent(in) :: time, dtime, dxi, deta
-real(dp), intent(in) :: z_mar
 
 integer(i4b)                       :: i, j, ij
 real(dp)                           :: azs2, azs3
@@ -213,7 +212,7 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
 !  ------ Applying the source term
 
-   call apply_mb_source(dtime, z_mar, i, j)
+   call apply_mb_source(dtime, i, j)
 
 !  ------ Adjusting the ice thickness, if needed
 
@@ -235,7 +234,7 @@ end subroutine calc_thk_sia_expl
 !-------------------------------------------------------------------------------
 !> Over-implicit solver for the diffusive SIA ice surface equation.
 !-------------------------------------------------------------------------------
-subroutine calc_thk_sia_impl(time, dtime, dxi, deta, z_mar, mean_accum)
+subroutine calc_thk_sia_impl(time, dtime, dxi, deta)
 
 use sico_maths_m
 
@@ -246,8 +245,6 @@ use sico_maths_m
 implicit none
 
 real(dp), intent(in) :: time, dtime, dxi, deta
-real(dp), intent(in) :: z_mar
-real(dp), intent(in) :: mean_accum
 
 integer(i4b)                       :: i, j, ij
 integer(i4b)                       :: k, nnz
@@ -466,7 +463,7 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
 !  ------ Applying the source term
 
-   call apply_mb_source(dtime, z_mar, i, j)
+   call apply_mb_source(dtime, i, j)
 
 !  ------ Adjusting the ice thickness, if needed
 
@@ -488,7 +485,7 @@ end subroutine calc_thk_sia_impl
 !-------------------------------------------------------------------------------
 !> Explicit solver for the general ice thickness equation.
 !-------------------------------------------------------------------------------
-subroutine calc_thk_expl(time, dtime, dxi, deta, z_mar)
+subroutine calc_thk_expl(time, dtime, dxi, deta)
 
 !$ use omp_lib
 
@@ -499,7 +496,6 @@ subroutine calc_thk_expl(time, dtime, dxi, deta, z_mar)
 implicit none
 
 real(dp), intent(in) :: time, dtime, dxi, deta
-real(dp), intent(in) :: z_mar
 
 integer(i4b) :: i, j, ij
 real(dp)     :: dt_darea
@@ -593,7 +589,7 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
 !  ------ Applying the source term
 
-   call apply_mb_source(dtime, z_mar, i, j)
+   call apply_mb_source(dtime, i, j)
 
 !  ------ Adjusting the ice thickness, if needed
 
@@ -614,13 +610,12 @@ end subroutine calc_thk_expl
 !> Ice thickness evolution due to the source term (surface mass balance,
 !! basal mass balance and calving).
 !-------------------------------------------------------------------------------
-subroutine apply_mb_source(dtime, z_mar, i, j)
+subroutine apply_mb_source(dtime, i, j)
 
   implicit none
 
   integer(i4b), intent(in) :: i, j
   real(dp)    , intent(in) :: dtime
-  real(dp)    , intent(in) :: z_mar
 
 !-------- Compute new ice thickness H_new_flow due to glacial flow only
 !         (no source term considered) --------
@@ -861,7 +856,7 @@ end subroutine apply_mb_source
 !-------------------------------------------------------------------------------
 !> Update of the ice-land-ocean mask etc.
 !-------------------------------------------------------------------------------
-subroutine calc_thk_mask_update(time, dtime, dxi, deta, z_mar, &
+subroutine calc_thk_mask_update(time, dtime, dxi, deta, &
                                 n_calc_thk_mask_update_aux)
 
 use topograd_m
@@ -870,7 +865,6 @@ implicit none
 
 real(dp),     intent(in) :: time
 real(dp),     intent(in) :: dtime, dxi, deta
-real(dp),     intent(in) :: z_mar
 integer(i4b), intent(in) :: n_calc_thk_mask_update_aux
 
 integer(i4b)                       :: i, j
@@ -886,11 +880,11 @@ H_new_tmp = H_new
 dtime_inv = 1.0_dp/dtime
 
 if (n_calc_thk_mask_update_aux == 1) then
-   call calc_thk_mask_update_aux1(time, dtime, dtime_inv, z_mar)
+   call calc_thk_mask_update_aux1(time, dtime, dtime_inv)
 else if (n_calc_thk_mask_update_aux == 2) then
-   call calc_thk_mask_update_aux2(time, dtime, dtime_inv, z_mar)
+   call calc_thk_mask_update_aux2(time, dtime, dtime_inv)
 else if (n_calc_thk_mask_update_aux == 3) then
-   call calc_thk_mask_update_aux3(time, dtime, dtime_inv, z_mar)
+   call calc_thk_mask_update_aux3(time, dtime, dtime_inv)
 else
    errormsg = ' >>> calc_thk_mask_update:' &
             //         end_of_line &
@@ -959,11 +953,11 @@ end subroutine calc_thk_mask_update
 !> Update of the ice-land-ocean mask for SIA-only dynamics of ice sheets
 !! without ice shelves.
 !-------------------------------------------------------------------------------
-subroutine calc_thk_mask_update_aux1(time, dtime, dtime_inv, z_mar)
+subroutine calc_thk_mask_update_aux1(time, dtime, dtime_inv)
 
 implicit none
 
-real(dp), intent(in) :: time, dtime, dtime_inv, z_mar
+real(dp), intent(in) :: time, dtime, dtime_inv
 
 integer(i4b) :: i, j, kc, kt
 real(dp)     :: rhosw_rho_ratio, rho_rhosw_ratio
@@ -1116,11 +1110,11 @@ end subroutine calc_thk_mask_update_aux1
 !> Update of the ice-land-ocean mask for hybrid SIA/SStA dynamics of ice sheets
 !! without ice shelves.
 !-------------------------------------------------------------------------------
-subroutine calc_thk_mask_update_aux2(time, dtime, dtime_inv, z_mar)
+subroutine calc_thk_mask_update_aux2(time, dtime, dtime_inv)
 
 implicit none
 
-real(dp), intent(in) :: time, dtime, dtime_inv, z_mar
+real(dp), intent(in) :: time, dtime, dtime_inv
 
 integer(i4b) :: i, j, kc, kt
 real(dp)     :: rhosw_rho_ratio, rho_rhosw_ratio
@@ -1275,11 +1269,11 @@ end subroutine calc_thk_mask_update_aux2
 !> Update of the ice-land-ocean mask for coupled SIA/SSA or
 !! SIA/SStA/SSA dynamics of ice sheets with ice shelves.
 !-------------------------------------------------------------------------------
-subroutine calc_thk_mask_update_aux3(time, dtime, dtime_inv, z_mar)
+subroutine calc_thk_mask_update_aux3(time, dtime, dtime_inv)
 
 implicit none
 
-real(dp), intent(in) :: time, dtime, dtime_inv, z_mar
+real(dp), intent(in) :: time, dtime, dtime_inv
 
 integer(i4b) :: i, j, kc, kt
 real(dp)     :: rhosw_rho_ratio, rho_rhosw_ratio
@@ -1718,12 +1712,11 @@ end subroutine ocean_connect
 !> Determination of the several components of the mass balance:
 !! Accumulation (precipitation), runoff, net SMB, calving, basal melt. 
 !-------------------------------------------------------------------------------
-subroutine account_mb_source(dtime, z_mar)
+subroutine account_mb_source(dtime)
 
   implicit none
 
   real(dp), intent(in) :: dtime
-  real(dp), intent(in) :: z_mar
 
   integer(i4b) :: i, j
   real(dp)     :: dtime_inv

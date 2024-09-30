@@ -609,8 +609,20 @@ real(dp), dimension(0:JMAX,0:IMAX) :: z_sl
 real(dp), dimension(0:JMAX,0:IMAX) :: dzsl_dtau
    !! Derivative of zsl by tau (time)
 
+real(dp) :: delta_ts
+   !! Time-dependent surface-temperature anomaly
+
+real(dp) :: glac_index
+   !! Time-dependent glacial index
+
+real(dp) :: mean_accum
+   !! Mean present accumulation over land
+
 real(dp) :: z_sl_mean
    !! Mean sea level
+
+real(dp) :: z_mar
+   !! Minimum bedrock (sea bed) elevation allowed to be covered by marine ice
 
 real(dp), dimension(0:JMAX,0:IMAX) :: am_perp
    !! Ice volume flux across the z=zm interface

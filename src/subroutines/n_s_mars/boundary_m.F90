@@ -58,8 +58,7 @@ contains
 !! and of the accumulation-ablation rate for the polar caps of Mars.
 !! Computation of the geothermal heat flux.
 !-------------------------------------------------------------------------------
-subroutine boundary(time, dtime, dxi, deta, &
-                    delta_ts, glac_index, z_mar)
+subroutine boundary(time, dtime, dxi, deta)
 
   use mask_update_sea_level_m
 
@@ -77,11 +76,10 @@ implicit none
 
 real(dp), intent(in) :: time, dtime, dxi, deta
 
-real(dp), intent(out)   :: delta_ts, glac_index, z_mar
-
-! Further return variables
+! Return variables
 ! (defined as global variables in module sico_variables_m):
 !
+!    delta_ts, glac_index, z_mar,
 !    accum(j,i), runoff(j,i), as_perp(j,i), calving(j,i), temp_s(j,i)
 
 integer(i4b) :: i, j

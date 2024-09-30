@@ -50,13 +50,10 @@ contains
 !-------------------------------------------------------------------------------
 !> Main routine of sico_init_m: Initializations for SICOPOLIS.
 !-------------------------------------------------------------------------------
-subroutine sico_init(delta_ts, glac_index, &
-               mean_accum, &
-               dtime, dtime_temp, dtime_wss, dtime_out, dtime_ser, &
-               time, time_init, time_end, time_output, &
-               dxi, deta, dzeta_c, dzeta_t, dzeta_r, &
-               z_mar, &
-               ndat2d, ndat3d, n_output)
+subroutine sico_init(dtime, dtime_temp, dtime_wss, dtime_out, dtime_ser, &
+                     time, time_init, time_end, time_output, &
+                     dxi, deta, dzeta_c, dzeta_t, dzeta_r, &
+                     ndat2d, ndat3d, n_output)
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
   use compare_float_m
@@ -105,13 +102,10 @@ implicit none
 
 integer(i4b), intent(out) :: ndat2d, ndat3d
 integer(i4b), intent(out) :: n_output
-real(dp),     intent(out) :: delta_ts, glac_index
-real(dp),     intent(out) :: mean_accum
 real(dp),     intent(out) :: dtime, dtime_temp, dtime_wss
 real(dp),     intent(out) :: dtime_out, dtime_ser
 real(dp),     intent(out) :: time, time_init, time_end, time_output(100)
 real(dp),     intent(out) :: dxi, deta, dzeta_c, dzeta_t, dzeta_r
-real(dp),     intent(out) :: z_mar
 
 integer(i4b) :: i, j, kc, kt, kr, m, n, ir, jr, n1, n2
 integer(i4b) :: ios, ios1, ios2, ios3, ios4
@@ -3113,8 +3107,7 @@ call disc_fields()
 z_sl      = -1.11e+11_dp   ! dummy values for initial call
 z_sl_mean = -1.11e+11_dp   ! of subroutine boundary
 
-call boundary(time_init, dtime, dxi, deta, &
-              delta_ts, glac_index, z_mar)
+call boundary(time_init, dtime, dxi, deta)
 
 do i=0, IMAX
 do j=0, JMAX
@@ -3204,8 +3197,7 @@ call disc_fields()
 z_sl      = -1.11e+11_dp   ! dummy values for initial call
 z_sl_mean = -1.11e+11_dp   ! of subroutine boundary
 
-call boundary(time_init, dtime, dxi, deta, &
-              delta_ts, glac_index, z_mar)
+call boundary(time_init, dtime, dxi, deta)
 
 as_perp_apl = 0.0_dp
 
@@ -3261,8 +3253,7 @@ call disc_fields()
 
 #if (!(ANF_DAT==3 && RESTART==1))
 
-call boundary(time_init, dtime, dxi, deta, &
-              delta_ts, glac_index, z_mar)
+call boundary(time_init, dtime, dxi, deta)
 
 do i=0, IMAX
 do j=0, JMAX
@@ -4283,8 +4274,7 @@ y_surf = phi_surf
 #endif
 
    if (flag_init_output) &
-      call output1(time_init, delta_ts, glac_index, &
-                   flag_3d_output, ndat2d, ndat3d)
+      call output1(time_init, flag_3d_output, ndat2d, ndat3d)
 
 #elif (OUTPUT==2)
 
@@ -4299,8 +4289,7 @@ if (time_output(1) <= time_init+eps) then
    call error(errormsg)
 #endif
 
-   call output1(time_init, delta_ts, glac_index, &
-                flag_3d_output, ndat2d, ndat3d)
+   call output1(time_init, flag_3d_output, ndat2d, ndat3d)
 
 end if
 
@@ -4309,15 +4298,13 @@ end if
    flag_3d_output = .false.
 
    if (flag_init_output) &
-      call output1(time_init, delta_ts, glac_index, &
-                   flag_3d_output, ndat2d, ndat3d)
+      call output1(time_init, flag_3d_output, ndat2d, ndat3d)
 
 if (time_output(1) <= time_init+eps) then
 
    flag_3d_output = .true.
 
-   call output1(time_init, delta_ts, glac_index, &
-                flag_3d_output, ndat2d, ndat3d)
+   call output1(time_init, flag_3d_output, ndat2d, ndat3d)
 
 end if
 
@@ -4328,11 +4315,11 @@ end if
 
 if (flag_init_output) then
 
-   call output2(time_init, dxi, deta, delta_ts, glac_index)
-   call output4(time_init, dxi, deta, delta_ts, glac_index)
+   call output2(time_init, dxi, deta)
+   call output4(time_init, dxi, deta)
 
 #if (defined(ASF) && WRITE_SER_FILE_STAKES==1) /* Austfonna */
-   call output5(time, dxi, deta, delta_ts, glac_index)
+   call output5(time, dxi, deta)
 #endif
 
 end if

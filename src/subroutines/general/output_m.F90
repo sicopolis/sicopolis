@@ -54,8 +54,7 @@ contains
 !-------------------------------------------------------------------------------
 !> Writing of time-slice files in NetCDF format.
 !-------------------------------------------------------------------------------
-subroutine output1(time, delta_ts, glac_index, &
-                   flag_3d_output, ndat2d, ndat3d, &
+subroutine output1(time, flag_3d_output, ndat2d, ndat3d, &
                    opt_flag_compute_flux_vars_only)
 
 #if (CALCMOD==1 || CALCMOD==0 || CALCMOD==-1)
@@ -71,8 +70,8 @@ subroutine output1(time, delta_ts, glac_index, &
 
 implicit none
 
-real(dp),           intent(in) :: time, delta_ts, glac_index
-logical,            intent(in) :: flag_3d_output
+real(dp), intent(in) :: time
+logical,  intent(in) :: flag_3d_output
 
 logical, optional,  intent(in) :: opt_flag_compute_flux_vars_only
 
@@ -5257,8 +5256,7 @@ end subroutine output1
 !-------------------------------------------------------------------------------
 !> Writing of time-series data on file in ASCII and NetCDF format.
 !-------------------------------------------------------------------------------
-subroutine output2(time, dxi, deta, delta_ts, glac_index, &
-                   opt_flag_compute_flux_vars_only)
+subroutine output2(time, dxi, deta, opt_flag_compute_flux_vars_only)
 
   use netcdf
   use nc_check_m
@@ -5269,7 +5267,7 @@ subroutine output2(time, dxi, deta, delta_ts, glac_index, &
 
 implicit none
 
-real(dp), intent(in) :: time, dxi, deta, delta_ts, glac_index
+real(dp), intent(in) :: time, dxi, deta
 
 logical, optional, intent(in) :: opt_flag_compute_flux_vars_only
 
@@ -6984,14 +6982,14 @@ end subroutine scalar_variables
 !> Writing of time-series data of the specified sites (i.e., ice cores) on file
 !! in ASCII and NetCDF format.
 !-------------------------------------------------------------------------------
-subroutine output4(time, dxi, deta, delta_ts, glac_index)
+subroutine output4(time, dxi, deta)
 
   use netcdf
   use nc_check_m
 
 implicit none
 
-real(dp), intent(in) :: time, dxi, deta, delta_ts, glac_index
+real(dp), intent(in) :: time, dxi, deta
 
 integer(i4b)                        :: i, j, n
 integer(i4b)                        :: ios
@@ -7672,11 +7670,11 @@ end subroutine output4
 !> Writing of time-series data for all defined surface points on file
 !! in ASCII format. Modification of Tolly's output7 by Thorben Dunse.
 !-------------------------------------------------------------------------------
-subroutine output5(time, dxi, deta, delta_ts, glac_index)
+subroutine output5(time, dxi, deta)
 
 implicit none
 
-real(dp), intent(in) :: time, dxi, deta, delta_ts, glac_index
+real(dp), intent(in) :: time, dxi, deta
 
 integer(i4b) :: n, k
 real(dp) :: time_val

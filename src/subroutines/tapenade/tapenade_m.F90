@@ -345,7 +345,7 @@ use sico_variables_m_diff
     shell_command = trim(shell_command)//' '//OUT_PATH
     shell_command = trim(shell_command)//' '//'; fi'
 
-    call system(trim(shell_command))
+    call execute_command_line(trim(shell_command))
 
   end subroutine deldirs
 

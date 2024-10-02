@@ -5,7 +5,7 @@
 !
 #define       MODEL_SICOPOLIS
 #define       VERSION '24'
-#define       DATE    '2024-09-30'
+#define       DATE    '2024-10-02'
 !
 !! Main program of SICOPOLIS.
 !!

@@ -1276,7 +1276,7 @@ shell_command = trim(shell_command)//' '//OUT_PATH
 shell_command = trim(shell_command)//' '//'] ; then mkdir'
 shell_command = trim(shell_command)//' '//OUT_PATH
 shell_command = trim(shell_command)//' '//'; fi'
-call system(trim(shell_command))
+call execute_command_line(trim(shell_command))
      ! Check whether directory OUT_PATH exists. If not, it is created.
 
 filename_with_path = trim(OUT_PATH)//'/'//trim(run_name)//'.log'

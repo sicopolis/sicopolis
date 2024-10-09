@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2024-09-29'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2024-10-08'
 !                      Date of last change
 
 !-------- Domain --------
@@ -234,8 +234,6 @@
 !                         1 : Constant VISC_INIT_SSA times ice thickness
 !                         2 : Previous depth-averaged viscosity times
 !                             ice thickness
-!                         3 : Computation by subroutine calc_vis_ssa
-!                             (that is always used for the further iterations)
 !                         (for DYNAMICS==1 and MARGIN==3, or for DYNAMICS==2).
 
 #define VISC_INIT_SSA 1.0d+15
@@ -539,7 +537,7 @@
 !                         Initial-value file (only for ANF_DAT==3,
 !                         or for ANF_DAT==1 and TEMP_INIT==5)
 
-#define RESTART 0
+#define RESTART 1
 !                         Restart method (only for ANF_DAT==3):
 !                         0 : Legacy restart
 !                         1 : Improved restart (smoother transition)

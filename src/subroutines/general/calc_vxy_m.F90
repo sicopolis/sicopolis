@@ -1613,12 +1613,8 @@ do while ( (m < iter_ssa_min) &
       vis_int_g = H*vis_ave_g
                   ! previous depth-averaged viscosity times
                   ! ice thickness
-#elif (ITER_INIT_SSA==3)
-      call calc_vis_ssa(dxi, deta, dzeta_c, dzeta_t)
-                  ! standard computation by subroutine
-                  ! calc_vis_ssa
 #else
-      errormsg = ' >>> calc_vxy_ssa: ITER_INIT_SSA must be 1, 2 or 3!'
+      errormsg = ' >>> calc_vxy_ssa: ITER_INIT_SSA must be 1 or 2!'
       call error(errormsg)
 #endif
 

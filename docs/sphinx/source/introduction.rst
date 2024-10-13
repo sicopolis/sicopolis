@@ -34,6 +34,8 @@ Authorship
 +-----------------------------------+---------------------------------------------------------+
 | Liz Curry-Logan (UT Austin)       | Principal developer of SICOPOLIS-AD v1                  |
 +-----------------------------------+---------------------------------------------------------+
+| Tom Dangleterre (HU)              | Scripting for regional tuning of basal sliding          |
++-----------------------------------+---------------------------------------------------------+
 | Thorben Dunse (HVL)               | Calving, Austfonna                                      |
 +-----------------------------------+---------------------------------------------------------+
 | Eduardo Flandez (UACh)            | Mocho-Choshuenco ice cap                                |
@@ -43,6 +45,8 @@ Authorship
 | Ben Galton-Fenzi (UTAS)           | Ice-shelf basal melting                                 |
 +-----------------------------------+---------------------------------------------------------+
 | Thomas Gölles (UNIS)              | Tracer transport, scripting                             |
++-----------------------------------+---------------------------------------------------------+
+| Félix Grandadam (UCBL)            | DIVA dynamics                                           |
 +-----------------------------------+---------------------------------------------------------+
 | Ralf Greve (HU)                   | Principal developer of SICOPOLIS                        |
 +-----------------------------------+---------------------------------------------------------+
@@ -76,13 +80,13 @@ Authorship
 +-----------------------------------+---------------------------------------------------------+
 | Oliver J. Stenzel (MPS)           | Martian north polar ice cap                             |
 +-----------------------------------+---------------------------------------------------------+
-| Malte Thoma (AWI)                 | Scripting                                               |
+| Malte Thoma (AWI)                 | Scripting for executing SICOPOLIS                       |
 +-----------------------------------+---------------------------------------------------------+
 | Roland Warner (UTAS)              | Curvilinear coordinates                                 |
 +-----------------------------------+---------------------------------------------------------+
 
 | **Affiliations:** 
-| ANL: Argonne National Laboratory, ANU: Australian National University, AWI: Alfred Wegener Institute for Polar and Marine Research, ESAC: European Space Astronomy Centre, ETHZ: Swiss Federal Institute of Technology in Zurich, HU: Hokkaido University, HVL: Western Norway University of Applied Sciences, INRIA: National Institute for Research in Digital Science and Technology, JAMSTEC: Japan Agency for Marine-Earth Science and Technology, MPS: Max Planck Institute for Solar System Research, NIT: National Institute of Technology, Ichinoseki College, PIK: Potsdam Institute for Climate Impact Research, SU: Stockholm University, TUD: Darmstadt University of Technology, UACh: Austral University of Chile, UCM: Complutense University of Madrid, UoE: University of Exeter, UNIS: University Centre in Svalbard, UTAS: University of Tasmania, UT Austin: University of Texas at Austin, UU: Utrecht University.
+| ANL: Argonne National Laboratory, ANU: Australian National University, AWI: Alfred Wegener Institute for Polar and Marine Research, ESAC: European Space Astronomy Centre, ETHZ: Swiss Federal Institute of Technology in Zurich, HU: Hokkaido University, HVL: Western Norway University of Applied Sciences, INRIA: National Institute for Research in Digital Science and Technology, JAMSTEC: Japan Agency for Marine-Earth Science and Technology, MPS: Max Planck Institute for Solar System Research, NIT: National Institute of Technology, Ichinoseki College, PIK: Potsdam Institute for Climate Impact Research, SU: Stockholm University, TUD: Darmstadt University of Technology, UACh: Austral University of Chile, UCBL: Claude Bernard University Lyon 1, UCM: Complutense University of Madrid, UoE: University of Exeter, UNIS: University Centre in Svalbard, UTAS: University of Tasmania, UT Austin: University of Texas at Austin, UU: Utrecht University.
 
 Legal notes
 ===========

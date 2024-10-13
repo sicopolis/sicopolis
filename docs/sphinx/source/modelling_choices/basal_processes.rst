@@ -8,13 +8,19 @@ Subglacial processes
 Basal sliding
 =============
 
-Basal sliding is implemented by a Weertman-Budd-type sliding law (Weertman :cite:`weertman_1957a`, Budd et al. :cite:`budd_etal_1979`, Budd and Jenssen :cite:`budd_jenssen_1987`). Three variants are available, to be chosen in the run-specs header by the parameter ``SLIDE_LAW``\:
+Two options for basal sliding are implemented, to be chosen in the run-specs header by the parameter ``SLIDE_LAW``\:
 
-* ``1``: Weertman-Budd-type sliding, full ice pressure in denominator.
+* ``0``: No-slip conditions.
 
-* ``2``: Weertman-Budd-type sliding, reduced pressure (ice minus water) in denominator, limiter ``RED_PRES_LIMIT_FACT`` applied for SIA and SStA.
+* ``1``: Weertman-Budd-type sliding law (Weertman :cite:`weertman_1957a`, Budd et al. :cite:`budd_etal_1979`, Budd and Jenssen :cite:`budd_jenssen_1987`).
 
-* ``3``: Weertman-Budd-type sliding, reduced pressure (ice minus water) in denominator, limiter ``RED_PRES_LIMIT_FACT`` applied for SIA only.
+Weertman-Budd-type sliding depends via the reduced pressure (ice minus water) on the basal water pressure, which can be chosen by the parameter ``BASAL_WATER_PRESSURE`` as follows\:
+
+* ``0``: Zero everywhere.
+
+* ``1``: Ocean pressure without cut-off (can become negative).
+
+* ``2``: Ocean pressure with cut-off (non-negative values enforced).
 
 Sub-melt sliding (Sato and Greve :cite:`sato_greve_2012`), water-film-enhanced sliding (requires ``BASAL_HYDROLOGY = 1``, see ":ref:`basal_hydrology`" below) and regionally varying sliding parameters can be added. The detailed settings are controlled by additional parameters as described in the run-specs headers.
 

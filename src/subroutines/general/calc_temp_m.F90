@@ -1468,7 +1468,7 @@ ccb1 = acb1 &
    /H_c(j,i)
 ccb2 = acb2
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
 if (.not.flag_shelfy_stream(j,i)) then
 #endif
 
@@ -1477,7 +1477,7 @@ if (.not.flag_shelfy_stream(j,i)) then
    ccb4 = acb4*0.5_dp*(vy_t(0,j,i)+vy_t(0,j-1,i)) &
               *H_c(j,i)*dzs_deta_g(j,i)
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
 else   ! flag_shelfy_stream(j,i) == .true.
 
    ccb3 = -c_drag(j,i) &
@@ -1528,7 +1528,7 @@ do kc=0, KCMAX
              /c_val_aux &
              /H_c(j,i)
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
    if (.not.flag_shelfy_stream(j,i)) then
 #endif
 
@@ -1539,7 +1539,7 @@ do kc=0, KCMAX
                 *creep(sigma_c(kc,j,i)) &
                 *sigma_c(kc,j,i)*sigma_c(kc,j,i)
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
    else
       ct7(kc) = 2.0_dp*at7 &
                 /c_val_aux &
@@ -2040,7 +2040,7 @@ do kc=0, KCMAX
              /c_val_aux &
              /H_c(j,i)
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
    if (.not.flag_shelfy_stream(j,i)) then
 #endif
       ct7(kc) = at7 &
@@ -2049,7 +2049,7 @@ do kc=0, KCMAX
                 *ratefac_c(temp_c(kc,j,i), temp_c_m(kc,j,i)) &
                 *creep(sigma_c(kc,j,i)) &
                 *sigma_c(kc,j,i)*sigma_c(kc,j,i)
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
    else
       ct7(kc) = 2.0_dp*at7 &
                 /c_val_aux &
@@ -2573,7 +2573,7 @@ do kc=0, KCMAX
            = RHO*G*H_c_new(j,i)*(1.0_dp-eaz_c_quotient(kc)) &
              *(dzs_dxi_g(j,i)**2+dzs_deta_g(j,i)**2)**0.5_dp
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
    if (.not.flag_shelfy_stream(j,i)) then
 #endif
       ct7(kc) = at7 &
@@ -2582,7 +2582,7 @@ do kc=0, KCMAX
                 *ratefac_c(temp_c(kc,j,i), temp_c_m(kc,j,i)) &
                 *creep(sigma_c_help(kc)) &
                 *sigma_c_help(kc)*sigma_c_help(kc)
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
    else
       ct7(kc) = 2.0_dp*at7 &
                 /c_val_aux &
@@ -2686,7 +2686,7 @@ do kt=0, KTMAX
              + RHO*G*H_t_new(j,i)*(1.0_dp-zeta_t(kt)) &
                *(dzs_dxi_g(j,i)**2+dzs_deta_g(j,i)**2)**0.5_dp
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
    if (.not.flag_shelfy_stream(j,i)) then
 #endif
       cw7(kt) = aw7 &
@@ -2694,7 +2694,7 @@ do kt=0, KTMAX
                 *ratefac_t(omega_t(kt,j,i)) &
                 *creep(sigma_t_help(kt)) &
                 *sigma_t_help(kt)*sigma_t_help(kt)
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
    else
       cw7(kt) = 2.0_dp*aw7 &
                 *viscosity(de_t(kt,j,i), &

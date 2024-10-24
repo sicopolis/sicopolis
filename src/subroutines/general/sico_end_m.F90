@@ -99,7 +99,7 @@ contains
 
 #endif
 
-#if (MARGIN==3 || DYNAMICS==2)
+#if (MARGIN==3 || DYNAMICS==2 || DYNAMICS==3)
 #if !defined(ALLOW_TAPENADE)
   call lis_finalize(ierr)   ! Finalise execution environment of the
                             ! Library of Iterative Solvers Lis, if required

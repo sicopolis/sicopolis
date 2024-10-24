@@ -923,7 +923,7 @@ ccbe1 = acb1 &
         /(c_val(temp_c(0,j,i))*H_c(j,i))
 ccb2  = acb2
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
 if (.not.flag_shelfy_stream(j,i)) then
 #endif
 
@@ -932,7 +932,7 @@ if (.not.flag_shelfy_stream(j,i)) then
    ccb4 = acb4*0.5_dp*(vy_t(0,j,i)+vy_t(0,j-1,i)) &
               *H_c(j,i)*dzs_deta_g(j,i)
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
 else   ! flag_shelfy_stream(j,i) == .true.
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
@@ -990,7 +990,7 @@ do kc=0, KCMAX
           *0.5_dp*(vy_c(kc,j,i)+vy_c(kc,j-1,i)) *insq_g22_g(j,i)
    ce5(kc) = at5(kc)/H_c(j,i)
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
    if (.not.flag_shelfy_stream(j,i)) then
 #endif
       ce7(kc) = at7 &
@@ -998,7 +998,7 @@ do kc=0, KCMAX
                 *ratefac_c_t(temp_c(kc,j,i), omega_c(kc,j,i), temp_c_m(kc,j,i)) &
                 *creep(sigma_c(kc,j,i)) &
                 *sigma_c(kc,j,i)*sigma_c(kc,j,i)
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
    else
       ce7(kc) = 2.0_dp*at7 &
                 *viscosity(de_c(kc,j,i), &
@@ -1919,7 +1919,7 @@ cm3 = 0.0_dp
 
 do kc=0, KCMAX
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
    if (.not.flag_shelfy_stream(j,i)) then
 #endif
       ce7(kc) = at7 &
@@ -1927,7 +1927,7 @@ do kc=0, KCMAX
                 *ratefac_c_t(temp_c_val(kc), omega_c_val(kc), temp_c_m(kc,j,i)) &
                 *creep(sigma_c(kc,j,i)) &
                 *sigma_c(kc,j,i)*sigma_c(kc,j,i)
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
    else
       ce7(kc) = 2.0_dp*at7 &
                 *viscosity(de_c(kc,j,i), &

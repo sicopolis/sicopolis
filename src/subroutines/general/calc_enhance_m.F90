@@ -317,7 +317,7 @@ contains
 
   flag_enh_stream = .false.
 
-#if (DYNAMICS==2 && defined(ENH_STREAM))
+#if ((DYNAMICS==2 || DYNAMICS==3) && defined(ENH_STREAM))
   enh_stream = ENH_STREAM
   if (enh_stream >= 0.0_dp) flag_enh_stream = .true.
 #else

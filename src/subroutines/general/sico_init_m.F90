@@ -296,7 +296,7 @@ time_output = 0.0_dp
 !-------- Initialization of the Library of Iterative Solvers Lis,
 !                                                     if required --------
 
-#if (MARGIN==3 || DYNAMICS==2)
+#if (MARGIN==3 || DYNAMICS==2 || DYNAMICS==3)
 #if !defined(ALLOW_TAPENADE) /* Normal */
   call lis_initialize(ierr)
 #else /* Tapenade */
@@ -880,18 +880,18 @@ errormsg = ' >>> sico_init: ' &
 call error(errormsg)
 #endif
 
-!-------- Check whether for the shallow shelf
-!               or shelfy stream approximation
+!-------- Check whether for the shallow-shelf approximation,
+!               the shelfy-stream approximation
+!               or the depth-integrated-viscosity approximation
 !                  the chosen grid is Cartesian coordinates
 !                             without distortion correction (GRID==0) --------
 
-#if ((MARGIN==3 && DYNAMICS==1) || DYNAMICS==2)   /* requires SSA or SStA */
+#if ((MARGIN==3 && DYNAMICS==1) || DYNAMICS==2 || DYNAMICS==3)
+                                                  ! SSA, SStA or DIVA
 #if (GRID != 0)
 write(6, fmt='(a)') ' >>> sico_init: WARNING:'
 write(6, fmt='(a)') '                Distortion correction for GRID.ne.0'
-write(6, fmt='(a)') '                not yet implemented'
-write(6, fmt='(a)') '                for the shallow shelf approximation (SSA)'
-write(6, fmt='(a)') '                or the shelfy stream approximation (SStA).'
+write(6, fmt='(a)') '                not yet implemented for SSA, SStA or DIVA.'
 write(6, fmt='(a)') ' '
 #endif
 #endif
@@ -1433,7 +1433,7 @@ write(10, fmt=trim(fmt2)) 'DYNAMICS = ', DYNAMICS
 #if (DYNAMICS==2 && defined(HYB_MODE))
 write(10, fmt=trim(fmt2)) 'HYB_MODE = ', HYB_MODE
 #endif
-#if ((DYNAMICS==1 && MARGIN==3) || DYNAMICS==2)
+#if ((DYNAMICS==1 && MARGIN==3) || DYNAMICS==2 || DYNAMICS==3)
 #if (defined(LIS_OPTS))
 write(10, fmt=trim(fmt1)) 'lis_opts = '//LIS_OPTS
 #endif
@@ -1535,7 +1535,7 @@ write(10, fmt=trim(fmt3)) 'date_trans3 =', DATE_TRANS3_0
 write(10, fmt=trim(fmt3)) 'enh_compr =', ENH_COMPR
 write(10, fmt=trim(fmt3)) 'enh_shear =', ENH_SHEAR
 #endif
-#if (DYNAMICS==2 && defined(ENH_STREAM))
+#if ((DYNAMICS==2 || DYNAMICS==3) && defined(ENH_STREAM))
 if (ENH_STREAM >= 0.0_dp) &
    write(10, fmt=trim(fmt3)) 'enh_stream =', ENH_STREAM
 #endif
@@ -3093,6 +3093,11 @@ end do
 
 !-------- Definition of initial values --------
 
+#if (DYNAMICS==3)
+tau_bx(:,:) = 0.0_dp
+tau_by(:,:) = 0.0_dp
+#endif
+
 !  ------ Present topography
 
 #if (ANF_DAT==1)
@@ -3363,12 +3368,12 @@ call calc_dzs_dxy_aux(dxi, deta)
 
 #if (!(ANF_DAT==3 && RESTART==1))
 
-#if (DYNAMICS==1 || DYNAMICS==2)
+#if (DYNAMICS==1 || DYNAMICS==2 || DYNAMICS==3)
 
 call calc_vxy_b_sia(time)
 call calc_vxy_sia(dzeta_c, dzeta_t)
 
-#if (MARGIN==3 || DYNAMICS==2)
+#if (MARGIN==3 || DYNAMICS==2 || DYNAMICS==3)
 call calc_vxy_ssa(dxi, deta, dzeta_c, dzeta_t)
 #endif
 
@@ -3384,7 +3389,7 @@ call calc_vxy_static()
 call calc_vz_static()
 
 #else
-errormsg = ' >>> sico_init: DYNAMICS must be either 0, 1 or 2!'
+errormsg = ' >>> sico_init: DYNAMICS must be between 0 and 3!'
 call error(errormsg)
 #endif
 

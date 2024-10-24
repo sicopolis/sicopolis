@@ -113,14 +113,14 @@ do j=1, JMAX-1
 
       else if (n_cts(j,i)==0) then
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
          if (.not.flag_shelfy_stream(j,i)) then
 #endif
             frictional_heating &
                = -aqbm3a*H_c(j,i)*0.5_dp &
                   * ( (vx_t(0,j,i)+vx_t(0,j,i-1))*dzs_dxi_g(j,i) &
                      +(vy_t(0,j,i)+vy_t(0,j-1,i))*dzs_deta_g(j,i) )
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
          else   ! flag_shelfy_stream(j,i) == .true.
 
             frictional_heating &
@@ -138,14 +138,14 @@ do j=1, JMAX-1
 
       else   ! n_cts(j,i)==1
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
          if (.not.flag_shelfy_stream(j,i)) then
 #endif
             frictional_heating &
                = -aqbm3a*H(j,i)*0.5_dp &
                  * ( (vx_t(0,j,i)+vx_t(0,j,i-1))*dzs_dxi_g(j,i) &
                     +(vy_t(0,j,i)+vy_t(0,j-1,i))*dzs_deta_g(j,i) )
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
          else   ! flag_shelfy_stream(j,i) == .true.
 
             frictional_heating &

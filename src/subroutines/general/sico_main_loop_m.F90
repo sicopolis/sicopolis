@@ -228,12 +228,12 @@ contains
   call flag_update_gf_gl_cf()
   call calc_dzs_dxy_aux(dxi, deta)
 
-#if (DYNAMICS==1 || DYNAMICS==2)
+#if (DYNAMICS==1 || DYNAMICS==2 || DYNAMICS==3)
   
   call calc_vxy_b_sia(time)
   call calc_vxy_sia(dzeta_c, dzeta_t)
   
-#if (MARGIN==3 || DYNAMICS==2)
+#if (MARGIN==3 || DYNAMICS==2 || DYNAMICS==3)
   call calc_vxy_ssa(dxi, deta, dzeta_c, dzeta_t)
 #endif
   
@@ -250,7 +250,7 @@ contains
   
 #else
   errormsg = ' >>> sico_main_loop: ' &
-           //'Parameter DYNAMICS must be either 0, 1 or 2!'
+           //'Parameter DYNAMICS must be between 0 and 3!'
   call error(errormsg)
 #endif
   
@@ -262,7 +262,7 @@ contains
   
   call calc_thk_init()
   
-#if ((MARGIN==3 || DYNAMICS==2) && (CALCTHK==1 || CALCTHK==2))
+#if ((MARGIN==3 || DYNAMICS==2 || DYNAMICS==3) && (CALCTHK==1 || CALCTHK==2))
     errormsg = ' >>> sico_main_loop:' &
              //           end_of_line &
              //'          Non-SIA dynamics combined with' &
@@ -283,11 +283,14 @@ contains
     call error(errormsg)
 #endif
   
-#if (MARGIN==3)       /* coupled SIA/SSA or SIA/SStA/SSA dynamics */
+#if (MARGIN==3)
+    ! with ice shelves
     call calc_thk_mask_update(time, dtime, dxi, deta, 3)
-#elif (DYNAMICS==2)   /* hybrid SIA/SStA dynamics */
+#elif (DYNAMICS==2 || DYNAMICS==3)
+    ! no ice shelves, hybrid SIA/SStA or DIVA dynamics for grounded ice
     call calc_thk_mask_update(time, dtime, dxi, deta, 2)
-#else                 /* SIA-only dynamics */
+#else
+    ! no ice shelves, SIA-only dynamics for grounded ice
 #if (CALCTHK==1 || CALCTHK==2)
     call calc_thk_mask_update(time, dtime, dxi, deta, 1)
 #elif (CALCTHK==4)

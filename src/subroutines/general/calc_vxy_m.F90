@@ -6,7 +6,7 @@
 !!
 !!##### Authors
 !!
-!! Ralf Greve, Tatsuru Sato, Thomas Goelles, Jorge Bernales
+!! Ralf Greve, Tatsuru Sato, Thomas Goelles, Jorge Bernales, Felix Grandadam
 !!
 !!##### License
 !!
@@ -722,7 +722,7 @@ do j=0, JMAX
 
    call velocity_limiter_gradual(vx_b(j,i), vh_max, vh_max_inv)
    call velocity_limiter_gradual(vy_b(j,i), vh_max, vh_max_inv)
-  
+
    call velocity_limiter_gradual(vx_b_g(j,i), vh_max, vh_max_inv)
    call velocity_limiter_gradual(vy_b_g(j,i), vh_max, vh_max_inv)
 
@@ -741,6 +741,16 @@ vy_b_g   = 0.0_dp
 
 ! c_slide and c_drag are not reset because they will be used in the
 ! computation of the SStA velocity components
+
+!-------- Discard basal velocities for DYNAMICS==3 (DIVA) --------
+
+#elif (DYNAMICS==3)
+
+d_help_b = 0.0_dp
+vx_b     = 0.0_dp
+vy_b     = 0.0_dp
+vx_b_g   = 0.0_dp
+vy_b_g   = 0.0_dp
 
 #endif
 
@@ -786,7 +796,7 @@ real(dp) :: ratio_sl_threshold
 
 do kc=0, KCMAX
    if (flag_aa_nonzero) then
-      avxy3(kc) = aa*eaz_c(kc)/(ea-1.0_dp)*dzeta_c
+      avxy3(kc) = aa*eaz_c(kc)/(ea-1.0_dp)*dzeta_c !== aqxy1 no ?
       aqxy1(kc) = aa/(ea-1.0_dp)*eaz_c(kc)*dzeta_c
    else
       avxy3(kc) = dzeta_c
@@ -1388,9 +1398,52 @@ do ij=1, (IMAX+1)*(JMAX+1)
 end do
 !$omp end do
 
+#elif (DYNAMICS==3)
+
+ratio_sl_threshold = 1.11e+11_dp   ! dummy value
+
+!$omp do
+do ij=1, (IMAX+1)*(JMAX+1)
+
+   i = n2i(ij)   ! i=0...IMAX
+   j = n2j(ij)   ! j=0...JMAX
+
+   if (flag_sg_x(j,i)) then
+      if ( (mask(j,i)==0).or.(mask(j,i+1)==0) ) &
+         flag_shelfy_stream_x(j,i) = .true.
+              ! set to true the shelfy stream flag
+              ! for the whole grounded ice
+              ! (re-used to compute diva in the calc_vxy_ssa)
+   end if
+
+   if (flag_sg_y(j,i)) then
+      if ( (mask(j,i)==0).or.(mask(j+1,i)==0) ) &
+         flag_shelfy_stream_y(j,i) = .true.
+              ! set to true the shelfy stream flag
+              ! for the whole grounded ice
+              ! (re-used to compute diva in the calc_vxy_ssa)
+   end if
+
+   if (flag_inner_point(j,i)) then
+
+      if (mask(j,i) == 0) then   ! grounded ice
+
+         if (     flag_shelfy_stream_x(j,i-1)   &   ! at least
+              .or.flag_shelfy_stream_x(j,i)     &   ! one neighbour
+              .or.flag_shelfy_stream_y(j-1,i)   &   ! on the staggered grid
+              .or.flag_shelfy_stream_y(j,i)   ) &   ! is a shelfy stream point
+                  flag_shelfy_stream(j,i) = .true.
+
+      end if
+
+   end if
+
+end do
+!$omp end do
+
 #else
 
-errormsg = ' >>> calc_vxy_sia: DYNAMICS must be 0, 1 or 2!'
+errormsg = ' >>> calc_vxy_sia: DYNAMICS must be between 0 and 3!'
 call error(errormsg)
 
 #endif
@@ -1424,7 +1477,7 @@ end subroutine calc_vxy_sia
 
 !-------------------------------------------------------------------------------
 !> Computation of the horizontal velocity vx, vy, the horizontal volume flux
-!> qx, qy etc. for static ice.
+!! qx, qy etc. for static ice.
 !-------------------------------------------------------------------------------
 subroutine calc_vxy_static()
 
@@ -1508,7 +1561,7 @@ end subroutine calc_vxy_static
 !-------------------------------------------------------------------------------
 subroutine calc_vxy_ssa(dxi, deta, dzeta_c, dzeta_t)
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
   use calc_enhance_m, only : calc_enhance_hybrid_weighted
 #endif
 
@@ -1533,9 +1586,10 @@ real(dp) :: v_ref, v_ref_sq_inv
 real(dp) :: v_b_sq
 real(dp) :: pi_inv
 
+
 pi_inv   = 1.0_dp/pi
 
-#if (MARGIN==3 || DYNAMICS==2)
+#if (MARGIN==3 || DYNAMICS==2 || DYNAMICS==3)
 
 !-------- Parameters for the relaxation scheme --------
 
@@ -1620,13 +1674,19 @@ do while ( (m < iter_ssa_min) &
 
    end if
 
+#if (DYNAMICS==3)
+   call calc_F_int_DIVA( dzeta_c, dzeta_t)
+#endif
+
 !  ------ Horizontal velocity vx_m_ssa, vy_m_ssa
 
    flag_calc_vxy_ssa_x = .false.   ! initialization
    flag_calc_vxy_ssa_y = .false.   ! initialization
 
    call calc_vxy_ssa_matrix(dxi, deta, &
-                            flag_calc_vxy_ssa_x, flag_calc_vxy_ssa_y)
+                            flag_calc_vxy_ssa_x, flag_calc_vxy_ssa_y, &
+                            dzeta_c, dzeta_t)
+
    do i=0, IMAX
    do j=0, JMAX
       call velocity_limiter_gradual(vx_m_ssa(j,i), vh_max, vh_max_inv)
@@ -1666,7 +1726,7 @@ call calc_vis_ssa(dxi, deta, dzeta_c, dzeta_t)
 
 !-------- 3-D velocities, basal velocities and volume flux --------
 
-#if (DYNAMICS==0 || DYNAMICS==1)
+#if (DYNAMICS==0 || DYNAMICS==1 || DYNAMICS==3)
 
 ratio_sl_threshold = 1.11e+11_dp   ! dummy value
 ratio_help         = 1.11e+11_dp   ! dummy value
@@ -1701,13 +1761,14 @@ v_ref_sq_inv = 1.11e+11_dp   ! dummy value
 
 #else
 
-errormsg = ' >>> calc_vxy_ssa: DYNAMICS must be 0, 1 or 2!'
+errormsg = ' >>> calc_vxy_ssa: DYNAMICS must be between 0 and 3!'
 call error(errormsg)
 
 #endif
 
 weigh_ssta_sia_x = 0.0_dp
 weigh_ssta_sia_y = 0.0_dp
+
 
 !  ------ x-component
 
@@ -1716,7 +1777,7 @@ do j=0, JMAX
 
    if (flag_shelfy_stream_x(j,i)) then   ! shelfy stream
 
-#if (HYB_MODE==0)
+#if (DYNAMICS==2 && HYB_MODE==0)
              ! Sum of weighted sliding SIA and weighted SStA
              ! (by R. Greve)
 
@@ -1763,7 +1824,7 @@ do j=0, JMAX
       vx_m(j,i) = weigh_ssta_sia_x(j,i)*vx_m_ssa(j,i) &
                   + (1.0_dp-weigh_ssta_sia_x(j,i))*vx_m_sia(j,i)
 
-#elif (HYB_MODE==1)
+#elif (DYNAMICS==2 && HYB_MODE==1)
                ! Sum of weighted non-sliding SIA and full SStA
                ! (by J. Bernales)
 
@@ -1792,7 +1853,7 @@ do j=0, JMAX
       vx_m(j,i) = max(vx_m(j,i), -vh_max)
       vx_m(j,i) = min(vx_m(j,i),  vh_max)
 
-#elif (HYB_MODE==2)   /* Pure SStA (no SIA) */
+#elif (DYNAMICS==2 && HYB_MODE==2)   /* Pure SStA (no SIA) */
 
       do kt=0, KTMAX
          vx_t(kt,j,i) = vx_m_ssa(j,i)
@@ -1806,9 +1867,31 @@ do j=0, JMAX
 
       vx_m(j,i) = vx_m_ssa(j,i)
 
-#else
-      errormsg = ' >>> calc_vxy_ssa: HYB_MODE must be 0, 1 or 2!'
-      call error(errormsg)
+#elif (DYNAMICS==3)   /* DIVA */ 
+
+!  ------ x-component (for DIVA)
+
+      vx_m(j,i) = vx_m_ssa(j,i)   ! we used the ssa solver to compute vxy_m
+
+      tau_bx(j,i) = 0.5_dp*(beta_eff(j,i) + beta_eff(j,i+1)) * vx_m(j,i)
+                    ! shear basal drag in the x-direction (on the staggered grid)
+
+!    ---- Basal velocity
+      if (C_SLIDE == 0) then
+         vx_b(j,i) = 0.0_dp
+      else
+         vx_b(j,i) = vx_m(j,i) - (tau_bx(j,i) * F_2_x(j,i))
+      endif
+!    ---- 3D velocity
+
+      do kt=0, KTMAX
+         vx_t(kt,j,i) = vx_b(j,i) + tau_bx(j,i) * 0.5_dp*(F_1_t_g(kt,j,i)+F_1_t_g(kt,j,i+1))
+      end do
+
+      do kc=0, KCMAX
+         vx_c(kc,j,i) = vx_b(j,i) + tau_bx(j,i) * 0.5_dp*(F_1_c_g(kc,j,i)+F_1_c_g(kc,j,i+1))
+      end do
+
 #endif
 
       qx(j,i) = vx_m(j,i) * 0.5_dp*(H(j,i)+H(j,i+1))
@@ -1829,6 +1912,10 @@ do j=0, JMAX
 
       qx(j,i) = vx_m(j,i) * 0.5_dp*(H(j,i)+H(j,i+1))
 
+#if (DYNAMICS==3)
+      tau_bx(j,i) = 0.0_dp
+#endif
+
 !  else
 !     In all other cases, the depth-averaged velocities vx_m_ssa(j,i) computed
 !     by the SSA/SStA solver are discarded.
@@ -1845,7 +1932,7 @@ do j=0, JMAX-1
 
    if (flag_shelfy_stream_y(j,i)) then   ! shelfy stream
 
-#if (HYB_MODE==0)
+#if (DYNAMICS==2 && HYB_MODE==0)
              ! Sum of weighted sliding SIA and weighted SStA
              ! (by R. Greve)
 
@@ -1892,7 +1979,7 @@ do j=0, JMAX-1
       vy_m(j,i) = weigh_ssta_sia_y(j,i)*vy_m_ssa(j,i) &
                   + (1.0_dp-weigh_ssta_sia_y(j,i))*vy_m_sia(j,i)
 
-#elif (HYB_MODE==1)
+#elif (DYNAMICS==2 && HYB_MODE==1)
                ! Sum of weighted non-sliding SIA and full SStA
                ! (by J. Bernales)
 
@@ -1921,7 +2008,7 @@ do j=0, JMAX-1
       vy_m(j,i) = max(vy_m(j,i), -vh_max)
       vy_m(j,i) = min(vy_m(j,i),  vh_max)
 
-#elif (HYB_MODE==2)   /* Pure SStA (no SIA) */
+#elif (DYNAMICS==2 && HYB_MODE==2)   /* Pure SStA (no SIA) */
 
       do kt=0, KTMAX
          vy_t(kt,j,i) = vy_m_ssa(j,i)
@@ -1935,9 +2022,32 @@ do j=0, JMAX-1
 
       vy_m(j,i) = vy_m_ssa(j,i)
 
-#else
-      errormsg = ' >>> calc_vxy_ssa: HYB_MODE must be 0, 1 or 2!'
-      call error(errormsg)
+#elif (DYNAMICS==3)   /* DIVA */
+
+!  ------ y-component (for DIVA)
+
+      vy_m(j,i) = vy_m_ssa(j,i)   ! we used the ssa solver to compute vxy_m
+
+      tau_by(j,i) =  0.5_dp*(beta_eff(j,i) + beta_eff(j+1,i)) * vy_m(j,i)
+                    ! shear basal drag in the y-direction (on the staggered grid)
+
+
+!    ---- Basal velocity
+      if (C_SLIDE == 0) then
+         vy_b(j,i) = 0.0_dp
+      else
+         vy_b(j,i) = vy_m(j,i) - (tau_by(j,i) * F_2_y(j,i))
+      endif
+!    ---- 3D velocity
+
+      do kt=0, KTMAX
+         vy_t(kt,j,i) = vy_b(j,i) + tau_by(j,i) * 0.5_dp*(F_1_t_g(kt,j,i)+F_1_t_g(kt,j+1,i))
+      end do
+
+      do kc=0, KCMAX
+         vy_c(kc,j,i) = vy_b(j,i) + tau_by(j,i) * 0.5_dp*(F_1_c_g(kc,j,i)+F_1_c_g(kc,j+1,i))
+      end do
+
 #endif
 
       qy(j,i) = vy_m(j,i) * 0.5_dp*(H(j,i)+H(j+1,i))
@@ -1958,6 +2068,10 @@ do j=0, JMAX-1
 
       qy(j,i) = vy_m(j,i) * 0.5_dp*(H(j,i)+H(j+1,i))
 
+#if (DYNAMICS==3)
+      tau_by(j,i) = 0.0_dp
+#endif
+
 !  else
 !     In all other cases, the depth-averaged velocities vy_m_ssa(j,i) computed
 !     by the SSA/SStA solver are discarded.
@@ -1971,9 +2085,9 @@ end do
 
 weigh_ssta_sia = 0.0_dp
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
 
-#if (HYB_MODE==0)
+#if (DYNAMICS==2 && HYB_MODE==0)
              ! Sum of weighted sliding SIA and weighted SStA
              ! (by R. Greve)
 
@@ -2015,7 +2129,7 @@ do j=0, JMAX
 end do
 end do
 
-#elif (HYB_MODE==1)
+#elif (DYNAMICS==2 && HYB_MODE==1)
                ! Sum of weighted non-sliding SIA and full SStA
                ! (by J. Bernales)
 
@@ -2036,24 +2150,28 @@ do j=1, JMAX-1
 end do
 end do
 
-#elif (HYB_MODE==2)   /* Pure SStA (no SIA) */
+#elif (DYNAMICS==2 && HYB_MODE==2)   /* Pure SStA (no SIA) */
 
 do i=1, IMAX-1
 do j=1, JMAX-1
-
    if (flag_shelfy_stream(j,i)) weigh_ssta_sia(j,i) = 1.0_dp   ! shelfy stream
-
 end do
 end do
 
-#else
-      errormsg = ' >>> calc_vxy_ssa: HYB_MODE must be 0, 1 or 2!'
-      call error(errormsg)
+#elif (DYNAMICS==3)   /* DIVA */
+
+do i=1, IMAX-1
+do j=1, JMAX-1
+   if (flag_shelfy_stream(j,i)) weigh_ssta_sia(j,i) = 1.0_dp   ! shelfy stream
+                                !%% \!/ This needs to be reconsidered. \!/
+end do
+end do
+
 #endif
 
 if (flag_calc_temp) call calc_enhance_hybrid_weighted(weigh_ssta_sia)
 
-#endif   /* (DYNAMICS==2) */
+#endif   /* DYNAMICS==2 or 3 */
 
 !-------- Surface and basal velocities vx_s_g vy_s_g, vx_b_g vy_b_g
 !                                                (defined at (i,j)) --------
@@ -2078,7 +2196,11 @@ do j=1, JMAX-1
       vy_b_g(j,i) = vy_s_g(j,i)
 
    end if
-
+#if (DYNAMICS==3)
+   !save the norm of the basal velocity to use in calc_vxy_ssa_matrix :
+   vb_sq_prev(j,i) = (vx_b_g(j,i))**2  &
+                   + (vy_b_g(j,i))**2
+#endif
 end do
 end do
 
@@ -2092,9 +2214,12 @@ do j=1, JMAX-1
       tau_b(j,i) = 0.0_dp
 
    else if (flag_shelfy_stream(j,i)) then   ! shelfy stream
-
-      v_b_sq =   (0.5_dp*(vx_b_g(j,i)+vx_b_g(j,i-1)))**2  &
-               + (0.5_dp*(vy_b_g(j,i)+vy_b_g(j-1,i)))**2
+! this computation seems weird as vxy_b_g is defined on main grid already
+!      v_b_sq =   (0.5_dp*(vx_b_g(j,i)+vx_b_g(j,i-1)))**2  &
+!               + (0.5_dp*(vy_b_g(j,i)+vy_b_g(j-1,i)))**2
+! i would rather have done :
+      v_b_sq =   (vx_b_g(j,i))**2  &
+               + (vy_b_g(j,i))**2
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
 
@@ -2146,7 +2271,9 @@ end do
 
 #else
 
-errormsg = ' >>> calc_vxy_ssa: Only to be called for MARGIN==3 or DYNAMICS==2!'
+errormsg = ' >>> calc_vxy_ssa: Only to be called for' &
+         //                    end_of_line &
+         //'                   MARGIN==3, DYNAMICS==2 or DYNAMICS==3!'
 call error(errormsg)
 
 #endif
@@ -2158,9 +2285,10 @@ end subroutine calc_vxy_ssa
 !! vx_m_ssa, vy_m_ssa in the SSA/SStA.
 !-------------------------------------------------------------------------------
 subroutine calc_vxy_ssa_matrix(dxi, deta, &
-                               flag_calc_vxy_ssa_x, flag_calc_vxy_ssa_y)
+                               flag_calc_vxy_ssa_x, flag_calc_vxy_ssa_y, &
+                               dzeta_c, dzeta_t)
 
-#if (MARGIN==3 || DYNAMICS==2) 
+#if (MARGIN==3 || DYNAMICS==2 || DYNAMICS==3)
 #if defined(ALLOW_TAPENADE) /* Tapenade */
 use sico_maths_m
 #endif /* Tapenade */
@@ -2169,6 +2297,7 @@ use sico_maths_m
 implicit none
 
 real(dp), intent(in) :: dxi, deta
+real(dp), intent(in) :: dzeta_c, dzeta_t
 logical, dimension(0:JMAX,0:IMAX), intent(inout) :: &
                             flag_calc_vxy_ssa_x, flag_calc_vxy_ssa_y
 
@@ -2178,10 +2307,10 @@ real(dp) :: inv_dxi, inv_deta, inv_dxi_deta, inv_dxi2, inv_deta2
 real(dp) :: factor_rhs_1, factor_rhs_2, factor_rhs_3a, factor_rhs_3b
 real(dp) :: rhosw_rho_ratio
 real(dp) :: H_mid, zl_mid, z_sl_mid
-real(dp), dimension(0:JMAX,0:IMAX) :: vis_int_sgxy, beta_drag
+real(dp), dimension(0:JMAX,0:IMAX) :: vis_int_sgxy
 character(len=256) :: ch_solver_set_option
 
-#if (MARGIN==3 || DYNAMICS==2)
+#if (MARGIN==3 || DYNAMICS==2 || DYNAMICS==3)
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
 
@@ -2266,11 +2395,14 @@ end do
 !-------- Basal drag parameter (for shelfy stream) --------
 
 beta_drag = 0.0_dp   ! initialisation
+beta_eff = 0.0_dp    ! initialisation
 
 do i=1, IMAX-1
 do j=1, JMAX-1
 
    if (flag_shelfy_stream(j,i)) then
+
+# if (DYNAMICS==2)
 
       beta_drag(j,i) = c_drag(j,i) &
                      / sqrt( (   (0.5_dp*(vx_m_ssa(j,i)+vx_m_ssa(j,i-1)))**2  &
@@ -2278,11 +2410,18 @@ do j=1, JMAX-1
                              + eps_dp**2 ) &
                                      **(1.0_dp-p_weert_inv(j,i))
 
+#elif (DYNAMICS==3)
+      beta_drag(j,i) = c_drag(j,i) &
+                     / ((sqrt(vb_sq_prev(j,i)+ eps_dp**2))**(1.0_dp-p_weert_inv(j,i)))
+      ! because tau_b = beta_drag * v_b = c_drag * |v_b|**-(1-1/p) * v_b
+
+      beta_eff(j,i) = beta_drag(j,i)/(1.0_dp + beta_drag(j,i)*F_2_g(j,i))
+#endif
+
    end if
 
 end do
 end do
-
 !-------- Assembly of the system of linear equations
 !                         (matrix storage: compressed sparse row CSR) --------
 
@@ -2625,11 +2764,19 @@ do n=1, nmax-1, 2
             end if
             k  = k+1
             ! if (k > n_sprs) stop ' >>> calc_vxy_ssa_matrix: n_sprs too small!'
+#if (DYNAMICS==2)
             lgs_a_value(k) = -4.0_dp*inv_dxi2 &
                                     *(vis_int_g(j,i+1)+vis_int_g(j,i)) &
                              -inv_deta2 &
                                     *(vis_int_sgxy(j,i)+vis_int_sgxy(j-1,i)) &
                              -0.5_dp*(beta_drag(j,i+1)+beta_drag(j,i))
+#elif (DYNAMICS==3)
+            lgs_a_value(k) = -4.0_dp*inv_dxi2 &
+                                    *(vis_int_g(j,i+1)+vis_int_g(j,i)) &
+                             -inv_deta2 &
+                                    *(vis_int_sgxy(j,i)+vis_int_sgxy(j-1,i)) &
+                             -0.5_dp*(beta_eff(j,i+1)+beta_eff(j,i))
+#endif
             lgs_a_index(k) = nc
 
             nc = 2*ij2n(j,i)
@@ -3160,11 +3307,20 @@ do n=1, nmax-1, 2
             end if
             k  = k+1
             ! if (k > n_sprs) stop ' >>> calc_vxy_ssa_matrix: n_sprs too small!'
+
+#if (DYNAMICS==2)
             lgs_a_value(k) = -4.0_dp*inv_deta2 &
                                     *(vis_int_g(j+1,i)+vis_int_g(j,i)) &
                              -inv_dxi2 &
                                     *(vis_int_sgxy(j,i)+vis_int_sgxy(j,i-1)) &
                              -0.5_dp*(beta_drag(j+1,i)+beta_drag(j,i))
+#elif (DYNAMICS==3)
+            lgs_a_value(k) = -4.0_dp*inv_deta2 &
+                                    *(vis_int_g(j+1,i)+vis_int_g(j,i)) &
+                             -inv_dxi2 &
+                                    *(vis_int_sgxy(j,i)+vis_int_sgxy(j,i-1)) &
+                             -0.5_dp*(beta_eff(j+1,i)+beta_eff(j,i))
+#endif
             lgs_a_index(k) = nc
 
             nc = 2*ij2n(j+1,i)-1
@@ -3438,8 +3594,9 @@ deallocate(lgs_b_value, lgs_x_value)
 
 #else
 
-errormsg = ' >>> calc_vxy_ssa_matrix: ' &
-              //'Only to be called for MARGIN==3 or DYNAMICS==2!'
+errormsg = ' >>> calc_vxy_ssa_matrix: Only to be called for' &
+         //                           end_of_line &
+         //'                          MARGIN==3, DYNAMICS==2 or DYNAMICS==3!'
 call error(errormsg)
 
 #endif
@@ -3468,7 +3625,15 @@ real(dp) :: aqxy1(0:KCMAX)
 real(dp) :: cvis0(0:KTMAX), cvis1(0:KCMAX)
 real(dp), dimension(0:JMAX,0:IMAX) :: vis_ave_g_smooth
 
-#if (MARGIN==3 || DYNAMICS==2)
+! ---- variables created for diva :
+
+real(dp) :: dvx_dzeta_c, dvy_dzeta_c, dvx_dzeta_t, dvy_dzeta_t
+real(dp) :: de_ssa_squared, H_t_ratio, inv_H
+real(dp) :: H_dzeta_c_dz(0:KCMAX), H_dz_c_dzeta(0:KCMAX)
+real(dp) :: de_tmp
+real(dp) :: tau_by_g, tau_bx_g
+
+#if (MARGIN==3 || DYNAMICS==2 || DYNAMICS==3)
 
 !-------- Parameters, term abbreviations --------
 
@@ -3489,11 +3654,19 @@ real(dp), dimension(0:JMAX,0:IMAX) :: vis_ave_g_smooth
 dxi_inv  = 1.0_dp/dxi
 deta_inv = 1.0_dp/deta
 
+!-------- Parameters for the sigma transformation computation --------
+
 do kc=0, KCMAX
    if (flag_aa_nonzero) then
       aqxy1(kc) = aa/(ea-1.0_dp)*eaz_c(kc)*dzeta_c
+      H_dzeta_c_dz(kc) = (ea-1.0_dp)/(aa * eaz_c(kc)) ! dzeta_c_dz(kc) times H_c(j,i), for optimisation
+
+      H_dz_c_dzeta(kc) = (aa * eaz_c(kc))/(ea-1.0_dp) ! dzeta_c_dz(kc) divided by H_c(j,i)
    else
       aqxy1(kc) = dzeta_c
+      H_dzeta_c_dz(kc) = 1.0_dp ! for linear sigma transformation, dzeta_c_dz=H_c(j,i)
+
+      H_dz_c_dzeta(kc) = 1.0_dp ! for linear sigma transformation, dz_c_dzeta= 1 * H_c(j,i)
    end if
 end do
 
@@ -3507,12 +3680,22 @@ do j=0, JMAX
                                                    ! not shelfy stream
       de_ssa(j,i) = 0.0_dp   ! dummy value
 
+#if (DYNAMICS==3)   /* DIVA */
+      de_c_diva(:,j,i) = 0.0_dp   ! dummy values
+      de_t_diva(:,j,i) = 0.0_dp   ! dummy values
+#endif
+
       vis_ave_g(j,i) = 1.0_dp/flui_ave_sia(j,i)
       vis_int_g(j,i) = H(j,i) * vis_ave_g(j,i)
 
    else if ((mask(j,i)==1).or.(mask(j,i)==2)) then
                                                    ! ice-free land or ocean
       de_ssa(j,i) = 0.0_dp   ! dummy value
+
+#if (DYNAMICS==3)   /* DIVA */
+      de_c_diva(:,j,i) = 0.0_dp   ! dummy values
+      de_t_diva(:,j,i) = 0.0_dp   ! dummy values
+#endif
 
       vis_ave_g(j,i) = visc_init   ! dummy value
       vis_int_g(j,i) = 0.0_dp      ! dummy value
@@ -3556,10 +3739,64 @@ do j=0, JMAX
 
 #endif /* Normal vs. Tapenade */
 
+#if (DYNAMICS==3)   /* DIVA */ 
+
+      if (flag_shelfy_stream(j,i)) then   ! (flag name is missleading, just convenient to re-use) ! Compute de_c_diva and de_t_diva here
+
+         !needed 2D values :
+         de_ssa_squared = de_ssa(j,i)*de_ssa(j,i)
+         inv_H = 1.0_dp/H(j,i)
+         tau_bx_g = 0.5_dp * (tau_bx(j,i) + tau_bx(j,i-1))
+         tau_by_g = 0.5_dp * (tau_by(j,i) + tau_by(j-1,i))
+
+         ! compute de_c_diva : 
+
+         do kc=0, KCMAX ! from eq 36 Lipscomb-2019
+            dvx_dzeta_c = flui_c_diva(kc,j,i) * inv_H * tau_bx_g * (H_c(j,i)) * (1.0_dp - eaz_c_quotient(kc))
+            dvy_dzeta_c = flui_c_diva(kc,j,i) * inv_H * tau_by_g * (H_c(j,i)) * (1.0_dp - eaz_c_quotient(kc))
+
+            de_c_diva(kc,j,i) = sqrt(de_ssa_squared + 0.25_dp*(dvx_dzeta_c*dvx_dzeta_c) + 0.25_dp*(dvy_dzeta_c*dvy_dzeta_c))
+         end do   
+
+         ! compute de_t_diva : 
+         
+         if (n_cts(j,i) == 1) then !ensure that there is a physically existant temperate base
+            H_t_ratio=H_t(j,i)*inv_H
+
+            do kt=0, KTMAX ! from eq 36 Lipscomb-2019
+               dvx_dzeta_t = flui_t_diva(kt,j,i) * tau_bx_g  * ( 1.0_dp - zeta_t(kt) * H_t_ratio )
+               dvy_dzeta_t = flui_t_diva(kt,j,i) * tau_by_g  * ( 1.0_dp - zeta_t(kt) * H_t_ratio )
+
+               de_t_diva(kt,j,i) = sqrt(de_ssa_squared + 0.25_dp*(dvx_dzeta_t*dvx_dzeta_t) + 0.25_dp*(dvy_dzeta_t*dvy_dzeta_t))
+            end do
+
+         else ! no physical temperate layer
+            do kt=0, KTMAX
+               de_t_diva(kt,j,i)= de_c_diva(0,j,i) !temperate "slice" collapsed to the bottom
+            end do
+         endif
+   
+
+      else if (mask(j,i)==3) then   ! floating ice
+
+         de_c_diva(:,j,i) = de_ssa(j,i)
+         de_t_diva(:,j,i) = de_ssa(j,i)
+
+      else
+         errormsg = ' >>> calc_vis_ssa:' &
+         //                    end_of_line &
+         //'                   Either mask(j,i)==3' &
+         //                    end_of_line &
+         //'                   or flag_shelfy_stream(j,i) must be true here!'
+         call error(errormsg)
+      end if
+
+#endif
+
 !  ------ Term abbreviations
 
-#if (DYNAMICS==2)
-      if (.not.flag_shelfy_stream(j,i)) then
+#if (DYNAMICS==2 || DYNAMICS==3)
+      if (.not.flag_shelfy_stream(j,i)) then ! for DYN = 3, flag_shelfy_stream is True everywhere on grounded ice
 #endif
 
          do kc=0, KCMAX
@@ -3570,15 +3807,28 @@ do j=0, JMAX
                            *viscosity(de_ssa(j,i), &
                               temp_c(kc,j,i), temp_c_m(kc,j,i), &
                               0.0_dp, enh_val, 0)
+
+#if (DYNAMICS==3)
+            flui_c_diva(kc,j,i)=1.0_dp/min(max(viscosity(de_ssa(j,i), &
+                              temp_c(kc,j,i), temp_c_m(kc,j,i), &
+                              0.0_dp, enh_val, 0),visc_min),visc_max)
+#endif
          end do
          ! Ice shelves (floating ice) are assumed to consist of cold ice only
 
-#if (DYNAMICS==2)
+#if (DYNAMICS==2 || DYNAMICS==3)
       else   ! flag_shelfy_stream(j,i) == .true.
+
+#if (DYNAMICS==2)
+         de_tmp=de_ssa(j,i)
+#endif
 
 #if (CALCMOD==-1 || CALCMOD==0)
 
          do kc=0, KCMAX
+#if (DYNAMICS==3)
+            de_tmp=de_c_diva(kc,j,i)
+#endif
 
             if (flag_enh_stream) then
                enh_val = enh_stream
@@ -3587,14 +3837,23 @@ do j=0, JMAX
             end if
 
             cvis1(kc) = aqxy1(kc)*H_c(j,i) &
-                           *viscosity(de_ssa(j,i), &
+                           *viscosity(de_tmp, &
                               temp_c(kc,j,i), temp_c_m(kc,j,i), &
                               0.0_dp, enh_val, 0)
+
+#if (DYNAMICS==3)
+            flui_c_diva(kc,j,i)=1.0_dp/min(max(viscosity(de_tmp, &
+                             temp_c(kc,j,i), temp_c_m(kc,j,i), &
+                             0.0_dp, enh_val, 0),visc_min),visc_max)
+#endif
          end do
 
 #elif (CALCMOD==1)
 
          do kt=0, KTMAX
+#if (DYNAMICS==3)
+            de_tmp=de_t_diva(kt,j,i)
+#endif
 
             if (flag_enh_stream) then
                enh_val = enh_stream
@@ -3603,12 +3862,21 @@ do j=0, JMAX
             end if
 
             cvis0(kt) = dzeta_t*H_t(j,i) &
-                           *viscosity(de_ssa(j,i), &
+                           *viscosity(de_tmp, &
                               temp_t_m(kt,j,i), temp_t_m(kt,j,i), &
                               omega_t(kt,j,i), enh_val, 1)
+
+#if (DYNAMICS==3)
+            flui_t_diva(kt,j,i)=1.0_dp/min(max(viscosity(de_tmp, &
+                                 temp_t_m(kt,j,i), temp_t_m(kt,j,i), &
+                                 omega_t(kt,j,i), enh_val, 1),visc_min),visc_max)
+#endif
          end do
 
          do kc=0, KCMAX
+#if (DYNAMICS==3)
+            de_tmp=de_c_diva(kc,j,i)
+#endif
 
             if (flag_enh_stream) then
                enh_val = enh_stream
@@ -3617,14 +3885,24 @@ do j=0, JMAX
             end if
 
             cvis1(kc) = aqxy1(kc)*H_c(j,i) &
-                           *viscosity(de_ssa(j,i), &
+                           *viscosity(de_tmp, &
                               temp_c(kc,j,i), temp_c_m(kc,j,i), &
                               0.0_dp, enh_val, 0)
+
+#if (DYNAMICS==3)
+            flui_c_diva(kc,j,i)=1.0_dp/min(max(viscosity(de_tmp, &
+                                 temp_c(kc,j,i), temp_c_m(kc,j,i), &
+                                 0.0_dp, enh_val, 0),visc_min),visc_max)
+#endif
+                              
          end do
 
 #elif (CALCMOD==2 || CALCMOD==3)
 
          do kc=0, KCMAX
+#if (DYNAMICS==3)
+            de_tmp=de_c_diva(kc,j,i)
+#endif
 
             if (flag_enh_stream) then
                enh_val = enh_stream
@@ -3633,9 +3911,15 @@ do j=0, JMAX
             end if
 
             cvis1(kc) = aqxy1(kc)*H_c(j,i) &
-                         *viscosity(de_ssa(j,i), &
+                         *viscosity(de_tmp, &
                            temp_c(kc,j,i), temp_c_m(kc,j,i), &
                            omega_c(kc,j,i), enh_val, 2)
+
+#if (DYNAMICS==3)
+            flui_c_diva(kc,j,i)=1.0_dp/min(max(viscosity(de_tmp, &
+                              temp_c(kc,j,i), temp_c_m(kc,j,i), &
+                              omega_c(kc,j,i), enh_val, 2),visc_min),visc_max)
+#endif
          end do
 
 #else
@@ -3645,7 +3929,7 @@ do j=0, JMAX
 
       end if
 
-#endif   /* DYNAMICS==2 */
+#endif   /* DYNAMICS==2 or 3 */
 
 !  ------ Depth-integrated viscosity
 
@@ -3719,12 +4003,142 @@ vis_int_g = vis_ave_g*H
 
 #else
 
-errormsg = ' >>> calc_vis_ssa: Only to be called for MARGIN==3 or DYNAMICS==2!'
+errormsg = ' >>> calc_vis_ssa: Only to be called for' &
+         //                    end_of_line &
+         //'                   MARGIN==3, DYNAMICS==2 or DYNAMICS==3!'
 call error(errormsg)
 
 #endif
 
 end subroutine calc_vis_ssa
+
+#if (DYNAMICS==3)
+
+!-------------------------------------------------------------------------------
+!> For DYNAMICS==3 (DIVA), subroutine to compute F_2 and F_1 from Lispcomb 2019,
+!! Mathematical integral used to compute beta_drag and the 3D velocities,
+!! F_2 is 2D, F_1 are 3D, on the main grid.
+!-------------------------------------------------------------------------------
+subroutine calc_F_int_DIVA( dzeta_c, dzeta_t)
+
+implicit none
+
+real(dp), intent(in) :: dzeta_c, dzeta_t
+
+integer(i4b) ::i, j, kc, kt
+real(dp) :: H_dz_c_dzeta(0:KCMAX)
+real(dp), dimension(0:KCMAX) :: f_2_pre_int_c, f_1_pre_int_c
+real(dp), dimension(0:KTMAX) :: f_2_pre_int_t, f_1_pre_int_t
+real(dp) :: H_c_ratio
+real(dp) :: H_t_ratio
+real(dp) :: enh_val
+real(dp) :: inv_H
+real(dp) :: var_mid
+
+
+
+!-------- Parameters for the sigma transformation computation --------
+
+do kc=0, KCMAX
+   if (flag_aa_nonzero) then
+      H_dz_c_dzeta(kc) = (aa * eaz_c(kc))/(ea-1.0_dp) ! dzeta_c_dz(kc) divided by H_c(j,i)
+   else
+      H_dz_c_dzeta(kc) = 1.0_dp ! for linear sigma transformation, dz_c_dzeta= 1 * H_c(j,i)
+   end if
+end do
+
+do i=0, IMAX
+do j=0, JMAX
+
+   if (flag_shelfy_stream(j,i)) then
+
+      ! initialisation to ensure values are always defined
+      f_2_pre_int_t(:) = 0.0_dp
+      f_1_pre_int_t(:) = 0.0_dp
+
+      f_2_pre_int_c(:) = 0.0_dp
+      f_1_pre_int_c(:) = 0.0_dp
+
+      H_t_ratio = 0.0_dp
+
+      inv_H = 1.0_dp/H(j,i)
+      H_c_ratio = H_c(j,i) * inv_H
+      if ( n_cts(j,i)==1 ) then
+         H_t_ratio = H_t(j,i) * inv_H
+      end if
+
+
+      if ( n_cts(j,i)==1 ) then
+
+         do kt=0, KTMAX
+
+            f_1_pre_int_t(kt) = flui_t_diva(kt,j,i) &
+                                 * (1.0_dp - H_t_ratio * zeta_t(kt)) &
+                                 * H_t(j,i) ! * sigma transformation
+
+            f_2_pre_int_t(kt) = f_1_pre_int_t(kt) &
+                                 * (1.0_dp - H_t_ratio * zeta_t(kt))
+
+         end do
+
+      end if
+
+
+      do kc=0, KCMAX
+
+         f_1_pre_int_c(kc) = flui_c_diva(kc,j,i) &
+                              * ( H_c_ratio * (1.0_dp - eaz_c_quotient(kc)) ) &
+                              * H_dz_c_dzeta(kc) * H_c(j,i)! * sigma transformation
+
+         f_2_pre_int_c(kc) = f_1_pre_int_c(kc) &
+                              * ( H_c_ratio * (1.0_dp - eaz_c_quotient(kc)) )
+
+      end do
+
+      !-------- Integration --------
+      F_2_g(j,i) = 0.0_dp
+      F_1_t_g(0,j,i) = 0.0_dp
+
+      do kt=1, KTMAX
+         var_mid = 0.5_dp * (f_2_pre_int_t(kt) + f_2_pre_int_t(kt-1))
+         F_2_g(j,i)     = F_2_g(j,i) + var_mid * dzeta_t
+
+         var_mid = 0.5_dp * (f_1_pre_int_t(kt) + f_1_pre_int_t(kt-1))
+         F_1_t_g(kt,j,i) = F_1_t_g(kt-1,j,i) + var_mid * dzeta_t
+      end do
+
+      F_1_c_g(0,j,i) = F_1_t_g(KTMAX,j,i)
+
+      do kc=1, KCMAX
+         var_mid = 0.5_dp * (f_2_pre_int_c(kc) + f_2_pre_int_c(kc-1))
+         F_2_g(j,i)     = F_2_g(j,i) + var_mid * dzeta_c
+
+         var_mid = 0.5_dp * (f_1_pre_int_c(kc) + f_1_pre_int_c(kc-1))
+         F_1_c_g(kc,j,i) = F_1_c_g(kc-1,j,i) + var_mid * dzeta_c
+      end do
+
+      if (F_2_g(j,i) < 0.0_dp) then
+         errormsg = ' >>> calc_F_int_DIVA: F_2_g is negative!'
+         call error(errormsg)
+      end if
+
+      !-------- Stagger on x and y grid ---------
+      !if (flag_shelfy_stream(j,i) .and. flag_shelfy_stream(j,i+1)) then
+      F_2_x(j,i) = 0.5_dp*(F_2_g(j,i) + F_2_g(j,i+1))
+      F_2_y(j,i) = 0.5_dp*(F_2_g(j,i) + F_2_g(j+1,i))
+
+   else !not shelfy stream :
+      F_2_g(j,i)     = 0.0_dp
+      F_2_x(j,i)     = 0.0_dp
+      F_2_y(j,i)     = 0.0_dp
+      F_1_c_g(:,j,i) = 0.0_dp
+   end if
+end do
+end do
+
+end subroutine calc_F_int_DIVA
+
+#endif   /* DYNAMICS==3 */
 
 !-------------------------------------------------------------------------------
 !> Gradual limitation of computed horizontal velocities to the interval

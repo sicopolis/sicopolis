@@ -419,6 +419,12 @@ real(dp), dimension(0:JMAX,0:IMAX) :: d_help_b
 real(dp), dimension(0:JMAX,0:IMAX) :: c_drag
    !! Auxiliary quantity for the computation of the basal drag
 
+real(dp), dimension(0:JMAX,0:IMAX) :: beta_drag
+   !! basal drag (for ssta or diva)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: beta_eff
+   !! effective drag (for diva)
+
 real(dp), dimension(0:JMAX,0:IMAX) :: p_b
    !! Basal pressure
 
@@ -760,6 +766,46 @@ real(dp), dimension(0:KCMAX,0:JMAX,0:IMAX) :: strain_heating_c
 
 real(dp), dimension(0:JMAX,0:IMAX) :: de_ssa
    !! Effective strain rate of the SSA
+
+#if (DYNAMICS==3)   /* DIVA */
+
+real(dp), dimension(0:KCMAX,0:JMAX,0:IMAX) :: de_c_diva
+   !! Effective strain rate for DIVA in the upper (kc) ice domain
+
+real(dp), dimension(0:KTMAX,0:JMAX,0:IMAX) :: de_t_diva
+   !! Effective strain rate for DIVA in the lower (kt) ice domain
+
+real(dp), dimension(0:KCMAX,0:JMAX,0:IMAX) :: flui_c_diva
+   !! Ice viscosity for DIVA in the upper (kc) ice domain
+
+real(dp), dimension(0:KTMAX,0:JMAX,0:IMAX) :: flui_t_diva
+   !! Ice viscosity for DIVA in the lower (kt) ice domain
+
+real(dp), dimension(0:KCMAX,0:JMAX,0:IMAX) :: F_1_c_g
+   !! integral used to compute beta_drag and velocities (eq30 Lipscomb 2019) (at (i,j))
+
+real(dp), dimension(0:KTMAX,0:JMAX,0:IMAX) :: F_1_t_g
+   !! integral used to compute beta_drag and velocities (eq30 Lipscomb 2019) (at (i,j))
+
+real(dp), dimension(0:JMAX,0:IMAX) :: F_2_g
+   !! integral used to compute beta_drag and velocities (eq30 Lipscomb 2019) (at (i,j))
+
+real(dp), dimension(0:JMAX,0:IMAX) :: F_2_x
+   !! integral used to compute beta_drag and velocities (eq30 Lipscomb 2019) (at (i+1/2,j))
+
+real(dp), dimension(0:JMAX,0:IMAX) :: F_2_y
+   !! integral used to compute beta_drag and velocities (eq30 Lipscomb 2019) (at (i,j+1/2))
+
+real(dp), dimension(0:JMAX,0:IMAX) :: tau_bx
+   !! x-component of the basal shear stress, on the staggered grid
+
+real(dp), dimension(0:JMAX,0:IMAX) :: tau_by
+   !! y-component of the basal shear stress, on the staggered grid
+
+real(dp), dimension(0:JMAX,0:IMAX) :: vb_sq_prev
+   !! squared basal velocity of the previous iteration (main grid)
+
+#endif
 
 real(dp), dimension(0:JMAX,0:IMAX) :: vis_ave_g
    !! Depth-averaged viscosity of the SIA/SSA

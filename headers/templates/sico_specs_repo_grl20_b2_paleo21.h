@@ -208,6 +208,8 @@
 !                             SSA for floating ice (if existing)
 !                         2 : SIA/SStA hybrid for grounded ice,
 !                             SSA for floating ice (if existing)
+!                         3 : DIVA for grounded ice,
+!                             SSA for floating ice (if existing)
 
 #define HYB_MODE 0
 !                         SIA/SStA hybrid (only for DYNAMICS==2):

@@ -141,7 +141,7 @@ contains
               tau_dr_conv, tau_b_conv, &
               p_b_w_conv, q_w_conv, q_w_x_conv, q_w_y_conv, H_w_conv, &
               q_gl_g_conv, &
-              ratio_sl_x_conv, ratio_sl_y_conv, ratio_sl_conv, &
+              ratio_sl_sia_x_conv, ratio_sl_sia_y_conv, ratio_sl_sia_conv, &
               vis_ave_g_conv, vis_int_g_conv
   real(sp), dimension(0:IMAX,0:JMAX,0:KCMAX) :: vx_c_conv, vy_c_conv, vz_c_conv, &
                                                 temp_c_conv, age_c_conv, &
@@ -160,7 +160,7 @@ contains
 #endif
 
   real(dp) :: visc_min, visc_max, visc_init
-  logical :: flag_ratio_sl, flag_vis_ave_g
+  logical :: flag_ratio_sl_sia, flag_vis_ave_g
 
   real(dp), parameter :: one_year = 1.0_dp
 
@@ -510,20 +510,20 @@ contains
   call check( nf90_inq_varid(ncid, 'q_gl_g', ncv) )
   call check( nf90_get_var(ncid, ncv, q_gl_g_conv) )
 
-  call check( nf90_inq_varid(ncid, 'ratio_sl_x', ncv) )
-  call check( nf90_get_var(ncid, ncv, ratio_sl_x_conv) )
+  call check( nf90_inq_varid(ncid, 'ratio_sl_sia_x', ncv) )
+  call check( nf90_get_var(ncid, ncv, ratio_sl_sia_x_conv) )
 
-  call check( nf90_inq_varid(ncid, 'ratio_sl_y', ncv) )
-  call check( nf90_get_var(ncid, ncv, ratio_sl_y_conv) )
+  call check( nf90_inq_varid(ncid, 'ratio_sl_sia_y', ncv) )
+  call check( nf90_get_var(ncid, ncv, ratio_sl_sia_y_conv) )
 
-  if ( nf90_inq_varid(ncid, 'ratio_sl', ncv) == nf90_noerr ) then
-     call check( nf90_get_var(ncid, ncv, ratio_sl_conv) )
-     flag_ratio_sl = .true.
+  if ( nf90_inq_varid(ncid, 'ratio_sl_sia', ncv) == nf90_noerr ) then
+     call check( nf90_get_var(ncid, ncv, ratio_sl_sia_conv) )
+     flag_ratio_sl_sia = .true.
   else
-     write(6,'(/1x,a)') '>>> read_tms_nc: Variable ratio_sl'
+     write(6,'(/1x,a)') '>>> read_tms_nc: Variable ratio_sl_sia'
      write(6, '(1x,a)') '                 not available in read file *.nc.'
-     ratio_sl_conv = 0.0_sp
-     flag_ratio_sl = .false.
+     ratio_sl_sia_conv = 0.0_sp
+     flag_ratio_sl_sia = .false.
   end if
 
   call check( nf90_inq_varid(ncid, 'flag_shelfy_stream_x', ncv) )
@@ -729,9 +729,9 @@ contains
         q_w_x(j,i)   = real(q_w_x_conv(i,j),dp)*sec2year
         q_w_y(j,i)   = real(q_w_y_conv(i,j),dp)*sec2year
         H_w(j,i)     = real(H_w_conv(i,j),dp)
-        ratio_sl_x(j,i) = real(ratio_sl_x_conv(i,j),dp)
-        ratio_sl_y(j,i) = real(ratio_sl_y_conv(i,j),dp)
-        ratio_sl(j,i)   = real(ratio_sl_conv(i,j),dp)
+        ratio_sl_sia_x(j,i) = real(ratio_sl_sia_x_conv(i,j),dp)
+        ratio_sl_sia_y(j,i) = real(ratio_sl_sia_y_conv(i,j),dp)
+        ratio_sl_sia(j,i)   = real(ratio_sl_sia_conv(i,j),dp)
 
         if (flag_shelfy_stream_x_conv(i,j) == 1) then
            flag_shelfy_stream_x(j,i) = .true.
@@ -832,17 +832,19 @@ contains
      end do
      end do
 
-     if (.not.flag_ratio_sl) then   ! reconstruct ratio_sl from ratio_sl_x/y
+     if (.not.flag_ratio_sl_sia) then
+              ! reconstruct ratio_sl_sia from ratio_sl_sia_x/y
 
-        ratio_sl = 0.0_dp
+        ratio_sl_sia = 0.0_dp
 
         do i=1, IMAX-1
         do j=1, JMAX-1
 
            if (mask(j,i) == 0) &   ! grounded ice
-              ratio_sl(j,i) = 0.25_dp &
-                                * (   ratio_sl_x(j,i-1) + ratio_sl_x(j,i) &
-                                    + ratio_sl_y(j-1,i) + ratio_sl_y(j,i) )
+              ratio_sl_sia(j,i) &
+                 = 0.25_dp &
+                      * (   ratio_sl_sia_x(j,i-1) + ratio_sl_sia_x(j,i) &
+                          + ratio_sl_sia_y(j-1,i) + ratio_sl_sia_y(j,i) )
         end do
         end do
 

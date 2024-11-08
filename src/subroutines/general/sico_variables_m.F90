@@ -420,10 +420,10 @@ real(dp), dimension(0:JMAX,0:IMAX) :: c_drag
    !! Auxiliary quantity for the computation of the basal drag
 
 real(dp), dimension(0:JMAX,0:IMAX) :: beta_drag
-   !! basal drag (for ssta or diva)
+   !! Basal drag (for SStA or DIVA)
 
 real(dp), dimension(0:JMAX,0:IMAX) :: beta_eff
-   !! effective drag (for diva)
+   !! Effective drag (for DIVA)
 
 real(dp), dimension(0:JMAX,0:IMAX) :: p_b
    !! Basal pressure
@@ -452,29 +452,6 @@ real(dp), dimension(0:JMAX,0:IMAX) :: vx_m
 real(dp), dimension(0:JMAX,0:IMAX) :: vy_m
    !! Mean (depth-averaged) velocity in y-direction, at (i,j+1/2)
 
-real(dp), dimension(0:JMAX,0:IMAX) :: vx_m_sia
-   !! Mean (depth-averaged) SIA velocity in x-direction, at (i+1/2,j)
-
-real(dp), dimension(0:JMAX,0:IMAX) :: vy_m_sia
-   !! Mean (depth-averaged) SIA velocity in y-direction, at (i,j+1/2)
-
-real(dp), dimension(0:JMAX,0:IMAX) :: vx_m_ssa
-   !! Mean (depth-averaged) SSA velocity in x-direction, at (i+1/2,j)
-
-real(dp), dimension(0:JMAX,0:IMAX) :: vy_m_ssa
-   !! Mean (depth-averaged) SSA velocity in y-direction, at (i,j+1/2)
-
-real(dp), dimension(0:JMAX,0:IMAX) :: ratio_sl_x
-   !! Ratio of basal to surface velocity (slip ratio) in x-direction,
-   !! at (i+1/2,j)
-
-real(dp), dimension(0:JMAX,0:IMAX) :: ratio_sl_y
-   !! Ratio of basal to surface velocity (slip ratio) in y-direction,
-   !! at (i,j+1/2)
-
-real(dp), dimension(0:JMAX,0:IMAX) :: ratio_sl
-   !! Ratio of basal to surface velocity (slip ratio) on the main grid
-
 real(dp), dimension(0:JMAX,0:IMAX) :: vx_b_g
    !! Staggered-grid quantity interpolated to grid point (i,j)
 
@@ -496,6 +473,41 @@ real(dp), dimension(0:JMAX,0:IMAX) :: vy_s_g
 
 real(dp), dimension(0:JMAX,0:IMAX) :: vz_s
    !! Velocity in z-direction at the ice surface
+
+real(dp), dimension(0:JMAX,0:IMAX) :: vx_b_sia
+   !! Basal SIA velocity in x-direction, at (i+1/2,j)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: vy_b_sia
+   !! Basal SIA velocity in y-direction, at (i,j+1/2)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: vx_s_sia
+   !! Surface SIA velocity in x-direction, at (i+1/2,j)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: vy_s_sia
+   !! Surface SIA velocity in y-direction, at (i,j+1/2)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: vx_m_sia
+   !! Mean (depth-averaged) SIA velocity in x-direction, at (i+1/2,j)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: vy_m_sia
+   !! Mean (depth-averaged) SIA velocity in y-direction, at (i,j+1/2)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: vx_m_ssa
+   !! Mean (depth-averaged) SSA velocity in x-direction, at (i+1/2,j)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: vy_m_ssa
+   !! Mean (depth-averaged) SSA velocity in y-direction, at (i,j+1/2)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: ratio_sl_sia_x
+   !! Ratio of SIA basal to surface velocity (slip ratio) in x-direction,
+   !! at (i+1/2,j)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: ratio_sl_sia_y
+   !! Ratio of SIA basal to surface velocity (slip ratio) in y-direction,
+   !! at (i,j+1/2)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: ratio_sl_sia
+   !! Ratio of SIA basal to surface velocity (slip ratio) on the main grid
 
 real(dp), dimension(0:JMAX,0:IMAX) :: flui_ave_sia
    !! Depth-averaged fluidity of the SIA
@@ -782,28 +794,32 @@ real(dp), dimension(0:KTMAX,0:JMAX,0:IMAX) :: flui_t_diva
    !! Ice viscosity for DIVA in the lower (kt) ice domain
 
 real(dp), dimension(0:KCMAX,0:JMAX,0:IMAX) :: F_1_c_g
-   !! integral used to compute beta_drag and velocities (eq30 Lipscomb 2019) (at (i,j))
+   !! Integral used to compute beta_drag and velocities (eq30 Lipscomb+ 2019)
 
 real(dp), dimension(0:KTMAX,0:JMAX,0:IMAX) :: F_1_t_g
-   !! integral used to compute beta_drag and velocities (eq30 Lipscomb 2019) (at (i,j))
+   !! Integral used to compute beta_drag and velocities (eq30 Lipscomb+ 2019)
 
 real(dp), dimension(0:JMAX,0:IMAX) :: F_2_g
-   !! integral used to compute beta_drag and velocities (eq30 Lipscomb 2019) (at (i,j))
+   !! Integral used to compute beta_drag and velocities (eq30 Lipscomb+ 2019)
 
 real(dp), dimension(0:JMAX,0:IMAX) :: F_2_x
-   !! integral used to compute beta_drag and velocities (eq30 Lipscomb 2019) (at (i+1/2,j))
+   !! Integral used to compute beta_drag and velocities (eq30 Lipscomb+ 2019)
+   !! (staggered grid, at (i+1/2,j))
 
 real(dp), dimension(0:JMAX,0:IMAX) :: F_2_y
-   !! integral used to compute beta_drag and velocities (eq30 Lipscomb 2019) (at (i,j+1/2))
+   !! Integral used to compute beta_drag and velocities (eq30 Lipscomb+ 2019)
+   !! (staggered grid, at (i,j+1/2))
 
 real(dp), dimension(0:JMAX,0:IMAX) :: tau_bx
-   !! x-component of the basal shear stress, on the staggered grid
+   !! x-component of the basal shear stress
+   !! (staggered grid, at (i+1/2,j))
 
 real(dp), dimension(0:JMAX,0:IMAX) :: tau_by
-   !! y-component of the basal shear stress, on the staggered grid
+   !! y-component of the basal shear stress
+   !! (staggered grid, at (i,j+1/2))
 
 real(dp), dimension(0:JMAX,0:IMAX) :: vb_sq_prev
-   !! squared basal velocity of the previous iteration (main grid)
+   !! Squared basal velocity of the previous iteration
 
 #endif
 
@@ -1299,6 +1315,9 @@ real(dp), dimension(n_surf_max) :: y_surf
 
 real(dp), parameter :: pi = 3.141592653589793_dp
    !! Constant pi
+
+real(dp), parameter :: pi_inv = 1.0_dp/pi
+   !! Inverse of pi
 
 real(dp), parameter :: deg2rad = pi/180.0_dp
    !! pi divided by 180 (-> deg to rad)

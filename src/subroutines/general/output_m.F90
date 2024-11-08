@@ -226,7 +226,7 @@ real(sp), dimension(0:IMAX,0:JMAX) :: lambda_conv, phi_conv, &
             p_b_w_conv, q_w_conv, q_w_x_conv, q_w_y_conv, H_w_conv, &
             q_gl_g_conv, &
             cst_dist_conv, cos_grad_tc_conv, dis_perp_conv, &
-            ratio_sl_x_conv, ratio_sl_y_conv, ratio_sl_conv, &
+            ratio_sl_sia_x_conv, ratio_sl_sia_y_conv, ratio_sl_sia_conv, &
             vis_ave_g_conv, vis_int_g_conv
             
 real(sp), dimension(0:IMAX,0:JMAX,0:KCMAX) :: vx_c_conv, vy_c_conv, vz_c_conv, &
@@ -2971,7 +2971,7 @@ call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
             thisroutine )
 
-!    ---- ratio_sl_x
+!    ---- ratio_sl_sia_x
 
 call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
             thisroutine )
@@ -2979,28 +2979,28 @@ call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)), &
             thisroutine )
 
 #if (NETCDF4_ENABLED==1)
-call check( nf90_def_var(ncid, 'ratio_sl_x', NF90_FLOAT, nc2d, ncv, &
+call check( nf90_def_var(ncid, 'ratio_sl_sia_x', NF90_FLOAT, nc2d, ncv, &
             deflate_level=n_deflate_level, shuffle=flag_shuffle), &
             thisroutine )
 #else
-call check( nf90_def_var(ncid, 'ratio_sl_x', NF90_FLOAT, nc2d, ncv), &
+call check( nf90_def_var(ncid, 'ratio_sl_sia_x', NF90_FLOAT, nc2d, ncv), &
             thisroutine )
 #endif
 
 buffer = '-'
 call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)), &
             thisroutine )
-buffer = 'land_ice_x_slip_ratio'
+buffer = 'land_ice_x_slip_ratio_sia'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
             thisroutine )
-buffer = 'Ratio of basal to surface velocity (slip ratio) in x-direction, ' &
-         // 'at (i+1/2,j)'
+buffer = 'Ratio of SIA basal to surface velocity (slip ratio) ' &
+         // 'in x-direction, at (i+1/2,j)'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
             thisroutine )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
             thisroutine )
 
-!    ---- ratio_sl_y
+!    ---- ratio_sl_sia_y
 
 call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
             thisroutine )
@@ -3008,28 +3008,28 @@ call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)), &
             thisroutine )
 
 #if (NETCDF4_ENABLED==1)
-call check( nf90_def_var(ncid, 'ratio_sl_y', NF90_FLOAT, nc2d, ncv, &
+call check( nf90_def_var(ncid, 'ratio_sl_sia_y', NF90_FLOAT, nc2d, ncv, &
             deflate_level=n_deflate_level, shuffle=flag_shuffle), &
             thisroutine )
 #else
-call check( nf90_def_var(ncid, 'ratio_sl_y', NF90_FLOAT, nc2d, ncv), &
+call check( nf90_def_var(ncid, 'ratio_sl_sia_y', NF90_FLOAT, nc2d, ncv), &
             thisroutine )
 #endif
 
 buffer = '-'
 call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)), &
             thisroutine )
-buffer = 'land_ice_y_slip_ratio'
+buffer = 'land_ice_y_slip_ratio_sia'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
             thisroutine )
-buffer = 'Ratio of basal to surface velocity (slip ratio) in y-direction, ' &
-         // 'at (i+1/2,j)'
+buffer = 'Ratio of SIA basal to surface velocity (slip ratio) ' &
+         // 'in y-direction, at (i+1/2,j)'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
             thisroutine )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
             thisroutine )
 
-!    ---- ratio_sl
+!    ---- ratio_sl_sia
 
 call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
             thisroutine )
@@ -3037,21 +3037,21 @@ call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)), &
             thisroutine )
 
 #if (NETCDF4_ENABLED==1)
-call check( nf90_def_var(ncid, 'ratio_sl', NF90_FLOAT, nc2d, ncv, &
+call check( nf90_def_var(ncid, 'ratio_sl_sia', NF90_FLOAT, nc2d, ncv, &
             deflate_level=n_deflate_level, shuffle=flag_shuffle), &
             thisroutine )
 #else
-call check( nf90_def_var(ncid, 'ratio_sl', NF90_FLOAT, nc2d, ncv), &
+call check( nf90_def_var(ncid, 'ratio_sl_sia', NF90_FLOAT, nc2d, ncv), &
             thisroutine )
 #endif
 
 buffer = '-'
 call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)), &
             thisroutine )
-buffer = 'land_ice_slip_ratio'
+buffer = 'land_ice_slip_ratio_sia'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
             thisroutine )
-buffer = 'Ratio of basal to surface velocity (slip ratio)'
+buffer = 'Ratio of SIA basal to surface velocity (slip ratio)'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
             thisroutine )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
@@ -4468,9 +4468,9 @@ do j=0, JMAX
    q_w_y_conv(i,j)     = real(q_w_y(j,i)*year2sec,sp)
    H_w_conv(i,j)       = real(H_w(j,i),sp)
    q_gl_g_conv(i,j)    = real(q_gl_g_flx(j,i)*year2sec,sp)
-   ratio_sl_x_conv(i,j) = real(ratio_sl_x(j,i),sp)
-   ratio_sl_y_conv(i,j) = real(ratio_sl_y(j,i),sp)
-   ratio_sl_conv(i,j)   = real(ratio_sl(j,i),sp)
+   ratio_sl_sia_x_conv(i,j) = real(ratio_sl_sia_x(j,i),sp)
+   ratio_sl_sia_y_conv(i,j) = real(ratio_sl_sia_y(j,i),sp)
+   ratio_sl_sia_conv(i,j)   = real(ratio_sl_sia(j,i),sp)
 
 #if (defined(CLIMATOLOGY_EXTRACTION_HACK))
     !%% Climatology extraction hack (must not be used routinely)!
@@ -5048,18 +5048,18 @@ call check( nf90_put_var(ncid, ncv, q_gl_g_conv, &
                          start=nc2cor_ij, count=nc2cnt_ij), &
             thisroutine )
 
-call check( nf90_inq_varid(ncid, 'ratio_sl_x', ncv), thisroutine )
-call check( nf90_put_var(ncid, ncv, ratio_sl_x_conv, &
+call check( nf90_inq_varid(ncid, 'ratio_sl_sia_x', ncv), thisroutine )
+call check( nf90_put_var(ncid, ncv, ratio_sl_sia_x_conv, &
                          start=nc2cor_ij, count=nc2cnt_ij), &
             thisroutine )
 
-call check( nf90_inq_varid(ncid, 'ratio_sl_y', ncv), thisroutine )
-call check( nf90_put_var(ncid, ncv, ratio_sl_y_conv, &
+call check( nf90_inq_varid(ncid, 'ratio_sl_sia_y', ncv), thisroutine )
+call check( nf90_put_var(ncid, ncv, ratio_sl_sia_y_conv, &
                          start=nc2cor_ij, count=nc2cnt_ij), &
             thisroutine )
 
-call check( nf90_inq_varid(ncid, 'ratio_sl', ncv), thisroutine )
-call check( nf90_put_var(ncid, ncv, ratio_sl_conv, &
+call check( nf90_inq_varid(ncid, 'ratio_sl_sia', ncv), thisroutine )
+call check( nf90_put_var(ncid, ncv, ratio_sl_sia_conv, &
                          start=nc2cor_ij, count=nc2cnt_ij), &
             thisroutine )
 

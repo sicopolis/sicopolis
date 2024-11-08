@@ -46,7 +46,7 @@ module calc_enhance_m
   private
   public :: calc_enhance_1, calc_enhance_2, calc_enhance_3
   public :: calc_enhance_4, calc_enhance_5
-  public :: calc_enhance_hybrid_weighted
+  public :: calc_enhance_stream_weighted
 
 contains
 
@@ -228,13 +228,13 @@ contains
   end subroutine calc_enhance_5
 
 !-------------------------------------------------------------------------------
-!> Weighted enhancement factor for SIA/SStA hybrid dynamics.
+!> Weighted enhancement factor for fast-flowing ice (ice streams).
 !-------------------------------------------------------------------------------
-  subroutine calc_enhance_hybrid_weighted(weigh_ssta_sia)
+  subroutine calc_enhance_stream_weighted(weigh_stream)
 
   implicit none
 
-  real(dp), dimension(0:JMAX,0:IMAX), intent(in) :: weigh_ssta_sia
+  real(dp), dimension(0:JMAX,0:IMAX), intent(in) :: weigh_stream
 
   integer(i4b) :: i, j, kc, kt
 
@@ -246,13 +246,13 @@ contains
         if (flag_shelfy_stream(j,i)) then   ! shelfy stream
 
            do kt=0, KTMAX
-              enh_t(kt,j,i) = weigh_ssta_sia(j,i)*enh_stream &
-                              + (1.0_dp-weigh_ssta_sia(j,i))*enh_t(kt,j,i)
+              enh_t(kt,j,i) = weigh_stream(j,i)*enh_stream &
+                              + (1.0_dp-weigh_stream(j,i))*enh_t(kt,j,i)
            end do
 
            do kc=0, KCMAX
-              enh_c(kc,j,i) = weigh_ssta_sia(j,i)*enh_stream &
-                              + (1.0_dp-weigh_ssta_sia(j,i))*enh_c(kc,j,i)
+              enh_c(kc,j,i) = weigh_stream(j,i)*enh_stream &
+                              + (1.0_dp-weigh_stream(j,i))*enh_c(kc,j,i)
            end do
 
         end if
@@ -262,7 +262,7 @@ contains
 
   end if
 
-  end subroutine calc_enhance_hybrid_weighted
+  end subroutine calc_enhance_stream_weighted
 
 !-------------------------------------------------------------------------------
 !> Minimal anisotropic flow enhancement factor.

@@ -102,7 +102,7 @@ real(sp), dimension(0:IMAX,0:JMAX) :: lambda_erg, phi_erg, &
             tau_dr_erg, tau_b_erg, &
             p_b_w_erg, q_w_erg, q_w_x_erg, q_w_y_erg, H_w_erg, &
             q_gl_g_erg, &
-            ratio_sl_x_erg, ratio_sl_y_erg, &
+            ratio_sl_sia_x_erg, ratio_sl_sia_y_erg, &
             vis_ave_g_erg, vis_int_g_erg
 real(sp), dimension(0:IMAX,0:JMAX) :: r_kc_cts_erg
 real(sp), dimension(0:IMAX,0:JMAX,0:KCMAX) :: vx_c_erg, vy_c_erg, vz_c_erg, &
@@ -174,7 +174,7 @@ real(sp), dimension(0:2*IMAX,0:2*JMAX) :: lambda_dbl, phi_dbl, &
             tau_dr_dbl, tau_b_dbl, &
             p_b_w_dbl, q_w_dbl, q_w_x_dbl, q_w_y_dbl, H_w_dbl, &
             q_gl_g_dbl, &
-            ratio_sl_x_dbl, ratio_sl_y_dbl, &
+            ratio_sl_sia_x_dbl, ratio_sl_sia_y_dbl, &
             vis_ave_g_dbl, vis_int_g_dbl
 real(sp), dimension(0:2*IMAX,0:2*JMAX) :: r_kc_cts_dbl
 real(sp), dimension(0:2*IMAX,0:2*JMAX,0:KCMAX) :: vx_c_dbl, vy_c_dbl, &
@@ -675,11 +675,11 @@ call check( nf90_get_var(ncid, ncv, H_w_erg) )
 call check( nf90_inq_varid(ncid, 'q_gl_g', ncv) )
 call check( nf90_get_var(ncid, ncv, q_gl_g_erg) )
 
-call check( nf90_inq_varid(ncid, 'ratio_sl_x', ncv) )
-call check( nf90_get_var(ncid, ncv, ratio_sl_x_erg) )
+call check( nf90_inq_varid(ncid, 'ratio_sl_sia_x', ncv) )
+call check( nf90_get_var(ncid, ncv, ratio_sl_sia_x_erg) )
 
-call check( nf90_inq_varid(ncid, 'ratio_sl_y', ncv) )
-call check( nf90_get_var(ncid, ncv, ratio_sl_y_erg) )
+call check( nf90_inq_varid(ncid, 'ratio_sl_sia_y', ncv) )
+call check( nf90_get_var(ncid, ncv, ratio_sl_sia_y_erg) )
 
 call check( nf90_inq_varid(ncid, 'flag_shelfy_stream_x', ncv) )
 call check( nf90_get_var(ncid, ncv, flag_shelfy_stream_x_erg) )
@@ -948,8 +948,8 @@ do jj = 0, 2*JMAX, 2
    q_w_y_dbl(ii,jj)     = q_w_y_erg(i,j)
    H_w_dbl(ii,jj)       = H_w_erg(i,j)
    q_gl_g_dbl(ii,jj)    = q_gl_g_erg(i,j)
-   ratio_sl_x_dbl(ii,jj) = ratio_sl_x_erg(i,j)
-   ratio_sl_y_dbl(ii,jj) = ratio_sl_y_erg(i,j)
+   ratio_sl_sia_x_dbl(ii,jj) = ratio_sl_sia_x_erg(i,j)
+   ratio_sl_sia_y_dbl(ii,jj) = ratio_sl_sia_y_erg(i,j)
    vis_ave_g_dbl(ii,jj) = vis_ave_g_erg(i,j)
    vis_int_g_dbl(ii,jj) = vis_int_g_erg(i,j)
 
@@ -1037,8 +1037,10 @@ do jj = 0, 2*JMAX, 2
    q_w_y_dbl(ii,jj)     = 0.5*(q_w_y_erg(i1,j)+q_w_y_erg(i2,j))
    H_w_dbl(ii,jj)       = 0.5*(H_w_erg(i1,j)+H_w_erg(i2,j))
    q_gl_g_dbl(ii,jj)    = 0.5*(q_gl_g_erg(i1,j)+q_gl_g_erg(i2,j))
-   ratio_sl_x_dbl(ii,jj) = 0.5*(ratio_sl_x_erg(i1,j)+ratio_sl_x_erg(i2,j))
-   ratio_sl_y_dbl(ii,jj) = 0.5*(ratio_sl_y_erg(i1,j)+ratio_sl_y_erg(i2,j))
+   ratio_sl_sia_x_dbl(ii,jj) = 0.5*( ratio_sl_sia_x_erg(i1,j) &
+                                    +ratio_sl_sia_x_erg(i2,j))
+   ratio_sl_sia_y_dbl(ii,jj) = 0.5*( ratio_sl_sia_y_erg(i1,j) &
+                                    +ratio_sl_sia_y_erg(i2,j))
    vis_ave_g_dbl(ii,jj) = 0.5*(vis_ave_g_erg(i1,j)+vis_ave_g_erg(i2,j))
    vis_int_g_dbl(ii,jj) = 0.5*(vis_int_g_erg(i1,j)+vis_int_g_erg(i2,j))
 end do
@@ -1125,8 +1127,10 @@ do jj = 1, 2*JMAX-1, 2
    q_w_y_dbl(ii,jj)     = 0.5*(q_w_y_erg(i,j1)+q_w_y_erg(i,j2))
    H_w_dbl(ii,jj)       = 0.5*(H_w_erg(i,j1)+H_w_erg(i,j2))
    q_gl_g_dbl(ii,jj)    = 0.5*(q_gl_g_erg(i,j1)+q_gl_g_erg(i,j2))
-   ratio_sl_x_dbl(ii,jj) = 0.5*(ratio_sl_x_erg(i,j1)+ratio_sl_x_erg(i,j2))
-   ratio_sl_y_dbl(ii,jj) = 0.5*(ratio_sl_y_erg(i,j1)+ratio_sl_y_erg(i,j2))
+   ratio_sl_sia_x_dbl(ii,jj) = 0.5*( ratio_sl_sia_x_erg(i,j1) &
+                                    +ratio_sl_sia_x_erg(i,j2))
+   ratio_sl_sia_y_dbl(ii,jj) = 0.5*( ratio_sl_sia_y_erg(i,j1) &
+                                    +ratio_sl_sia_y_erg(i,j2))
    vis_ave_g_dbl(ii,jj) = 0.5*(vis_ave_g_erg(i,j1)+vis_ave_g_erg(i,j2))
    vis_int_g_dbl(ii,jj) = 0.5*(vis_int_g_erg(i,j1)+vis_int_g_erg(i,j2))
 end do
@@ -1296,10 +1300,14 @@ do jj = 1, 2*JMAX-1, 2
                                 +H_w_erg(i1,j2)+H_w_erg(i2,j2) )
    q_gl_g_dbl(ii,jj)    = 0.25*( q_gl_g_erg(i1,j1)+q_gl_g_erg(i2,j1) &
                                 +q_gl_g_erg(i1,j2)+q_gl_g_erg(i2,j2) )
-   ratio_sl_x_dbl(ii,jj) = 0.25*( ratio_sl_x_erg(i1,j1)+ratio_sl_x_erg(i2,j1) &
-                                 +ratio_sl_x_erg(i1,j2)+ratio_sl_x_erg(i2,j2) )
-   ratio_sl_y_dbl(ii,jj) = 0.25*( ratio_sl_y_erg(i1,j1)+ratio_sl_y_erg(i2,j1) &
-                                 +ratio_sl_y_erg(i1,j2)+ratio_sl_y_erg(i2,j2) )
+   ratio_sl_sia_x_dbl(ii,jj) = 0.25*( ratio_sl_sia_x_erg(i1,j1) &
+                                     +ratio_sl_sia_x_erg(i2,j1) &
+                                     +ratio_sl_sia_x_erg(i1,j2) &
+                                     +ratio_sl_sia_x_erg(i2,j2) )
+   ratio_sl_sia_y_dbl(ii,jj) = 0.25*( ratio_sl_sia_y_erg(i1,j1) &
+                                     +ratio_sl_sia_y_erg(i2,j1) &
+                                     +ratio_sl_sia_y_erg(i1,j2) &
+                                     +ratio_sl_sia_y_erg(i2,j2) )
    vis_ave_g_dbl(ii,jj) = 0.25*( vis_ave_g_erg(i1,j1)+vis_ave_g_erg(i2,j1) &
                                 +vis_ave_g_erg(i1,j2)+vis_ave_g_erg(i2,j2) )
    vis_int_g_dbl(ii,jj) = 0.25*( vis_int_g_erg(i1,j1)+vis_int_g_erg(i2,j1) &
@@ -3517,45 +3525,45 @@ buffer = 'Horizontal volume flux across the grounding line'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
-!    ---- ratio_sl_x
+!    ---- ratio_sl_sia_x
 
 call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)) )
 call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)) )
 
 #if (NETCDF4_ENABLED==1)
-call check( nf90_def_var(ncid, 'ratio_sl_x', NF90_FLOAT, nc2d, ncv, &
+call check( nf90_def_var(ncid, 'ratio_sl_sia_x', NF90_FLOAT, nc2d, ncv, &
             deflate_level=n_deflate_level, shuffle=flag_shuffle) )
 #else
-call check( nf90_def_var(ncid, 'ratio_sl_x', NF90_FLOAT, nc2d, ncv) )
+call check( nf90_def_var(ncid, 'ratio_sl_sia_x', NF90_FLOAT, nc2d, ncv) )
 #endif
 
 buffer = '-'
 call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
-buffer = 'land_ice_x_slip_ratio'
+buffer = 'land_ice_x_slip_ratio_sia'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
-buffer = 'Ratio of basal to surface velocity (slip ratio) in x-direction, ' &
-         // 'at (i+1/2,j)'
+buffer = 'Ratio of SIA basal to surface velocity (slip ratio) ' &
+         // 'in x-direction, at (i+1/2,j)'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
-!    ---- ratio_sl_y
+!    ---- ratio_sl_sia_y
 
 call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)) )
 call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)) )
 
 #if (NETCDF4_ENABLED==1)
-call check( nf90_def_var(ncid, 'ratio_sl_y', NF90_FLOAT, nc2d, ncv, &
+call check( nf90_def_var(ncid, 'ratio_sl_sia_y', NF90_FLOAT, nc2d, ncv, &
             deflate_level=n_deflate_level, shuffle=flag_shuffle) )
 #else
-call check( nf90_def_var(ncid, 'ratio_sl_y', NF90_FLOAT, nc2d, ncv) )
+call check( nf90_def_var(ncid, 'ratio_sl_sia_y', NF90_FLOAT, nc2d, ncv) )
 #endif
 
 buffer = '-'
 call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
-buffer = 'land_ice_y_slip_ratio'
+buffer = 'land_ice_y_slip_ratio_sia'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
-buffer = 'Ratio of basal to surface velocity (slip ratio) in y-direction, ' &
-         // 'at (i+1/2,j)'
+buffer = 'Ratio of SIA basal to surface velocity (slip ratio) ' &
+         // 'in y-direction, at (i+1/2,j)'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
@@ -4552,12 +4560,12 @@ call check( nf90_inq_varid(ncid, 'q_gl_g', ncv) )
 call check( nf90_put_var(ncid, ncv, q_gl_g_dbl, &
                          start=nc2cor_ij, count=nc2cnt_ij) )
 
-call check( nf90_inq_varid(ncid, 'ratio_sl_x', ncv) )
-call check( nf90_put_var(ncid, ncv, ratio_sl_x_dbl, &
+call check( nf90_inq_varid(ncid, 'ratio_sl_sia_x', ncv) )
+call check( nf90_put_var(ncid, ncv, ratio_sl_sia_x_dbl, &
                          start=nc2cor_ij, count=nc2cnt_ij) )
 
-call check( nf90_inq_varid(ncid, 'ratio_sl_y', ncv) )
-call check( nf90_put_var(ncid, ncv, ratio_sl_y_dbl, &
+call check( nf90_inq_varid(ncid, 'ratio_sl_sia_y', ncv) )
+call check( nf90_put_var(ncid, ncv, ratio_sl_sia_y_dbl, &
                          start=nc2cor_ij, count=nc2cnt_ij) )
 
 call check( nf90_inq_varid(ncid, 'flag_shelfy_stream_x', ncv) )

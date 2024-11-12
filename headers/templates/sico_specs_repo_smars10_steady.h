@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2024-10-08'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2024-11-11'
 !                      Date of last change
 
 !-------- Domain --------
@@ -554,11 +554,6 @@
 #define ANFDATNAME 'none'
 !                         Initial-value file (only for ANF_DAT==3,
 !                         or for ANF_DAT==1 and TEMP_INIT==5)
-
-#define RESTART 1
-!                         Restart method (only for ANF_DAT==3):
-!                         0 : Legacy restart
-!                         1 : Improved restart (smoother transition)
 
 !-------- Lithosphere (bedrock) modelling --------
 

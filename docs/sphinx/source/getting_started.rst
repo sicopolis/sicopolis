@@ -142,6 +142,9 @@ These allow specifying many aspects of a simulation (domain, physical parameters
 
 For a number of :ref:`test simulations <test_simulations>`, the run-specs header files are contained in the SICOPOLIS repository. Further examples can be found in the several paper-accompanying datasets on `Zenodo <https://zenodo.org/communities/sicopolis/>`__.
 
+.. warning::
+  When running SICOPOLIS on a Unix or Linux system, it is important to save the run-specs headers always with Unix-style newlines (LF). If they have Windows-style newlines (CR-LF), which may occur when editing headers on a Windows system, the processing by the bash script ``sico.sh`` may not work properly (depending on the specified options) and produce some strange error messages.
+
 .. _getting_started-run_simulation:
 
 How to run a simulation

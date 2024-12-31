@@ -29,7 +29,7 @@ Runs ``repo_grl16_bm5_{init100a, ss25ka_nudged}``
   | steady-state run for modern climate conditions, free evolution during the first 10 ka, after that gradual nudging towards the slightly smoothed present-day topography computed by the init run (:numref:`grl16_ss25ka_volume`; unpublished).
 
 .. _grl16_ss25ka_volume:
-.. figure:: figs/grl16_ss25ka.png
+.. figure:: figs/repo_grl16_ss25ka.png
   :width: 480 px
   :alt: Ice volume for steady-state simulations for Greenland
   :align: center
@@ -61,7 +61,7 @@ Runs ``repo_grl10_b2_{paleo21, future21_ctrl, future21_asmb}``
   | (:numref:`grl10_b2_future21_vaf`; Greve et al. :cite:`greve_etal_2017a`, Seroussi et al. :cite:`seroussi_etal_2019`).
 
 .. _grl10_b2_future21_vaf:
-.. figure:: figs/grl10_b2_future21.png
+.. figure:: figs/repo_grl10_b2_future21.png
   :width: 480 px
   :alt: Ice volume above flotation for future climate simulations for Greenland
   :align: center
@@ -79,7 +79,7 @@ Runs ``repo_ant64_b2_{spinup09_init100a, spinup09_fixtopo, spinup09, future09_ct
   | (:numref:`ant64_b2_future09_vaf`; Seroussi et al. :cite:`seroussi_etal_2019`).
 
 .. _ant64_b2_future09_vaf:
-.. figure:: figs/ant64_b2_future09.png
+.. figure:: figs/repo_ant64_b2_future09.png
   :width: 480 px
   :alt: Ice volume above flotation for future climate simulations for Antarctica
   :align: center

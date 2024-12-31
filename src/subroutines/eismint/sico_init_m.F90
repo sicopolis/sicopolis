@@ -1795,6 +1795,11 @@ Q_b_tot = Q_bm + Q_tld
 
 #endif /* (!(ANF_DAT==3) || defined(LEGACY_RESTART)) */
 
+#else
+
+errormsg = ' >>> sico_init: Parameter ANF_DAT must be between 1 and 3!'
+call error(errormsg)
+
 #endif
 
 !-------- Inner-point and staggered-grid flags --------

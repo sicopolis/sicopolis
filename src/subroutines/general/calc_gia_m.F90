@@ -135,7 +135,11 @@ wss = FRAC_LLRA * ( load_ice_water * rhoa_g_inv )
 
 #elif (REBOUND==2)
 
+#if (!(ANF_DAT==3) || defined(LEGACY_RESTART))
 if ((mod(itercount, iter_wss)==0).or.(itercount==1)) then
+#else /* ((ANF_DAT==3) && !defined(LEGACY_RESTART)) */
+if (mod(itercount, iter_wss)==0) then
+#endif
    write(6, fmt='(10x,a)') 'Computation of wss (EL)'
    call calc_el(load_ice_water, dxi, deta)
 end if
@@ -334,7 +338,7 @@ real(dp), parameter :: r_infl = 8.0_dp
                        ! Radius of non-locality influence of the elastic
                        ! lithosphere plate (in units of l_r)
 
-!-------- Initialisations --------
+!-------- Initializations --------
 
 rhoa_g_inv = 1.0_dp/(RHO_A*G)
 

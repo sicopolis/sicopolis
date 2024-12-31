@@ -87,7 +87,7 @@ real(sp), dimension(0:IMAX,0:JMAX) :: lambda_erg, phi_erg, &
             as_perp_erg, as_perp_apl_erg, smb_corr_erg, &
             z_sl_erg, &
             q_geo_erg, &
-            zs_erg, zm_erg, zb_erg, zl_erg, zl0_erg, &
+            zs_erg, zm_erg, zb_erg, zl_erg, zl0_erg, wss_erg, &
             H_cold_erg, H_temp_erg, H_erg, &
             Q_bm_erg, Q_tld_erg, calving_erg, &
             am_perp_erg, &
@@ -115,6 +115,8 @@ real(sp), dimension(0:IMAX,0:JMAX,0:KTMAX) :: vx_t_erg, vy_t_erg, vz_t_erg, &
                                               enh_t_erg, strain_heating_t_erg
 real(sp), dimension(0:IMAX,0:JMAX,0:KRMAX) :: temp_r_erg
 character(len=64) :: mapping_grid_mapping_name_erg, mapping_ellipsoid_erg
+
+logical :: flag_wss
 
 #if (DISC>0)   /* Ice discharge parameterisation */
 integer(i4b), dimension(0:IMAX,0:JMAX) :: mask_mar_erg
@@ -159,7 +161,7 @@ real(sp), dimension(0:2*IMAX,0:2*JMAX) :: lambda_dbl, phi_dbl, &
             as_perp_dbl, as_perp_apl_dbl, smb_corr_dbl, &
             z_sl_dbl, &
             q_geo_dbl, &
-            zs_dbl, zm_dbl, zb_dbl, zl_dbl, zl0_dbl, &
+            zs_dbl, zm_dbl, zb_dbl, zl_dbl, zl0_dbl, wss_dbl, &
             H_cold_dbl, H_temp_dbl, H_dbl, &
             Q_bm_dbl, Q_tld_dbl, calving_dbl, &
             am_perp_dbl, &
@@ -511,6 +513,14 @@ call check( nf90_get_var(ncid, ncv, zl_erg) )
 
 call check( nf90_inq_varid(ncid, 'zl0', ncv) )
 call check( nf90_get_var(ncid, ncv, zl0_erg) )
+
+if ( nf90_inq_varid(ncid, 'wss', ncv) == nf90_noerr ) then
+   call check( nf90_get_var(ncid, ncv, wss_erg) )
+   flag_wss = .true.
+else
+   wss_erg = 0.0_sp
+   flag_wss = .false.
+end if
 
 call check( nf90_inq_varid(ncid, 'H_cold', ncv) )
 call check( nf90_get_var(ncid, ncv, H_cold_erg) )
@@ -898,6 +908,7 @@ do jj = 0, 2*JMAX, 2
    zb_dbl(ii,jj)        = zb_erg(i,j)
    zl_dbl(ii,jj)        = zl_erg(i,j)
    zl0_dbl(ii,jj)       = zl0_erg(i,j)
+   wss_dbl(ii,jj)       = wss_erg(i,j)
    H_cold_dbl(ii,jj)    = H_cold_erg(i,j)
    H_temp_dbl(ii,jj)    = H_temp_erg(i,j)
    H_dbl(ii,jj)         = H_erg(i,j)
@@ -985,6 +996,7 @@ do jj = 0, 2*JMAX, 2
    zb_dbl(ii,jj)        = 0.5*(zb_erg(i1,j)+zb_erg(i2,j))
    zl_dbl(ii,jj)        = 0.5*(zl_erg(i1,j)+zl_erg(i2,j))
    zl0_dbl(ii,jj)       = 0.5*(zl0_erg(i1,j)+zl0_erg(i2,j))
+   wss_dbl(ii,jj)       = 0.5*(wss_erg(i1,j)+wss_erg(i2,j))
    H_cold_dbl(ii,jj)    = 0.5*(H_cold_erg(i1,j)+H_cold_erg(i2,j))
    H_temp_dbl(ii,jj)    = 0.5*(H_temp_erg(i1,j)+H_temp_erg(i2,j))
    H_dbl(ii,jj)         = 0.5*(H_erg(i1,j)+H_erg(i2,j))
@@ -1075,6 +1087,7 @@ do jj = 1, 2*JMAX-1, 2
    zb_dbl(ii,jj)        = 0.5*(zb_erg(i,j1)+zb_erg(i,j2))
    zl_dbl(ii,jj)        = 0.5*(zl_erg(i,j1)+zl_erg(i,j2))
    zl0_dbl(ii,jj)       = 0.5*(zl0_erg(i,j1)+zl0_erg(i,j2))
+   wss_dbl(ii,jj)       = 0.5*(wss_erg(i,j1)+wss_erg(i,j2))
    H_cold_dbl(ii,jj)    = 0.5*(H_cold_erg(i,j1)+H_cold_erg(i,j2))
    H_temp_dbl(ii,jj)    = 0.5*(H_temp_erg(i,j1)+H_temp_erg(i,j2))
    H_dbl(ii,jj)         = 0.5*(H_erg(i,j1)+H_erg(i,j2))
@@ -1196,6 +1209,8 @@ do jj = 1, 2*JMAX-1, 2
                                 +zl_erg(i1,j2)+zl_erg(i2,j2) )
    zl0_dbl(ii,jj)       = 0.25*( zl0_erg(i1,j1)+zl0_erg(i2,j1) &
                                 +zl0_erg(i1,j2)+zl0_erg(i2,j2) )
+   wss_dbl(ii,jj)       = 0.25*( wss_erg(i1,j1)+wss_erg(i2,j1) &
+                                +wss_erg(i1,j2)+wss_erg(i2,j2) )
    H_cold_dbl(ii,jj)    = 0.25*( H_cold_erg(i1,j1)+H_cold_erg(i2,j1) &
                                 +H_cold_erg(i1,j2)+H_cold_erg(i2,j2) )
    H_temp_dbl(ii,jj)    = 0.25*( H_temp_erg(i1,j1)+H_temp_erg(i2,j1) &
@@ -2681,6 +2696,32 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Topography of the isostatically relaxed lithosphere surface'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
+!    ---- wss
+
+if (flag_wss) then
+
+   call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)) )
+   call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)) )
+
+#if (NETCDF4_ENABLED==1)
+   call check( nf90_def_var(ncid, 'wss', NF90_FLOAT, nc2d, ncv, &
+               deflate_level=n_deflate_level, shuffle=flag_shuffle) )
+#else
+   call check( nf90_def_var(ncid, 'wss', NF90_FLOAT, nc2d, ncv) )
+#endif
+
+   buffer = 'm'
+   call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
+   buffer = 'positive downward'
+   call check( nf90_put_att(ncid, ncv, 'note', trim(buffer)) )
+   buffer = 'isostatic_steady_state_bedrock_displacement'
+   call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
+   buffer = 'Isostatic steady-state displacement of the lithosphere'
+   call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+   call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
+end if
 
 !    ---- H_cold
 
@@ -4392,6 +4433,12 @@ call check( nf90_put_var(ncid, ncv, zl_dbl, &
 call check( nf90_inq_varid(ncid, 'zl0', ncv) )
 call check( nf90_put_var(ncid, ncv, zl0_dbl, &
                          start=nc2cor_ij, count=nc2cnt_ij) )
+
+if (flag_wss) then
+   call check( nf90_inq_varid(ncid, 'wss', ncv) )
+   call check( nf90_put_var(ncid, ncv, wss_dbl, &
+        start=nc2cor_ij, count=nc2cnt_ij) )
+end if
 
 call check( nf90_inq_varid(ncid, 'H_cold', ncv) )
 call check( nf90_put_var(ncid, ncv, H_cold_dbl, &

@@ -209,7 +209,7 @@ real(sp), dimension(0:IMAX,0:JMAX) :: lambda_conv, phi_conv, &
             Q_b_tot_conv, Q_b_apl_conv, &
             calving_conv, calving_apl_conv, &
             q_geo_conv, &
-            zs_conv, zm_conv, zb_conv, zl_conv, zl0_conv, &
+            zs_conv, zm_conv, zb_conv, zl_conv, zl0_conv, wss_conv, &
             H_cold_conv, H_temp_conv, H_conv, &
             Q_bm_conv, Q_tld_conv, &
             am_perp_conv, &
@@ -1785,6 +1785,37 @@ buffer = 'isostatically_relaxed_bedrock_altitude'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
             thisroutine )
 buffer = 'Topography of the isostatically relaxed lithosphere surface'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
+            thisroutine )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
+            thisroutine )
+
+!    ---- wss
+
+call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
+            thisroutine )
+call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)), &
+            thisroutine )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'wss', NF90_FLOAT, nc2d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle), &
+            thisroutine )
+#else
+call check( nf90_def_var(ncid, 'wss', NF90_FLOAT, nc2d, ncv), &
+            thisroutine )
+#endif
+
+buffer = 'm'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)), &
+            thisroutine )
+buffer = 'positive downward'
+call check( nf90_put_att(ncid, ncv, 'note', trim(buffer)), &
+            thisroutine )
+buffer = 'isostatic_steady_state_bedrock_displacement'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
+            thisroutine )
+buffer = 'Isostatic steady-state displacement of the lithosphere'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
             thisroutine )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
@@ -4427,6 +4458,7 @@ do j=0, JMAX
    zb_conv(i,j)        = real(zb(j,i),sp)
    zl_conv(i,j)        = real(zl(j,i),sp)
    zl0_conv(i,j)       = real(zl0(j,i),sp)
+   wss_conv(i,j)       = real(wss(j,i),sp)
    H_cold_conv(i,j)    = real(H_cold(j,i),sp)
    H_temp_conv(i,j)    = real(H_temp(j,i),sp)
    H_conv(i,j)         = real(H(j,i),sp)
@@ -4837,6 +4869,11 @@ call check( nf90_put_var(ncid, ncv, zl_conv, &
 
 call check( nf90_inq_varid(ncid, 'zl0', ncv), thisroutine )
 call check( nf90_put_var(ncid, ncv, zl0_conv, &
+                         start=nc2cor_ij, count=nc2cnt_ij), &
+            thisroutine )
+
+call check( nf90_inq_varid(ncid, 'wss', ncv), thisroutine )
+call check( nf90_put_var(ncid, ncv, wss_conv, &
                          start=nc2cor_ij, count=nc2cnt_ij), &
             thisroutine )
 

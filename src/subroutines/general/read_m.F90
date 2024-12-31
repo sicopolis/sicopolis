@@ -126,7 +126,7 @@ contains
               as_perp_conv, as_perp_apl_conv, smb_corr_conv, &
               z_sl_conv, &
               q_geo_conv, &
-              zs_conv, zm_conv, zb_conv, zl_conv, zl0_conv, &
+              zs_conv, zm_conv, zb_conv, zl_conv, zl0_conv, wss_conv, &
               H_cold_conv, H_temp_conv, H_conv, &
               Q_bm_conv, Q_tld_conv, &
               am_perp_conv, &
@@ -321,7 +321,7 @@ contains
   else
      errormsg = ' >>> read_tms_nc: Variable mask' &
               //                   end_of_line &
-              //'                  not available in read file *.nc!'
+              //'              not available in read file *.nc, but required!'
      call error(errormsg)
   end if
 
@@ -332,7 +332,7 @@ contains
   else
      errormsg = ' >>> read_tms_nc: Variable mask_old' &
               //                   end_of_line &
-              //'                  not available in read file *.nc!'
+              //'              not available in read file *.nc, but required!'
      call error(errormsg)
   end if
 
@@ -356,6 +356,23 @@ contains
 
   call check( nf90_inq_varid(ncid, 'zl0', ncv) )
   call check( nf90_get_var(ncid, ncv, zl0_conv) )
+
+  if ( nf90_inq_varid(ncid, 'wss', ncv) == nf90_noerr ) then
+     call check( nf90_get_var(ncid, ncv, wss_conv) )
+  else
+#if ((REBOUND==2) && (ANF_DAT==3) && !defined(LEGACY_RESTART))
+     errormsg = ' >>> read_tms_nc: Variable wss' &
+              //                   end_of_line &
+              //'              not available in read file *.nc, but required!'
+     call error(errormsg)
+#else
+     errormsg = ' >>> read_tms_nc: Variable wss' &
+              //                   end_of_line &
+              //'                  not available in read file *.nc.'
+     write(6,'(/,a)') errormsg
+     wss_conv = 0.0_sp
+#endif
+  end if
 
   call check( nf90_inq_varid(ncid, 'H_cold', ncv) )
   call check( nf90_get_var(ncid, ncv, H_cold_conv) )
@@ -692,6 +709,8 @@ contains
         zm(j,i)   = real(zm_conv(i,j),dp)
         zb(j,i)   = real(zb_conv(i,j),dp)
         zl(j,i)   = real(zl_conv(i,j),dp)
+        zl0(j,i)  = real(zl0_conv(i,j),dp)
+        wss(j,i)  = real(wss_conv(i,j),dp)
         H(j,i)    = real(H_conv(i,j),dp)
 #if (CALCMOD==1)
         H_c(j,i)  = real(H_cold_conv(i,j),dp)
@@ -1011,7 +1030,7 @@ contains
   else
      errormsg = ' >>> read_target_topo_nc: Variable mask' &
               //                           end_of_line &
-              //'                 not available in target-topography file!'
+              //'        not available in target-topography file, but required!'
      call error(errormsg)
   end if
 

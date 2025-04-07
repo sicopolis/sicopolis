@@ -30,6 +30,7 @@ my_*
 /src/*.py
 /src/*.sh
 /src/*.dat
+src/fort*
 /src/driver*
 /src/*.msg
 /src/*.out

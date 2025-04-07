@@ -19,19 +19,19 @@ Download
 ========
 
 Clone the Git repository (recommended)
-  The Git repository of SICOPOLIS is kindly hosted by the GitLab instance of the `Alfred Wegener Institute for Polar and Marine Research (AWI) <https://www.awi.de/>`__ in Bremerhaven, Germany. Front page: https://gitlab.awi.de/sicopolis/sicopolis/.
+  The Git repository of SICOPOLIS is hosted by `GitHub <https://github.com/>`__. Front page: https://github.com/sicopolis/sicopolis/.
 
   Cloning the latest revision on the main branch::
 
-    git clone https://gitlab.awi.de/sicopolis/sicopolis.git
+    git clone https://github.com/sicopolis/sicopolis.git
 
   You should then have a new directory ``sicopolis`` that contains the entire program package.
 
   .. note::
-    Cloning with SSH instead of HTTPS is also available. See the above GitLab front page link for details.
+    Cloning with SSH instead of HTTPS is also available. See the above GitHub front page link for details.
 
 Download an archive
-  Go to https://gitlab.awi.de/sicopolis/sicopolis/-/tree/main, click on the download symbol and choose the desired format (zip, tar.gz, tar.bz2, tar).
+  Go to https://github.com/sicopolis/sicopolis/, click on the "Code" button and choose "Download ZIP".
 
   Tagged versions of SICOPOLIS are also available from `Zenodo <https://doi.org/10.5281/zenodo.3687337>`__.
 

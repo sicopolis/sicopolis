@@ -1603,6 +1603,9 @@ write(10, fmt=trim(fmt3)) 'H_isol_max =', H_ISOL_MAX
 #endif
 
 #if (THK_EVOL==2)
+#if (defined(TARGET_TOPO_OPTION))
+write(10, fmt=trim(fmt2)) 'TARGET_TOPO_OPTION = ', TARGET_TOPO_OPTION
+#endif
 write(10, fmt=trim(fmt1)) 'Target-topography relaxation-time file = ' &
                           //TARGET_TOPO_TAU0_FILE
 write(10, fmt=trim(fmt1)) 'Target-topography file = '//TARGET_TOPO_DAT_NAME
@@ -1610,6 +1613,9 @@ write(10, fmt=trim(fmt1)) 'Path to target-topography file = '//TARGET_TOPO_PATH
 #endif
 
 #if (THK_EVOL==3)
+#if (defined(TARGET_TOPO_OPTION))
+write(10, fmt=trim(fmt2)) 'TARGET_TOPO_OPTION = ', TARGET_TOPO_OPTION
+#endif
 write(10, fmt=trim(fmt3)) 'target_topo_tau_0 =', TARGET_TOPO_TAU0
 write(10, fmt=trim(fmt1)) 'Target-topography file = '//TARGET_TOPO_DAT_NAME
 write(10, fmt=trim(fmt1)) 'Path to target-topography file = '//TARGET_TOPO_PATH
@@ -1644,16 +1650,44 @@ write(10, fmt=trim(fmt2)) 'TSURFACE = ', TSURFACE
 
 flag_temp_zs_ref_file = .false.
 
-#if (defined(ANT) || defined(GRL)) /* Antarctica or Greenland */
+#if (TEMP_PRESENT_PARA>=1) /* parameterization */
 
 write(10, fmt=trim(fmt2)) 'TEMP_PRESENT_PARA = ', TEMP_PRESENT_PARA
 #if (defined(TEMP_PRESENT_OFFSET))
 write(10, fmt=trim(fmt3))  'TEMP_PRESENT_OFFSET =', TEMP_PRESENT_OFFSET
 #endif
+#if (TEMP_PRESENT_PARA==3)
+#if (defined(THETA_MA_0))
+write(10, fmt=trim(fmt3))  'THETA_MA_0 =', THETA_MA_0
+#endif
+#if (defined(GAMMA_MA_0))
+write(10, fmt=trim(fmt3))  'GAMMA_MA_0 =', GAMMA_MA_0
+#endif
+#if (defined(C_MA_0))
+write(10, fmt=trim(fmt3))  'C_MA_0 =', C_MA_0
+#endif
+#if (defined(KAPPA_MA_0))
+write(10, fmt=trim(fmt3))  'KAPPA_MA_0 =', KAPPA_MA_0
+#endif
+#if (defined(THETA_MJ_0))
+write(10, fmt=trim(fmt3))  'THETA_MJ_0 =', THETA_MJ_0
+#endif
+#if (defined(GAMMA_MJ_0))
+write(10, fmt=trim(fmt3))  'GAMMA_MJ_0 =', GAMMA_MJ_0
+#endif
+#if (defined(C_MJ_0))
+write(10, fmt=trim(fmt3))  'C_MJ_0 =', C_MJ_0
+#endif
+#if (defined(KAPPA_MJ_0))
+write(10, fmt=trim(fmt3))  'KAPPA_MJ_0 =', KAPPA_MJ_0
+#endif
+#endif
 
-#else /* other than Antarctica or Greenland */
+#else /* read from file */
 
+#if (defined(TEMP_PRESENT_FILE))
 write(10, fmt=trim(fmt1)) 'temp_present file = '//TEMP_PRESENT_FILE
+#endif
 #if (defined(TOPO_LAPSE_RATE))
 write(10, fmt=trim(fmt3)) 'topo_lapse_rate =', TOPO_LAPSE_RATE
 #endif
@@ -2554,9 +2588,11 @@ end if
 
 !-------- Reading of present-day monthly mean surface temperature --------
 
-#if (!defined(ANT) && !defined(GRL)) /* other than Antarctica or Greenland */
+#if (TEMP_PRESENT_PARA==0) /* also true if undefined */
 
 #if (TSURFACE<=5)
+
+#if (defined(TEMP_PRESENT_FILE))
 
 filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
                      trim(TEMP_PRESENT_FILE)
@@ -2576,6 +2612,12 @@ do n=1, 12   ! month counter
    temp_present(:,:,n) = field2d_aux
 
 end do
+
+#else
+errormsg = ' >>> sico_init: ' &
+              //'TEMP_PRESENT_PARA==0, but TEMP_PRESENT_FILE undefined!'
+call error(errormsg)
+#endif
 
 #endif
 
@@ -4438,14 +4480,29 @@ mask = nint(field2d_aux)
 
 #if (defined(ZB_PRESENT_FILE))
 
-filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
-                     trim(ZB_PRESENT_FILE)
+if ( (trim(adjustl(ZB_PRESENT_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(ZB_PRESENT_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(ZB_PRESENT_FILE)) /= 'NONE') ) then
 
-call read_2d_input(filename_with_path, &
-                   ch_var_name='zb', n_var_type=1, n_ascii_header=6, &
-                   field2d_r=field2d_aux)
+   filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                        trim(ZB_PRESENT_FILE)
 
-zb = field2d_aux
+   call read_2d_input(filename_with_path, &
+                      ch_var_name='zb', n_var_type=1, n_ascii_header=6, &
+                      field2d_r=field2d_aux)
+
+   zb = field2d_aux
+
+else
+
+   write(6, fmt='(a)') ' >>> topography1: ZB_PRESENT_FILE set to ''none'','
+   write(6, fmt='(a)') '                  thus zb = zl assumed.'
+
+   zb = zl
+
+end if
 
 #else
 
@@ -4915,14 +4972,24 @@ call read_tms_nc(anfdatname)
 
 !-------- Read topography of the relaxed bedrock --------
 
-filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
-                     trim(ZL0_FILE)
+if ( (trim(adjustl(ZL0_FILE)) /= 'none') &
+     .and. &
+     (trim(adjustl(ZL0_FILE)) /= 'None') &
+     .and. &
+     (trim(adjustl(ZL0_FILE)) /= 'NONE') ) then
 
-call read_2d_input(filename_with_path, &
-                   ch_var_name='zl0', n_var_type=1, n_ascii_header=6, &
-                   field2d_r=field2d_aux)
+   filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                        trim(ZL0_FILE)
 
-zl0 = field2d_aux
+   call read_2d_input(filename_with_path, &
+                      ch_var_name='zl0', n_var_type=1, n_ascii_header=6, &
+                      field2d_r=field2d_aux)
+
+   zl0 = field2d_aux
+
+! else: zl0 read above by routine 'read_tms_nc' will be used
+
+end if
 
 !-------- Further stuff --------
 

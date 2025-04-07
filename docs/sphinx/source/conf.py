@@ -17,7 +17,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'SICOPOLIS'
-copyright = '2009-2024, SICOPOLIS Authors'
+copyright = '2009-2025, SICOPOLIS Authors'
 author = 'Ralf Greve, Shreyas Sunil Gaikwad'
 
 # -- General configuration ---------------------------------------------------

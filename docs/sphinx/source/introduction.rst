@@ -15,7 +15,7 @@ Resources
 * Model website: https://www.sicopolis.net/.
 * This user manual: https://sicopolis.readthedocs.io/.
 * Developer manual: See the :ref:`building instructions <developer_manual>`.
-* GitLab repository: https://gitlab.awi.de/sicopolis/sicopolis/.
+* GitHub repository: https://github.com/sicopolis/sicopolis/.
 * SICOPOLIS community @ Zenodo: https://zenodo.org/communities/sicopolis/.
 
 Authorship
@@ -91,7 +91,7 @@ Authorship
 Legal notes
 ===========
 
-Copyright 2009–2024 SICOPOLIS Authors.
+Copyright 2009–2025 SICOPOLIS Authors.
 
 SICOPOLIS is free and open-source software. It can be redistributed and/or modified under the terms of the `GNU General Public License <https://www.gnu.org/licenses/>`__ as published by the Free Software Foundation, either version 3 of the License, or (at the user's option) any later version.
 

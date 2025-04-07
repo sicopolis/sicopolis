@@ -766,12 +766,12 @@ end do
 
 !-------- Surface air temperature --------
 
-#if (defined(ANT) || defined(GRL)) /* Antarctica or Greenland */
+#if (TEMP_PRESENT_PARA>=1)
 
 gamma_t = 0.0_dp ! topographic lapse rate already part of the parameterization
                  ! for the present-day temperature
 
-#else /* other than Antarctica or Greenland */
+#else
 
 #if (defined(TOPO_LAPSE_RATE))
 gamma_t = TOPO_LAPSE_RATE * 1.0e-03_dp
@@ -783,16 +783,20 @@ gamma_t = 6.5e-03_dp
 
 #endif
 
-!  ------ Parameterized present-day temperature (only Antarctica, Greenland)
+!  ------ Parameterized present-day temperature
 
 #if (TSURFACE<=5)
 
-#if (defined(ANT) || defined(GRL)) /* Antarctica or Greenland */
+#if (TEMP_PRESENT_PARA==0) /* also true if undefined */
+
+!%% No parameterized present-day temperature used
+
+#elif (TEMP_PRESENT_PARA==1)
 
 #if (defined(ANT)) /* Antarctica */
 
-#if (TEMP_PRESENT_PARA==1)   /* Parameterization by Fortuin and Oerlemans */
-                             !  (1990) for the whole ice sheet
+!    ---- Parameterization by Fortuin and Oerlemans (1990)
+!         for the whole ice sheet
 
 #if (defined(TEMP_PRESENT_OFFSET))
 theta_ma_offset = TEMP_PRESENT_OFFSET
@@ -810,9 +814,76 @@ theta_mj = 16.81_dp + theta_mj_offset
 gamma_mj = -6.92e-03_dp
 c_mj     = -0.27973_dp
 
-#elif (TEMP_PRESENT_PARA==2)   /* Parameterization by Fortuin and Oerlemans */
-                               !  (1990), separately for three different
-                               !  elevation ranges
+do i=0, IMAX
+do j=0, JMAX
+
+   temp_ma_present(j,i) = theta_ma + gamma_ma*zs(j,i) &
+                                   + c_ma*abs(phi(j,i))*rad2deg
+      ! present-day mean-annual temperature
+
+   temp_mj_present(j,i) = theta_mj + gamma_mj*zs(j,i) &
+                                   + c_mj*abs(phi(j,i))*rad2deg
+      ! present-day mean-January (mid-summer) temperature
+
+end do
+end do
+
+#elif (defined(GRL)) /* Greenland */
+
+!    ---- Parameterization by Ritz et al. (1997)
+
+#if (defined(TEMP_PRESENT_OFFSET))
+theta_ma_offset = TEMP_PRESENT_OFFSET
+theta_mj_offset = TEMP_PRESENT_OFFSET
+#else
+theta_ma_offset = 0.0_dp
+theta_mj_offset = 0.0_dp
+#endif
+
+theta_ma = 49.13_dp + theta_ma_offset
+gamma_ma = -7.992e-03_dp
+c_ma     = -0.7576_dp
+kappa_ma =  0.0_dp
+
+theta_mj = 30.38_dp + theta_mj_offset
+gamma_mj = -6.277e-03_dp
+c_mj     = -0.3262_dp
+kappa_mj =  0.0_dp
+
+do i=0, IMAX
+do j=0, JMAX
+
+   temp_ma_present(j,i) = theta_ma &
+                  + gamma_ma*zs(j,i) &
+                  + c_ma*phi(j,i)*rad2deg &
+                  + kappa_ma*(modulo(lambda(j,i)+pi,2.0_dp*pi)-pi)*rad2deg
+      ! present-day mean-annual air temperature
+      ! (note: western longitudes counted negatively)
+
+   temp_mj_present(j,i) = theta_mj &
+                    + gamma_mj*zs(j,i) &
+                    + c_mj*phi(j,i)*rad2deg &
+                    + kappa_mj*(modulo(lambda(j,i)+pi,2.0_dp*pi)-pi)*rad2deg
+      ! present-day mean-July (mid-summer) air temperature
+      ! (note: western longitudes counted negatively)
+
+end do
+end do
+
+#else
+
+errormsg = ' >>> boundary: ' &
+              //'TEMP_PRESENT_PARA==1 only implemented for ANT or GRL!'
+call error(errormsg)
+
+#endif
+
+#elif (TEMP_PRESENT_PARA==2)
+
+#if (defined(ANT)) /* Antarctica */
+
+!    ---- Parameterization by Fortuin and Oerlemans (1990),
+!         separately for three different elevation ranges
 
 #if (defined(TEMP_PRESENT_OFFSET))
 theta_ma_offset = TEMP_PRESENT_OFFSET
@@ -841,22 +912,9 @@ theta_mj   =  16.81_dp + theta_mj_offset
 gamma_mj   =  -6.92e-03_dp
 c_mj       =  -0.27937_dp
 
-#else
-
-errormsg = ' >>> boundary: Parameter TEMP_PRESENT_PARA must be either 1 or 2!'
-call error(errormsg)
-
-#endif
-
 do i=0, IMAX
 do j=0, JMAX
 
-!    ---- Present-day mean-annual temperature
-
-#if (TEMP_PRESENT_PARA==1)
-   temp_ma_present(j,i) = theta_ma + gamma_ma*zs(j,i) &
-                                   + c_ma*abs(phi(j,i))*rad2deg
-#elif (TEMP_PRESENT_PARA==2)
    if ( zs(j,i) <= zs_sep_1 ) then
       temp_ma_present(j,i) = theta_ma_1 + gamma_ma_1*zs(j,i) &
                                         + c_ma_1*abs(phi(j,i))*rad2deg
@@ -867,39 +925,18 @@ do j=0, JMAX
       temp_ma_present(j,i) = theta_ma_3 + gamma_ma_3*zs(j,i) &
                                         + c_ma_3*abs(phi(j,i))*rad2deg
    end if
-#endif
-
-!    ---- Present-day mean-January (mid-summer) temperature
+      ! present-day mean-annual temperature
 
    temp_mj_present(j,i) = theta_mj + gamma_mj*zs(j,i) &
                                    + c_mj*abs(phi(j,i))*rad2deg
+      ! present-day mean-January (mid-summer) temperature
 
 end do
 end do
 
 #elif (defined(GRL)) /* Greenland */
 
-#if (TEMP_PRESENT_PARA==1)   /* Parameterization by Ritz et al. (1997) */
-
-#if (defined(TEMP_PRESENT_OFFSET))
-theta_ma_offset = TEMP_PRESENT_OFFSET
-theta_mj_offset = TEMP_PRESENT_OFFSET
-#else
-theta_ma_offset = 0.0_dp
-theta_mj_offset = 0.0_dp
-#endif
-
-theta_ma = 49.13_dp + theta_ma_offset
-gamma_ma = -7.992e-03_dp
-c_ma     = -0.7576_dp
-kappa_ma =  0.0_dp
-
-theta_mj = 30.38_dp + theta_mj_offset
-gamma_mj = -6.277e-03_dp
-c_mj     = -0.3262_dp
-kappa_mj =  0.0_dp
-
-#elif (TEMP_PRESENT_PARA==2)   /* Parameterization by Fausto et al. (2009) */
+!    ---- Parameterization by Fausto et al. (2009)
 
 #if (defined(TEMP_PRESENT_OFFSET))
 theta_ma_offset = TEMP_PRESENT_OFFSET
@@ -919,36 +956,146 @@ gamma_mj = -5.426e-03_dp
 c_mj     = -0.1585_dp
 kappa_mj = -0.0518_dp
 
-#else
-
-errormsg = ' >>> boundary: Parameter TEMP_PRESENT_PARA must be either 1 or 2!'
-call error(errormsg)
-
-#endif
-
 do i=0, IMAX
 do j=0, JMAX
-
-!  ------ Present-day mean-annual air temperature
 
    temp_ma_present(j,i) = theta_ma &
                   + gamma_ma*zs(j,i) &
                   + c_ma*phi(j,i)*rad2deg &
                   + kappa_ma*(modulo(lambda(j,i)+pi,2.0_dp*pi)-pi)*rad2deg
-                              ! western longitudes counted negatively
-
-!  ------ Present-day mean-July (mid-summer) air temperature
+      ! present-day mean-annual air temperature
+      ! (note: western longitudes counted negatively)
 
    temp_mj_present(j,i) = theta_mj &
                     + gamma_mj*zs(j,i) &
                     + c_mj*phi(j,i)*rad2deg &
                     + kappa_mj*(modulo(lambda(j,i)+pi,2.0_dp*pi)-pi)*rad2deg
-                                ! western longitudes counted negatively
+      ! present-day mean-July (mid-summer) air temperature
+      ! (note: western longitudes counted negatively)
 
 end do
 end do
+
+#else
+
+errormsg = ' >>> boundary: ' &
+              //'TEMP_PRESENT_PARA==2 only implemented for ANT or GRL!'
+call error(errormsg)
 
 #endif
+
+#elif (TEMP_PRESENT_PARA==3) /* can be used for any domain */
+
+#if (defined(TEMP_PRESENT_OFFSET))
+theta_ma_offset = TEMP_PRESENT_OFFSET
+theta_mj_offset = TEMP_PRESENT_OFFSET
+#else
+theta_ma_offset = 0.0_dp
+theta_mj_offset = 0.0_dp
+#endif
+
+#if (defined(THETA_MA_0))
+theta_ma = real(THETA_MA_0,dp) + theta_ma_offset
+             ! absolute coefficient (degC)
+#else
+errormsg = ' >>> boundary: ' &
+              //'TEMP_PRESENT_PARA==3, but THETA_MA_0 undefined!'
+call error(errormsg)
+#endif
+
+#if (defined(GAMMA_MA_0))
+gamma_ma = real(GAMMA_MA_0,dp) * (-1.0e-03_dp)
+             ! topographic lapse rate; sign change & K/km -> K/m
+#else
+errormsg = ' >>> boundary: ' &
+              //'TEMP_PRESENT_PARA==3, but GAMMA_MA_0 undefined!'
+call error(errormsg)
+#endif
+
+#if (defined(C_MA_0))
+c_ma = real(C_MA_0,dp)
+             ! latitude coefficient (K/deg_lat)
+#else
+errormsg = ' >>> boundary: ' &
+              //'TEMP_PRESENT_PARA==3, but C_MA_0 undefined!'
+call error(errormsg)
+#endif
+
+#if (defined(KAPPA_MA_0))
+kappa_ma = real(KAPPA_MA_0,dp)
+             ! longitude coefficient (K/deg_lon)
+#else
+errormsg = ' >>> boundary: ' &
+              //'TEMP_PRESENT_PARA==3, but KAPPA_MA_0 undefined!'
+call error(errormsg)
+#endif
+
+#if (defined(THETA_MJ_0))
+theta_mj = real(THETA_MJ_0,dp) + theta_mj_offset
+             ! absolute coefficient (degC)
+#else
+errormsg = ' >>> boundary: ' &
+              //'TEMP_PRESENT_PARA==3, but THETA_MJ_0 undefined!'
+call error(errormsg)
+#endif
+
+#if (defined(GAMMA_MJ_0))
+gamma_mj = real(GAMMA_MJ_0,dp) * (-1.0e-03_dp)
+             ! topographic lapse rate; sign change & K/km -> K/m
+#else
+errormsg = ' >>> boundary: ' &
+              //'TEMP_PRESENT_PARA==3, but GAMMA_MJ_0 undefined!'
+call error(errormsg)
+#endif
+
+#if (defined(C_MJ_0))
+c_mj = real(C_MJ_0,dp)
+             ! latitude coefficient (K/deg_lat)
+#else
+errormsg = ' >>> boundary: ' &
+              //'TEMP_PRESENT_PARA==3, but C_MJ_0 undefined!'
+call error(errormsg)
+#endif
+
+#if (defined(KAPPA_MJ_0))
+kappa_mj = real(KAPPA_MJ_0,dp)
+             ! longitude coefficient (K/deg_lon)
+#else
+errormsg = ' >>> boundary: ' &
+              //'TEMP_PRESENT_PARA==3, but KAPPA_MJ_0 undefined!'
+call error(errormsg)
+#endif
+
+do i=0, IMAX
+do j=0, JMAX
+
+   temp_ma_present(j,i) = theta_ma &
+                  + gamma_ma*zs(j,i) &
+                  + c_ma*abs(phi(j,i))*rad2deg &
+                  + kappa_ma*(modulo(lambda(j,i)+pi,2.0_dp*pi)-pi)*rad2deg
+      ! present-day mean-annual air temperature
+      ! (note: all latitudes counted positively,
+      !        western longitudes counted negatively)
+
+   temp_mj_present(j,i) = theta_mj &
+                    + gamma_mj*zs(j,i) &
+                    + c_mj*abs(phi(j,i))*rad2deg &
+                    + kappa_mj*(modulo(lambda(j,i)+pi,2.0_dp*pi)-pi)*rad2deg
+      ! present-day mean-July/January (mid-summer) air temperature
+      ! (note: all latitudes counted positively,
+      !        western longitudes counted negatively)
+
+end do
+end do
+
+#else
+
+errormsg = ' >>> boundary: Parameter TEMP_PRESENT_PARA must be between 0 and 3!'
+call error(errormsg)
+
+#endif
+
+#if (TEMP_PRESENT_PARA>=1)
 
 !    ---- Amplitude of the annual cycle
 
@@ -984,7 +1131,7 @@ do n=1, 12   ! month counter
 
 end do
 
-#endif /* Antarctica or Greenland */
+#endif /* (TEMP_PRESENT_PARA>=1) */
 
 #endif /* (TSURFACE<=5) */
 
@@ -996,9 +1143,9 @@ do j=0, JMAX
 !  ------ Correction of present monthly temperature with elevation changes
 !         and temperature deviation delta_ts
 
-#if (defined(ANT) || defined(GRL)) /* Antarctica or Greenland */
+#if (TEMP_PRESENT_PARA>=1)
    temp_diff(j,i) = delta_ts
-#else /* other than Antarctica or Greenland */
+#else
    temp_diff(j,i) = gamma_t*(zs_ref_temp(j,i)-zs(j,i)) + delta_ts
 #endif
 
@@ -1011,9 +1158,9 @@ do j=0, JMAX
 !  ------ Correction of present monthly temperature with LGM anomaly and
 !         glacial index as well as elevation changes
 
-#if (defined(ANT) || defined(GRL)) /* Antarctica or Greenland */
+#if (TEMP_PRESENT_PARA>=1)
    temp_diff(j,i) = 0.0_dp
-#else /* other than Antarctica or Greenland */
+#else
    temp_diff(j,i) = gamma_t*(zs_ref_temp(j,i)-zs(j,i))
 #endif
 

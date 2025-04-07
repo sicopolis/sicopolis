@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2024-11-11'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2025-02-04'
 !                      Date of last change
 
 !-------- Domain --------
@@ -486,12 +486,12 @@
 !                             simulation
 
 #define MASK_PRESENT_FILE 'heino50_mask.dat'
-!                             Name of the file containing the present-day
-!                             ice-land-ocean mask
+!                         Name of the file containing the present-day
+!                         ice-land-ocean mask
 
 #define MASK_REGION_FILE 'none'
-!                             Name of the file containing the region mask
-!                             ('none' if no file is to be defined)
+!                         Name of the file containing the region mask
+!                         ('none' if no file is to be defined)
 
 #define TEMP_INIT 2
 !                         Initial ice temperature conditions

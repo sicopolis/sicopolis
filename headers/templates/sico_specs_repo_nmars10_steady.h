@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2024-11-11'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2025-02-04'
 !                      Date of last change
 
 !-------- Domain --------
@@ -512,26 +512,28 @@
 !                         3 : Initial values from previous
 !                             simulation
 
-#define ZS_PRESENT_FILE   'nmars10_zs.dat'
-!                             Name of the file containing the present-day
-!                             ice-surface topography
+#define ZS_PRESENT_FILE 'nmars10_zs.dat'
+!                         Name of the file containing the present-day
+!                         ice-surface topography
 
-#define ZL_PRESENT_FILE   'nmars10_zl_flexrig3_dust002.dat'
-!                             Name of the file containing the present-day
-!                             lithosphere-surface topography
-!                             (only for ANF_DAT==1)
+#define ZL_PRESENT_FILE 'nmars10_zl_flexrig3_dust002.dat'
+!                         Name of the file containing the present-day
+!                         lithosphere-surface topography
+!                         (only for ANF_DAT==1)
 
-#define ZL0_FILE          'nmars10_zl0_elra.dat'
-!                             Name of the file containing the topography
-!                             of the relaxed lithosphere surface
+#define ZL0_FILE 'nmars10_zl0_elra.dat'
+!                         Name of the file containing the topography
+!                         of the relaxed lithosphere surface
+!                         (for ANF_DAT==3, can be set to 'none' if
+!                          topography is to be kept from previous simulation)
 
 #define MASK_PRESENT_FILE 'nmars10_mask.dat'
-!                             Name of the file containing the present-day
-!                             ice-land-ocean mask
+!                         Name of the file containing the present-day
+!                         ice-land-ocean mask
 
 #define MASK_REGION_FILE 'none'
-!                             Name of the file containing the region mask
-!                             ('none' if no file is to be defined)
+!                         Name of the file containing the region mask
+!                         ('none' if no file is to be defined)
 
 #define TEMP_INIT 3
 !                         Initial ice temperature conditions

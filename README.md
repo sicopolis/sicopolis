@@ -1,5 +1,4 @@
 [![Documentation Status](https://readthedocs.org/projects/sicopolis/badge/?version=latest)](https://sicopolis.readthedocs.io/en/latest/?badge=latest)
-[![Build Status](https://gitlab.awi.de/sicopolis/sicopolis/badges/develop/pipeline.svg)](https://gitlab.awi.de/sicopolis/sicopolis/-/commits/develop)
 
 SICOPOLIS
 =========
@@ -15,8 +14,8 @@ Model website:
 User manual:
 [https://sicopolis.readthedocs.io/](https://sicopolis.readthedocs.io/)
 
-GitLab repository:
-[https://gitlab.awi.de/sicopolis/sicopolis/](https://gitlab.awi.de/sicopolis/sicopolis/)
+GitHub repository:
+[https://github.com/sicopolis/sicopolis/](https://github.com/sicopolis/sicopolis/)
 
 SICOPOLIS community @ Zenodo:
 [https://zenodo.org/communities/sicopolis/](https://zenodo.org/communities/sicopolis/)

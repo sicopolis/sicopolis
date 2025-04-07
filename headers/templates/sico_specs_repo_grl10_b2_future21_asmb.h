@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2024-11-11'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2025-02-26'
 !                      Date of last change
 
 !-------- Domain --------
@@ -499,30 +499,34 @@
 !                         3 : Initial values from previous
 !                             simulation
 
-#define ZS_PRESENT_FILE   'grl_b2_10_woem_zs.dat'
-!                             Name of the file containing the present-day
-!                             ice-surface topography
+#define ZS_PRESENT_FILE 'grl_b2_10_woem_zs.dat'
+!                         Name of the file containing the present-day
+!                         ice-surface topography
 
-!!! #define ZB_PRESENT_FILE   '...'
-!                             Name of the file containing the present-day
-!                             ice-base topography (only for ANF_DAT==1)
+#define ZB_PRESENT_FILE 'none'
+!                         Name of the file containing the present-day
+!                         ice-base topography
+!                         (only for ANF_DAT==1;
+!                          if 'none' or undefined, zb=zl will be assumed)
 
-#define ZL_PRESENT_FILE   'grl_b2_10_woem_zl.dat'
-!                             Name of the file containing the present-day
-!                             lithosphere-surface topography
-!                             (only for ANF_DAT==1)
+#define ZL_PRESENT_FILE 'grl_b2_10_woem_zl.dat'
+!                         Name of the file containing the present-day
+!                         lithosphere-surface topography
+!                         (only for ANF_DAT==1)
 
-#define ZL0_FILE          'grl_b2_10_woem_zl0_llra.dat'
-!                             Name of the file containing the topography
-!                             of the relaxed lithosphere surface
+#define ZL0_FILE 'none'
+!                         Name of the file containing the topography
+!                         of the relaxed lithosphere surface
+!                         (for ANF_DAT==3, can be set to 'none' if
+!                          topography is to be kept from previous simulation)
 
 #define MASK_PRESENT_FILE 'grl_b2_10_woem_mask.dat'
-!                             Name of the file containing the present-day
-!                             ice-land-ocean mask
+!                         Name of the file containing the present-day
+!                         ice-land-ocean mask
 
 #define MASK_REGION_FILE 'none'
-!                             Name of the file containing the region mask
-!                             ('none' if no file is to be defined)
+!                         Name of the file containing the region mask
+!                         ('none' if no file is to be defined)
 
 #define TEMP_INIT 4
 !                         Initial ice temperature conditions
@@ -604,12 +608,12 @@
 !                             the initial thickness
 !                         1 : Evolution of the ice thickness
 !                         2 : Evolution of the ice thickness, but
-!                             the ice topography (zs, zb, zl, H) is nugded
+!                             the ice topography is nudged
 !                             towards a prescribed target with a
 !                             time-dependent relaxation time
 !                             read from the file TARGET_TOPO_TAU0_FILE.
 !                         3 : Evolution of the ice thickness, but
-!                             the ice topography (zs, zb, zl, H) is nugded
+!                             the ice topography is nudged
 !                             towards a prescribed target with the
 !                             constant relaxation time TARGET_TOPO_TAU0.
 
@@ -620,6 +624,13 @@
 #define H_ISOL_MAX 1000.0d0
 !                         Maximum thickness of isolated ice points (in m)
 !                         (if set to 0.0d0, isolated ice points are killed).
+
+#define TARGET_TOPO_OPTION 1
+!                         Topography-nudging for
+!                         1 : H (thickness) and zl (lithosphere surface)
+!                         2 : H (thickness) only
+!                         3 : zl (lithosphere surface) only
+!                         (only for THK_EVOL==2, 3)
 
 #define TARGET_TOPO_TAU0_FILE 'none'
 !                         Name of the file containing the time-dependent

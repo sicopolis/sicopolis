@@ -237,7 +237,7 @@ Downloading SICOPOLIS-AD v2
 As described in the ":ref:`getting_started`" section. However, when using Git, the ``ad`` branch should be cloned::
 
   git clone --branch ad \
-      https://gitlab.awi.de/sicopolis/sicopolis.git
+      https://github.com/sicopolis/sicopolis.git
 
 Tagged versions of SICOPOLIS-AD are also available from `Zenodo <https://doi.org/10.5281/zenodo.3686392>`__.
 

@@ -22,7 +22,7 @@ my_*
 
 /tools/*
 !/tools/*/
-/tools/matlab/*
+/tools/matlab/startup.m
 /tools/sicograph/*
 /tools/*/*.h
 

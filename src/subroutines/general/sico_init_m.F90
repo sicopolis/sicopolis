@@ -1506,6 +1506,9 @@ write(10, fmt=trim(fmt3)) 'r2_calv_uw    =', R2_CALV_UW
 write(10, fmt=trim(fmt2)) 'ICE_SHELF_CALVING = ', ICE_SHELF_CALVING
 #if (ICE_SHELF_CALVING==2)
 write(10, fmt=trim(fmt3)) 'H_calv =', H_CALV
+#elif (ICE_SHELF_CALVING==4)
+write(10, fmt=trim(fmt3)) 'RHO_SWC =', RHO_SWC
+write(10, fmt=trim(fmt3)) 'SIG_MAX =', SIG_MAX
 #endif
 #endif
 write(10, fmt=trim(fmt1)) ' '

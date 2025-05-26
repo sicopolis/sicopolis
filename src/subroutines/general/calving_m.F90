@@ -173,5 +173,26 @@ contains
 
 !-------------------------------------------------------------------------------
 
+#if (ICE_SHELF_CALVING==6)
+  subroutine frontal_calving(i, j, dtime)
+  
+  implicit none
+
+  integer(i4b), intent(in) :: i, j
+  real(dp)    , intent(in) :: dtime
+
+  real(dp) :: H_new_tmp
+  real(dp) :: dtime_inv
+
+  #if !(defined(FRONTAL_CALVING_RATE))
+    errormsg = ' >>> xxx: FRONTAL_CALVING_RATE undefined!'
+    call error(errormsg)
+  #endif
+
+  dtime_inv = 1.0_dp/dtime
+
+
+
+#endif /* (ICE_SHELF_CALVING==6) */
 end module calving_m
 !

@@ -458,7 +458,7 @@ call error(errormsg)
 #endif
 
 #if (defined(ENTHMOD))
-errormsg = ' >>> sico_init: ENTHMOD must not be defined any more.' &
+errormsg = ' >>> sico_init: ENTHMOD must not be defined anymore.' &
          //         end_of_line &
          //'        Please update your header file!'
 call error(errormsg)
@@ -1389,25 +1389,25 @@ write(10, fmt=trim(fmt3)) 'LOND0 =', STEREO_PROJ_LOND0
 
 write(10, fmt=trim(fmt1)) ' '
 
-write(10, fmt=trim(fmt2)) 'imax  = ', IMAX
-write(10, fmt=trim(fmt2)) 'jmax  = ', JMAX
-write(10, fmt=trim(fmt2)) 'kcmax = ', KCMAX
-write(10, fmt=trim(fmt2)) 'ktmax = ', KTMAX
-write(10, fmt=trim(fmt2)) 'krmax = ', KRMAX
+write(10, fmt=trim(fmt2)) 'IMAX  = ', IMAX
+write(10, fmt=trim(fmt2)) 'JMAX  = ', JMAX
+write(10, fmt=trim(fmt2)) 'KCMAX = ', KCMAX
+write(10, fmt=trim(fmt2)) 'KTMAX = ', KTMAX
+write(10, fmt=trim(fmt2)) 'KRMAX = ', KRMAX
 write(10, fmt=trim(fmt1)) ' '
 
-write(10, fmt=trim(fmt3)) 'a =', aa
+write(10, fmt=trim(fmt3)) 'DEFORM =', aa
 write(10, fmt=trim(fmt1)) ' '
 
 #if (GRID==0 || GRID==1)
-write(10, fmt=trim(fmt3)) 'x0 =', X0
-write(10, fmt=trim(fmt3)) 'y0 =', Y0
-write(10, fmt=trim(fmt3)) 'dx =', DX
+write(10, fmt=trim(fmt3)) 'X0 =', X0
+write(10, fmt=trim(fmt3)) 'Y0 =', Y0
+write(10, fmt=trim(fmt3)) 'DX =', DX
 #elif (GRID==2)
-write(10, fmt=trim(fmt3)) 'lambda0 =', LAMBDA_0
-write(10, fmt=trim(fmt3)) 'phi0    =', PHI_0
-write(10, fmt=trim(fmt3)) 'dlambda =', DLAMBDA
-write(10, fmt=trim(fmt3)) 'dphi    =', DPHI
+write(10, fmt=trim(fmt3)) 'LAMBDA_0 =', LAMBDA_0
+write(10, fmt=trim(fmt3)) 'PHI_0    =', PHI_0
+write(10, fmt=trim(fmt3)) 'DLAMBDA  =', DLAMBDA
+write(10, fmt=trim(fmt3)) 'DPHI     =', DPHI
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
@@ -1416,16 +1416,16 @@ write(10, fmt=trim(fmt2)) 'CHECK_RES_IMAX_JMAX = ', CHECK_RES_IMAX_JMAX
 write(10, fmt=trim(fmt1)) ' '
 #endif
 
-write(10, fmt=trim(fmt3)) 'year_zero  =', year_zero
-write(10, fmt=trim(fmt3)) 'time_init  =', time_init0
-write(10, fmt=trim(fmt3)) 'time_end   =', time_end0
-write(10, fmt=trim(fmt3)) 'dtime      =', dtime0
-write(10, fmt=trim(fmt3)) 'dtime_temp =', dtime_temp0
+write(10, fmt=trim(fmt3)) 'YEAR_ZERO  =', year_zero
+write(10, fmt=trim(fmt3)) 'TIME_INIT  =', time_init0
+write(10, fmt=trim(fmt3)) 'TIME_END   =', time_end0
+write(10, fmt=trim(fmt3)) 'DTIME      =', dtime0
+write(10, fmt=trim(fmt3)) 'DTIME_TEMP =', dtime_temp0
 #if (REBOUND==2)
-write(10, fmt=trim(fmt3)) 'dtime_wss  =', dtime_wss0
+write(10, fmt=trim(fmt3)) 'DTIME_WSS  =', dtime_wss0
 #endif
 #if (defined(GRL) && DISC>0)
-write(10, fmt=trim(fmt3)) 'dtime_mar_coa =', DTIME_MAR_COA0
+write(10, fmt=trim(fmt3)) 'DTIME_MAR_COA =', DTIME_MAR_COA0
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
@@ -1435,36 +1435,36 @@ write(10, fmt=trim(fmt2)) 'HYB_MODE = ', HYB_MODE
 #endif
 #if ((DYNAMICS==1 && MARGIN==3) || DYNAMICS==2 || DYNAMICS==3)
 #if (defined(LIS_OPTS))
-write(10, fmt=trim(fmt1)) 'lis_opts = '//LIS_OPTS
+write(10, fmt=trim(fmt1)) 'LIS_OPTS = '//LIS_OPTS
 #endif
 #if (defined(TOL_ITER_SSA))
-write(10, fmt=trim(fmt3)) 'tol_iter_ssa =', TOL_ITER_SSA
+write(10, fmt=trim(fmt3)) 'TOL_ITER_SSA =', TOL_ITER_SSA
 #endif
 #if (defined(N_ITER_SSA))
-write(10, fmt=trim(fmt2)) 'n_iter_ssa = ', N_ITER_SSA
+write(10, fmt=trim(fmt2)) 'N_ITER_SSA = ', N_ITER_SSA
 #endif
 #if (defined(N_ITER_SSA_MIN))
-write(10, fmt=trim(fmt2)) 'n_iter_ssa_min = ', N_ITER_SSA_MIN
+write(10, fmt=trim(fmt2)) 'N_ITER_SSA_MIN = ', N_ITER_SSA_MIN
 #endif
 #if (defined(ITER_INIT_SSA))
-write(10, fmt=trim(fmt2)) 'iter_init_ssa = ', ITER_INIT_SSA
+write(10, fmt=trim(fmt2)) 'ITER_INIT_SSA = ', ITER_INIT_SSA
 #endif
 #if (defined(VISC_INIT_SSA))
-write(10, fmt=trim(fmt3)) 'visc_init_ssa =', VISC_INIT_SSA
+write(10, fmt=trim(fmt3)) 'VISC_INIT_SSA =', VISC_INIT_SSA
 #endif
 #if (defined(N_VISC_SMOOTH))
-write(10, fmt=trim(fmt2)) 'n_visc_smooth = ', N_VISC_SMOOTH
+write(10, fmt=trim(fmt2)) 'N_VISC_SMOOTH = ', N_VISC_SMOOTH
 #endif
 #if (defined(VISC_SMOOTH_DIFF))
-write(10, fmt=trim(fmt3)) 'visc_smooth_diff =', VISC_SMOOTH_DIFF
+write(10, fmt=trim(fmt3)) 'VISC_SMOOTH_DIFF =', VISC_SMOOTH_DIFF
 #endif
 #if (defined(RELAX_FACT_SSA))
-write(10, fmt=trim(fmt3)) 'relax_fact_ssa =', RELAX_FACT_SSA
+write(10, fmt=trim(fmt3)) 'RELAX_FACT_SSA =', RELAX_FACT_SSA
 #endif
 #endif
 #if ((DYNAMICS==2 && (HYB_MODE==0 || HYB_MODE==2)) || DYNAMICS==3)
 #if (defined(RATIO_SL_THRESH))
-write(10, fmt=trim(fmt3)) 'ratio_sl_thresh =', RATIO_SL_THRESH
+write(10, fmt=trim(fmt3)) 'RATIO_SL_THRESH =', RATIO_SL_THRESH
 #endif
 #if (defined(SSTA_SIA_WEIGH_FCT))
 write(10, fmt=trim(fmt2)) 'SSTA_SIA_WEIGH_FCT = ', SSTA_SIA_WEIGH_FCT
@@ -1472,7 +1472,7 @@ write(10, fmt=trim(fmt2)) 'SSTA_SIA_WEIGH_FCT = ', SSTA_SIA_WEIGH_FCT
 #endif
 #if (DYNAMICS==2 && HYB_MODE==1)
 #if (defined(HYB_REF_SPEED))
-write(10, fmt=trim(fmt3)) 'hyb_ref_speed =', HYB_REF_SPEED
+write(10, fmt=trim(fmt3)) 'HYB_REF_SPEED =', HYB_REF_SPEED
 #endif
 #endif
 write(10, fmt=trim(fmt1)) ' '
@@ -1482,7 +1482,7 @@ write(10, fmt=trim(fmt2)) 'CALCMOD = ', CALCMOD
 write(10, fmt=trim(fmt3)) 'TEMP_CONST =', TEMP_CONST
 #endif
 #if (CALCMOD==-1 && defined(AGE_CONST))
-write(10, fmt=trim(fmt3)) 'AGE_CONST =', AGE_CONST
+write(10, fmt=trim(fmt3)) 'AGE_CONST  =', AGE_CONST
 #endif
 #if (CALCMOD==1 && defined(CTS_MELTING_FREEZING))
 write(10, fmt=trim(fmt2)) 'CTS_MELTING_FREEZING = ', CTS_MELTING_FREEZING
@@ -1494,18 +1494,18 @@ write(10, fmt=trim(fmt2)) 'MARGIN = ', MARGIN
 write(10, fmt=trim(fmt2)) 'MARINE_ICE_FORMATION = ', MARINE_ICE_FORMATION
 write(10, fmt=trim(fmt2)) 'MARINE_ICE_CALVING   = ', MARINE_ICE_CALVING
 #if (MARINE_ICE_CALVING==2 || MARINE_ICE_CALVING==3)
-write(10, fmt=trim(fmt3)) 'z_mar =', Z_MAR
+write(10, fmt=trim(fmt3)) 'Z_MAR =', Z_MAR
 #elif (MARINE_ICE_CALVING==4 || MARINE_ICE_CALVING==5 || MARINE_ICE_CALVING==6 || MARINE_ICE_CALVING==7)
-write(10, fmt=trim(fmt3)) 'fact_z_mar =', FACT_Z_MAR
+write(10, fmt=trim(fmt3)) 'FACT_Z_MAR =', FACT_Z_MAR
 #elif (MARINE_ICE_FORMATION==2 && MARINE_ICE_CALVING==9)
-write(10, fmt=trim(fmt3)) 'calv_uw_coeff =', CALV_UW_COEFF
-write(10, fmt=trim(fmt3)) 'r1_calv_uw    =', R1_CALV_UW
-write(10, fmt=trim(fmt3)) 'r2_calv_uw    =', R2_CALV_UW
+write(10, fmt=trim(fmt3)) 'CALV_UW_COEFF =', CALV_UW_COEFF
+write(10, fmt=trim(fmt3)) 'R1_CALV_UW =', R1_CALV_UW
+write(10, fmt=trim(fmt3)) 'R2_CALV_UW =', R2_CALV_UW
 #endif
 #elif (MARGIN==3)
 write(10, fmt=trim(fmt2)) 'ICE_SHELF_CALVING = ', ICE_SHELF_CALVING
 #if (ICE_SHELF_CALVING==2)
-write(10, fmt=trim(fmt3)) 'H_calv =', H_CALV
+write(10, fmt=trim(fmt3)) 'H_CALV =', H_CALV
 #endif
 #endif
 write(10, fmt=trim(fmt1)) ' '
@@ -1513,70 +1513,70 @@ write(10, fmt=trim(fmt1)) ' '
 write(10, fmt=trim(fmt2)) 'FLOW_LAW = ', FLOW_LAW
 write(10, fmt=trim(fmt2)) 'FIN_VISC = ', FIN_VISC
 #if (FLOW_LAW==2)
-write(10, fmt=trim(fmt3)) 'gr_size =', GR_SIZE
+write(10, fmt=trim(fmt3)) 'GR_SIZE =', GR_SIZE
 #endif
 #if (FIN_VISC==2)
-write(10, fmt=trim(fmt3)) 'sigma_res =', SIGMA_RES
+write(10, fmt=trim(fmt3)) 'SIGMA_RES =', SIGMA_RES
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
 write(10, fmt=trim(fmt2)) 'ENHMOD = ', ENHMOD
 #if (ENHMOD==1 || ENHMOD==2 || ENHMOD==3)
-write(10, fmt=trim(fmt3)) 'enh_fact =', ENH_FACT
+write(10, fmt=trim(fmt3)) 'ENH_FACT =', ENH_FACT
 #endif
 #if (ENHMOD==2 || ENHMOD==3)
-write(10, fmt=trim(fmt3)) 'enh_intg =', ENH_INTG
+write(10, fmt=trim(fmt3)) 'ENH_INTG =', ENH_INTG
 #endif
 #if (ENHMOD==2)
-write(10, fmt=trim(fmt3)) 'age_trans =', AGE_TRANS_0
+write(10, fmt=trim(fmt3)) 'AGE_TRANS =', AGE_TRANS_0
 #endif
 #if (ENHMOD==3)
-write(10, fmt=trim(fmt3)) 'date_trans1 =', DATE_TRANS1_0
-write(10, fmt=trim(fmt3)) 'date_trans2 =', DATE_TRANS2_0
-write(10, fmt=trim(fmt3)) 'date_trans3 =', DATE_TRANS3_0
+write(10, fmt=trim(fmt3)) 'DATE_TRANS1 =', DATE_TRANS1_0
+write(10, fmt=trim(fmt3)) 'DATE_TRANS2 =', DATE_TRANS2_0
+write(10, fmt=trim(fmt3)) 'DATE_TRANS3 =', DATE_TRANS3_0
 #endif
 #if (ENHMOD==4 || ENHMOD==5)
-write(10, fmt=trim(fmt3)) 'enh_compr =', ENH_COMPR
-write(10, fmt=trim(fmt3)) 'enh_shear =', ENH_SHEAR
+write(10, fmt=trim(fmt3)) 'ENH_COMPR =', ENH_COMPR
+write(10, fmt=trim(fmt3)) 'ENH_SHEAR =', ENH_SHEAR
 #endif
 #if ((DYNAMICS==2 || DYNAMICS==3) && defined(ENH_STREAM))
 if (ENH_STREAM >= 0.0_dp) &
-   write(10, fmt=trim(fmt3)) 'enh_stream =', ENH_STREAM
+   write(10, fmt=trim(fmt3)) 'ENH_STREAM =', ENH_STREAM
 #endif
 #if ((ENHMOD==1 || ENHMOD==2 || ENHMOD==3 || ENHMOD==4) && MARGIN==3)
-write(10, fmt=trim(fmt3)) 'enh_shelf =', ENH_SHELF
+write(10, fmt=trim(fmt3)) 'ENH_SHELF =', ENH_SHELF
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
 write(10, fmt=trim(fmt2)) 'ANF_DAT = ', ANF_DAT
-write(10, fmt=trim(fmt1)) 'zs_present file = '//ZS_PRESENT_FILE
+write(10, fmt=trim(fmt1)) 'ZS_PRESENT_FILE   = '//ZS_PRESENT_FILE
 #if (ANF_DAT==1)
 #if (defined(ZB_PRESENT_FILE))
-write(10, fmt=trim(fmt1)) 'zb_present file = '//ZB_PRESENT_FILE
+write(10, fmt=trim(fmt1)) 'ZB_PRESENT_FILE   = '//ZB_PRESENT_FILE
 #endif
-write(10, fmt=trim(fmt1)) 'zl_present file = '//ZL_PRESENT_FILE
+write(10, fmt=trim(fmt1)) 'ZL_PRESENT_FILE   = '//ZL_PRESENT_FILE
 #endif
-write(10, fmt=trim(fmt1)) 'zl0 file = '//ZL0_FILE
-write(10, fmt=trim(fmt1)) 'mask_present file = '//MASK_PRESENT_FILE
+write(10, fmt=trim(fmt1)) 'ZL0_FILE          = '//ZL0_FILE
+write(10, fmt=trim(fmt1)) 'MASK_PRESENT_FILE = '//MASK_PRESENT_FILE
 #if (defined(MASK_REGION_FILE))
 if ( (trim(adjustl(MASK_REGION_FILE)) /= 'none') &
      .and. &
      (trim(adjustl(MASK_REGION_FILE)) /= 'None') &
      .and. &
      (trim(adjustl(MASK_REGION_FILE)) /= 'NONE') ) then
-   write(10, fmt=trim(fmt1)) 'mask_region file = '//MASK_REGION_FILE
+   write(10, fmt=trim(fmt1)) 'MASK_REGION_FILE  = '//MASK_REGION_FILE
    write(10, fmt=trim(fmt1)) ' '
 end if
 #endif
 #if (ANF_DAT==1)
 write(10, fmt=trim(fmt2)) 'TEMP_INIT = ', TEMP_INIT
 #if (TEMP_INIT==1 && defined(TEMP_INIT_VAL))
-write(10, fmt=trim(fmt3)) 'temp_init_val =', TEMP_INIT_VAL
+write(10, fmt=trim(fmt3)) 'TEMP_INIT_VAL =', TEMP_INIT_VAL
 #endif
 #endif
 #if (ANF_DAT==3 || (ANF_DAT==1 && TEMP_INIT==5))
-write(10, fmt=trim(fmt1)) 'Initial-value file = '//ANFDATNAME
-write(10, fmt=trim(fmt1)) 'Path to initial-value file = '//ANF_DAT_PATH
+write(10, fmt=trim(fmt1)) 'ANFDATNAME   = '//ANFDATNAME
+write(10, fmt=trim(fmt1)) 'ANF_DAT_PATH = '//ANF_DAT_PATH
 #endif
 #if (ANF_DAT==3 && defined(LEGACY_RESTART))
 write(10, fmt=trim(fmt1)) 'LEGACY_RESTART = defined'
@@ -1599,39 +1599,39 @@ call error(errormsg)
 write(10, fmt=trim(fmt2)) 'OCEAN_CONNECTIVITY = ', OCEAN_CONNECTIVITY
 #endif
 #if (defined(H_ISOL_MAX))
-write(10, fmt=trim(fmt3)) 'H_isol_max =', H_ISOL_MAX
+write(10, fmt=trim(fmt3)) 'H_ISOL_MAX =', H_ISOL_MAX
 #endif
 
 #if (THK_EVOL==2)
 #if (defined(TARGET_TOPO_OPTION))
 write(10, fmt=trim(fmt2)) 'TARGET_TOPO_OPTION = ', TARGET_TOPO_OPTION
 #endif
-write(10, fmt=trim(fmt1)) 'Target-topography relaxation-time file = ' &
+write(10, fmt=trim(fmt1)) 'TARGET_TOPO_TAU0_FILE = ' &
                           //TARGET_TOPO_TAU0_FILE
-write(10, fmt=trim(fmt1)) 'Target-topography file = '//TARGET_TOPO_DAT_NAME
-write(10, fmt=trim(fmt1)) 'Path to target-topography file = '//TARGET_TOPO_PATH
+write(10, fmt=trim(fmt1)) 'TARGET_TOPO_DAT_NAME = '//TARGET_TOPO_DAT_NAME
+write(10, fmt=trim(fmt1)) 'TARGET_TOPO_PATH     = '//TARGET_TOPO_PATH
 #endif
 
 #if (THK_EVOL==3)
 #if (defined(TARGET_TOPO_OPTION))
 write(10, fmt=trim(fmt2)) 'TARGET_TOPO_OPTION = ', TARGET_TOPO_OPTION
 #endif
-write(10, fmt=trim(fmt3)) 'target_topo_tau_0 =', TARGET_TOPO_TAU0
-write(10, fmt=trim(fmt1)) 'Target-topography file = '//TARGET_TOPO_DAT_NAME
-write(10, fmt=trim(fmt1)) 'Path to target-topography file = '//TARGET_TOPO_PATH
+write(10, fmt=trim(fmt3)) 'TARGET_TOPO_TAU0 =', TARGET_TOPO_TAU0
+write(10, fmt=trim(fmt1)) 'TARGET_TOPO_DAT_NAME = '//TARGET_TOPO_DAT_NAME
+write(10, fmt=trim(fmt1)) 'TARGET_TOPO_PATH     = '//TARGET_TOPO_PATH
 #endif
 
 #if (defined(MASK_MAXEXTENT_FILE))
 if (flag_mask_maxextent) &
-   write(10, fmt=trim(fmt1)) 'Maximum ice extent mask file = ' &
+   write(10, fmt=trim(fmt1)) 'MASK_MAXEXTENT_FILE = ' &
                              // trim(adjustl(MASK_MAXEXTENT_FILE))
 #endif
 
 #if (CALCTHK==2)
-write(10, fmt=trim(fmt3))  'ovi_weight =', OVI_WEIGHT
-write(10, fmt=trim(fmt3))  'omega_sor =', OMEGA_SOR
+write(10, fmt=trim(fmt3)) 'OVI_WEIGHT =', OVI_WEIGHT
+write(10, fmt=trim(fmt3)) 'OMEGA_SOR =', OMEGA_SOR
 #if (ITER_MAX_SOR>0)
-write(10, fmt=trim(fmt2)) 'iter_max_sor = ', ITER_MAX_SOR
+write(10, fmt=trim(fmt2)) 'ITER_MAX_SOR = ', ITER_MAX_SOR
 #endif
 #endif
 write(10, fmt=trim(fmt1)) ' '
@@ -1664,7 +1664,7 @@ write(10, fmt=trim(fmt3))  'THETA_MA_0 =', THETA_MA_0
 write(10, fmt=trim(fmt3))  'GAMMA_MA_0 =', GAMMA_MA_0
 #endif
 #if (defined(C_MA_0))
-write(10, fmt=trim(fmt3))  'C_MA_0 =', C_MA_0
+write(10, fmt=trim(fmt3))  'C_MA_0     =', C_MA_0
 #endif
 #if (defined(KAPPA_MA_0))
 write(10, fmt=trim(fmt3))  'KAPPA_MA_0 =', KAPPA_MA_0
@@ -1676,7 +1676,7 @@ write(10, fmt=trim(fmt3))  'THETA_MJ_0 =', THETA_MJ_0
 write(10, fmt=trim(fmt3))  'GAMMA_MJ_0 =', GAMMA_MJ_0
 #endif
 #if (defined(C_MJ_0))
-write(10, fmt=trim(fmt3))  'C_MJ_0 =', C_MJ_0
+write(10, fmt=trim(fmt3))  'C_MJ_0     =', C_MJ_0
 #endif
 #if (defined(KAPPA_MJ_0))
 write(10, fmt=trim(fmt3))  'KAPPA_MJ_0 =', KAPPA_MJ_0
@@ -1685,11 +1685,14 @@ write(10, fmt=trim(fmt3))  'KAPPA_MJ_0 =', KAPPA_MJ_0
 
 #else /* read from file */
 
+#if (defined(TEMP_PRESENT_PARA))
+write(10, fmt=trim(fmt2)) 'TEMP_PRESENT_PARA = ', TEMP_PRESENT_PARA
+#endif
 #if (defined(TEMP_PRESENT_FILE))
-write(10, fmt=trim(fmt1)) 'temp_present file = '//TEMP_PRESENT_FILE
+write(10, fmt=trim(fmt1)) 'TEMP_PRESENT_FILE = '//TEMP_PRESENT_FILE
 #endif
 #if (defined(TOPO_LAPSE_RATE))
-write(10, fmt=trim(fmt3)) 'topo_lapse_rate =', TOPO_LAPSE_RATE
+write(10, fmt=trim(fmt3)) 'TOPO_LAPSE_RATE =', TOPO_LAPSE_RATE
 #endif
 
 #if (defined(TEMP_ZS_REF_FILE))
@@ -1699,7 +1702,7 @@ if ( (trim(adjustl(TEMP_ZS_REF_FILE)) /= 'none') &
      .and. &
      (trim(adjustl(TEMP_ZS_REF_FILE)) /= 'NONE') ) then
    flag_temp_zs_ref_file = .true.
-   write(10, fmt=trim(fmt1)) 'temp_zs_ref_file = '//TEMP_ZS_REF_FILE
+   write(10, fmt=trim(fmt1)) 'TEMP_ZS_REF_FILE = '//TEMP_ZS_REF_FILE
 end if
 #endif
 
@@ -1708,17 +1711,17 @@ end if
 #endif
 
 #if (TSURFACE==1)
-write(10, fmt=trim(fmt3)) 'delta_ts0 =', DELTA_TS0
+write(10, fmt=trim(fmt3)) 'DELTA_TS0 =', DELTA_TS0
 #elif (TSURFACE==3)
-write(10, fmt=trim(fmt3)) 'sine_amplit =', SINE_AMPLIT
-write(10, fmt=trim(fmt3)) 'sine_period =', SINE_PERIOD
+write(10, fmt=trim(fmt3)) 'SINE_AMPLIT =', SINE_AMPLIT
+write(10, fmt=trim(fmt3)) 'SINE_PERIOD =', SINE_PERIOD
 #elif (TSURFACE==4)
-write(10, fmt=trim(fmt1)) 'GRIP file = '//GRIP_TEMP_FILE
-write(10, fmt=trim(fmt3)) 'grip_temp_fact =', GRIP_TEMP_FACT
+write(10, fmt=trim(fmt1)) 'GRIP_TEMP_FILE = '//GRIP_TEMP_FILE
+write(10, fmt=trim(fmt3)) 'GRIP_TEMP_FACT =', GRIP_TEMP_FACT
 #elif (TSURFACE==5)
-write(10, fmt=trim(fmt1)) 'Glacial-index file = '//GLAC_IND_FILE
-write(10, fmt=trim(fmt1)) 'temp_anom file  = '//TEMP_ANOM_FILE
-write(10, fmt=trim(fmt3)) 'temp_anom fact  = ', TEMP_ANOM_FACT
+write(10, fmt=trim(fmt1)) 'GLAC_IND_FILE = '//GLAC_IND_FILE
+write(10, fmt=trim(fmt1)) 'TEMP_ANOM_FILE = '//TEMP_ANOM_FILE
+write(10, fmt=trim(fmt3)) 'TEMP_ANOM_FACT = ', TEMP_ANOM_FACT
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
@@ -1743,14 +1746,14 @@ if ( (trim(adjustl(PRECIP_PRESENT_FILE)) /= 'none') &
      (trim(adjustl(PRECIP_PRESENT_FILE)) /= 'None') &
      .and. &
      (trim(adjustl(PRECIP_PRESENT_FILE)) /= 'NONE') ) then
-   write(10, fmt=trim(fmt1)) 'precip_present_file = '//PRECIP_PRESENT_FILE
+   write(10, fmt=trim(fmt1)) 'PRECIP_PRESENT_FILE = '//PRECIP_PRESENT_FILE
    flag_precip_monthly_mean = .true.
 else if ( (trim(adjustl(PRECIP_MA_PRESENT_FILE)) /= 'none') &
           .and. &
           (trim(adjustl(PRECIP_MA_PRESENT_FILE)) /= 'None') &
           .and. &
           (trim(adjustl(PRECIP_MA_PRESENT_FILE)) /= 'NONE') ) then
-   write(10, fmt=trim(fmt1)) 'precip_ma_present_file = '//PRECIP_MA_PRESENT_FILE
+   write(10, fmt=trim(fmt1)) 'PRECIP_MA_PRESENT_FILE = '//PRECIP_MA_PRESENT_FILE
    flag_precip_monthly_mean = .false.
 else
    errormsg = ' >>> sico_init: Neither PRECIP_PRESENT_FILE' &
@@ -1770,27 +1773,27 @@ if ( (trim(adjustl(PRECIP_ZS_REF_FILE)) /= 'none') &
      .and. &
      (trim(adjustl(PRECIP_ZS_REF_FILE)) /= 'NONE') ) then
    flag_precip_zs_ref_file = .true.
-   write(10, fmt=trim(fmt1)) 'precip_zs_ref_file = '//PRECIP_ZS_REF_FILE
+   write(10, fmt=trim(fmt1)) 'PRECIP_ZS_REF_FILE = '//PRECIP_ZS_REF_FILE
 end if
 #endif
 
 #endif
 
 #if (ACCSURFACE==1)
-write(10, fmt=trim(fmt3)) 'accfact =', ACCFACT
+write(10, fmt=trim(fmt3)) 'ACCFACT =', ACCFACT
 #elif (ACCSURFACE==2 || ACCSURFACE==3)
-write(10, fmt=trim(fmt3)) 'gamma_s =', GAMMA_S
+write(10, fmt=trim(fmt3)) 'GAMMA_S =', GAMMA_S
 #endif
 #if (ACCSURFACE<=5)
 write(10, fmt=trim(fmt2)) 'ELEV_DESERT = ', ELEV_DESERT
 #if (ELEV_DESERT == 1)
-write(10, fmt=trim(fmt3)) 'gamma_p   =', GAMMA_P
-write(10, fmt=trim(fmt3)) 'zs_thresh =', ZS_THRESH
+write(10, fmt=trim(fmt3)) 'GAMMA_P   =', GAMMA_P
+write(10, fmt=trim(fmt3)) 'ZS_THRESH =', ZS_THRESH
 #endif
 #endif
 #if (ACCSURFACE==5)
-write(10, fmt=trim(fmt1)) 'precip_anom file = '//PRECIP_ANOM_FILE
-write(10, fmt=trim(fmt3)) 'precip_anom fact = ', PRECIP_ANOM_FACT
+write(10, fmt=trim(fmt1)) 'PRECIP_ANOM_FILE = '//PRECIP_ANOM_FILE
+write(10, fmt=trim(fmt3)) 'PRECIP_ANOM_FACT = ', PRECIP_ANOM_FACT
 write(10, fmt=trim(fmt2)) 'PRECIP_ANOM_INTERPOL = ', PRECIP_ANOM_INTERPOL
 #endif
 #if (ACCSURFACE<=5)
@@ -1802,19 +1805,19 @@ write(10, fmt=trim(fmt2)) 'ABLSURFACE = ', ABLSURFACE
 
 #if (ABLSURFACE==1 || ABLSURFACE==2)
 #if (defined(S_STAT_0) && defined(BETA1_0) && defined(BETA2_0) && defined(PMAX_0) && defined(MU_0))
-write(10, fmt=trim(fmt3)) 's_stat =', S_STAT_0
-write(10, fmt=trim(fmt3)) 'beta1  =', BETA1_0
-write(10, fmt=trim(fmt3)) 'beta2  =', BETA2_0
-write(10, fmt=trim(fmt3)) 'Pmax   =', PMAX_0
-write(10, fmt=trim(fmt3)) 'mu     =', MU_0
+write(10, fmt=trim(fmt3)) 'S_STAT =', S_STAT_0
+write(10, fmt=trim(fmt3)) 'BETA1  =', BETA1_0
+write(10, fmt=trim(fmt3)) 'BETA2  =', BETA2_0
+write(10, fmt=trim(fmt3)) 'PMAX   =', PMAX_0
+write(10, fmt=trim(fmt3)) 'MU     =', MU_0
 #else
 errormsg = ' >>> sico_init: ' &
            // 'Parameters for PDD model not defined in run-specs header!'
 call error(errormsg)
 #endif
 #elif (ABLSURFACE==3)
-write(10, fmt=trim(fmt3)) 'lambda_lti =', LAMBDA_LTI
-write(10, fmt=trim(fmt3)) 'temp_lti   =', TEMP_LTI
+write(10, fmt=trim(fmt3)) 'LAMBDA_LTI =', LAMBDA_LTI
+write(10, fmt=trim(fmt3)) 'TEMP_LTI   =', TEMP_LTI
 #endif
 
 #if (defined(MB_ACCOUNT))
@@ -1840,9 +1843,9 @@ write(10, fmt=trim(fmt1)) ' '
 #endif
 
 #if (ACCSURFACE==7 && ABLSURFACE==7)
-write(10, fmt=trim(fmt3)) 'target_topo_tau_0 =', TARGET_TOPO_TAU0
-write(10, fmt=trim(fmt1)) 'Target-topography file = '//TARGET_TOPO_DAT_NAME
-write(10, fmt=trim(fmt1)) 'Path to target-topography file = '//TARGET_TOPO_PATH
+write(10, fmt=trim(fmt3)) 'TARGET_TOPO_TAU0 =', TARGET_TOPO_TAU0
+write(10, fmt=trim(fmt1)) 'TARGET_TOPO_DAT_NAME = '//TARGET_TOPO_DAT_NAME
+write(10, fmt=trim(fmt1)) 'TARGET_TOPO_PATH     = '//TARGET_TOPO_PATH
 write(10, fmt=trim(fmt1)) ' '
 #endif
 
@@ -1852,7 +1855,7 @@ if ( (trim(adjustl(SMB_CORR_FILE)) /= 'none') &
      (trim(adjustl(SMB_CORR_FILE)) /= 'None') &
      .and. &
      (trim(adjustl(SMB_CORR_FILE)) /= 'NONE') ) then
-   write(10, fmt=trim(fmt1)) 'smb_corr_file = '//SMB_CORR_FILE
+   write(10, fmt=trim(fmt1)) 'SMB_CORR_FILE = '//SMB_CORR_FILE
    write(10, fmt=trim(fmt1)) ' '
 end if
 #endif
@@ -1865,7 +1868,7 @@ if ( (trim(adjustl(INITMIP_SMB_ANOM_FILE)) /= 'none') &
      (trim(adjustl(INITMIP_SMB_ANOM_FILE)) /= 'NONE') ) then
    flag_initmip_asmb = .true.
    ch_initmip_smb_anom_file = trim(adjustl(INITMIP_SMB_ANOM_FILE))
-   write(10, fmt=trim(fmt1)) 'initmip_smb_anom file = ' &
+   write(10, fmt=trim(fmt1)) 'INITMIP_SMB_ANOM_FILE = ' &
                                 // trim(ch_initmip_smb_anom_file)
    write(10, fmt=trim(fmt1)) ' '
 end if
@@ -1903,19 +1906,19 @@ write(10, fmt=trim(fmt1)) ' '
 #if (defined(GRL) && defined(DISC))
 write(10, fmt=trim(fmt2)) 'DISC = ', DISC
 #if (DISC>0)
-write(10, fmt=trim(fmt3)) 'c_dis_0   =', C_DIS_0
-write(10, fmt=trim(fmt3)) 'c_dis_fac =', C_DIS_FAC
-write(10, fmt=trim(fmt3)) 'm_H       =', M_H
-write(10, fmt=trim(fmt3)) 'm_D       =', M_D
-write(10, fmt=trim(fmt3)) 'r_mar_eff =', R_MAR_EFF
+write(10, fmt=trim(fmt3)) 'C_DIS_0   =', C_DIS_0
+write(10, fmt=trim(fmt3)) 'C_DIS_FAC =', C_DIS_FAC
+write(10, fmt=trim(fmt3)) 'M_H       =', M_H
+write(10, fmt=trim(fmt3)) 'M_D       =', M_D
+write(10, fmt=trim(fmt3)) 'R_MAR_EFF =', R_MAR_EFF
 #if (defined(S_DIS))
-write(10, fmt=trim(fmt3)) 's_dis     =', S_DIS
+write(10, fmt=trim(fmt3)) 'S_DIS     =', S_DIS
 #endif
 #if (defined(ALPHA_SUB))
-write(10, fmt=trim(fmt3)) 'alpha_sub =', ALPHA_SUB
+write(10, fmt=trim(fmt3)) 'ALPHA_SUB =', ALPHA_SUB
 #endif
 #if (defined(ALPHA_O))
-write(10, fmt=trim(fmt3)) 'alpha_o   =', ALPHA_O
+write(10, fmt=trim(fmt3)) 'ALPHA_O   =', ALPHA_O
 #endif
 #endif
 write(10, fmt=trim(fmt1)) ' '
@@ -1923,9 +1926,9 @@ write(10, fmt=trim(fmt1)) ' '
 
 write(10, fmt=trim(fmt2)) 'SEA_LEVEL = ', SEA_LEVEL
 #if (SEA_LEVEL==1)
-write(10, fmt=trim(fmt3)) 'z_sl0 =', Z_SL0
+write(10, fmt=trim(fmt3)) 'Z_SL0 =', Z_SL0
 #elif (SEA_LEVEL==3)
-write(10, fmt=trim(fmt1)) 'sea-level file = '//SEA_LEVEL_FILE
+write(10, fmt=trim(fmt1)) 'SEA_LEVEL_FILE = '//SEA_LEVEL_FILE
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
@@ -1962,28 +1965,28 @@ gamma_slide_aux = GAMMA_SLIDE
 p_weert_aux = P_WEERT
 q_weert_aux = Q_WEERT
 
-write(10, fmt=trim(fmt3)) 'c_slide =', c_slide_aux(1)
+write(10, fmt=trim(fmt3)) 'C_SLIDE =', c_slide_aux(1)
 #if (N_SLIDE_REGIONS>1)
 do n=2, n_slide_regions
    write(10, fmt=trim(fmt3)) '         ', c_slide_aux(n)
 end do
 #endif
 
-write(10, fmt=trim(fmt3)) 'gamma_slide =', gamma_slide_aux(1)
+write(10, fmt=trim(fmt3)) 'GAMMA_SLIDE =', gamma_slide_aux(1)
 #if (N_SLIDE_REGIONS>1)
 do n=2, n_slide_regions
    write(10, fmt=trim(fmt3)) '             ', gamma_slide_aux(n)
 end do
 #endif
 
-write(10, fmt=trim(fmt2)) 'p_weert = ', p_weert_aux(1)
+write(10, fmt=trim(fmt2)) 'P_WEERT = ', p_weert_aux(1)
 #if (N_SLIDE_REGIONS>1)
 do n=2, n_slide_regions
    write(10, fmt=trim(fmt2)) '          ', p_weert_aux(n)
 end do
 #endif
 
-write(10, fmt=trim(fmt2)) 'q_weert = ', q_weert_aux(1)
+write(10, fmt=trim(fmt2)) 'Q_WEERT = ', q_weert_aux(1)
 #if (N_SLIDE_REGIONS>1)
 do n=2, n_slide_regions
    write(10, fmt=trim(fmt2)) '          ', q_weert_aux(n)
@@ -1991,16 +1994,16 @@ end do
 #endif
 
 #if (defined(C_SLIDE_FILTER_WIDTH))
-write(10, fmt=trim(fmt3)) 'c_slide_filter_width =', C_SLIDE_FILTER_WIDTH
+write(10, fmt=trim(fmt3)) 'C_SLIDE_FILTER_WIDTH =', C_SLIDE_FILTER_WIDTH
 #endif
 #if (defined(TIME_RAMP_UP_SLIDE))
-write(10, fmt=trim(fmt3)) 'time_ramp_up_slide =', TIME_RAMP_UP_SLIDE
+write(10, fmt=trim(fmt3)) 'TIME_RAMP_UP_SLIDE =', TIME_RAMP_UP_SLIDE
 #endif
-write(10, fmt=trim(fmt3)) 'red_pres_limit_fact =', RED_PRES_LIMIT_FACT
+write(10, fmt=trim(fmt3)) 'RED_PRES_LIMIT_FACT =', RED_PRES_LIMIT_FACT
 #if (BASAL_HYDROLOGY==1 && defined(HYDRO_SLIDE_SAT_FCT) && defined(C_HW_SLIDE) && defined(HW0_SLIDE))
 write(10, fmt=trim(fmt2)) 'HYDRO_SLIDE_SAT_FCT = ', HYDRO_SLIDE_SAT_FCT
-write(10, fmt=trim(fmt3)) 'c_Hw_slide =', C_HW_SLIDE
-write(10, fmt=trim(fmt3)) 'Hw0_slide  =', HW0_SLIDE
+write(10, fmt=trim(fmt3)) 'C_HW_SLIDE =', C_HW_SLIDE
+write(10, fmt=trim(fmt3)) 'HW0_SLIDE  =', HW0_SLIDE
 #endif
 
 #endif
@@ -2008,9 +2011,9 @@ write(10, fmt=trim(fmt3)) 'Hw0_slide  =', HW0_SLIDE
 write(10, fmt=trim(fmt1)) ' '
 
 if (n_q_geo_mod==1) then
-   write(10, fmt=trim(fmt3)) 'q_geo =', Q_GEO
+   write(10, fmt=trim(fmt3)) 'Q_GEO =', Q_GEO
 else if (n_q_geo_mod==2) then
-   write(10, fmt=trim(fmt1)) 'q_geo file = '//Q_GEO_FILE
+   write(10, fmt=trim(fmt1)) 'Q_GEO_FILE = '//Q_GEO_FILE
 end if
 write(10, fmt=trim(fmt2)) 'Q_LITHO = ', Q_LITHO
 write(10, fmt=trim(fmt1)) ' '
@@ -2018,7 +2021,7 @@ write(10, fmt=trim(fmt1)) ' '
 #if (defined(MARINE_ICE_BASAL_MELTING))
 write(10, fmt=trim(fmt2)) 'MARINE_ICE_BASAL_MELTING = ', MARINE_ICE_BASAL_MELTING
 #if (MARINE_ICE_BASAL_MELTING==2 || MARINE_ICE_BASAL_MELTING==3)
-write(10, fmt=trim(fmt3)) 'qbm_marine =', QBM_MARINE
+write(10, fmt=trim(fmt3)) 'QBM_MARINE =', QBM_MARINE
 #endif
 write(10, fmt=trim(fmt1)) ' '
 #endif
@@ -2027,39 +2030,39 @@ write(10, fmt=trim(fmt1)) ' '
 
 write(10, fmt=trim(fmt2)) 'FLOATING_ICE_BASAL_MELTING = ', FLOATING_ICE_BASAL_MELTING
 #if (FLOATING_ICE_BASAL_MELTING==1)
-write(10, fmt=trim(fmt3)) 'qbm_float_1 =', QBM_FLOAT_1
+write(10, fmt=trim(fmt3)) 'QBM_FLOAT_1 =', QBM_FLOAT_1
 #endif
-write(10, fmt=trim(fmt3)) 'qbm_float_3 =', QBM_FLOAT_3
-write(10, fmt=trim(fmt3)) 'z_abyss =', Z_ABYSS
+write(10, fmt=trim(fmt3)) 'QBM_FLOAT_3 =', QBM_FLOAT_3
+write(10, fmt=trim(fmt3)) 'Z_ABYSS =', Z_ABYSS
 #if (FLOATING_ICE_BASAL_MELTING==4)
-write(10, fmt=trim(fmt3)) 'temp_ocean =', TEMP_OCEAN
-write(10, fmt=trim(fmt3)) 'Omega_qbm  =', OMEGA_QBM
-write(10, fmt=trim(fmt3)) 'alpha_qbm  =', ALPHA_QBM
+write(10, fmt=trim(fmt3)) 'TEMP_OCEAN =', TEMP_OCEAN
+write(10, fmt=trim(fmt3)) 'OMEGA_QBM  =', OMEGA_QBM
+write(10, fmt=trim(fmt3)) 'ALPHA_QBM  =', ALPHA_QBM
 #endif
-write(10, fmt=trim(fmt3)) 'H_w_0 =', H_W_0
+write(10, fmt=trim(fmt3)) 'H_W_0 =', H_W_0
 write(10, fmt=trim(fmt1)) ' '
 
 #if (FLOATING_ICE_BASAL_MELTING==6)
-write(10, fmt=trim(fmt2)) 'n_bm_regions = ', N_BM_REGIONS
-write(10, fmt=trim(fmt1)) 'bm_regions_file = '//BM_REGIONS_FILE
+write(10, fmt=trim(fmt2)) 'N_BM_REGIONS = ', N_BM_REGIONS
+write(10, fmt=trim(fmt1)) 'BM_REGIONS_FILE = '//BM_REGIONS_FILE
 gamma0_bm_aux   = GAMMA0_BM
 delta_tf_bm_aux = DELTA_TF_BM
-write(10, fmt=trim(fmt3)) 'gamma0_bm =', gamma0_bm_aux(1)
+write(10, fmt=trim(fmt3)) 'GAMMA0_BM =', gamma0_bm_aux(1)
 do n=2, N_BM_REGIONS
    write(10, fmt=trim(fmt3)) '           ', gamma0_bm_aux(n)
 end do
-write(10, fmt=trim(fmt3)) 'delta_tf_bm =', delta_tf_bm_aux(1)
+write(10, fmt=trim(fmt3)) 'DELTA_TF_BM =', delta_tf_bm_aux(1)
 do n=2, N_BM_REGIONS
    write(10, fmt=trim(fmt3)) '             ', delta_tf_bm_aux(n)
 end do
-write(10, fmt=trim(fmt1)) 'tf_bm_present_file = '//TF_BM_PRESENT_FILE
-write(10, fmt=trim(fmt1)) 'tf_bm_dir   = '//TF_BM_DIR
-write(10, fmt=trim(fmt1)) 'tf_bm_files = '//TF_BM_FILES
-write(10, fmt=trim(fmt2)) 'tf_bm_time_min = ', TF_BM_TIME_MIN
-write(10, fmt=trim(fmt2)) 'tf_bm_time_max = ', TF_BM_TIME_MAX
-write(10, fmt=trim(fmt3)) 'zmin_tf_bm =',  ZMIN_TF_BM
-write(10, fmt=trim(fmt2)) 'nz_tf_bm   = ', NZ_TF_BM
-write(10, fmt=trim(fmt3)) 'dz_tf_bm   =',  DZ_TF_BM
+write(10, fmt=trim(fmt1)) 'TF_BM_PRESENT_FILE = '//TF_BM_PRESENT_FILE
+write(10, fmt=trim(fmt1)) 'TF_BM_DIR   = '//TF_BM_DIR
+write(10, fmt=trim(fmt1)) 'TF_BM_FILES = '//TF_BM_FILES
+write(10, fmt=trim(fmt2)) 'TF_BM_TIME_MIN = ', TF_BM_TIME_MIN
+write(10, fmt=trim(fmt2)) 'TF_BM_TIME_MAX = ', TF_BM_TIME_MAX
+write(10, fmt=trim(fmt3)) 'ZMIN_TF_BM =',  ZMIN_TF_BM
+write(10, fmt=trim(fmt2)) 'NZ_TF_BM   = ', NZ_TF_BM
+write(10, fmt=trim(fmt3)) 'DZ_TF_BM   =',  DZ_TF_BM
 write(10, fmt=trim(fmt1)) ' '
 #endif
 
@@ -2071,7 +2074,7 @@ if ( (trim(adjustl(INITMIP_BMB_ANOM_FILE)) /= 'none') &
      (trim(adjustl(INITMIP_BMB_ANOM_FILE)) /= 'NONE') ) then
    flag_initmip_abmb = .true.
    ch_initmip_bmb_anom_file = trim(adjustl(INITMIP_BMB_ANOM_FILE))
-   write(10, fmt=trim(fmt1)) 'initmip_bmb_anom file = ' &
+   write(10, fmt=trim(fmt1)) 'INITMIP_BMB_ANOM_FILE = ' &
                                 // trim(ch_initmip_bmb_anom_file)
    write(10, fmt=trim(fmt1)) ' '
 end if
@@ -2085,14 +2088,14 @@ if ( (trim(adjustl(LARMIP_REGIONS_FILE)) /= 'none') &
      (trim(adjustl(LARMIP_REGIONS_FILE)) /= 'NONE') ) then
    flag_larmip = .true.
    ch_larmip_regions_file = trim(adjustl(LARMIP_REGIONS_FILE))
-   write(10, fmt=trim(fmt1)) 'larmip_regions_file = ' &
+   write(10, fmt=trim(fmt1)) 'LARMIP_REGIONS_FILE = ' &
                                 // trim(ch_larmip_regions_file)
    larmip_qbm_anom_aux = LARMIP_QBM_ANOM
-   write(10, fmt=trim(fmt3)) 'larmip_qbm_anom_1 =', larmip_qbm_anom_aux(1)
-   write(10, fmt=trim(fmt3)) 'larmip_qbm_anom_2 =', larmip_qbm_anom_aux(2)
-   write(10, fmt=trim(fmt3)) 'larmip_qbm_anom_3 =', larmip_qbm_anom_aux(3)
-   write(10, fmt=trim(fmt3)) 'larmip_qbm_anom_4 =', larmip_qbm_anom_aux(4)
-   write(10, fmt=trim(fmt3)) 'larmip_qbm_anom_5 =', larmip_qbm_anom_aux(5)
+   write(10, fmt=trim(fmt3)) 'LARMIP_QBM_ANOM_1 =', larmip_qbm_anom_aux(1)
+   write(10, fmt=trim(fmt3)) 'LARMIP_QBM_ANOM_2 =', larmip_qbm_anom_aux(2)
+   write(10, fmt=trim(fmt3)) 'LARMIP_QBM_ANOM_3 =', larmip_qbm_anom_aux(3)
+   write(10, fmt=trim(fmt3)) 'LARMIP_QBM_ANOM_4 =', larmip_qbm_anom_aux(4)
+   write(10, fmt=trim(fmt3)) 'LARMIP_QBM_ANOM_5 =', larmip_qbm_anom_aux(5)
    write(10, fmt=trim(fmt1)) ' '
 end if
 #endif
@@ -2101,14 +2104,14 @@ end if
 
 write(10, fmt=trim(fmt2)) 'REBOUND = ', REBOUND
 #if (REBOUND==1)
-write(10, fmt=trim(fmt3)) 'frac_llra =', FRAC_LLRA
+write(10, fmt=trim(fmt3)) 'FRAC_LLRA =', FRAC_LLRA
 #endif
 #if (REBOUND==1 || REBOUND==2)
 write(10, fmt=trim(fmt2)) 'TIME_LAG_MOD = ', TIME_LAG_MOD
 #if (TIME_LAG_MOD==1)
-write(10, fmt=trim(fmt3)) 'time_lag =', TIME_LAG
+write(10, fmt=trim(fmt3)) 'TIME_LAG =', TIME_LAG
 #elif (TIME_LAG_MOD==2)
-write(10, fmt=trim(fmt1)) 'time_lag_file = '//TIME_LAG_FILE
+write(10, fmt=trim(fmt1)) 'TIME_LAG_FILE = '//TIME_LAG_FILE
 #else
 errormsg = ' >>> sico_init: TIME_LAG_MOD must be either 1 or 2!'
 call error(errormsg)
@@ -2117,9 +2120,9 @@ call error(errormsg)
 #if (REBOUND==2)
 write(10, fmt=trim(fmt2)) 'FLEX_RIG_MOD = ', FLEX_RIG_MOD
 #if (FLEX_RIG_MOD==1)
-write(10, fmt=trim(fmt3)) 'flex_rig =', FLEX_RIG
+write(10, fmt=trim(fmt3)) 'FLEX_RIG =', FLEX_RIG
 #elif (FLEX_RIG_MOD==2)
-write(10, fmt=trim(fmt1)) 'flex_rig_file = '//FLEX_RIG_FILE
+write(10, fmt=trim(fmt1)) 'FLEX_RIG_FILE = '//FLEX_RIG_FILE
 #else
 errormsg = ' >>> sico_init: FLEX_RIG_MOD must be either 1 or 2!'
 call error(errormsg)
@@ -2127,22 +2130,22 @@ call error(errormsg)
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
-write(10, fmt=trim(fmt3)) 'numdiff_H_t =', NUMDIFF_H_T
-write(10, fmt=trim(fmt3)) 'tau_cts     =', TAU_CTS
-write(10, fmt=trim(fmt3)) 'vh_max      =', VH_MAX
-write(10, fmt=trim(fmt3)) 'hd_min      =', HD_MIN
-write(10, fmt=trim(fmt3)) 'hd_max      =', HD_MAX
+write(10, fmt=trim(fmt3)) 'NUMDIFF_H_T =', NUMDIFF_H_T
+write(10, fmt=trim(fmt3)) 'TAU_CTS     =', TAU_CTS
+write(10, fmt=trim(fmt3)) 'VH_MAX      =', VH_MAX
+write(10, fmt=trim(fmt3)) 'HD_MIN      =', HD_MIN
+write(10, fmt=trim(fmt3)) 'HD_MAX      =', HD_MAX
 #if (defined(VISC_MIN) && defined(VISC_MAX))
-write(10, fmt=trim(fmt3)) 'visc_min    =', VISC_MIN
-write(10, fmt=trim(fmt3)) 'visc_max    =', VISC_MAX
+write(10, fmt=trim(fmt3)) 'VISC_MIN    =', VISC_MIN
+write(10, fmt=trim(fmt3)) 'VISC_MAX    =', VISC_MAX
 #endif
-write(10, fmt=trim(fmt3)) 'qbm_min     =', QBM_MIN
-write(10, fmt=trim(fmt3)) 'qbm_max     =', QBM_MAX
-write(10, fmt=trim(fmt3)) 'age_min     =', AGE_MIN
-write(10, fmt=trim(fmt3)) 'age_max     =', AGE_MAX
-write(10, fmt=trim(fmt3)) 'mean_accum  =', MEAN_ACCUM
+write(10, fmt=trim(fmt3)) 'QBM_MIN     =', QBM_MIN
+write(10, fmt=trim(fmt3)) 'QBM_MAX     =', QBM_MAX
+write(10, fmt=trim(fmt3)) 'AGE_MIN     =', AGE_MIN
+write(10, fmt=trim(fmt3)) 'AGE_MAX     =', AGE_MAX
+write(10, fmt=trim(fmt3)) 'MEAN_ACCUM  =', MEAN_ACCUM
 #if (ADV_VERT==1)
-write(10, fmt=trim(fmt3)) 'age_diff    =', AGEDIFF
+write(10, fmt=trim(fmt3)) 'AGEDIFF     =', AGEDIFF
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
@@ -2157,9 +2160,9 @@ write(10, fmt=trim(fmt2)) 'OUTPUT_INIT = ', OUTPUT_INIT
 #endif
 write(10, fmt=trim(fmt2)) 'OUTPUT = ', OUTPUT
 #if (OUTPUT==1 || OUTPUT==3)
-write(10, fmt=trim(fmt3))  'dtime_out =' , dtime_out0
+write(10, fmt=trim(fmt3)) 'DTIME_OUT =' , dtime_out0
 #endif
-write(10, fmt=trim(fmt3))  'dtime_ser =' , dtime_ser0
+write(10, fmt=trim(fmt3)) 'DTIME_SER =' , dtime_ser0
 #if (OUTPUT==1 || OUTPUT==2)
 write(10, fmt=trim(fmt2)) 'ERGDAT = ', ERGDAT
 #endif
@@ -2171,12 +2174,12 @@ write(10, fmt=trim(fmt2)) 'OUTPUT_FLUX_VARS = ', OUTPUT_FLUX_VARS
 write(10, fmt=trim(fmt1)) '!!! CLIMATOLOGY_EXTRACTION_HACK defined !!!'
 #endif
 #if (OUTPUT==2 || OUTPUT==3)
-write(10, fmt=trim(fmt2)) 'n_output = ', n_output
+write(10, fmt=trim(fmt2)) 'N_OUTPUT = ', n_output
 do n=1, n_output
    if (n==1) then
-      write(10, fmt=trim(fmt3))  'time_output =' , time_output0(n)
+      write(10, fmt=trim(fmt3)) 'TIME_OUTPUT =' , time_output0(n)
    else
-      write(10, fmt=trim(fmt3))  '             ' , time_output0(n)
+      write(10, fmt=trim(fmt3)) '             ' , time_output0(n)
    end if
 end do
 #endif

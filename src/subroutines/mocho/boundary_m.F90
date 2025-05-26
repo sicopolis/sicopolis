@@ -291,7 +291,7 @@ end do
 
 #if (!defined(SURFACE_FORCING) || SURFACE_FORCING==1)
 
-errormsg = ' >>> boundary: Option SURFACE_FORCING=1 not supported any more!'
+errormsg = ' >>> boundary: Option SURFACE_FORCING=1 not supported anymore!'
 call error(errormsg)
 
 #elif (SURFACE_FORCING==2)

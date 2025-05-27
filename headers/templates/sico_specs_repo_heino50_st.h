@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2025-02-04'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2025-03-14'
 !                      Date of last change
 
 !-------- Domain --------
@@ -647,15 +647,15 @@
 !-------- Surface temperature --------
 
 #define TSURFACE 1
-!                         1 : delta_ts = DELTA_TS0, steady state
-!                         3 : Sinusoidal air-temperature forcing
-!                             between delta_ts = 0 C and delta_ts =
-!                             -2*SINE_AMPLIT C with period
-!                             SINE_PERIOD (in a)
-!                         4 : delta_ts from ice-core data
-!                             (e.g., GRIP, Vostok)
-!                         5 : Arbitrary scenario to be added in
-!                             subroutine 'boundary'
+!                       1 : delta_ts = DELTA_TS0, steady state
+!                       3 : Sinusoidal air-temperature forcing
+!                           between delta_ts = 0 C and delta_ts =
+!                           -2*SINE_AMPLIT C with period
+!                           SINE_PERIOD (in a)
+!                       4 : delta_ts from ice-core data
+!                           (e.g., GRIP, Vostok)
+!                       5 : Arbitrary scenario to be added in
+!                           subroutine 'boundary'
 
 #define DELTA_TS0 0.0d0
 !                       Constant air-temperature deviation for steady

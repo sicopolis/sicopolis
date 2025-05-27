@@ -1501,6 +1501,12 @@ write(10, fmt=trim(fmt3)) 'FACT_Z_MAR =', FACT_Z_MAR
 write(10, fmt=trim(fmt3)) 'CALV_UW_COEFF =', CALV_UW_COEFF
 write(10, fmt=trim(fmt3)) 'R1_CALV_UW =', R1_CALV_UW
 write(10, fmt=trim(fmt3)) 'R2_CALV_UW =', R2_CALV_UW
+#elif (MARINE_ICE_FORMATION==2 && MARINE_ICE_CALVING==8)
+write(10, fmt=trim(fmt3)) 'KONST_CALV =', KONST_CALV
+   ! special NPI option
+#elif (MARINE_ICE_FORMATION==2 && MARINE_ICE_CALVING==10)
+write(10, fmt=trim(fmt3)) 'VELOCITY_CALV =', VELOCITY_CALV
+   ! special NPI option
 #endif
 #elif (MARGIN==3)
 write(10, fmt=trim(fmt2)) 'ICE_SHELF_CALVING = ', ICE_SHELF_CALVING

@@ -68,6 +68,14 @@ subroutine boundary(time, dtime, dxi, deta)
   use calving_m
 #endif
 
+#if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==8))
+  use calving_m   ! special NPI option
+#endif
+
+#if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==10))
+  use calving_m   ! special NPI option
+#endif
+
 #if (defined(GRL) && DISC>0)
   use discharge_workers_m, only: discharge, dis_perp, dT_glann
 #endif
@@ -1633,6 +1641,14 @@ calving = 0.0_dp   ! Initialization
 #if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
 
 call calving_underwater_ice()
+
+#elif ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==8))
+
+call constant_calving()   ! special NPI option
+
+#elif ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==10))
+
+call velocity_calving()   ! special NPI option
 
 #endif
 

@@ -224,6 +224,10 @@ do ij=1, (IMAX+1)*(JMAX+1)
    call calving_retreat_mask(time, dtime, i, j)
 #endif
 
+#if (ICE_SHELF_CALVING==6)
+   call frontal_calving(i, j, dtime)
+#endif
+
 end do
 !$omp end do
 
@@ -475,6 +479,10 @@ do ij=1, (IMAX+1)*(JMAX+1)
    call calving_retreat_mask(time, dtime, i, j)
 #endif
 
+#if (ICE_SHELF_CALVING==6)
+   call frontal_calving(i, j, dtime)
+#endif
+
 end do
 !$omp end do
 
@@ -599,6 +607,10 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
 #if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
    call calving_retreat_mask(time, dtime, i, j)
+#endif
+
+#if (ICE_SHELF_CALVING==6)
+   call frontal_calving(i, j, dtime)
 #endif
 
 end do

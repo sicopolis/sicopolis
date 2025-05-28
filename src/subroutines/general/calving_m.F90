@@ -153,10 +153,10 @@ contains
   if ((H_new(j,i) > 0.0_dp).and.(mask(j,i)==3)) then
 #endif
 
-     dHdt_retreat = -(1.0_dp-r_mask_retreat(j,i))*H_ref_retreat(j,i) &
+    dHdt_retreat = -(1.0_dp-r_mask_retreat(j,i))*H_ref_retreat(j,i) &
                                                  *dtime_1year_inv
 
-     H_new(j,i) = max((H_new(j,i) + dHdt_retreat*dtime), 0.0_dp)
+    H_new(j,i) = max((H_new(j,i) + dHdt_retreat*dtime), 0.0_dp)
 
   end if
 
@@ -175,23 +175,28 @@ contains
 
 #if (ICE_SHELF_CALVING==6)
   subroutine frontal_calving(i, j, dtime)
-  
+
+#if !(defined(FRONTAL_CALVING_RATE))
+  errormsg = ' >>> xxx: FRONTAL_CALVING_RATE undefined!'
+  call error(errormsg)
+#endif  
+
   implicit none
 
   integer(i4b), intent(in) :: i, j
-  real(dp)    , intent(in) :: dtime
+  real(dp)    , intent(in) :: dtime, H_lost_rate
 
-  real(dp) :: H_new_tmp
-  real(dp) :: dtime_inv
+  if ((mask(j,i)==3).and.( (mask(j, i-1)==2).or.(mask(j, i+1)==2).or.(mask(j-1, i)==2).or.(mask(j+1, i)==2) ))  then
+    H_lost_rate = H_new(j,i)*FRONTAL_CALVING_RATE/DX
+  else
+    H_lost_rate = 0
+  endif
 
-  #if !(defined(FRONTAL_CALVING_RATE))
-    errormsg = ' >>> xxx: FRONTAL_CALVING_RATE undefined!'
-    call error(errormsg)
-  #endif
+  ! H_new(j,i) = max(H_new(j,i) - H_lost_rate*dtime, 0.0_dp)
 
-  dtime_inv = 1.0_dp/dtime
-
-
+  ! calving(j,i) = calving(j,i) + H_lost_rate
+  
+end subroutine frontal_calving
 
 #endif /* (ICE_SHELF_CALVING==6) */
 end module calving_m

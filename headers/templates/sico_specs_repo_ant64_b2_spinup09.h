@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2025-02-26'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2025-03-14'
 !                      Date of last change
 
 !-------- Domain --------
@@ -718,35 +718,67 @@
 !-------- Surface temperature --------
 
 #define TSURFACE 4
-!                         1 : delta_ts = DELTA_TS0, steady state
-!                         3 : Sinusoidal air-temperature forcing
-!                             between delta_ts = 0 C and delta_ts =
-!                             -2*SINE_AMPLIT C with period
-!                             SINE_PERIOD (in a)
-!                         4 : delta_ts from ice-core data
-!                             (e.g., GRIP, Vostok)
-!                         5 : Surface temperature interpolated by using
-!                             present values, LGM anomalies and a
-!                             glacial index (requires ACCSURFACE==5)
-!                         6 : Surface temperature climatology and anomaly
-!                             read directly from NetCDF files
-!                             (requires ACCSURFACE==6, ABLSURFACE==6)
+!                       1 : delta_ts = DELTA_TS0, steady state
+!                       3 : Sinusoidal air-temperature forcing
+!                           between delta_ts = 0 C and delta_ts =
+!                           -2*SINE_AMPLIT C with period
+!                           SINE_PERIOD (in a)
+!                       4 : delta_ts from ice-core data
+!                           (e.g., GRIP, Vostok)
+!                       5 : Surface temperature interpolated by using
+!                           present values, LGM anomalies and a
+!                           glacial index (requires ACCSURFACE==5)
+!                       6 : Surface temperature climatology and anomaly
+!                           read directly from NetCDF files
+!                           (requires ACCSURFACE==6, ABLSURFACE==6)
 
 #define TEMP_PRESENT_PARA 2
-!                         Parameterization of the present-day mean-annual
-!                         and mean-January (summer) surface temperatures by
-!                         1 : Fortuin and Oerlemans (1990)
-!                             for the whole ice sheet
-!                         2 : Fortuin and Oerlemans (1990),
-!                             separately for three different elevation ranges
-!                         (for TSURFACE<=5)
+!                       Parameterization of the present-day mean-annual
+!                       and mean-January (mid-summer) surface temperatures:
+!                       0 : No parameterization,
+!                           mean monthly data read from file instead
+!                       1 : Fortuin and Oerlemans (1990)
+!                           for the whole ice sheet
+!                       2 : Fortuin and Oerlemans (1990),
+!                           separately for three different elevation ranges
+!                       3 : General parameterization
+!                       (for TSURFACE<=5)
+
+#define TEMP_PRESENT_FILE 'none'
+!                       Name of the file containing the present-day
+!                       monthly-mean surface-temperature data
+!                       (for TEMP_PRESENT_PARA==0 and TSURFACE<=5)
+
+#define TOPO_LAPSE_RATE 6.5d0
+!                       Topographic lapse rate (in K/km)
+!                       (decrease of surface temperature with elevation)
+!                       (for TEMP_PRESENT_PARA==0 and TSURFACE<=5)
+
+#define THETA_MA_0 34.461d0   /* in degC      */
+#define GAMMA_MA_0  9.14d0    /* in K/km      */
+#define C_MA_0     -0.688d0   /* in K/deg_lat */
+#define KAPPA_MA_0  0.0d0     /* in K/deg_lon */
+
+#define THETA_MJ_0 16.81d0    /* in degC      */
+#define GAMMA_MJ_0  6.92d0    /* in K/km      */
+#define C_MJ_0     -0.27973d0 /* in K/deg_lat */
+#define KAPPA_MJ_0  0.0d0     /* in K/deg_lon */
+
+!                       'THETA': absolute coefficient,
+!                       'GAMMA': topographic lapse rate,
+!                       'C'    : latitude coefficient,
+!                       'KAPPA': longitude coefficient;
+!                       'MA': mean annual,
+!                       'MJ': mean January (mid-summer)
+!                       (for TEMP_PRESENT_PARA==3 and TSURFACE<=5)
 
 #define TEMP_PRESENT_OFFSET 0.0d0
-!                         Offset for the parameterization of the present-day
-!                         mean-annual and mean-July surface temperatures (in C)
-!                         in order to optimise the match
-!                         for the chosen reference year YEAR_ZERO
-!                         (for TSURFACE<=5)
+!                       Offset for the parameterization of the
+!                       present-day mean-annual and mean-January (mid-summer)
+!                       surface temperatures (in degC)
+!                       in order to optimize the match
+!                       for the chosen reference year YEAR_ZERO
+!                       (for TEMP_PRESENT_PARA>0 and TSURFACE<=5)
 
 #define DELTA_TS0 0.0d0
 !                       Constant air-temperature deviation for steady

@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2025-02-04'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2025-03-14'
 !                      Date of last change
 
 !-------- Domain --------
@@ -693,19 +693,19 @@
 !-------- Surface temperature --------
 
 #define TSURFACE 6
-!                         1 : delta_ts = DELTA_TS0, steady state
-!                         3 : Sinusoidal air-temperature forcing
-!                             between delta_ts = 0 C and delta_ts =
-!                             +2*SINE_AMPLIT C with period
-!                             SINE_PERIOD (in a)
-!                         4 : delta_ts from north-polar insolation based
-!                             on simplified two-cycle obliquity (main cycle
-!                             and first modulation)
-!                         5 : delta_ts from north-polar insolation based
-!                             on computed obliquity and eccentricity
-!                             evolutions
-!                         6 : Surface temperature computed by the
-!                             local insolation temperature (LIT) scheme
+!                       1 : delta_ts = DELTA_TS0, steady state
+!                       3 : Sinusoidal air-temperature forcing
+!                           between delta_ts = 0 C and delta_ts =
+!                           +2*SINE_AMPLIT C with period
+!                           SINE_PERIOD (in a)
+!                       4 : delta_ts from north-polar insolation based
+!                           on simplified two-cycle obliquity (main cycle
+!                           and first modulation)
+!                       5 : delta_ts from north-polar insolation based
+!                           on computed obliquity and eccentricity
+!                           evolutions
+!                       6 : Surface temperature computed by the
+!                           local insolation temperature (LIT) scheme
 
 #define DELTA_TS0 0.0d0
 !                       Constant air-temperature deviation for steady

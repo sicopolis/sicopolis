@@ -7082,8 +7082,10 @@ if (n_site >= 1) then
                     H_site(n), flag_in_domain)
 
       if ( (firstcall%output4).and.(.not.flag_in_domain) ) then
-         write(6, fmt='(a,i0,a)') &
-            ' >>> output4: WARNING: Borehole position ', n, ' out of domain!'
+         warningmsg = ' >>> output4: Borehole position'
+         write(warningmsg, fmt='(a,i0,a)') &
+                      trim(warningmsg)//' ', n, ' out of domain!'
+         call warning(warningmsg)
       end if
 
 !  ------ Basal velocity

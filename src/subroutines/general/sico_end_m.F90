@@ -101,10 +101,10 @@ contains
 
 #if (MARGIN==3 || DYNAMICS==2 || DYNAMICS==3)
 #if !defined(ALLOW_TAPENADE)
-  call lis_finalize(ierr)   ! Finalise execution environment of the
+  call lis_finalize(ierr)   ! Finalize execution environment of the
                             ! Library of Iterative Solvers Lis, if required
 #else
-  call lis_finalize_f(ierr) ! Finalise execution environment of the
+  call lis_finalize_f(ierr) ! Finalize execution environment of the
                             ! Library of Iterative Solvers Lis, if required
 #endif
 #endif

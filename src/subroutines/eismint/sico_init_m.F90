@@ -82,6 +82,7 @@ integer(i4b)       :: i, j, kc, kt, kr, m, n, ir, jr, n1, n2
 integer(i4b)       :: ios, ios1, ios2, ios3, ios4
 integer(i4b)       :: istat, ierr
 integer(i4b)       :: n_q_geo_mod
+integer(i4b)       :: itercount
 real(dp)           :: dtime0, dtime_temp0, dtime_wss0, dtime_out0, dtime_ser0
 real(dp)           :: time_init0, time_end0
 #if (OUTPUT==2 || OUTPUT==3)
@@ -115,9 +116,7 @@ character(len=64), parameter :: fmt1 = '(a)', &
                                 fmt3 = '(a,es13.5)', &
                                 fmt4 = '(a,es20.12)'
 
-write(unit=6, fmt='(a)') ' '
-write(unit=6, fmt='(a)') ' -------- sico_init --------'
-write(unit=6, fmt='(a)') ' '
+write(unit=6, fmt='(/a)') ' -------- sico_init --------'
 
 !-------- Name of the computational domain --------
 
@@ -494,10 +493,12 @@ call error(errormsg)
 
 #else /* CHECK_RES_IMAX_JMAX==0 */
 
-write(6, fmt='(a)') ' >>> sico_init: CHECK_RES_IMAX_JMAX==0'
-write(6, fmt='(a)') '      -> compatibility check between horizontal resolution'
-write(6, fmt='(a)') '         and number of grid points not performed.'
-write(6, fmt='(a)') ' '
+warningmsg = ' >>> sico_init: CHECK_RES_IMAX_JMAX==0' &
+           //         end_of_line &
+           //'        -> compatibility check between horizontal resolution' &
+           //         end_of_line &
+           //'           and number of grid points not performed.'
+call warning(warningmsg)
 
 #endif /* CHECK_RES_IMAX_JMAX */
 
@@ -508,10 +509,12 @@ write(6, fmt='(a)') ' '
 #if (CALCMOD==0 || CALCMOD==2 || CALCMOD==3 || CALCMOD==-1)
 
 if (KTMAX > 2) then
-   write(6, fmt='(a)') ' >>> sico_init: For options CALCMOD==0, 2, 3 or -1,'
-   write(6, fmt='(a)') '                the separate kt domain is redundant.'
-   write(6, fmt='(a)') '                Therefore, consider setting KTMAX to 2.'
-   write(6, fmt='(a)') ' '
+   warningmsg = ' >>> sico_init: For options CALCMOD==0, 2, 3 or -1,' &
+              //                 end_of_line &
+              //'                the separate kt domain is redundant.' &
+              //                 end_of_line &
+              //'                Therefore, consider setting KTMAX to 2.'
+   call warning(warningmsg)
 end if
 
 #endif
@@ -534,10 +537,10 @@ call error(errormsg)
 #if ((MARGIN==3 && DYNAMICS==1) || DYNAMICS==2 || DYNAMICS==3)
                                                   ! SSA, SStA or DIVA
 #if (GRID != 0)
-write(6, fmt='(a)') ' >>> sico_init: WARNING:'
-write(6, fmt='(a)') '                Distortion correction for GRID.ne.0'
-write(6, fmt='(a)') '                not yet implemented for SSA, SStA or DIVA.'
-write(6, fmt='(a)') ' '
+warningmsg = ' >>> sico_init: Distortion correction for GRID.ne.0' &
+           //                 end_of_line &
+           //'                not yet implemented for SSA, SStA or DIVA.'
+call warning(warningmsg)
 #endif
 #endif
 
@@ -1706,6 +1709,9 @@ call topography2(dxi, deta)
 z_sl      = -1.11e+11_dp   ! dummy values for initial call
 z_sl_mean = -1.11e+11_dp   ! of subroutine boundary
 
+itercount = 0   ! initialization
+write(unit=6, fmt='(/2x,i0)') itercount
+
 call boundary(time_init, dtime, dxi, deta)
 
 as_perp_apl = 0.0_dp
@@ -1754,6 +1760,9 @@ vis_int_g = 0.0_dp
 #elif (ANF_DAT==3)
 
 call topography3(dxi, deta, anfdatname)
+
+itercount = 0   ! initialization
+write(unit=6, fmt='(/2x,i0)') itercount
 
 #if (!(ANF_DAT==3) || defined(LEGACY_RESTART))
 

@@ -2,7 +2,7 @@
 !
 !  Module :  e r r o r _ m
 !
-!! Writing of error messages and stopping execution.
+!! Handling of error or warning messages, stopping execution if applicable.
 !!
 !!##### Authors
 !!
@@ -28,7 +28,7 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> Writing of error messages and stopping execution.
+!> Handling of error or warning messages, stopping execution if applicable.
 !-------------------------------------------------------------------------------
 module error_m
 
@@ -39,7 +39,7 @@ module error_m
 contains
 
 !-------------------------------------------------------------------------------
-!> Main routine of error_m: Writing of error messages and stopping execution.
+!> Writing of error messages and stopping execution.
 !-------------------------------------------------------------------------------
   subroutine error(error_message)
 
@@ -47,7 +47,15 @@ contains
 
   character(len=256), intent(in) :: error_message
 
-  write(6, fmt='(/,a,/)') trim(error_message)
+  character(len=256)   :: error_msg
+  character, parameter :: end_of_line = char(10)
+                          ! End-of-line string
+
+  error_msg = ' ERROR:' &
+              // end_of_line &
+              // trim(error_message)
+
+  write(6, fmt='(/,a,/)') trim(error_msg)
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
   stop
@@ -57,6 +65,27 @@ contains
 #endif /* Normal vs. Tapenade */
 
   end subroutine error
+
+!-------------------------------------------------------------------------------
+!> Writing of warning messages.
+!-------------------------------------------------------------------------------
+  subroutine warning(warning_message)
+
+  implicit none
+
+  character(len=256), intent(in) :: warning_message
+
+  character(len=256)   :: warning_msg
+  character, parameter :: end_of_line = char(10)
+                          ! End-of-line string
+
+  warning_msg = ' Warning:' &
+                // end_of_line &
+                // trim(warning_message)
+
+  write(6, fmt='(/,a)') trim(warning_msg)
+
+  end subroutine warning
 
 !-------------------------------------------------------------------------------
 

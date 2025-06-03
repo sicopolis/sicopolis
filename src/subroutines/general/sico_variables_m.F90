@@ -1591,6 +1591,9 @@ real(dp), parameter :: no_value_neg_2 = -9.999e+03_dp
 character(len=256) :: errormsg
    !! Error-message string
 
+character(len=256) :: warningmsg
+   !! Warning-message string
+
 character, parameter :: end_of_line = char(10)
    !! End-of-line string
 

@@ -77,6 +77,7 @@ integer(i4b)       :: n_variable_dim, n_variable_type
 integer(i4b)       :: ncid
 character(len=256) :: run_name
 character(len=  4) :: ergnum
+character(len=256) :: ch_msg
 logical            :: flag_init_output
 
 integer(i4b)       :: mapping_val
@@ -155,7 +156,8 @@ run_name = run_name(n1:n2)
 #elif (OUTPUT_INIT==1)
    flag_init_output = .true.
 #else
-   stop ' >>> make_ismip_output: OUTPUT_INIT must be either 0 or 1!'
+   ch_msg = ' >>> make_ismip_output: OUTPUT_INIT must be either 0 or 1!'
+   call write_message(ch_msg, 'error')
 #endif
 
 #else
@@ -163,7 +165,8 @@ run_name = run_name(n1:n2)
 #endif
 
 #if (OUTPUT_FLUX_VARS != 2)
-   stop ' >>> make_ismip_output: OUTPUT_FLUX_VARS==2 required!'
+   ch_msg = ' >>> make_ismip_output: OUTPUT_FLUX_VARS==2 required!'
+   call write_message(ch_msg, 'error')
 #endif
 
 do n_variable_dim = 1, 2
@@ -185,7 +188,8 @@ do n_variable_type = 1, 2
 #elif (OUTPUT==2)
       ndat = N_OUTPUT
 #else
-      stop ' >>> make_ismip_output: OUTPUT must be 1, 2 or 3!'
+      ch_msg = ' >>> make_ismip_output: OUTPUT must be 1, 2 or 3!'
+      call write_message(ch_msg, 'error')
 #endif
 
    else if (n_variable_dim == 2) then
@@ -197,11 +201,14 @@ do n_variable_type = 1, 2
       end if
 
    else
-      stop ' >>> make_ismip_output: n_variable_dim must be either 1 or 2!'
+      ch_msg = &
+         ' >>> make_ismip_output: ''n_variable_dim'' must be either 1 or 2!'
+      call write_message(ch_msg, 'error')
    end if
 
-   if (n_variable_dim == 1) then
-      if (ndat > ndat_max) stop ' >>> make_ismip_output: Too many records!'
+   if ((n_variable_dim == 1).and.(ndat > ndat_max)) then
+      ch_msg = ' >>> make_ismip_output: Too many records!'
+      call write_message(ch_msg, 'error')
    end if
 
    do n=1, ndat
@@ -402,6 +409,9 @@ character(len=64), intent(out) :: mapping_ellipsoid_r
 integer(i4b)       :: i, j
 real(dp)           :: year_to_year_or_sec
 character(len=256) :: filename, filename_with_path
+character(len=256) :: ch_msg
+character, parameter :: end_of_line = char(10)
+                        ! End-of-line string
 
 integer(i4b), dimension(0:IMAX,0:JMAX) :: mask_erg
 real(dp) :: year2sec_erg=0.0_dp, time_erg=0.0_dp, &
@@ -427,7 +437,7 @@ real(dp), dimension(0:IMAX,0:JMAX) :: lon_erg, lat_erg, &
             q_gl_g_erg
 
 integer(i4b) :: ios
-integer(i4b) :: ierr1, ierr2
+integer(i4b) :: istat, istat1, istat2
 
 integer(i4b) :: ncid, ncv, ncv_test1, ncv_test2
 !     ncid:      ID of the NetCDF file
@@ -459,8 +469,8 @@ if (n_variable_dim == 1) then
 #elif (OUTPUT==3)
    filename = trim(run_name)//'_2d_'//trim(ergnum)//'.nc'
 #else
-   write(6,'(/a)') ' >>> read_nc: File name cannot be determined!'
-   stop
+   ch_msg = ' >>> read_nc: File name cannot be determined!'
+   call write_message(ch_msg, 'error')
 #endif
 
 write(6,'(a)') ' Now reading '//trim(filename)//' ...'
@@ -481,8 +491,8 @@ filename_with_path = trim(OUT_PATH)//'/'//trim(filename)
 ios = nf90_open(trim(filename_with_path), NF90_NOWRITE, ncid)
 
 if (ios /= nf90_noerr) then
-   write(6,'(/a)') ' >>> read_nc: Error when opening the time-slice file!'
-   stop
+   ch_msg = ' >>> read_nc: Error when opening the time-slice file!'
+   call write_message(ch_msg, 'error')
 end if
 
 !-------- Reading of data --------
@@ -505,239 +515,578 @@ if (n_variable_dim == 1) then
 
 if ( nf90_inq_varid(ncid, 'mapping', ncv_test1) == nf90_noerr ) then 
    ncv = ncv_test1
+   call check( nf90_get_var(ncid, ncv, mapping_r) )
 else if ( nf90_inq_varid(ncid, 'crs', ncv_test2) == nf90_noerr ) then 
    ncv = ncv_test2
+   call check( nf90_get_var(ncid, ncv, mapping_r) )
+else
+   ch_msg = ' >>> read_nc: Variable ''mapping'' ' &
+          //               end_of_line &
+          //'              not available in read nc file.'
+   call write_message(ch_msg, 'warning')
 end if
 
-call check( nf90_get_var(ncid, ncv, mapping_r) )
+istat = nf90_get_att(ncid, ncv, 'grid_mapping_name', ch_aux)
+if (istat == nf90_noerr) mapping_grid_mapping_name_r = trim(ch_aux)
 
-call check( nf90_get_att(ncid, ncv, 'grid_mapping_name', &
-                                     mapping_grid_mapping_name_r) )
+istat = nf90_get_att(ncid, ncv, 'ellipsoid', ch_aux)
+if (istat == nf90_noerr) mapping_ellipsoid_r = trim(ch_aux)
 
-ierr1 = nf90_get_att(ncid, ncv, 'ellipsoid', ch_aux)
-if (ierr1 == nf90_noerr) mapping_ellipsoid_r = trim(ch_aux)
-
-ierr1 = nf90_get_att(ncid, ncv, 'semi_major_axis', r_aux)
-
-if (ierr1 == nf90_noerr) then
+istat = nf90_get_att(ncid, ncv, 'semi_major_axis', r_aux)
+if (istat == nf90_noerr) then
    mapping_semi_major_axis_r = r_aux
-   call check( nf90_get_att(ncid, ncv, 'inverse_flattening', &
-                                        mapping_inv_flattening_r) )
+   istat1 = nf90_get_att(ncid, ncv, 'inverse_flattening', r_aux)
+   if (istat1 == nf90_noerr) mapping_inv_flattening_r = r_aux
 else
-   ierr2 = nf90_get_att(ncid, ncv, 'radius_of_sphere', r_aux)
-   if (ierr2 == nf90_noerr) mapping_radius_of_sphere_r = r_aux
+   istat2 = nf90_get_att(ncid, ncv, 'radius_of_sphere', r_aux)
+   if (istat2 == nf90_noerr) mapping_radius_of_sphere_r = r_aux
 end if
 
 #if (GRID==0 || GRID==1)
 
-call check( nf90_get_att(ncid, ncv, 'latitude_of_projection_origin', &
-                                     mapping_latitude_origin_r) )
-call check( nf90_get_att(ncid, ncv, 'standard_parallel', &
-                                     mapping_standard_parallel_r) )
-call check( nf90_get_att(ncid, ncv, 'straight_vertical_longitude_from_pole', &
-                                     mapping_reference_longitude_r) )
-call check( nf90_get_att(ncid, ncv, 'false_easting',  mapping_false_E_r) )
-call check( nf90_get_att(ncid, ncv, 'false_northing', mapping_false_N_r) )
+istat = nf90_get_att(ncid, ncv, 'latitude_of_projection_origin', r_aux)
+if (istat == nf90_noerr) mapping_latitude_origin_r = r_aux
+
+istat = nf90_get_att(ncid, ncv, 'standard_parallel', r_aux)
+if (istat == nf90_noerr) mapping_standard_parallel_r = r_aux
+
+istat = nf90_get_att(ncid, ncv, 'straight_vertical_longitude_from_pole', r_aux)
+if (istat == nf90_noerr) mapping_reference_longitude_r = r_aux
+
+istat = nf90_get_att(ncid, ncv, 'false_easting', r_aux)
+if (istat == nf90_noerr) mapping_false_E_r = r_aux
+
+istat = nf90_get_att(ncid, ncv, 'false_northing', r_aux)
+if (istat == nf90_noerr) mapping_false_N_r = r_aux
 
 #endif
 
-ierr1 = nf90_inq_varid(ncid, 'year2sec', ncv)
-if (ierr1 == nf90_noerr) then
+istat = nf90_inq_varid(ncid, 'year2sec', ncv)
+if (istat == nf90_noerr) then
    call check( nf90_get_var(ncid, ncv, year2sec_erg) )
 else
+   ch_msg = ' >>> read_nc: Variable ''year2sec'' ' &
+          //               end_of_line &
+          //'              not available in read nc file.'
+   call write_message(ch_msg, 'warning')
    year2sec_erg = 3.1556925445e+07_dp   ! default value
                      ! IUPAC-IUGS year for epoch 2000.0
                      ! (Holden et al., 2011, PAC, doi:10.1351/PAC-REC-09-01-22)
 end if
 
-call check( nf90_inq_varid(ncid, 'time', ncv) )
-call check( nf90_get_var(ncid, ncv, time_erg) )
+istat = nf90_inq_varid(ncid, 'time', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, time_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''time'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'x', ncv) )
-call check( nf90_get_var(ncid, ncv, xi_erg) )
+istat = nf90_inq_varid(ncid, 'x', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, xi_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''x'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'y', ncv) )
-call check( nf90_get_var(ncid, ncv, eta_erg) )
+istat = nf90_inq_varid(ncid, 'y', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, eta_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''y'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'sigma_level_c', ncv) )
-call check( nf90_get_var(ncid, ncv, sigma_level_c_erg) )
+istat = nf90_inq_varid(ncid, 'sigma_level_c', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, sigma_level_c_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''sigma_level_c'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'sigma_level_t', ncv) )
-call check( nf90_get_var(ncid, ncv, sigma_level_t_erg) )
+istat = nf90_inq_varid(ncid, 'sigma_level_t', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, sigma_level_t_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''sigma_level_t'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'sigma_level_r', ncv) )
-call check( nf90_get_var(ncid, ncv, sigma_level_r_erg) )
+istat = nf90_inq_varid(ncid, 'sigma_level_r', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, sigma_level_r_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''sigma_level_r'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'lon', ncv) )
-call check( nf90_get_var(ncid, ncv, lon_erg) )
+istat = nf90_inq_varid(ncid, 'lon', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, lon_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''lon'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'lat', ncv) )
-call check( nf90_get_var(ncid, ncv, lat_erg) )
+istat = nf90_inq_varid(ncid, 'lat', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, lat_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''lat'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'H', ncv) )
-call check( nf90_get_var(ncid, ncv, H_erg) )
+istat = nf90_inq_varid(ncid, 'H', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, H_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''H'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'zs', ncv) )
-call check( nf90_get_var(ncid, ncv, zs_erg) )
+istat = nf90_inq_varid(ncid, 'zs', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, zs_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''zs'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'zb', ncv) )
-call check( nf90_get_var(ncid, ncv, zb_erg) )
+istat = nf90_inq_varid(ncid, 'zb', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, zb_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''zb'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'zl', ncv) )
-call check( nf90_get_var(ncid, ncv, zl_erg) )
+istat = nf90_inq_varid(ncid, 'zl', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, zl_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''zl'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'zl0', ncv) )
-call check( nf90_get_var(ncid, ncv, zl0_erg) )
+istat = nf90_inq_varid(ncid, 'zl0', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, zl0_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''zl0'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'as_perp_apl', ncv) )
-call check( nf90_get_var(ncid, ncv, as_perp_apl_erg) )
+istat = nf90_inq_varid(ncid, 'as_perp_apl', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, as_perp_apl_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''as_perp_apl'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'Q_b_apl', ncv) )
-call check( nf90_get_var(ncid, ncv, Q_b_apl_erg) )
+istat = nf90_inq_varid(ncid, 'Q_b_apl', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, Q_b_apl_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''Q_b_apl'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-ierr1 = nf90_inq_varid(ncid, 'calving_apl', ncv)
-if (ierr1 == nf90_noerr) then
+istat = nf90_inq_varid(ncid, 'calving_apl', ncv)
+if (istat == nf90_noerr) then
    call check( nf90_get_var(ncid, ncv, calving_apl_erg) )
 else
+   ch_msg = ' >>> read_nc: Variable ''calving_apl'' ' &
+          //               end_of_line &
+          //'              not available in read nc file.'
+   call write_message(ch_msg, 'warning')
    calving_apl_erg = no_value_large_dp
 end if
 
-call check( nf90_inq_varid(ncid, 'q_geo', ncv) )
-call check( nf90_get_var(ncid, ncv, q_geo_erg) )
+istat = nf90_inq_varid(ncid, 'q_geo', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, q_geo_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''q_geo'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'dH_dt', ncv) )
-call check( nf90_get_var(ncid, ncv, dH_dtau_erg) )
+istat = nf90_inq_varid(ncid, 'dH_dt', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, dH_dtau_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''dH_dt'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'vx_s_g', ncv) )
-call check( nf90_get_var(ncid, ncv, vx_s_g_erg) )
+istat = nf90_inq_varid(ncid, 'vx_s_g', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, vx_s_g_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''vx_s_g'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'vy_s_g', ncv) )
-call check( nf90_get_var(ncid, ncv, vy_s_g_erg) )
+istat = nf90_inq_varid(ncid, 'vy_s_g', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, vy_s_g_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''vy_s_g'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'vz_s', ncv) )
-call check( nf90_get_var(ncid, ncv, vz_s_erg) )
+istat = nf90_inq_varid(ncid, 'vz_s', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, vz_s_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''vz_s'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'vh_s', ncv) )
-call check( nf90_get_var(ncid, ncv, vh_s_erg) )
+istat = nf90_inq_varid(ncid, 'vh_s', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, vh_s_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''vh_s'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'vx_b_g', ncv) )
-call check( nf90_get_var(ncid, ncv, vx_b_g_erg) )
+istat = nf90_inq_varid(ncid, 'vx_b_g', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, vx_b_g_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''vx_b_g'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'vy_b_g', ncv) )
-call check( nf90_get_var(ncid, ncv, vy_b_g_erg) )
+istat = nf90_inq_varid(ncid, 'vy_b_g', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, vy_b_g_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''vy_b_g'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'vz_b', ncv) )
-call check( nf90_get_var(ncid, ncv, vz_b_erg) )
+istat = nf90_inq_varid(ncid, 'vz_b', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, vz_b_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''vz_b'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'vh_b', ncv) )
-call check( nf90_get_var(ncid, ncv, vh_b_erg) )
+istat = nf90_inq_varid(ncid, 'vh_b', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, vh_b_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''vh_b'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'vx_m_g', ncv) )
-call check( nf90_get_var(ncid, ncv, vx_m_g_erg) )
+istat = nf90_inq_varid(ncid, 'vx_m_g', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, vx_m_g_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''vx_m_g'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'vy_m_g', ncv) )
-call check( nf90_get_var(ncid, ncv, vy_m_g_erg) )
+istat = nf90_inq_varid(ncid, 'vy_m_g', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, vy_m_g_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''vy_m_g'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'vh_m', ncv) )
-call check( nf90_get_var(ncid, ncv, vh_m_erg) )
+istat = nf90_inq_varid(ncid, 'vh_m', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, vh_m_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''vh_m'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'temp_s', ncv) )
-call check( nf90_get_var(ncid, ncv, temp_s_erg) )
+istat = nf90_inq_varid(ncid, 'temp_s', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, temp_s_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''temp_s'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'temp_b', ncv) )
-call check( nf90_get_var(ncid, ncv, temp_b_erg) )
+istat = nf90_inq_varid(ncid, 'temp_b', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, temp_b_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''temp_b'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'temph_b', ncv) )
-call check( nf90_get_var(ncid, ncv, temph_b_erg) )
+istat = nf90_inq_varid(ncid, 'temph_b', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, temph_b_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''temph_b'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'H_w', ncv) )
-call check( nf90_get_var(ncid, ncv, H_w_erg) )
+istat = nf90_inq_varid(ncid, 'H_w', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, H_w_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''H_w'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'p_b_w', ncv) )
-call check( nf90_get_var(ncid, ncv, p_b_w_erg) )
+istat = nf90_inq_varid(ncid, 'p_b_w', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, p_b_w_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''p_b_w'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-ierr1 = nf90_inq_varid(ncid, 'tau_dr', ncv)
-if (ierr1 == nf90_noerr) then
+istat1 = nf90_inq_varid(ncid, 'tau_dr', ncv)
+if (istat1 == nf90_noerr) then
    call check( nf90_get_var(ncid, ncv, tau_dr_erg) )
 else
-   ierr2 = nf90_inq_varid(ncid, 'tau_b_driving', ncv)   ! obsolete name
-   if (ierr2 == nf90_noerr) then
+   istat2 = nf90_inq_varid(ncid, 'tau_b_driving', ncv)   ! obsolete name
+   if (istat2 == nf90_noerr) then
       call check( nf90_get_var(ncid, ncv, tau_dr_erg) )
+   else
+      ch_msg = ' >>> read_nc: Variable ''tau_dr'' ' &
+             //               end_of_line &
+             //'              not available in read nc file!'
+      call write_message(ch_msg, 'error')
    end if
 end if
 
-ierr1 = nf90_inq_varid(ncid, 'tau_b', ncv)
-if (ierr1 == nf90_noerr) then
+istat1 = nf90_inq_varid(ncid, 'tau_b', ncv)
+if (istat1 == nf90_noerr) then
    call check( nf90_get_var(ncid, ncv, tau_b_erg) )
 else
-   ierr2 = nf90_inq_varid(ncid, 'tau_b_drag', ncv)   ! obsolete name
-   if (ierr2 == nf90_noerr) then
+   istat2 = nf90_inq_varid(ncid, 'tau_b_drag', ncv)   ! obsolete name
+   if (istat2 == nf90_noerr) then
       call check( nf90_get_var(ncid, ncv, tau_b_erg) )
+   else
+      ch_msg = ' >>> read_nc: Variable ''tau_b'' ' &
+             //               end_of_line &
+             //'              not available in read nc file!'
+      call write_message(ch_msg, 'error')
    end if
 end if
 
-call check( nf90_inq_varid(ncid, 'q_gl_g', ncv) )
-call check( nf90_get_var(ncid, ncv, q_gl_g_erg) )
+istat = nf90_inq_varid(ncid, 'q_gl_g', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, q_gl_g_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''q_gl_g'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
 if ( nf90_inq_varid(ncid, 'mask', ncv) == nf90_noerr ) then
    call check( nf90_get_var(ncid, ncv, mask_erg) )
 else if ( nf90_inq_varid(ncid, 'maske', ncv) == nf90_noerr ) then
    call check( nf90_get_var(ncid, ncv, mask_erg) )
 else
-   write(6,'(/a)') ' >>> read_nc: Error: Variable mask'
-   write(6,'(/a)') ' >>>                 not available in time-slice file!'
-   stop
+   ch_msg = ' >>> read_nc: Variable ''mask'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
 end if
 
 else if (n_variable_dim == 2) then
 
 nc1cor(1) = n
 
-ierr1 = nf90_inq_varid(ncid, 'year2sec', ncv)
-if (ierr1 == nf90_noerr) then
+istat = nf90_inq_varid(ncid, 'year2sec', ncv)
+if (istat == nf90_noerr) then
    call check( nf90_get_var(ncid, ncv, year2sec_erg) )
 else
+   ch_msg = ' >>> read_nc: Variable ''year2sec'' ' &
+          //               end_of_line &
+          //'              not available in read nc file.'
+   call write_message(ch_msg, 'warning')
    year2sec_erg = 3.1556925445e+07_dp   ! default value
                      ! IUPAC-IUGS year for epoch 2000.0
                      ! (Holden et al., 2011, PAC, doi:10.1351/PAC-REC-09-01-22)
 end if
 
-call check( nf90_inq_varid(ncid, 't', ncv) )
-call check( nf90_get_var(ncid, ncv, time_erg, start=nc1cor) )
+istat = nf90_inq_varid(ncid, 't', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, time_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''t'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'V_tot', ncv) )
-call check( nf90_get_var(ncid, ncv, V_tot_erg, start=nc1cor) )
+istat = nf90_inq_varid(ncid, 'V_tot', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, V_tot_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''V_tot'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'V_af', ncv) )
-call check( nf90_get_var(ncid, ncv, V_af_erg, start=nc1cor) )
+istat = nf90_inq_varid(ncid, 'V_af', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, V_af_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''V_af'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'A_grounded', ncv) )
-call check( nf90_get_var(ncid, ncv, A_grounded_erg, start=nc1cor) )
+istat = nf90_inq_varid(ncid, 'A_grounded', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, A_grounded_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''A_grounded'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'A_floating', ncv) )
-call check( nf90_get_var(ncid, ncv, A_floating_erg, start=nc1cor) )
+istat = nf90_inq_varid(ncid, 'A_floating', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, A_floating_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''A_floating'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'dV_dt', ncv) )
-call check( nf90_get_var(ncid, ncv, dV_dt_erg, start=nc1cor) )
+istat = nf90_inq_varid(ncid, 'dV_dt', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, dV_dt_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''dV_dt'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'Q_s', ncv) )
-call check( nf90_get_var(ncid, ncv, Q_s_erg, start=nc1cor) )
+istat = nf90_inq_varid(ncid, 'Q_s', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, Q_s_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''Q_s'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-call check( nf90_inq_varid(ncid, 'bmb_tot', ncv) )
-call check( nf90_get_var(ncid, ncv, bmb_tot_erg, start=nc1cor) )
+istat = nf90_inq_varid(ncid, 'bmb_tot', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, bmb_tot_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''bmb_tot'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
-ierr1 = nf90_inq_varid(ncid, 'bmb_fl_tot', ncv)
-if (ierr1 == nf90_noerr) then
+istat1 = nf90_inq_varid(ncid, 'bmb_fl_tot', ncv)
+if (istat1 == nf90_noerr) then
    call check( nf90_get_var(ncid, ncv, bmb_fl_tot_erg, start=nc1cor) )
 else
-   ierr2 = nf90_inq_varid(ncid, 'bmb_si_tot', ncv)   ! obsolete name
-   if (ierr2 == nf90_noerr) then
+   istat2 = nf90_inq_varid(ncid, 'bmb_si_tot', ncv)   ! obsolete name
+   if (istat2 == nf90_noerr) then
       call check( nf90_get_var(ncid, ncv, bmb_fl_tot_erg, start=nc1cor) )
+   else
+      ch_msg = ' >>> read_nc: Variable ''bmb_fl_tot'' ' &
+             //               end_of_line &
+             //'              not available in read nc file!'
+      call write_message(ch_msg, 'error')
    end if
 end if
 
-call check( nf90_inq_varid(ncid, 'calv_tot', ncv) )
-call check( nf90_get_var(ncid, ncv, calv_tot_erg, start=nc1cor) )
+istat = nf90_inq_varid(ncid, 'calv_tot', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, calv_tot_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''calv_tot'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
 
 end if
 
@@ -754,7 +1103,8 @@ year2sec_r = year2sec_erg
 #elif (TIME_UNIT==2)
    year_to_year_or_sec = 1.0_dp        ! a -> a
 #else
-   stop ' >>> read_nc: TIME_UNIT must be either 1 or 2!'
+   ch_msg = ' >>> read_nc: TIME_UNIT must be either 1 or 2!'
+   call write_message(ch_msg, 'error')
 #endif
 
 if (n_variable_type == 1) then   ! state variables
@@ -1063,9 +1413,12 @@ integer(i4b) :: nc1cnt(1), nc2cnt(2), nc3cnt(3)
 !     nc1cnt(1): Count of a 1-d array
 !     nc2cnt(2): Count of a 2-d array
 !     nc3cnt(3): Count of a 3-d array
-character(len=  16) :: ch_date, ch_time, ch_zone
-character(len=  16) :: ch_year_ref
-character(len= 256) :: filename, filename_with_path, buffer
+character(len= 16) :: ch_date, ch_time, ch_zone
+character(len= 16) :: ch_year_ref
+character(len=256) :: filename, filename_with_path, buffer
+character(len=256) :: ch_msg
+character, parameter :: end_of_line = char(10)
+                        ! End-of-line string
 character(len=8192) :: long_buffer
 character           :: ch_time_unit
 
@@ -1074,7 +1427,8 @@ ch_time_unit = 's'
 #elif (TIME_UNIT==2)
 ch_time_unit = 'a'
 #else
-stop ' >>> init_ismip_netcdf: TIME_UNIT must be either 1 or 2!'
+ch_msg = ' >>> init_ismip_netcdf: TIME_UNIT must be either 1 or 2!'
+call write_message(ch_msg, 'error')
 #endif
 
 #if (NETCDF4_ENABLED==1)
@@ -1106,9 +1460,10 @@ filename_with_path = trim(OUT_PATH)//'/'//trim(filename)
 ios = nf90_create(trim(filename_with_path), cmode, ncid)
 
 if (ios /= nf90_noerr) then
-   write(6,'(/a)') ' >>> init_ismip_netcdf:'
-   write(6,'(/a)') '     Error when opening the new ISMIP6 output file!'
-   stop
+   ch_msg = ' >>> init_ismip_netcdf:' &
+          //         end_of_line &
+          //'        Error when opening the new ISMIP6 NetCDF output file!'
+   call write_message(ch_msg, 'error')
 end if
 
 !-------- Global attributes --------
@@ -1128,7 +1483,7 @@ buffer = ch_date(1:4)//'-'//ch_date(5:6)//'-'//ch_date(7:8)//' '// &
          ch_zone(1:3)//':'//ch_zone(4:5)//' - Data produced'
 call check( nf90_put_att(ncid, NF90_GLOBAL, 'history', trim(buffer)) )
 
-buffer = 'http://www.sicopolis.net/'
+call set_ch_website(buffer)
 call check( nf90_put_att(ncid, NF90_GLOBAL, 'references', trim(buffer)) )
 
 buffer = 'NetCDF Climate and Forecast (CF) Metadata Conventions'
@@ -3026,6 +3381,81 @@ else
 end if
 
 end subroutine set_ch_institution
+
+!-------------------------------------------------------------------------------
+!> Set the value of the website string ch_website.
+!-------------------------------------------------------------------------------
+  subroutine set_ch_website(ch_website)
+
+  implicit none
+
+  character(len=*), intent(out) :: ch_website
+
+  integer(i4b)       :: istat
+  character(len=256) :: ch_website_default, ch_value
+
+  ch_website_default = ' '
+
+  call get_environment_variable(name='SICO_WEBSITE', value=ch_value, &
+                                status=istat, trim_name=.true.)
+
+  if (istat /= 0) then
+    ch_website = ch_website_default
+  else
+     ch_website = trim(ch_value)
+  end if
+
+  end subroutine set_ch_website
+
+!-------------------------------------------------------------------------------
+!> Writing of error messages, warning messages or info messages;
+!! stopping execution in case of error.
+!-------------------------------------------------------------------------------
+  subroutine write_message(ch_message_in, ch_type_in)
+
+  implicit none
+
+  character(len=256),           intent(in) :: ch_message_in
+  character(len= * ), optional, intent(in) :: ch_type_in
+
+  character(len=256)   :: ch_message
+  character(len= 16)   :: ch_type
+  character, parameter :: end_of_line = char(10)
+                          ! End-of-line string
+
+  ch_message = trim(ch_message_in)
+
+  if ( present(ch_type_in) ) then
+     ch_type = trim(ch_type_in)
+  else
+     ch_type = 'info'
+  end if
+
+  if (trim(ch_type) == 'error') then
+
+     ch_message = ' ERROR:' &
+                 // end_of_line &
+                 // trim(ch_message)
+
+     write(6, fmt='(/,a,/)') trim(ch_message)
+
+     stop
+
+  else if (trim(ch_type) == 'warning') then
+
+     ch_message = ' Warning:' &
+                 // end_of_line &
+                 // trim(ch_message)
+
+     write(6, fmt='(/,a)') trim(ch_message)
+
+  else   ! (trim(ch_type) == 'info')
+
+     write(6, fmt='(/,a)') trim(ch_message)
+
+  end if
+
+  end subroutine write_message
 
 !-------------------------------------------------------------------------------
 !> NetCDF error capturing.

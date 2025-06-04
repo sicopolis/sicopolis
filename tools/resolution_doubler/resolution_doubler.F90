@@ -299,8 +299,8 @@ write (6,'(/a)') ' Now reading '//trim(filename_with_path)//' ...'
 ios = nf90_open(trim(filename_with_path), NF90_NOWRITE, ncid)
 
 if (ios /= nf90_noerr) then
-   ch_msg = ' >>> read_nc: Error when opening the nc file!'
-   call error(ch_msg)
+   ch_msg = ' >>> read_nc: Error when opening the NetCDF file!'
+   call write_message(ch_msg, 'error')
 end if
 
 mapping_erg = 1                     ! initial value
@@ -326,7 +326,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''mapping'' ' &
           //               end_of_line &
           //'              not available in read nc file.'
-   call warning(ch_msg)
+   call write_message(ch_msg, 'warning')
 end if
 
 istat = nf90_get_att(ncid, ncv, 'grid_mapping_name', ch_aux)
@@ -371,7 +371,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''year2sec'' ' &
           //               end_of_line &
           //'              not available in read nc file.'
-   call warning(ch_msg)
+   call write_message(ch_msg, 'warning')
    year2sec_erg = 3.1556925445e+07_dp   ! default value
                      ! IUPAC-IUGS year for epoch 2000.0
                      ! (Holden et al., 2011, PAC, doi:10.1351/PAC-REC-09-01-22)
@@ -384,7 +384,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''time'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 if ( nf90_inq_varid(ncid, 'delta_ts', ncv) == nf90_noerr ) then
@@ -397,7 +397,7 @@ else
    ch_msg = ' >>> read_nc: Neither variable ''delta_ts'' nor ''glac_index'' ' &
           //               end_of_line &
           //'              available in read nc file.'
-   call warning(ch_msg)
+   call write_message(ch_msg, 'warning')
    forcing_flag = 0
    delta_ts_erg   = 0.0_dp
    glac_index_erg = 0.0_dp
@@ -416,7 +416,7 @@ else
       ch_msg = ' >>> read_nc: Variable ''z_sl(_mean)'' ' &
              //               end_of_line &
              //'              not available in read nc file!'
-      call error(ch_msg)
+      call write_message(ch_msg, 'error')
    end if
 end if
 
@@ -427,7 +427,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''V_tot'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'V_af', ncv)
@@ -437,7 +437,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''V_af'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'A_grounded', ncv)
@@ -447,7 +447,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''A_grounded'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'A_floating', ncv)
@@ -457,7 +457,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''A_floating'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'x', ncv)
@@ -467,7 +467,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''x'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'y', ncv)
@@ -477,7 +477,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''y'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'sigma_level_c', ncv)
@@ -487,7 +487,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''sigma_level_c'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'sigma_level_t', ncv)
@@ -497,7 +497,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''sigma_level_t'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'sigma_level_r', ncv)
@@ -507,7 +507,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''sigma_level_r'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'lambda', ncv)
@@ -517,7 +517,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''lambda'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'phi', ncv)
@@ -527,7 +527,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''phi'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'lon', ncv)
@@ -537,7 +537,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''lon'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'lat', ncv)
@@ -547,7 +547,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''lat'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'temp_s', ncv)
@@ -557,7 +557,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''temp_s'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'prec', ncv)
@@ -567,7 +567,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''prec'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'snowfall', ncv)
@@ -577,7 +577,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''snowfall'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'rainfall', ncv)
@@ -587,7 +587,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''rainfall'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'pdd', ncv)
@@ -597,7 +597,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''pdd'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'as_perp', ncv)
@@ -607,7 +607,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''as_perp'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'as_perp_apl', ncv)
@@ -617,7 +617,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''as_perp_apl'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'smb_corr', ncv)
@@ -627,7 +627,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''smb_corr'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 if (flag_z_sl_xy_array) then
@@ -638,7 +638,7 @@ if (flag_z_sl_xy_array) then
       ch_msg = ' >>> read_nc: Variable ''z_sl'' ' &
              //               end_of_line &
              //'              not available in read nc file!'
-      call error(ch_msg)
+      call write_message(ch_msg, 'error')
    end if
 else
    z_sl_erg = z_sl_mean_erg
@@ -653,7 +653,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''dis_perp'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'cst_dist', ncv)
@@ -663,7 +663,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''cst_dist'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'cos_grad_tc', ncv)
@@ -673,7 +673,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''cos_grad_tc'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'mask_mar', ncv)
@@ -683,7 +683,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''mask_mar'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 #endif
@@ -695,7 +695,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''q_geo'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 if ( nf90_inq_varid(ncid, 'mask', ncv) == nf90_noerr ) then
@@ -706,7 +706,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''mask'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 if ( nf90_inq_varid(ncid, 'mask_old', ncv) == nf90_noerr ) then
@@ -717,7 +717,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''mask_old'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'n_cts', ncv)
@@ -727,7 +727,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''n_cts'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'kc_cts', ncv)
@@ -737,7 +737,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''kc_cts'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'zs', ncv)
@@ -747,7 +747,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''zs'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'zm', ncv)
@@ -757,7 +757,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''zm'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'zb', ncv)
@@ -767,7 +767,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''zb'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'zl', ncv)
@@ -777,7 +777,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''zl'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'zl0', ncv)
@@ -787,7 +787,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''zl0'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'wss', ncv)
@@ -798,7 +798,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''wss'' ' &
           //               end_of_line &
           //'              not available in read nc file.'
-   call warning(ch_msg)
+   call write_message(ch_msg, 'warning')
    wss_erg = 0.0_sp
    flag_wss = .false.
 end if
@@ -810,7 +810,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''H_cold'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'H_temp', ncv)
@@ -820,7 +820,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''H_temp'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'H', ncv)
@@ -830,7 +830,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''H'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'H_R', ncv)
@@ -840,7 +840,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''H_R'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'Q_bm', ncv)
@@ -850,7 +850,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''Q_bm'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'Q_tld', ncv)
@@ -860,7 +860,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''Q_tld'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat1 = nf90_inq_varid(ncid, 'calving', ncv)
@@ -880,7 +880,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''am_perp'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'qx', ncv)
@@ -890,7 +890,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''qx'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'qy', ncv)
@@ -900,7 +900,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''qy'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vx_m_sia', ncv)
@@ -910,7 +910,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vx_m_sia'' ' &
           //               end_of_line &
           //'              not available in read nc file.'
-   call warning(ch_msg)
+   call write_message(ch_msg, 'warning')
    vx_m_sia_erg = 0.0_sp
 end if
 
@@ -921,7 +921,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vy_m_sia'' ' &
           //               end_of_line &
           //'              not available in read nc file.'
-   call warning(ch_msg)
+   call write_message(ch_msg, 'warning')
    vy_m_sia_erg = 0.0_sp
 end if
 
@@ -932,7 +932,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vx_m_ssa'' ' &
           //               end_of_line &
           //'              not available in read nc file.'
-   call warning(ch_msg)
+   call write_message(ch_msg, 'warning')
    vx_m_ssa_erg = 0.0_sp
 end if
 
@@ -943,7 +943,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vy_m_ssa'' ' &
           //               end_of_line &
           //'              not available in read nc file.'
-   call warning(ch_msg)
+   call write_message(ch_msg, 'warning')
    vy_m_ssa_erg = 0.0_sp
 end if
 
@@ -954,7 +954,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''dzs_dt'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'dzm_dt', ncv)
@@ -964,7 +964,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''dzm_dt'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'dzb_dt', ncv)
@@ -974,7 +974,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''dzb_dt'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'dzl_dt', ncv)
@@ -984,7 +984,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''dzl_dt'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'dH_c_dt', ncv)
@@ -994,7 +994,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''dH_c_dt'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'dH_t_dt', ncv)
@@ -1004,7 +1004,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''dH_t_dt'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'dH_dt', ncv)
@@ -1014,7 +1014,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''dH_dt'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vx_b_g', ncv)
@@ -1024,7 +1024,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vx_b_g'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vy_b_g', ncv)
@@ -1034,7 +1034,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vy_b_g'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vz_b', ncv)
@@ -1044,7 +1044,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vz_b'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vh_b', ncv)
@@ -1054,7 +1054,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vh_b'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vx_s_g', ncv)
@@ -1064,7 +1064,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vx_s_g'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vy_s_g', ncv)
@@ -1074,7 +1074,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vy_s_g'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vz_s', ncv)
@@ -1084,7 +1084,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vz_s'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vh_s', ncv)
@@ -1094,7 +1094,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vh_s'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vx_m_g', ncv)
@@ -1104,7 +1104,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vx_m_g'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vy_m_g', ncv)
@@ -1114,7 +1114,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vy_m_g'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vh_m', ncv)
@@ -1124,7 +1124,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vh_m'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'temp_b', ncv)
@@ -1134,7 +1134,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''temp_b'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'temph_b', ncv)
@@ -1144,7 +1144,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''temph_b'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'tau_dr', ncv)
@@ -1154,7 +1154,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''tau_dr'' ' &
           //               end_of_line &
           //'              not available in read nc file.'
-   call warning(ch_msg)
+   call write_message(ch_msg, 'warning')
    tau_dr_erg = 0.0_sp
 end if
 
@@ -1165,7 +1165,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''tau_b'' ' &
           //               end_of_line &
           //'              not available in read nc file.'
-   call warning(ch_msg)
+   call write_message(ch_msg, 'warning')
    tau_b_erg = 0.0_sp
 end if
 
@@ -1176,7 +1176,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''p_b_w'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'q_w', ncv)
@@ -1186,7 +1186,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''q_w'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'q_w_x', ncv)
@@ -1196,7 +1196,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''q_w_x'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'q_w_y', ncv)
@@ -1206,7 +1206,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''q_w_y'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'H_w', ncv)
@@ -1216,7 +1216,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''H_w'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'q_gl_g', ncv)
@@ -1226,7 +1226,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''q_gl_g'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'ratio_sl_sia_x', ncv)
@@ -1236,7 +1236,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''ratio_sl_sia_x'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'ratio_sl_sia_y', ncv)
@@ -1246,7 +1246,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''ratio_sl_sia_y'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'flag_shelfy_stream_x', ncv)
@@ -1256,7 +1256,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''flag_shelfy_stream_x'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'flag_shelfy_stream_y', ncv)
@@ -1266,7 +1266,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''flag_shelfy_stream_y'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'flag_shelfy_stream', ncv)
@@ -1276,7 +1276,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''flag_shelfy_stream'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'flag_grounding_line_1', ncv)
@@ -1286,7 +1286,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''flag_grounding_line_1'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'flag_grounding_line_2', ncv)
@@ -1296,7 +1296,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''flag_grounding_line_2'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'flag_calving_front_1', ncv)
@@ -1306,7 +1306,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''flag_calving_front_1'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'flag_calving_front_2', ncv)
@@ -1316,7 +1316,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''flag_calving_front_2'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'flag_grounded_front_a_1', ncv)
@@ -1326,7 +1326,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''flag_calving_front_a_1'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'flag_grounded_front_a_2', ncv)
@@ -1336,7 +1336,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''flag_calving_front_a_2'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'flag_grounded_front_b_1', ncv)
@@ -1346,7 +1346,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''flag_calving_front_b_1'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'flag_grounded_front_b_2', ncv)
@@ -1356,7 +1356,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''flag_calving_front_b_2'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vis_ave_g', ncv)
@@ -1366,7 +1366,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vis_ave_g'' ' &
           //               end_of_line &
           //'              not available in read nc file.'
-   call warning(ch_msg)
+   call write_message(ch_msg, 'warning')
    vis_ave_g_erg = 0.0_sp
 end if
 
@@ -1377,7 +1377,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vis_int_g'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 #if (OUTPUT==3 || ERGDAT==1)
@@ -1389,7 +1389,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vx_c'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vy_c', ncv)
@@ -1399,7 +1399,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vy_c'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vz_c', ncv)
@@ -1409,7 +1409,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vz_c'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vx_t', ncv)
@@ -1419,7 +1419,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vx_t'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vy_t', ncv)
@@ -1429,7 +1429,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vy_t'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'vz_t', ncv)
@@ -1439,7 +1439,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''vz_t'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'temp_c', ncv)
@@ -1449,7 +1449,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''temp_c'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'omega_t', ncv)
@@ -1459,7 +1459,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''omega_t'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'temp_r', ncv)
@@ -1469,7 +1469,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''temp_r'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'enth_c', ncv)
@@ -1479,7 +1479,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''enth_c'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'enth_t', ncv)
@@ -1489,7 +1489,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''enth_t'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'omega_c', ncv)
@@ -1499,7 +1499,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''omega_c'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'enh_c', ncv)
@@ -1509,7 +1509,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''enh_c'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'enh_t', ncv)
@@ -1519,7 +1519,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''enh_t'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'strain_heating_c', ncv)
@@ -1529,7 +1529,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''strain_heating_c'' ' &
           //               end_of_line &
           //'              not available in read nc file.'
-   call warning(ch_msg)
+   call write_message(ch_msg, 'warning')
    strain_heating_c_erg = 0.0_sp
 end if
 
@@ -1540,7 +1540,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''strain_heating_t'' ' &
           //               end_of_line &
           //'              not available in read nc file.'
-   call warning(ch_msg)
+   call write_message(ch_msg, 'warning')
    strain_heating_t_erg = 0.0_sp
 end if
 
@@ -1551,7 +1551,7 @@ else
    ch_msg = ' >>> read_nc: Variable ''age_c'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'age_t', ncv)
@@ -1561,13 +1561,13 @@ else
    ch_msg = ' >>> read_nc: Variable ''age_t'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
-   call error(ch_msg)
+   call write_message(ch_msg, 'error')
 end if
 
 #else
 
 ch_msg = ' >>> read_nc: Resolution doubling requires 3D fields!'
-call error(ch_msg)
+call write_message(ch_msg, 'error')
 
 #endif
 
@@ -2670,8 +2670,8 @@ ios = nf90_create(trim(filename_with_path), cmode, ncid)
 if (ios /= nf90_noerr) then
    ch_msg = ' >>> write_nc_double:' &
           //         end_of_line &
-          //'        Error when opening the resolution-doubled nc file!'
-   call error(ch_msg)
+          //'        Error when opening the resolution-doubled NetCDF file!'
+   call write_message(ch_msg, 'error')
 end if
 
 !  ------ Global attributes
@@ -5588,48 +5588,54 @@ end subroutine write_nc_double
   end subroutine set_ch_website
 
 !-------------------------------------------------------------------------------
-!> Writing of error messages and stopping execution.
+!> Writing of error messages, warning messages or info messages;
+!! stopping execution in case of error.
 !-------------------------------------------------------------------------------
-  subroutine error(error_message)
+  subroutine write_message(ch_message_in, ch_type_in)
 
   implicit none
 
-  character(len=256), intent(in) :: error_message
+  character(len=256),           intent(in) :: ch_message_in
+  character(len= * ), optional, intent(in) :: ch_type_in
 
-  character(len=256)   :: error_msg
+  character(len=256)   :: ch_message
+  character(len= 16)   :: ch_type
   character, parameter :: end_of_line = char(10)
                           ! End-of-line string
 
-  error_msg = ' ERROR:' &
-              // end_of_line &
-              // trim(error_message)
+  ch_message = trim(ch_message_in)
 
-  write(6, fmt='(/,a,/)') trim(error_msg)
+  if ( present(ch_type_in) ) then
+     ch_type = trim(ch_type_in)
+  else
+     ch_type = 'info'
+  end if
 
-  stop
+  if (trim(ch_type) == 'error') then
 
-  end subroutine error
+     ch_message = ' ERROR:' &
+                 // end_of_line &
+                 // trim(ch_message)
 
-!-------------------------------------------------------------------------------
-!> Writing of warning messages.
-!-------------------------------------------------------------------------------
-  subroutine warning(warning_message)
+     write(6, fmt='(/,a,/)') trim(ch_message)
 
-  implicit none
+     stop
 
-  character(len=256), intent(in) :: warning_message
+  else if (trim(ch_type) == 'warning') then
 
-  character(len=256)   :: warning_msg
-  character, parameter :: end_of_line = char(10)
-                          ! End-of-line string
+     ch_message = ' Warning:' &
+                 // end_of_line &
+                 // trim(ch_message)
 
-  warning_msg = ' Warning:' &
-                // end_of_line &
-                // trim(warning_message)
+     write(6, fmt='(/,a)') trim(ch_message)
 
-  write(6, fmt='(/,a)') trim(warning_msg)
+  else   ! (trim(ch_type) == 'info')
 
-  end subroutine warning
+     write(6, fmt='(/,a)') trim(ch_message)
+
+  end if
+
+  end subroutine write_message
 
 !-------------------------------------------------------------------------------
 !> NetCDF error capturing.

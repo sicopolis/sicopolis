@@ -100,17 +100,17 @@ contains
 !-------- Calving of "underwater ice" --------
 
   do i=0, IMAX
-  do j=0, JMAX
+    do j=0, JMAX
 
-     if ( (mask(j,i) == 0) &
-          .and. (H(j,i) < rhosw_rho_ratio*H_sea(j,i)+H0_flt) ) then
-        calv_uw_ice(j,i) = calv_uw_coeff &
-                           * H(j,i)**r1_calv_uw * H_sea(j,i)**r2_calv_uw
-     else
-        calv_uw_ice(j,i) = 0.0_dp
-     end if
+       if ( (mask(j,i) == 0) &
+            .and. (H(j,i) < rhosw_rho_ratio*H_sea(j,i)+H0_flt) ) then
+          calv_uw_ice(j,i) = calv_uw_coeff &
+                             * H(j,i)**r1_calv_uw * H_sea(j,i)**r2_calv_uw
+       else
+          calv_uw_ice(j,i) = 0.0_dp
+       end if
 
-  end do
+    end do
   end do
 
   calving = calving + calv_uw_ice
@@ -173,31 +173,52 @@ contains
 
 !-------------------------------------------------------------------------------
 
-#if (ICE_SHELF_CALVING==6)
-  subroutine frontal_calving(i, j, dtime)
+#if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
+  subroutine frontal_calving(dtime)
 
 #if !(defined(FRONTAL_CALVING_RATE))
-  errormsg = ' >>> xxx: FRONTAL_CALVING_RATE undefined!'
+  errormsg = ' >>> frontal_calving: FRONTAL_CALVING_RATE undefined! Required for ICE_SHELF_CALVING==5'
   call error(errormsg)
 #endif  
 
   implicit none
 
-  integer(i4b), intent(in) :: i, j
-  real(dp)    , intent(in) :: dtime, H_lost_rate
+  real(dp), intent(in) :: dtime
+  integer(i4b)         :: i, j
+  real(dp)             :: H_lost_rate
 
-  if ((mask(j,i)==3).and.( (mask(j, i-1)==2).or.(mask(j, i+1)==2).or.(mask(j-1, i)==2).or.(mask(j+1, i)==2) ))  then
-    H_lost_rate = H_new(j,i)*FRONTAL_CALVING_RATE/DX
-  else
-    H_lost_rate = 0
-  endif
+  do i=0, IMAX
+    do j=0, JMAX
 
-  ! H_new(j,i) = max(H_new(j,i) - H_lost_rate*dtime, 0.0_dp)
+#if (ICE_SHELF_CALVING_TYPE==0)
+      if ( ( ((mask(j,i)==1).and.(zl(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+#elif (ICE_SHELF_CALVING_TYPE==1)
+      if ( (mask(j,i)==3) &   ! floating ice
+#elif (ICE_SHELF_CALVING_TYPE==2)
+      if ( ((mask(j,i)==1).and.(zl(j,i)<z_sl(j,i))) &   ! grounded ice
+#else
+      call error('calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.')
+#endif
+        .and. &
+           (    (mask(j,i+1)==2)   &   ! with
+            .or.(mask(j,i-1)==2)   &   ! one
+            .or.(mask(j+1,i)==2)   &   ! neighbouring
+            .or.(mask(j-1,i)==2) ) &   ! sea point
+      ) then
+        H_lost_rate = H(j,i)*FRONTAL_CALVING_RATE/DX
+      else
+        H_lost_rate = 0
+      endif
 
-  ! calving(j,i) = calving(j,i) + H_lost_rate
-  
-end subroutine frontal_calving
+      calving(j,i) = calving(j,i) + H_lost_rate
 
-#endif /* (ICE_SHELF_CALVING==6) */
+    end do
+  end do
+
+  end subroutine frontal_calving
+
+#endif /* ((MARGIN==3) && (ICE_SHELF_CALVING==5)) */
+
+
 end module calving_m
-!
+

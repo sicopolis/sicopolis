@@ -1631,16 +1631,16 @@ end do
 calving = 0.0_dp   ! Initialization
 
 #if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
-
 call calving_underwater_ice()
-
 #endif
 
 #if (defined(GRL) && DISC>0) /* Ice discharge parameterization for Greenland */
-
 call discharge(dxi, deta)
 calving = calving + dis_perp
+#endif
 
+#if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
+call frontal_calving(dtime)
 #endif
 
 !-------- Antarctica only: Ice-shelf collapse mask --------

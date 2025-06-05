@@ -224,10 +224,6 @@ do ij=1, (IMAX+1)*(JMAX+1)
    call calving_retreat_mask(time, dtime, i, j)
 #endif
 
-#if (ICE_SHELF_CALVING==6)
-   call frontal_calving(i, j, dtime)
-#endif
-
 end do
 !$omp end do
 
@@ -479,10 +475,6 @@ do ij=1, (IMAX+1)*(JMAX+1)
    call calving_retreat_mask(time, dtime, i, j)
 #endif
 
-#if (ICE_SHELF_CALVING==6)
-   call frontal_calving(i, j, dtime)
-#endif
-
 end do
 !$omp end do
 
@@ -607,10 +599,6 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
 #if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
    call calving_retreat_mask(time, dtime, i, j)
-#endif
-
-#if (ICE_SHELF_CALVING==6)
-   call frontal_calving(i, j, dtime)
 #endif
 
 end do
@@ -1402,8 +1390,15 @@ do
 
    do i=1, IMAX-1
    do j=1, JMAX-1
-
+#if (ICE_SHELF_CALVING_TYPE==0)
+      if ( ( ((mask(j,i)==1).and.(zl(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+#elif (ICE_SHELF_CALVING_TYPE==1)
       if ( (mask(j,i)==3) &   ! floating ice
+#elif (ICE_SHELF_CALVING_TYPE==2)
+      if ( ((mask(j,i)==1).and.(zl(j,i)<z_sl(j,i))) &   ! grounded ice
+#else
+      call error('calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.')
+#endif
            .and. &
              (    (mask(j,i+1)==2)   &   ! with
               .or.(mask(j,i-1)==2)   &   ! one
@@ -1437,7 +1432,15 @@ do while (flag_calving_event)
    do i=1, IMAX-1
    do j=1, JMAX-1
 
+#if (ICE_SHELF_CALVING_TYPE==0)
+      if ( ( ((mask(j,i)==1).and.(zl(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+#elif (ICE_SHELF_CALVING_TYPE==1)
       if ( (mask(j,i)==3) &   ! floating ice
+#elif (ICE_SHELF_CALVING_TYPE==2)
+      if ( ((mask(j,i)==1).and.(zl(j,i)<z_sl(j,i))) &   ! grounded ice
+#else
+      call error('calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.')
+#endif
            .and. &
              (    (mask(j,i+1)==2)   &   ! with
               .or.(mask(j,i-1)==2)   &   ! one
@@ -1464,8 +1467,16 @@ end do
 do i=0, IMAX
    do j=0, JMAX
 
-      if (mask(j,i)==3) mask(j,i) = 2
-         ! float-kill: all floating ice points changed to sea points
+#if (ICE_SHELF_CALVING_TYPE==0)
+      if ( ( ((mask(j,i)==1).and.(zl(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+#elif (ICE_SHELF_CALVING_TYPE==1)
+      if ( (mask(j,i)==3) &   ! floating ice
+#elif (ICE_SHELF_CALVING_TYPE==2)
+      if ( ((mask(j,i)==1).and.(zl(j,i)<z_sl(j,i))) &   ! grounded ice
+#else
+      call error('calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.')
+#endif
+         mask(j,i) = 2 ! float-kill: all floating ice points changed to sea points
 
    end do
 end do
@@ -1473,12 +1484,12 @@ end do
 #elif (ICE_SHELF_CALVING==4)
 
 #if !(defined(RHO_SWC))
-  errormsg = ' >>> xxx: RHO_SWC undefined!'
+  errormsg = ' >>> calc_thk_mask_update_aux3: RHO_SWC undefined! Required for ICE_SHELF_CALVING==4'
   call error(errormsg)
 #endif
 
 #if !(defined(SIG_MAX))
-  errormsg = ' >>> xxx: SIG_MAX undefined!'
+  errormsg = ' >>> calc_thk_mask_update_aux3: SIG_MAX undefined! Required for ICE_SHELF_CALVING==4'
   call error(errormsg)
 #endif
 
@@ -1489,7 +1500,15 @@ do
    do i=1, IMAX-1
       do j=1, JMAX-1
 
-         if ( (mask(j,i)==3) &   ! floating ice
+#if (ICE_SHELF_CALVING_TYPE==0)
+      if ( ( ((mask(j,i)==1).and.(zl(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+#elif (ICE_SHELF_CALVING_TYPE==1)
+      if ( (mask(j,i)==3) &   ! floating ice
+#elif (ICE_SHELF_CALVING_TYPE==2)
+      if ( ((mask(j,i)==1).and.(zl(j,i)<z_sl(j,i))) &   ! grounded ice
+#else
+      call error('calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.')
+#endif
           .and. &
           (    (mask(j,i+1)==2)   &   ! with
              .or.(mask(j,i-1)==2)   &   ! one

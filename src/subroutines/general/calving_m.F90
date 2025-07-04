@@ -179,40 +179,44 @@ contains
 #if !(defined(FRONTAL_CALVING_RATE))
   errormsg = ' >>> frontal_calving: FRONTAL_CALVING_RATE undefined! Required for ICE_SHELF_CALVING==5'
   call error(errormsg)
-#endif  
+#endif 
 
   implicit none
 
   real(dp), intent(in) :: dtime
-  integer(i4b)         :: i, j
-  real(dp)             :: H_lost_rate
+  integer(i4b)         :: i, j, ij
+  real(dp)             :: H_lost_rate, DX_inMeter_inv, F_rate
 
-  do i=0, IMAX
-    do j=0, JMAX
+  DX_inMeter_inv = 1.0_dp/(DX*1000.0_dp)
+
+  F_rate = FRONTAL_CALVING_RATE*DX_inMeter_inv/year2sec
+  
+  do ij=1, (IMAX+1)*(JMAX+1)
+    ! add inner point flag here
+
+    i = n2i(ij)   ! i=0...IMAX
+    j = n2j(ij)   ! j=0...JMAX
 
 #if (ICE_SHELF_CALVING_TYPE==0)
-      if ( ( ((mask(j,i)==1).and.(zl(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+    if ( ( ((mask(j,i)==0).and.(zl(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
 #elif (ICE_SHELF_CALVING_TYPE==1)
-      if ( (mask(j,i)==3) &   ! floating ice
+    if ( (mask(j,i)==3) &   ! floating ice
 #elif (ICE_SHELF_CALVING_TYPE==2)
-      if ( ((mask(j,i)==1).and.(zl(j,i)<z_sl(j,i))) &   ! grounded ice
+    if ( ((mask(j,i)==0).and.(zl(j,i)<z_sl(j,i))) &   ! grounded ice
 #else
-      call error('calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.')
+    errormsg = 'calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
+    call error(errormsg)
+    if .true. &
 #endif
-        .and. &
-           (    (mask(j,i+1)==2)   &   ! with
-            .or.(mask(j,i-1)==2)   &   ! one
-            .or.(mask(j+1,i)==2)   &   ! neighbouring
-            .or.(mask(j-1,i)==2) ) &   ! sea point
-      ) then
-        H_lost_rate = H(j,i)*FRONTAL_CALVING_RATE/DX
-      else
-        H_lost_rate = 0
-      endif
-
+      .and. &
+         (    (mask(j,i+1)==2)   &   ! with
+          .or.(mask(j,i-1)==2)   &   ! one
+          .or.(mask(j+1,i)==2)   &   ! neighbouring
+          .or.(mask(j-1,i)==2) ) &   ! sea point
+    ) then
+      H_lost_rate = H(j,i)*F_rate
       calving(j,i) = calving(j,i) + H_lost_rate
-
-    end do
+    end if
   end do
 
   end subroutine frontal_calving

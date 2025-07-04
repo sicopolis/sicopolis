@@ -55,6 +55,8 @@ subroutine boundary(time, dtime, dxi, deta)
 
 #if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
   use calving_m
+#elif ((MARGIN==3) && (ICE_SHELF_CALVING==5))
+   use calving_m
 #endif
 
   use mask_update_sea_level_m
@@ -328,10 +330,13 @@ runoff = accum - as_perp
 calving = 0.0_dp   ! Initialization
 
 #if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
-
 call calving_underwater_ice()
-
 #endif
+
+#if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
+call frontal_calving(dtime)
+#endif
+
 
 if (firstcall%boundary) firstcall%boundary = .false.
 

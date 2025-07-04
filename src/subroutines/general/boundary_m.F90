@@ -66,6 +66,8 @@ subroutine boundary(time, dtime, dxi, deta)
 
 #if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
   use calving_m
+#elif ((MARGIN==3) && (ICE_SHELF_CALVING==5))
+   use calving_m
 #endif
 
 #if (defined(GRL) && DISC>0)
@@ -1639,9 +1641,9 @@ call discharge(dxi, deta)
 calving = calving + dis_perp
 #endif
 
-#if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
-call frontal_calving(dtime)
-#endif
+! #if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
+! call frontal_calving(dtime)
+! #endif
 
 !-------- Antarctica only: Ice-shelf collapse mask --------
 

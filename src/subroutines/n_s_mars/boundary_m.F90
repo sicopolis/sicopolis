@@ -70,6 +70,8 @@ subroutine boundary(time, dtime, dxi, deta)
 
 #if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
   use calving_m
+#elif ((MARGIN==3) && (ICE_SHELF_CALVING==5))
+   use calving_m
 #endif
 
 implicit none

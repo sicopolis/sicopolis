@@ -1176,6 +1176,9 @@ write(10, fmt=trim(fmt2)) 'FIN_VISC = ', FIN_VISC
 write(10, fmt=trim(fmt3)) 'SIGMA_RES =', SIGMA_RES
 #endif
 #endif
+#if (defined(D_E_MIN))
+write(10, fmt=trim(fmt3)) 'D_E_MIN =', D_E_MIN
+#endif
 write(10, fmt=trim(fmt1)) ' '
 
 write(10, fmt=trim(fmt2)) 'ENHMOD = ', ENHMOD

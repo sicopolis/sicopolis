@@ -104,13 +104,13 @@ real(dp), dimension(0:JMAX,0:IMAX) :: field2d_aux
 
 integer(i4b) :: n_slide_regions
 #if (!defined(N_SLIDE_REGIONS) || N_SLIDE_REGIONS<=1)
-integer(i4b) :: p_weert_aux(1)
-integer(i4b) :: q_weert_aux(1)
+real(dp) :: p_weert_aux(1)
+real(dp) :: q_weert_aux(1)
 real(dp) :: c_slide_aux(1)
 real(dp) :: gamma_slide_aux(1)
 #else
-integer(i4b) :: p_weert_aux(N_SLIDE_REGIONS)
-integer(i4b) :: q_weert_aux(N_SLIDE_REGIONS)
+real(dp) :: p_weert_aux(N_SLIDE_REGIONS)
+real(dp) :: q_weert_aux(N_SLIDE_REGIONS)
 real(dp) :: c_slide_aux(N_SLIDE_REGIONS)
 real(dp) :: gamma_slide_aux(N_SLIDE_REGIONS)
 #endif
@@ -484,6 +484,33 @@ call error(errormsg)
 
 call calc_c_int_table(C, -190, 10, L)
 call calc_c_int_inv_table()
+
+!-------- Check settings for the flow law --------
+
+#if (FLOW_LAW==1)
+
+#if (!defined(N_POWER_LAW))
+
+! Nye-Glen flow law with default exponent n=3
+
+warningmsg = ' >>> sico_init: Nye-Glen flow law exponent not defined' &
+           //                 end_of_line &
+           //'                by N_POWER_LAW -> default value n=3 assumed.'
+call warning(warningmsg)
+
+#endif
+
+#elif (FLOW_LAW==4)
+
+! Smith-Morland (polynomial) flow law
+
+#else
+
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter FLOW_LAW must be either 1 or 4!'
+call error(errormsg)
+
+#endif
 
 !-------- Check whether the dynamics and thermodynamics modes are defined
 
@@ -1228,26 +1255,6 @@ write(10, fmt=trim(fmt1)) 'SEA_LEVEL_FILE = '//SEA_LEVEL_FILE
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
-#if (MARGIN==2)
-#if (MARINE_ICE_CALVING==2 || MARINE_ICE_CALVING==3)
-write(10, fmt=trim(fmt3)) 'Z_MAR =', Z_MAR
-write(10, fmt=trim(fmt1)) ' '
-#elif (MARINE_ICE_CALVING==4 || MARINE_ICE_CALVING==5 || MARINE_ICE_CALVING==6 || MARINE_ICE_CALVING==7)
-write(10, fmt=trim(fmt3)) 'FACT_Z_MAR =', FACT_Z_MAR
-write(10, fmt=trim(fmt1)) ' '
-#elif (MARINE_ICE_FORMATION==2 && MARINE_ICE_CALVING==9)
-write(10, fmt=trim(fmt3)) 'CALV_UW_COEFF =', CALV_UW_COEFF
-write(10, fmt=trim(fmt3)) 'R1_CALV_UW =', R1_CALV_UW
-write(10, fmt=trim(fmt3)) 'R2_CALV_UW =', R2_CALV_UW
-write(10, fmt=trim(fmt1)) ' '
-#endif
-#elif (MARGIN==3)
-#if (ICE_SHELF_CALVING==2)
-write(10, fmt=trim(fmt3)) 'H_CALV =', H_CALV
-write(10, fmt=trim(fmt1)) ' '
-#endif
-#endif
-
 #if (defined(BASAL_HYDROLOGY))
 write(10, fmt=trim(fmt2)) 'BASAL_HYDROLOGY = ', BASAL_HYDROLOGY
 #if (BASAL_HYDROLOGY==1 && defined(MELT_DRAIN))
@@ -1276,16 +1283,34 @@ n_slide_regions = N_SLIDE_REGIONS
 write(10, fmt=trim(fmt2)) 'BASAL_WATER_PRESSURE = ', BASAL_WATER_PRESSURE
 #endif
 
+#if (defined(C_SLIDE_DIMLESS))
+c_slide_aux = C_SLIDE_DIMLESS
+#elif (defined(C_SLIDE))
 c_slide_aux = C_SLIDE
+#else
+errormsg = ' >>> sico_init: Either ''C_SLIDE_DIMLESS'' or ''C_SLIDE'' ' &
+         //                 end_of_line &
+         //'                must be defined in the run-specs header!'
+call error(errormsg)
+#endif
 gamma_slide_aux = GAMMA_SLIDE
-p_weert_aux = P_WEERT
-q_weert_aux = Q_WEERT
+p_weert_aux = real(P_WEERT,dp)
+q_weert_aux = real(Q_WEERT,dp)
 
+#if (defined(C_SLIDE_DIMLESS))
+write(10, fmt=trim(fmt3)) 'C_SLIDE_DIMLESS =', c_slide_aux(1)
+#if (N_SLIDE_REGIONS>1)
+do n=2, n_slide_regions
+   write(10, fmt=trim(fmt3)) '                 ', c_slide_aux(n)
+end do
+#endif
+#elif (defined(C_SLIDE))
 write(10, fmt=trim(fmt3)) 'C_SLIDE =', c_slide_aux(1)
 #if (N_SLIDE_REGIONS>1)
 do n=2, n_slide_regions
    write(10, fmt=trim(fmt3)) '         ', c_slide_aux(n)
 end do
+#endif
 #endif
 
 write(10, fmt=trim(fmt3)) 'GAMMA_SLIDE =', gamma_slide_aux(1)
@@ -1295,17 +1320,17 @@ do n=2, n_slide_regions
 end do
 #endif
 
-write(10, fmt=trim(fmt2)) 'P_WEERT = ', p_weert_aux(1)
+write(10, fmt=trim(fmt3)) 'P_WEERT =', p_weert_aux(1)
 #if (N_SLIDE_REGIONS>1)
 do n=2, n_slide_regions
-   write(10, fmt=trim(fmt2)) '          ', p_weert_aux(n)
+   write(10, fmt=trim(fmt3)) '         ', p_weert_aux(n)
 end do
 #endif
 
-write(10, fmt=trim(fmt2)) 'Q_WEERT = ', q_weert_aux(1)
+write(10, fmt=trim(fmt3)) 'Q_WEERT =', q_weert_aux(1)
 #if (N_SLIDE_REGIONS>1)
 do n=2, n_slide_regions
-   write(10, fmt=trim(fmt2)) '          ', q_weert_aux(n)
+   write(10, fmt=trim(fmt3)) '         ', q_weert_aux(n)
 end do
 #endif
 
@@ -1360,14 +1385,38 @@ call error(errormsg)
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
-#if (FLOW_LAW==2)
-write(10, fmt=trim(fmt3)) 'GR_SIZE =', GR_SIZE
-write(10, fmt=trim(fmt1)) ' '
+write(10, fmt=trim(fmt2)) 'MARGIN = ', MARGIN
+#if (MARGIN==2)
+write(10, fmt=trim(fmt2)) 'MARINE_ICE_FORMATION = ', MARINE_ICE_FORMATION
+write(10, fmt=trim(fmt2)) 'MARINE_ICE_CALVING   = ', MARINE_ICE_CALVING
+#if (MARINE_ICE_CALVING==2 || MARINE_ICE_CALVING==3)
+write(10, fmt=trim(fmt3)) 'Z_MAR =', Z_MAR
+#elif (MARINE_ICE_CALVING==4 || MARINE_ICE_CALVING==5 || MARINE_ICE_CALVING==6 || MARINE_ICE_CALVING==7)
+write(10, fmt=trim(fmt3)) 'FACT_Z_MAR =', FACT_Z_MAR
+#elif (MARINE_ICE_FORMATION==2 && MARINE_ICE_CALVING==9)
+write(10, fmt=trim(fmt3)) 'CALV_UW_COEFF =', CALV_UW_COEFF
+write(10, fmt=trim(fmt3)) 'R1_CALV_UW =', R1_CALV_UW
+write(10, fmt=trim(fmt3)) 'R2_CALV_UW =', R2_CALV_UW
 #endif
+#elif (MARGIN==3)
+write(10, fmt=trim(fmt2)) 'ICE_SHELF_CALVING = ', ICE_SHELF_CALVING
+#if (ICE_SHELF_CALVING==2)
+write(10, fmt=trim(fmt3)) 'H_CALV =', H_CALV
+#endif
+#endif
+write(10, fmt=trim(fmt1)) ' '
+
+write(10, fmt=trim(fmt2)) 'FLOW_LAW = ', FLOW_LAW
+#if (FLOW_LAW==1)
+#if (defined(N_POWER_LAW))
+write(10, fmt=trim(fmt3)) 'N_POWER_LAW =', real(N_POWER_LAW,dp)
+#endif
+write(10, fmt=trim(fmt2)) 'FIN_VISC = ', FIN_VISC
 #if (FIN_VISC==2)
 write(10, fmt=trim(fmt3)) 'SIGMA_RES =', SIGMA_RES
-write(10, fmt=trim(fmt1)) ' '
 #endif
+#endif
+write(10, fmt=trim(fmt1)) ' '
 
 write(10, fmt=trim(fmt2)) 'ENHMOD = ', ENHMOD
 #if (ENHMOD==1 || ENHMOD==2 || ENHMOD==3)
@@ -1455,15 +1504,7 @@ write(10, fmt=trim(fmt3)) 'AGE_CONST  =', AGE_CONST
 #if (CALCMOD==1 && defined(CTS_MELTING_FREEZING))
 write(10, fmt=trim(fmt2)) 'CTS_MELTING_FREEZING = ', CTS_MELTING_FREEZING
 #endif
-write(10, fmt=trim(fmt2)) 'FLOW_LAW = ', FLOW_LAW
-write(10, fmt=trim(fmt2)) 'FIN_VISC = ', FIN_VISC
-write(10, fmt=trim(fmt2)) 'MARGIN = ', MARGIN
-#if (MARGIN==2)
-write(10, fmt=trim(fmt2)) 'MARINE_ICE_FORMATION = ', MARINE_ICE_FORMATION
-write(10, fmt=trim(fmt2)) 'MARINE_ICE_CALVING   = ', MARINE_ICE_CALVING
-#elif (MARGIN==3)
-write(10, fmt=trim(fmt2)) 'ICE_SHELF_CALVING = ', ICE_SHELF_CALVING
-#endif
+
 write(10, fmt=trim(fmt2)) 'ADV_HOR  = ', ADV_HOR
 write(10, fmt=trim(fmt2)) 'ADV_VERT = ', ADV_VERT
 write(10, fmt=trim(fmt2)) 'TOPOGRAD = ', TOPOGRAD

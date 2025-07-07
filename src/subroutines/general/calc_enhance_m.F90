@@ -371,6 +371,7 @@ contains
   implicit none
 
   real(dp) :: frac_dust
+  real(dp) :: d_n_power_law
   real(dp) :: enh_mult
 
 #if (defined(FRAC_DUST))
@@ -379,14 +380,16 @@ contains
   frac_dust = 0.0_dp
 #endif
 
+#if (defined(N_POWER_LAW))
+  d_n_power_law = real(N_POWER_LAW,dp)
+#else
+  d_n_power_law = 3.0_dp
+#endif
+
 #if (FLOW_LAW==1)
-  enh_mult = exp(-3.0_dp*2.0_dp*frac_dust)
-#elif (FLOW_LAW==2)
-  enh_mult = exp(-1.8_dp*2.0_dp*frac_dust)
-#elif (FLOW_LAW==3)
-  enh_mult = exp(-4.0_dp*2.0_dp*frac_dust)
+  enh_mult = exp(-d_n_power_law*2.0_dp*frac_dust)
 #elif (FLOW_LAW==4)
-  errormsg = ' >>> mod_enhance_dust: FLOW_LAW==4 has not been implemented yet!'
+  errormsg = ' >>> mod_enhance_dust: FLOW_LAW==4 not yet implemented!'
   call error(errormsg)
 #endif
 

@@ -392,10 +392,10 @@ integer(i4b), dimension(0:JMAX,0:IMAX) :: n_slide_region
 integer(i4b), dimension(0:JMAX,0:IMAX) :: n_bm_region
    !! Regions for ice shelf basal melting
 
-integer(i4b), dimension(0:JMAX,0:IMAX) :: p_weert
+real(dp), dimension(0:JMAX,0:IMAX) :: p_weert
    !! Weertman exponent for the basal shear stress
 
-integer(i4b), dimension(0:JMAX,0:IMAX) :: q_weert
+real(dp), dimension(0:JMAX,0:IMAX) :: q_weert
    !! Weertman exponent for the basal pressure
 
 real(dp), dimension(0:JMAX,0:IMAX) :: p_weert_inv

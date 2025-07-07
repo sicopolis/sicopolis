@@ -14,7 +14,9 @@ Two options for basal sliding are implemented, to be chosen in the run-specs hea
 
 * ``1``: Weertman-Budd-type sliding law (Weertman :cite:`weertman_1957a`, Budd et al. :cite:`budd_etal_1979`, Budd and Jenssen :cite:`budd_jenssen_1987`).
 
-Weertman-Budd-type sliding depends via the reduced pressure (ice minus water) on the basal water pressure, which can be chosen by the parameter ``BASAL_WATER_PRESSURE`` as follows\:
+Weertman-Budd-type sliding posits that the sliding velocity is proportional to the basal shear stress (drag) to some power (exponent ``P_WEERT``) divided by the reduced pressure (ice minus water) to some power (exponent ``Q_WEERT``). For the sliding coefficient (parameter ``C_SLIDE_DIMLESS``), a dimensionless formulation is chosen (Greve :cite:`greve_2025`) to avoid problems with varying units and numerical values.
+
+The reduced pressure is the difference between the overburden normal stress of the ice and the basal water pressure. The latter can be chosen by the parameter ``BASAL_WATER_PRESSURE`` as follows\:
 
 * ``0``: Zero everywhere.
 

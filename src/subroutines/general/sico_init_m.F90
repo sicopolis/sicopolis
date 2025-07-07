@@ -149,13 +149,13 @@ real(dp), dimension(0:IMAX,0:JMAX) :: field2d_tra_aux
 
 integer(i4b) :: n_slide_regions
 #if (!defined(N_SLIDE_REGIONS) || N_SLIDE_REGIONS<=1)
-integer(i4b) :: p_weert_aux(1)
-integer(i4b) :: q_weert_aux(1)
+real(dp) :: p_weert_aux(1)
+real(dp) :: q_weert_aux(1)
 real(dp) :: c_slide_aux(1)
 real(dp) :: gamma_slide_aux(1)
 #else
-integer(i4b) :: p_weert_aux(N_SLIDE_REGIONS)
-integer(i4b) :: q_weert_aux(N_SLIDE_REGIONS)
+real(dp) :: p_weert_aux(N_SLIDE_REGIONS)
+real(dp) :: q_weert_aux(N_SLIDE_REGIONS)
 real(dp) :: c_slide_aux(N_SLIDE_REGIONS)
 real(dp) :: gamma_slide_aux(N_SLIDE_REGIONS)
 #endif
@@ -443,6 +443,33 @@ call ice_mat_eqs_pars(RF, R_T, KAPPA, C, -190, 10)
 
 call calc_c_int_table(C, -190, 10, L)
 call calc_c_int_inv_table()
+
+!-------- Check settings for the flow law --------
+
+#if (FLOW_LAW==1)
+
+#if (!defined(N_POWER_LAW))
+
+! Nye-Glen flow law with default exponent n=3
+
+warningmsg = ' >>> sico_init: Nye-Glen flow law exponent not defined' &
+           //                 end_of_line &
+           //'                by N_POWER_LAW -> default value n=3 assumed.'
+call warning(warningmsg)
+
+#endif
+
+#elif (FLOW_LAW==4)
+
+! Smith-Morland (polynomial) flow law
+
+#else
+
+errormsg = ' >>> sico_init: ' &
+           // 'Parameter FLOW_LAW must be either 1 or 4!'
+call error(errormsg)
+
+#endif
 
 !-------- Check whether the dynamics and thermodynamics modes are defined
 
@@ -1523,12 +1550,14 @@ write(10, fmt=trim(fmt3)) 'SIG_MAX =', SIG_MAX
 write(10, fmt=trim(fmt1)) ' '
 
 write(10, fmt=trim(fmt2)) 'FLOW_LAW = ', FLOW_LAW
-write(10, fmt=trim(fmt2)) 'FIN_VISC = ', FIN_VISC
-#if (FLOW_LAW==2)
-write(10, fmt=trim(fmt3)) 'GR_SIZE =', GR_SIZE
+#if (FLOW_LAW==1)
+#if (defined(N_POWER_LAW))
+write(10, fmt=trim(fmt3)) 'N_POWER_LAW =', real(N_POWER_LAW,dp)
 #endif
+write(10, fmt=trim(fmt2)) 'FIN_VISC = ', FIN_VISC
 #if (FIN_VISC==2)
 write(10, fmt=trim(fmt3)) 'SIGMA_RES =', SIGMA_RES
+#endif
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
@@ -1972,16 +2001,34 @@ n_slide_regions = N_SLIDE_REGIONS
 write(10, fmt=trim(fmt2)) 'BASAL_WATER_PRESSURE = ', BASAL_WATER_PRESSURE
 #endif
 
+#if (defined(C_SLIDE_DIMLESS))
+c_slide_aux = C_SLIDE_DIMLESS
+#elif (defined(C_SLIDE))
 c_slide_aux = C_SLIDE
+#else
+errormsg = ' >>> sico_init: Either ''C_SLIDE_DIMLESS'' or ''C_SLIDE'' ' &
+         //                 end_of_line &
+         //'                must be defined in the run-specs header!'
+call error(errormsg)
+#endif
 gamma_slide_aux = GAMMA_SLIDE
-p_weert_aux = P_WEERT
-q_weert_aux = Q_WEERT
+p_weert_aux = real(P_WEERT,dp)
+q_weert_aux = real(Q_WEERT,dp)
 
+#if (defined(C_SLIDE_DIMLESS))
+write(10, fmt=trim(fmt3)) 'C_SLIDE_DIMLESS =', c_slide_aux(1)
+#if (N_SLIDE_REGIONS>1)
+do n=2, n_slide_regions
+   write(10, fmt=trim(fmt3)) '                 ', c_slide_aux(n)
+end do
+#endif
+#elif (defined(C_SLIDE))
 write(10, fmt=trim(fmt3)) 'C_SLIDE =', c_slide_aux(1)
 #if (N_SLIDE_REGIONS>1)
 do n=2, n_slide_regions
    write(10, fmt=trim(fmt3)) '         ', c_slide_aux(n)
 end do
+#endif
 #endif
 
 write(10, fmt=trim(fmt3)) 'GAMMA_SLIDE =', gamma_slide_aux(1)
@@ -1991,17 +2038,17 @@ do n=2, n_slide_regions
 end do
 #endif
 
-write(10, fmt=trim(fmt2)) 'P_WEERT = ', p_weert_aux(1)
+write(10, fmt=trim(fmt3)) 'P_WEERT =', p_weert_aux(1)
 #if (N_SLIDE_REGIONS>1)
 do n=2, n_slide_regions
-   write(10, fmt=trim(fmt2)) '          ', p_weert_aux(n)
+   write(10, fmt=trim(fmt3)) '         ', p_weert_aux(n)
 end do
 #endif
 
-write(10, fmt=trim(fmt2)) 'Q_WEERT = ', q_weert_aux(1)
+write(10, fmt=trim(fmt3)) 'Q_WEERT =', q_weert_aux(1)
 #if (N_SLIDE_REGIONS>1)
 do n=2, n_slide_regions
-   write(10, fmt=trim(fmt2)) '          ', q_weert_aux(n)
+   write(10, fmt=trim(fmt3)) '         ', q_weert_aux(n)
 end do
 #endif
 

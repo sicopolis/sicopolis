@@ -2223,12 +2223,14 @@ contains
   implicit none
 
   integer(i4b), parameter :: n_unit=31
-  integer(i4b) :: ios
+  integer(i4b) :: ios, istat, istat2
   integer(i4b) :: n
+  real(dp)     :: d_aux
+  real(dp)     :: year2sec_aux, stress_dev_scale, strain_rate_scale, RF_scale
   character(len=256) :: filename_with_path
   character(len=256) :: filename_aux
   character(len=  3) :: ch_nc_test
-  logical            :: flag_nc
+  logical            :: flag_nc, flag_RF_dimless
 
   integer(i4b) :: ncid, ncv
   !     ncid:      ID of the output file
@@ -2280,33 +2282,141 @@ contains
 
   end if
 
-!  ------ Reading the rate factor, heat conductivity and specific heat
+!  ------ Reading the rate factor
 
   if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'RF', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, RF), thisroutine )
+
+     istat = nf90_inq_varid(ncid, 'RF_dimless', ncv)
+     if (istat == nf90_noerr) then
+        call check( nf90_get_var(ncid, ncv, RF), thisroutine )
+        flag_RF_dimless = .true.
+        istat2 = nf90_get_att(ncid, ncv, 'stress_dev_scale', d_aux)
+        if (istat2 == nf90_noerr) then
+           stress_dev_scale = d_aux
+        else
+           errormsg = ' >>> read_phys_para: Variable ''RF_dimless'' ' &
+                    //           end_of_line &
+                    //'          in read nc file!' &
+                    //           end_of_line &
+                    //'          has no attribute ''stress_dev_scale''!'
+           call error(errormsg)
+        end if
+        istat2 = nf90_get_att(ncid, ncv, 'strain_rate_scale', d_aux)
+        if (istat2 == nf90_noerr) then
+           strain_rate_scale = d_aux
+        else
+           errormsg = ' >>> read_phys_para: Variable ''RF_dimless'' ' &
+                    //           end_of_line &
+                    //'          in read nc file!' &
+                    //           end_of_line &
+                    //'          has no attribute ''strain_rate_scale''!'
+           call error(errormsg)
+        end if
+        istat2 = nf90_get_att(ncid, ncv, 'year2sec', d_aux)
+        if (istat2 == nf90_noerr) then
+           year2sec_aux = d_aux
+        else
+           errormsg = ' >>> read_phys_para: Variable ''RF_dimless'' ' &
+                    //           end_of_line &
+                    //'          in read nc file!' &
+                    //           end_of_line &
+                    //'          has no attribute ''year2sec''!'
+           call error(errormsg)
+        end if
+     else
+        istat2 = nf90_inq_varid(ncid, 'RF', ncv)
+        if (istat2 == nf90_noerr) then
+           call check( nf90_get_var(ncid, ncv, RF), thisroutine )
+           flag_RF_dimless = .false.
+           stress_dev_scale  = 1.0_dp   ! dummy value
+           strain_rate_scale = 1.0_dp   ! dummy value
+        else
+           errormsg = ' >>> read_phys_para: Variable ''RF(_dimless)'' ' &
+                    //                      end_of_line &
+                    //'                     not available in read nc file!'
+           call error(errormsg)
+        end if
+     end if
+
   else
+
      do n=10, -190, -1
         call read_phys_para_value(n_unit, 'RF(.)', RF(n))
      end do
+     flag_RF_dimless = .false.
+     stress_dev_scale  = 1.0_dp   ! dummy value
+     strain_rate_scale = 1.0_dp   ! dummy value
+
   end if
 
+!  ------ Converting dimensionless to dimensional rate factor
+
+  if (flag_RF_dimless) then
+
+#if (FLOW_LAW==1)
+
+#if (defined(N_POWER_LAW))
+     RF_scale = (strain_rate_scale/year2sec_aux) &
+                             /stress_dev_scale**real(N_POWER_LAW,dp)
+#else
+     RF_scale = (strain_rate_scale/year2sec_aux) &
+                             /stress_dev_scale**3.0_dp
+                                ! using default power-law exponent n=3
+#endif
+
+#elif (FLOW_LAW==4)
+
+     ! RF_scale = (strain_rate_scale/year2sec_aux)/stress_dev_scale
+     RF_scale = 1.0_dp   ! no scaling required
+
+#endif
+
+     RF = RF * RF_scale
+
+  end if
+
+!  ------ Reading the heat conductivity
+
   if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'KAPPA', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, KAPPA), thisroutine )
+
+     istat = nf90_inq_varid(ncid, 'KAPPA', ncv)
+     if (istat == nf90_noerr) then
+        call check( nf90_get_var(ncid, ncv, KAPPA), thisroutine )
+     else
+        errormsg = ' >>> read_phys_para: Variable ''KAPPA'' ' &
+                 //                      end_of_line &
+                 //'                     not available in read nc file!'
+        call error(errormsg)
+     end if
+
   else
+
      do n=10, -190, -1
         call read_phys_para_value(n_unit, 'KAPPA(.)', KAPPA(n))
      end do
+
   end if
 
+!  ------ Reading the specific heat
+
   if (flag_nc) then
-     call check( nf90_inq_varid(ncid, 'C', ncv), thisroutine )
-     call check( nf90_get_var(ncid, ncv, C), thisroutine )
+
+     istat = nf90_inq_varid(ncid, 'C', ncv)
+     if (istat == nf90_noerr) then
+        call check( nf90_get_var(ncid, ncv, C), thisroutine )
+     else
+        errormsg = ' >>> read_phys_para: Variable ''C'' ' &
+                 //                      end_of_line &
+                 //'                     not available in read nc file!'
+        call error(errormsg)
+     end if
+
   else
+
      do n=10, -190, -1
         call read_phys_para_value(n_unit, 'C(.)', C(n))
      end do
+
   end if
 
 !  ------ Closing file

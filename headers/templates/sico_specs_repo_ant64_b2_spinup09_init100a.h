@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2025-03-14'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2025-06-29'
 !                      Date of last change
 
 !-------- Domain --------
@@ -79,7 +79,7 @@
 !       Coefficient of the water-content dependence in the rate factor
 !       for temperate
 
-#define RF_KAPPA_C_FILE 'RF_KAPPA_C_CuPa10.nc'
+#define RF_KAPPA_C_FILE 'RF_dimless_KAPPA_C_CuPa10.nc'
 !       Name of the file containing the tabulated values of the
 !       temperature-dependent rate factor, heat conductivity and specific heat
 
@@ -396,27 +396,25 @@
 !-------- Flow law --------
 
 #define FLOW_LAW 1
-!                         1 : Glen's flow law with stress exponent n=3
-!                         2 : Goldsby-Kohlstedt flow law with stress exponent
-!                             n=1.8 and grain-size exponent p=1.4
-!                         3 : Durham's flow law with stress exponent n=4
+!                         1 : Nye-Glen flow law (power law)
 !                         4 : Smith-Morland (polynomial) flow law
 
-#define FIN_VISC 2
-!                         1 : Unmodified flow law with infinite viscosity
-!                             for low strain rates
-!                             (only for FLOW_LAW==1, 2, 3)
-!                         2 : Modified flow law with additional
-!                             finite-viscosity parameter SIGMA_RES
-!                             (only for FLOW_LAW==1, 2, 3)
+#define N_POWER_LAW 3.0d0
+!                         Stress exponent for the Nye-Glen flow law
+!                         (real or integer, only for FLOW_LAW==1)
 
-#define GR_SIZE 1.0d-03
-!                         Average grain size (in m; only for FLOW_LAW==2)
+#define FIN_VISC 2
+!                         1 : Unmodified Nye-Glen flow law with
+!                             infinite viscosity in the low-strain-rate limit
+!                             (only for FLOW_LAW==1)
+!                         2 : Regularized Nye-Glen flow law with
+!                             additional finite-viscosity parameter SIGMA_RES
+!                             (only for FLOW_LAW==1)
 
 #define SIGMA_RES 1.0d+04
 !                         Residual stress (finite-viscosity contribution)
-!                         in the creep response function
-!                         (in Pa; only for FLOW_LAW==1, 2, 3 and FIN_VISC==2)
+!                         for the regularized Nye-Glen flow law
+!                         (in Pa; only for FLOW_LAW==1 and FIN_VISC==2)
 
 !-------- Flow enhancement factor --------
 
@@ -1109,7 +1107,7 @@
 
 #define SLIDE_LAW 0
 !                       0 : No-slip
-!                       1 : Weertman-Budd sliding law
+!                       1 : Weertman-Budd sliding law (v_b ~ tau_b^p/N_b^q)
 
 #define N_SLIDE_REGIONS 1
 !                       Number of regions with different sliding laws
@@ -1124,16 +1122,24 @@
 !                       1 : Ocean pressure without cut-off (can become negative)
 !                       2 : Ocean pressure with cut-off
 
-#define C_SLIDE 0.0d0
-!                       Sliding coefficient, in m/[a*Pa^(p-q)]
+#define C_SLIDE_DIMLESS 0.0d0
+!                       Sliding coefficient (dimensionless)
 !                       (N_SLIDE_REGIONS separate values).
+
+!                       [If needed, the underlying scaling can be defined by the
+!                       parameters TAU_BAS_SCALE, N_BAS_SCALE and V_BAS_SCALE
+!                       for the basal shear stress (Pa), normal stress (Pa)
+!                       and sliding velocity (m/a), respectively.
+!                       However, if they are undefined, default values
+!                       for the scaling are used, which are usually fine.]
 
 #define C_SLIDE_FILTER_WIDTH 0.0d0
 !                       Filtering width (spatial smoothing by Gaussian filter)
 !                       for the sliding coefficient, in km.
 !                       Set to 0.0d0 for no smoothing.
-!                       Values > 0 only make sense
-!                       for constant Weertman exponents p and q!
+!                       Values > 0 only make sense for
+!                       dimensionless sliding coefficients (C_SLIDE_DIMLESS),
+!                       or for constant Weertman-Budd exponents p and q!
 
 #define GAMMA_SLIDE 1.0d0
 !                       Sub-melt sliding coefficient, in K
@@ -1143,12 +1149,15 @@
 !                       irrespective of the basal temperature.
 
 #define P_WEERT 3
-!                       Weertman exponent p (integer) for the basal shear stress
+!                       Weertman-Budd exponent p (real or integer)
+!                       for the basal shear stress
 !                       (N_SLIDE_REGIONS separate values)
 
 #define Q_WEERT 2
-!                       Weertman exponent q (integer) for the basal pressure
-!                       (N_SLIDE_REGIONS separate values)
+!                       Weertman-Budd exponent q (real or integer)
+!                       for the basal pressure
+!                       (N_SLIDE_REGIONS separate values;
+!                        set to 0.0d0 or 0 for pure Weertman sliding)
 
 #define TIME_RAMP_UP_SLIDE 0.0d0
 !                       Ramp-up time (in a) for basal sliding:

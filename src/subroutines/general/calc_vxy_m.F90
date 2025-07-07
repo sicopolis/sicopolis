@@ -61,18 +61,21 @@ integer(i4b) :: n_slide_regions
 integer(i4b) :: i_f, j_f, n_filter
 
 #if (!defined(N_SLIDE_REGIONS) || N_SLIDE_REGIONS<=1)
-integer(i4b) :: p_weert_aux(1)
-integer(i4b) :: q_weert_aux(1)
+real(dp) :: p_weert_aux(1)
+real(dp) :: q_weert_aux(1)
 real(dp) :: c_slide_aux(1)
 real(dp) :: gamma_slide_aux(1)
 real(dp) :: gamma_slide_inv_aux(1)
 #else
-integer(i4b) :: p_weert_aux(N_SLIDE_REGIONS)
-integer(i4b) :: q_weert_aux(N_SLIDE_REGIONS)
+real(dp) :: p_weert_aux(N_SLIDE_REGIONS)
+real(dp) :: q_weert_aux(N_SLIDE_REGIONS)
 real(dp) :: c_slide_aux(N_SLIDE_REGIONS)
 real(dp) :: gamma_slide_aux(N_SLIDE_REGIONS)
 real(dp) :: gamma_slide_inv_aux(N_SLIDE_REGIONS)
 #endif
+
+real(dp) :: tau_b_scale, N_b_scale, v_b_scale
+logical  :: flag_c_slide_dimless
 
 real(dp) :: dx
 real(dp) :: filter_width, sigma_filter
@@ -89,17 +92,63 @@ n_slide_regions = N_SLIDE_REGIONS
 
 #if (SLIDE_LAW==0)
 
-p_weert_aux = 1
-q_weert_aux = 0
+p_weert_aux = 1.0_dp
+q_weert_aux = 0.0_dp
 c_slide_aux = 0.0_dp   ! no-slip
 gamma_slide_aux = 1.0_dp
+flag_c_slide_dimless = .false.
+tau_b_scale = 1.0_dp   ! dummy value
+N_b_scale   = 1.0_dp   ! dummy value
+v_b_scale   = 1.0_dp   ! dummy value
 
 #elif (SLIDE_LAW==1)
 
-p_weert_aux = P_WEERT
-q_weert_aux = Q_WEERT
-c_slide_aux = C_SLIDE
+p_weert_aux = real(P_WEERT,dp)
+q_weert_aux = real(Q_WEERT,dp)
+
+do n=1, n_slide_regions
+   if (p_weert_aux(n) < eps) p_weert_aux(n) = eps
+   if (q_weert_aux(n) < eps) q_weert_aux(n) = 0.0_dp
+end do
+
+#if (defined(C_SLIDE_DIMLESS))
+   flag_c_slide_dimless = .true.
+   c_slide_aux = C_SLIDE_DIMLESS
+#elif (defined(C_SLIDE))
+   flag_c_slide_dimless = .false.
+   c_slide_aux = C_SLIDE
+#endif
+
 gamma_slide_aux = GAMMA_SLIDE
+
+if (flag_c_slide_dimless) then
+
+#if (defined(TAU_BAS_SCALE) && defined(N_BAS_SCALE) && defined(V_BAS_SCALE))
+   tau_b_scale = TAU_BAS_SCALE
+   N_b_scale   = N_BAS_SCALE
+   v_b_scale   = V_BAS_SCALE
+#else
+   tau_b_scale = 1.0e+05_dp   ! default value (Pa)
+   N_b_scale   = 1.0e+07_dp   ! default value (Pa)
+   v_b_scale   = 100.0_dp     ! default value (m/a)
+#endif
+
+else
+
+   tau_b_scale = 1.0_dp   ! dummy value
+   N_b_scale   = 1.0_dp   ! dummy value
+   v_b_scale   = 1.0_dp   ! dummy value
+
+end if
+
+if (flag_c_slide_dimless) then
+   do n=1, n_slide_regions
+      c_slide_aux(n) = c_slide_aux(n) &
+                       * ( v_b_scale &
+                           * N_b_scale**q_weert_aux(n) &
+                           / tau_b_scale**p_weert_aux(n) )
+   end do
+end if
 
 #else
 
@@ -136,7 +185,7 @@ end do
 
 do i=0, IMAX
 do j=0, JMAX
-   p_weert_inv(j,i) = 1.0_dp/max(real(p_weert(j,i),dp), eps)
+   p_weert_inv(j,i) = 1.0_dp/max(p_weert(j,i), eps)
 end do
 end do
 
@@ -575,7 +624,7 @@ do j=0, JMAX
 #elif (SLIDE_LAW==1)
 
       cvxy1 = c_slide(j,i) &
-              * ( (tau_b(j,i)+eps_dp)**(p_weert(j,i)-1) &
+              * ( (tau_b(j,i)+eps_dp)**(p_weert(j,i)-1.0_dp) &
                   /(p_b_red_lim(j,i)+eps_dp)**q_weert(j,i) ) &
               * p_b(j,i)
       ctau1 = 1.0_dp/(c_slide(j,i)+eps_dp)**p_weert_inv(j,i) &
@@ -1489,8 +1538,8 @@ real(dp) :: flui_init
 #endif
 
 c_slide = 0.0_dp
-p_weert = 0
-q_weert = 0
+p_weert = 0.0_dp
+q_weert = 0.0_dp
 
 call calc_pressure_water_bas()   ! compute p_b_w
 

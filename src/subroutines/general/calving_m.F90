@@ -185,10 +185,10 @@ contains
 
   real(dp), intent(in) :: dtime
   integer(i4b)         :: i, j, ij
-  real(dp)             :: H_lost_rate, DX_inMeter_inv, F_rate
+  real(dp)             :: dHdt_retreat, DX_inMeter_inv, F_rate, H_new_tmp, dtime_inv, calv_retreat_mask
 
+  dtime_inv = 1.0_dp/dtime
   DX_inMeter_inv = 1.0_dp/(DX*1000.0_dp)
-
   F_rate = FRONTAL_CALVING_RATE*DX_inMeter_inv/year2sec
   
   do ij=1, (IMAX+1)*(JMAX+1)
@@ -197,29 +197,37 @@ contains
     i = n2i(ij)   ! i=0...IMAX
     j = n2j(ij)   ! j=0...JMAX
 
-#if (ICE_SHELF_CALVING_TYPE==0)
-    if ( ( ((mask(j,i)==0).and.(zl(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
-#elif (ICE_SHELF_CALVING_TYPE==1)
-    if ( (mask(j,i)==3) &   ! floating ice
-#elif (ICE_SHELF_CALVING_TYPE==2)
-    if ( ((mask(j,i)==0).and.(zl(j,i)<z_sl(j,i))) &   ! grounded ice
-#else
-    errormsg = 'calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
-    call error(errormsg)
-    if .true. &
-#endif
+! #if (ICE_SHELF_CALVING_TYPE==0)
+!     if ( ( ((mask(j,i)==0).and.(zl(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+! #elif (ICE_SHELF_CALVING_TYPE==1)
+!     if ( (mask(j,i)==3) &   ! floating ice
+! #elif (ICE_SHELF_CALVING_TYPE==2)
+!     if ( ((mask(j,i)==0).and.(zl(j,i)<z_sl(j,i))) &   ! grounded ice
+! #else
+!     errormsg = 'calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
+!     call error(errormsg)
+!     if (.true. &
+! #endif
+    if (.true. &
       .and. &
          (    (mask(j,i+1)==2)   &   ! with
           .or.(mask(j,i-1)==2)   &   ! one
           .or.(mask(j+1,i)==2)   &   ! neighbouring
           .or.(mask(j-1,i)==2) ) &   ! sea point
     ) then
-      H_lost_rate = H(j,i)*F_rate
-      calving(j,i) = calving(j,i) + H_lost_rate
+      ! dHdt_retreat = H(j,i)*F_rate
+      ! calving(j,i) = calving(j,i) + dHdt_retreat
+      
+      H_new_tmp = H_new(j,i)
+      dHdt_retreat = H(j,i)*F_rate
+      H_new(j,i) = max((H_new(j,i) - dHdt_retreat*dtime), 0.0_dp)
+      calv_retreat_mask = (H_new_tmp-H_new(j,i))*dtime_inv
+      calving(j,i) = calving(j,i) + calv_retreat_mask
     end if
   end do
 
   end subroutine frontal_calving
+
 
 #endif /* ((MARGIN==3) && (ICE_SHELF_CALVING==5)) */
 

@@ -35,6 +35,10 @@ module calc_thk_m
   use sico_types_m
   use sico_variables_m
 
+#if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
+   use calving_m
+#endif
+
 #if (defined(EISMINT) || defined(HEINO) || defined(MOCHO) || defined(NMARS) || defined(SMARS) || defined(XYZ))
   use sico_vars_m
 #endif
@@ -225,6 +229,10 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
 #if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
    call calving_retreat_mask(time, dtime, i, j)
+#endif
+
+#if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
+   call frontal_calving(dtime)
 #endif
 
 end do
@@ -478,6 +486,10 @@ do ij=1, (IMAX+1)*(JMAX+1)
    call calving_retreat_mask(time, dtime, i, j)
 #endif
 
+#if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
+   call frontal_calving(dtime)
+#endif
+
 end do
 !$omp end do
 
@@ -602,6 +614,10 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
 #if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
    call calving_retreat_mask(time, dtime, i, j)
+#endif
+
+#if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
+   call frontal_calving(dtime)
 #endif
 
 end do

@@ -231,10 +231,6 @@ do ij=1, (IMAX+1)*(JMAX+1)
    call calving_retreat_mask(time, dtime, i, j)
 #endif
 
-#if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
-   call frontal_calving(dtime)
-#endif
-
 end do
 !$omp end do
 
@@ -486,10 +482,6 @@ do ij=1, (IMAX+1)*(JMAX+1)
    call calving_retreat_mask(time, dtime, i, j)
 #endif
 
-#if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
-   call frontal_calving(dtime)
-#endif
-
 end do
 !$omp end do
 
@@ -614,10 +606,6 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
 #if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
    call calving_retreat_mask(time, dtime, i, j)
-#endif
-
-#if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
-   call frontal_calving(dtime)
 #endif
 
 end do
@@ -1283,11 +1271,12 @@ implicit none
 
 real(dp), intent(in) :: time, dtime, dtime_inv
 
-integer(i4b) :: i, j, kc, kt
+integer(i4b) :: ij, i, j, kc, kt
 real(dp)     :: rhosw_rho_ratio, rho_rhosw_ratio
 real(dp)     :: H_inv
 logical      :: flag_calving_event
 real(dp)     :: w_crit, H_crit
+real(dp)     :: dHdt_retreat, DX_inMeter_inv, F_rate, H_new_tmp, calv_retreat_mask
 
 real(dp), dimension(0:JMAX,0:IMAX) :: H_sea_new, H_balance
 
@@ -1528,15 +1517,15 @@ do
       j = n2j(ij)   ! j=0...JMAX
 
 #if (ICE_SHELF_CALVING_TYPE==0)
-      if ( ( ((mask(j,i)==0).and.(zl(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+      if ( ( ((mask(j,i)==0).and.(zb(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
 #elif (ICE_SHELF_CALVING_TYPE==1)
       if ( (mask(j,i)==3) &   ! floating ice
 #elif (ICE_SHELF_CALVING_TYPE==2)
-      if ( ((mask(j,i)==0).and.(zl(j,i)<z_sl(j,i))) &   ! grounded ice
+      if ( ((mask(j,i)==0).and.(zb(j,i)<z_sl(j,i))) &   ! grounded ice
 #else
-      errormsg = 'calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
+      errormsg = ' >>> calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
       call error(errormsg)
-      if .true. &
+      if (.true. &
 #endif
          .and. &
          (  (mask(j,i+1)==2)   &   ! with
@@ -1559,9 +1548,49 @@ do
    end do
 
    if (.not.flag_calving_event) exit
-
 end do
 
+#elif (ICE_SHELF_CALVING==7)
+
+#if !(defined(FRONTAL_CALVING_RATE))
+   errormsg = ' >>> calc_thk_mask_update_aux3: FRONTAL_CALVING_RATE undefined! Required for ICE_SHELF_CALVING==7'
+   call error(errormsg)
+#endif 
+
+   DX_inMeter_inv = 1.0_dp/(DX*1000.0_dp)
+   F_rate = FRONTAL_CALVING_RATE*DX_inMeter_inv/year2sec
+  
+   do ij=1, (IMAX+1)*(JMAX+1)
+    ! add inner point flag here
+
+      i = n2i(ij)   ! i=0...IMAX
+      j = n2j(ij)   ! j=0...JMAX
+
+#if (ICE_SHELF_CALVING_TYPE==0)
+      if ( ( ((mask(j,i)==0).and.(zb(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+#elif (ICE_SHELF_CALVING_TYPE==1)
+      if ( (mask(j,i)==3) &   ! floating ice
+#elif (ICE_SHELF_CALVING_TYPE==2)
+      if ( ((mask(j,i)==0).and.(zb(j,i)<z_sl(j,i))) &   ! grounded ice
+#else
+      errormsg = 'calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
+      call error(errormsg)
+      if (.true. &
+#endif
+         .and. &
+            (    (mask(j,i+1)==2)   &   ! with
+             .or.(mask(j,i-1)==2)   &   ! one
+             .or.(mask(j+1,i)==2)   &   ! neighbouring
+             .or.(mask(j-1,i)==2) ) &   ! sea point
+       ) then
+      
+         H_new_tmp = H_new(j,i)
+         dHdt_retreat = H(j,i)*F_rate
+         H_new(j,i) = max((H_new(j,i) - dHdt_retreat*dtime), 0.0_dp)
+         calv_retreat_mask = (H_new_tmp-H_new(j,i))*dtime_inv
+         calving(j,i) = calving(j,i) + calv_retreat_mask
+      end if
+   end do
 #endif
 
 #endif

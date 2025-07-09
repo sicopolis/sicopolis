@@ -1641,10 +1641,6 @@ call discharge(dxi, deta)
 calving = calving + dis_perp
 #endif
 
-! #if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
-! call frontal_calving(dtime)
-! #endif
-
 !-------- Antarctica only: Ice-shelf collapse mask --------
 
 #if (defined(ANT) && ICE_SHELF_COLLAPSE_MASK==1)

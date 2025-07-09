@@ -333,11 +333,6 @@ calving = 0.0_dp   ! Initialization
 call calving_underwater_ice()
 #endif
 
-#if ((MARGIN==3) && (ICE_SHELF_CALVING==5))
-call frontal_calving(dtime)
-#endif
-
-
 if (firstcall%boundary) firstcall%boundary = .false.
 
 end subroutine boundary

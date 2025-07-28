@@ -128,9 +128,6 @@ do ij=1, (IMAX+1)*(JMAX+1)
    H_new(j,i)  = H(j,i)    ! will be overwritten later
 
 !-------- Source term for the ice thickness equation --------
-   ! REMOVE REMOVE REMOVE REMOVE REMOVE
-   as_perp(j,i) = max(as_perp(j,i), 0.0_dp)
-   ! REMOVE REMOVE REMOVE REMOVE REMOVE
    
    mb_source(j,i) = as_perp(j,i) - Q_b_tot(j,i) - calving(j,i)
 
@@ -748,11 +745,10 @@ do ij=1, (IMAX+1)*(JMAX+1)
    if ( flag_calving_front_1(j,i) ) then
 
       H_new_tmp = H_new(j,i)
-      ! dHdt_retreat = H_new(j,i)*F_rate
       dHdt_retreat = max(H_new(j,i), H_new(j+1,i), H_new(j-1,i), H_new(j,i+1), H_new(j,i-1), H_new(j+1,i+1), H_new(j+1,i-1), H_new(j-1,i-1), H_new(j-1,i+1))*F_rate
       H_new(j,i) = max((H_new(j,i) - dHdt_retreat*dtime), 0.0_dp)
-      ! calv_retreat_mask = (H_new_tmp - H_new(j,i))*dtime_inv
-      ! calving(j,i) = calving(j,i) + calv_retreat_mask
+      calv_retreat_mask = (H_new_tmp - H_new(j,i))*dtime_inv
+      calving(j,i) = calving(j,i) + calv_retreat_mask
    end if
 end do
 #endif

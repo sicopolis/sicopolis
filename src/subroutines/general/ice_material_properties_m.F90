@@ -427,16 +427,13 @@ real(dp)    , intent(in) :: enh_val
 integer(i4b), intent(in) :: i_flag_cold_temp
 
 real(dp) :: ratefac_val
-real(dp) :: de_val_m
+real(dp) :: de_min, de_val_m
 
 #if (FLOW_LAW==1)
 real(dp) :: d_n_power_law, d_inv_n_power_law
 #elif (FLOW_LAW==4)
 real(dp) :: sm_coeff_1, sm_coeff_2, sm_coeff_3
 #endif
-
-real(dp), parameter :: de_min = 1.0e-30_dp   ! minimum value for the
-                                             ! effective strain rate
 
 !-------- Rate factor and effective strain rate --------
 
@@ -447,6 +444,14 @@ else if (i_flag_cold_temp == 1) then   ! temperate ice
 else   ! enthalpy method
    ratefac_val = ratefac_c_t(temp_val, omega_val, temp_m_val)
 end if
+
+de_min = 1.0e-20_dp   ! in a-1
+
+#if (defined(D_E_MIN))
+de_min = max(D_E_MIN,de_min)*sec2year   ! a-1 -> s-1
+#else
+de_min = de_min*sec2year   ! a-1 -> s-1
+#endif
 
 de_val_m = max(de_val, de_min)
 

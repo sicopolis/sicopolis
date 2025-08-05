@@ -1542,9 +1542,12 @@ write(10, fmt=trim(fmt3)) 'R2_CALV_UW =', R2_CALV_UW
 write(10, fmt=trim(fmt2)) 'ICE_SHELF_CALVING = ', ICE_SHELF_CALVING
 #if (ICE_SHELF_CALVING==2)
 write(10, fmt=trim(fmt3)) 'H_CALV =', H_CALV
-#elif (ICE_SHELF_CALVING==4)
+#elif ((ICE_SHELF_CALVING==4)||(ICE_SHELF_CALVING==5))
 write(10, fmt=trim(fmt3)) 'RHO_SWC =', RHO_SWC
 write(10, fmt=trim(fmt3)) 'SIG_MAX =', SIG_MAX
+#elif (ICE_SHELF_CALVING==5)
+write(10, fmt=trim(fmt3)) 'L_CREVASSE =', L_CREVASSE
+write(10, fmt=trim(fmt3)) 'TAU_BASE_CREVASSE =', TAU_BASE_CREVASSE
 #endif
 #endif
 write(10, fmt=trim(fmt1)) ' '

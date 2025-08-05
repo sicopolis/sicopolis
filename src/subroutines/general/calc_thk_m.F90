@@ -1560,11 +1560,11 @@ do
    do i=1, IMAX-1
    do j=1, JMAX-1
 #if (ICE_SHELF_CALVING_TYPE==0)
-      if ( ( ((mask(j,i)==0).and.(zb(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+      if ( ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
 #elif (ICE_SHELF_CALVING_TYPE==1)
       if ( (mask(j,i)==3) &   ! floating ice
 #elif (ICE_SHELF_CALVING_TYPE==2)
-      if ( ((mask(j,i)==0).and.(zb(j,i)<z_sl(j,i))) &   ! grounded ice
+      if ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))) &   ! grounded ice
 #else
       errormsg = ' >>> calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
       call error(errormsg)
@@ -1604,11 +1604,11 @@ do while (flag_calving_event)
    do j=1, JMAX-1
 
 #if (ICE_SHELF_CALVING_TYPE==0)
-      if ( ( ((mask(j,i)==0).and.(zb(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+      if ( ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
 #elif (ICE_SHELF_CALVING_TYPE==1)
       if ( (mask(j,i)==3) &   ! floating ice
 #elif (ICE_SHELF_CALVING_TYPE==2)
-      if ( ((mask(j,i)==0).and.(zb(j,i)<z_sl(j,i))) &   ! grounded ice
+      if ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))) &   ! grounded ice
 #else
       errormsg = ' >>> calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
       call error(errormsg)
@@ -1670,11 +1670,11 @@ do
       j = n2j(ij)   ! j=0...JMAX
 
 #if (ICE_SHELF_CALVING_TYPE==0)
-      if ( ( ((mask(j,i)==0).and.(zb(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+      if ( ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
 #elif (ICE_SHELF_CALVING_TYPE==1)
       if ( (mask(j,i)==3) &   ! floating ice
 #elif (ICE_SHELF_CALVING_TYPE==2)
-      if ( ((mask(j,i)==0).and.(zb(j,i)<z_sl(j,i))) &   ! grounded ice
+      if ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))) &   ! grounded ice
 #else
       errormsg = ' >>> calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
       call error(errormsg)
@@ -1688,7 +1688,71 @@ do
        ) flag_calving_front_1(j,i) = .true.   ! preliminary detection of the calving front
       
       if ( flag_calving_front_1(j,i) ) then
-         if ( (z_sl(j,i) - zl(j,i) >= w_crit) .and. (H_new(j,i) >= H_crit) ) then
+         if ( (z_sl(j,i) - zl_new(j,i) >= w_crit) .and. (H_new(j,i) >= H_crit) ) then
+            flag_calving_event = .true.  ! calving event,
+            mask(j,i)          = 2   ! floating ice point changes to sea point
+         end if
+      end if
+   end do
+
+   if (.not.flag_calving_event) exit
+end do
+
+#elif (ICE_SHELF_CALVING==5)
+
+#if !(defined(RHO_SWC))
+  errormsg = ' >>> calc_thk_mask_update_aux3: RHO_SWC undefined! Required for ICE_SHELF_CALVING==5'
+  call error(errormsg)
+#endif
+
+#if !(defined(SIG_MAX))
+  errormsg = ' >>> calc_thk_mask_update_aux3: SIG_MAX undefined! Required for ICE_SHELF_CALVING==5'
+  call error(errormsg)
+#endif
+
+#if !(defined(L_CREVASSE))
+  errormsg = ' >>> calc_thk_mask_update_aux3: L_CREVASSE undefined! Required for ICE_SHELF_CALVING==5'
+  call error(errormsg)
+#endif
+
+#if !(defined(TAU_BASE_CREVASSE))
+  errormsg = ' >>> calc_thk_mask_update_aux3: TAU_BASE_CREVASSE undefined! Required for ICE_SHELF_CALVING==5'
+  call error(errormsg)
+#endif
+
+w_crit = SIG_MAX * SQRT( RHO*RHO_SWC*RHO_SWC/(RHO_SW*(RHO_SWC - RHO)*(RHO_SW - RHO_SWC)) )  / (RHO * G)
+H_crit = RHO_SW*w_crit/RHO
+w_crit = w_crit * SQRT( 1 + 2*(1 - RHO/RHO_SWC)*TAU_BASE_CREVASSE*L_CREVASSE/(SIG_MAX*SIG_MAX) ) 
+
+do
+   flag_calving_front_1 = .false.
+   flag_calving_event   = .false.
+
+   do ij=1, (IMAX+1)*(JMAX+1)
+
+      i = n2i(ij)   ! i=0...IMAX
+      j = n2j(ij)   ! j=0...JMAX
+
+#if (ICE_SHELF_CALVING_TYPE==0)
+      if ( ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+#elif (ICE_SHELF_CALVING_TYPE==1)
+      if ( (mask(j,i)==3) &   ! floating ice
+#elif (ICE_SHELF_CALVING_TYPE==2)
+      if ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))) &   ! grounded ice
+#else
+      errormsg = ' >>> calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
+      call error(errormsg)
+      if (.true. &
+#endif
+         .and. &
+            (    (mask(j,i+1)==2)   &   ! with
+             .or.(mask(j,i-1)==2)   &   ! one
+             .or.(mask(j+1,i)==2)   &   ! neighbouring
+             .or.(mask(j-1,i)==2) ) &   ! sea point
+       ) flag_calving_front_1(j,i) = .true.   ! preliminary detection of the calving front
+      
+      if ( flag_calving_front_1(j,i) ) then
+         if ( (mask(j,i)==3) .and. (H_new(j,i) >= H_crit) ) then
             flag_calving_event = .true.  ! calving event,
             mask(j,i)          = 2   ! floating ice point changes to sea point
          end if

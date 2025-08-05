@@ -502,9 +502,12 @@ real(dp)     :: dt_darea
 real(dp)     :: vx_m_1, vx_m_2, vy_m_1, vy_m_2
 real(dp)     :: upH_x_1, upH_x_2, upH_y_1, upH_y_2
 real(dp)     :: sq_g22_x_1, sq_g22_x_2, sq_g11_y_1, sq_g11_y_2
-real(dp)     :: rhosw_rho_ratio, rho_rhosw_ratio, H_new_tmp, F_rate, DX_inMeter_inv, dtime_inv, dHdt_retreat, calv_retreat_mask
+
+#if (ICE_SHELF_CALVING==7 || ICE_SHELF_CALVING==8)
+real(dp)     :: rhosw_rho_ratio, rho_rhosw_ratio, H_new_tmp, F_rate, DX_inMeter_inv, dtime_inv, dHdt_retreat, numberOfFace
 real(dp), dimension(0:JMAX,0:IMAX) :: mask_tmp, zb_new_tmp, zs_new_tmp
 real(dp), dimension(0:JMAX,0:IMAX) :: H_sea_new, H_balance
+#endif
 
 !-------- Solution of the explicit scheme --------
 
@@ -743,12 +746,28 @@ do ij=1, (IMAX+1)*(JMAX+1)
       ) flag_calving_front_1(j,i) = .true.   ! preliminary detection of the calving front
    
    if ( flag_calving_front_1(j,i) ) then
+      numberOfFace = 0
+      if ( mask_tmp(j, i+1)==2 ) numberOfFace = numberOfFace + 1
+      if ( mask_tmp(j, i-1)==2 ) numberOfFace = numberOfFace + 1
+      if ( mask_tmp(j+1, i)==2 ) numberOfFace = numberOfFace + 1
+      if ( mask_tmp(j-1, i)==2 ) numberOfFace = numberOfFace + 1
 
       H_new_tmp = H_new(j,i)
-      dHdt_retreat = max(H_new(j,i), H_new(j+1,i), H_new(j-1,i), H_new(j,i+1), H_new(j,i-1), H_new(j+1,i+1), H_new(j+1,i-1), H_new(j-1,i-1), H_new(j-1,i+1))*F_rate
-      H_new(j,i) = max((H_new(j,i) - dHdt_retreat*dtime), 0.0_dp)
-      calv_retreat_mask = (H_new_tmp - H_new(j,i))*dtime_inv
-      calving(j,i) = calving(j,i) + calv_retreat_mask
+      dHdt_retreat = F_rate * numberOfFace * &
+         max( &
+           z_sl(j,     i) - zb_new_tmp(j,     i), &
+           z_sl(j,   i+1) - zb_new_tmp(j,   i+1), &
+           z_sl(j+1, i+1) - zb_new_tmp(j+1, i+1), &
+           z_sl(j-1, i+1) - zb_new_tmp(j-1, i+1), &
+           z_sl(j,   i-1) - zb_new_tmp(j,   i-1), &
+           z_sl(j+1, i-1) - zb_new_tmp(j+1, i-1), &
+           z_sl(j-1, i-1) - zb_new_tmp(j-1, i-1), &
+           z_sl(j+1,   i) - zb_new_tmp(j+1,   i), &
+           z_sl(j-1,   i) - zb_new_tmp(j-1,   i)  &
+         ) 
+
+      H_new(j,i) = max(H_new_tmp - dHdt_retreat*dtime, 0.0_dp)
+      calving(j,i) = calving(j,i) +  (H_new_tmp - H_new(j,i))*dtime_inv
    end if
 end do
 #endif

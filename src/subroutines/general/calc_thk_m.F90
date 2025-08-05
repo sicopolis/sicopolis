@@ -503,7 +503,7 @@ real(dp)     :: vx_m_1, vx_m_2, vy_m_1, vy_m_2
 real(dp)     :: upH_x_1, upH_x_2, upH_y_1, upH_y_2
 real(dp)     :: sq_g22_x_1, sq_g22_x_2, sq_g11_y_1, sq_g11_y_2
 
-#if (ICE_SHELF_CALVING==7 || ICE_SHELF_CALVING==8)
+#if (ICE_SHELF_CALVING==7 || ICE_SHELF_CALVING_2==7)
 real(dp)     :: rhosw_rho_ratio, rho_rhosw_ratio, H_new_tmp, F_rate, DX_inMeter_inv, dtime_inv, dHdt_retreat, numberOfFace
 real(dp), dimension(0:JMAX,0:IMAX) :: mask_tmp, zb_new_tmp, zs_new_tmp
 real(dp), dimension(0:JMAX,0:IMAX) :: H_sea_new, H_balance
@@ -610,7 +610,7 @@ do ij=1, (IMAX+1)*(JMAX+1)
 end do
 !$omp end parallel do
 
-#if (ICE_SHELF_CALVING==7 || ICE_SHELF_CALVING==8)
+#if (ICE_SHELF_CALVING==7 || ICE_SHELF_CALVING_2==7)
 
 #if !(defined(FRONTAL_CALVING_RATE))
    errormsg = ' >>> calc_thk_mask_update_aux3: FRONTAL_CALVING_RATE undefined! Required for ICE_SHELF_CALVING==7'
@@ -708,7 +708,7 @@ else   ! if (mask_tmp(j,i)==2.or.mask_tmp(j,i)==3) then
 
 end if
 
-#if (ICE_SHELF_CALVING==8)
+#if (ICE_SHELF_CALVING==3 || ICE_SHELF_CALVING_2==3)
 do ij=1, (IMAX+1)*(JMAX+1)
 
    i = n2i(ij)   ! i=0...IMAX
@@ -1548,7 +1548,7 @@ do i=1, IMAX-1
    end do
 end do
 
-#if (ICE_SHELF_CALVING==2)
+#if (ICE_SHELF_CALVING==2 || ICE_SHELF_CALVING_2==2)
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
 
@@ -1634,7 +1634,7 @@ end do
 
 #endif /* Normal vs. Tapenade */
 
-#elif (ICE_SHELF_CALVING==3 || ICE_SHELF_CALVING==8)
+#elif (ICE_SHELF_CALVING==3 || ICE_SHELF_CALVING_2==3)
 
 do ij=1, (IMAX+1)*(JMAX+1)
 
@@ -1645,7 +1645,7 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
 end do
 
-#elif (ICE_SHELF_CALVING==4)
+#elif (ICE_SHELF_CALVING==4 || ICE_SHELF_CALVING_2==4)
 
 #if !(defined(RHO_SWC))
   errormsg = ' >>> calc_thk_mask_update_aux3: RHO_SWC undefined! Required for ICE_SHELF_CALVING==4'
@@ -1698,7 +1698,7 @@ do
    if (.not.flag_calving_event) exit
 end do
 
-#elif (ICE_SHELF_CALVING==5)
+#elif (ICE_SHELF_CALVING==5 || ICE_SHELF_CALVING_2==5)
 
 #if !(defined(RHO_SWC))
   errormsg = ' >>> calc_thk_mask_update_aux3: RHO_SWC undefined! Required for ICE_SHELF_CALVING==5'

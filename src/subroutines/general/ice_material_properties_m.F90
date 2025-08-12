@@ -354,7 +354,8 @@ real(dp), intent(in) :: sigma_val
 #if (FLOW_LAW==1)
 real(dp) :: d_n_power_law
 #elif (FLOW_LAW==4)
-real(dp) :: sm_coeff_1, sm_coeff_2, sm_coeff_3
+real(dp) :: sm_stress_dev_scale_inv, sm_strain_rate_scale
+real(dp) :: sm_coeff_0, sm_coeff_1, sm_coeff_2
 #endif
 
 #if (FLOW_LAW==1)
@@ -375,29 +376,49 @@ creep = sigma_val**(d_n_power_law-1.0_dp) + SIGMA_RES**(d_n_power_law-1.0_dp)
 
 #elif (FLOW_LAW==4)
 
+#if (defined(SM_TAU_SCALE))
+sm_stress_dev_scale_inv = 1.0_dp/SM_TAU_SCALE
+#else
+sm_stress_dev_scale_inv = 1.0e-05_dp   ! Pa-1
+#endif
+
+#if (defined(SM_D_SCALE))
+sm_strain_rate_scale = SM_D_SCALE *sec2year
+#else
+sm_strain_rate_scale = 0.025_dp *sec2year   ! a-1 -> s-1
+#endif
+
+#if (defined(SM_COEFF0))
+sm_coeff_0 = SM_COEFF0
+#else
+sm_coeff_0 = 0.488268_dp   ! dimensionless
+#endif
+
 #if (defined(SM_COEFF1))
 sm_coeff_1 = SM_COEFF1
 #else
-sm_coeff_1 = 8.5112e-15_dp   ! s^-1 Pa^-1
+sm_coeff_1 = 0.468362_dp   ! dimensionless
 #endif
 
 #if (defined(SM_COEFF2))
 sm_coeff_2 = SM_COEFF2
 #else
-sm_coeff_2 = 8.1643e-25_dp   ! s^-1 Pa^-3
+sm_coeff_2 = 0.043370_dp   ! dimensionless
 #endif
 
-#if (defined(SM_COEFF3))
-sm_coeff_3 = SM_COEFF3
-#else
-sm_coeff_3 = 9.2594e-12_dp   ! Pa^-2
-#endif
+sm_coeff_0 = sm_coeff_0 &
+               * (sm_strain_rate_scale*sm_stress_dev_scale_inv)
+                     ! dimensionless -> s-1 Pa-1
+sm_coeff_1 = sm_coeff_1 &
+               * (sm_strain_rate_scale*sm_stress_dev_scale_inv**3)
+                     ! dimensionless -> s-1 Pa-3
+sm_coeff_2 = sm_coeff_2 &
+               * (sm_strain_rate_scale*sm_stress_dev_scale_inv**5)
+                     ! dimensionless -> s-1 Pa-5
 
-creep = sm_coeff_1 &
-        + sm_coeff_2 * (sigma_val*sigma_val) &
-          * (1.0_dp + sm_coeff_3 * (sigma_val*sigma_val))
-        ! Smith-Morland (polynomial) flow law,
-        ! normalized to a dimensionless rate factor with A(-10C)=1
+creep = sm_coeff_0 &
+           + sigma_val**2 * (sm_coeff_1 + sm_coeff_2 * sigma_val**2)
+                     ! Smith-Morland (polynomial) flow law, modified
 
 #endif
 
@@ -432,7 +453,8 @@ real(dp) :: de_min, de_val_m
 #if (FLOW_LAW==1)
 real(dp) :: d_n_power_law, d_inv_n_power_law
 #elif (FLOW_LAW==4)
-real(dp) :: sm_coeff_1, sm_coeff_2, sm_coeff_3
+real(dp) :: sm_stress_dev_scale_inv, sm_strain_rate_scale
+real(dp) :: sm_coeff_0, sm_coeff_1, sm_coeff_2
 #endif
 
 !-------- Rate factor and effective strain rate --------
@@ -484,28 +506,49 @@ viscosity = visc_iter(de_val_m, ratefac_val, enh_val, d_n_power_law, SIGMA_RES)
 
 #elif (FLOW_LAW==4)
 
+#if (defined(SM_TAU_SCALE))
+sm_stress_dev_scale_inv = 1.0_dp/SM_TAU_SCALE
+#else
+sm_stress_dev_scale_inv = 1.0e-05_dp   ! Pa-1
+#endif
+
+#if (defined(SM_D_SCALE))
+sm_strain_rate_scale = SM_D_SCALE *sec2year
+#else
+sm_strain_rate_scale = 0.025_dp *sec2year   ! a-1 -> s-1
+#endif
+
+#if (defined(SM_COEFF0))
+sm_coeff_0 = SM_COEFF0
+#else
+sm_coeff_0 = 0.488268_dp   ! dimensionless
+#endif
+
 #if (defined(SM_COEFF1))
 sm_coeff_1 = SM_COEFF1
 #else
-sm_coeff_1 = 8.5112e-15_dp   ! s^-1 Pa^-1
+sm_coeff_1 = 0.468362_dp   ! dimensionless
 #endif
 
 #if (defined(SM_COEFF2))
 sm_coeff_2 = SM_COEFF2
 #else
-sm_coeff_2 = 8.1643e-25_dp   ! s^-1 Pa^-3
+sm_coeff_2 = 0.043370_dp   ! dimensionless
 #endif
 
-#if (defined(SM_COEFF3))
-sm_coeff_3 = SM_COEFF3
-#else
-sm_coeff_3 = 9.2594e-12_dp   ! Pa^-2
-#endif
+sm_coeff_0 = sm_coeff_0 &
+               * (sm_strain_rate_scale*sm_stress_dev_scale_inv)
+                    ! dimensionless -> s-1 Pa-1
+sm_coeff_1 = sm_coeff_1 &
+               * (sm_strain_rate_scale*sm_stress_dev_scale_inv**3)
+                    ! dimensionless -> s-1 Pa-3
+sm_coeff_2 = sm_coeff_2 &
+               * (sm_strain_rate_scale*sm_stress_dev_scale_inv**5)
+                    ! dimensionless -> s-1 Pa-5
 
 viscosity = visc_iter_sm(de_val_m, ratefac_val, enh_val, &
-                         sm_coeff_1, sm_coeff_2, sm_coeff_3)
-            ! Smith-Morland (polynomial) flow law,
-            ! normalized to a dimensionless rate factor with A(-10C)=1
+                         sm_coeff_0, sm_coeff_1, sm_coeff_2)
+            ! Smith-Morland (polynomial) flow law, modified
 
 #endif
 
@@ -648,14 +691,14 @@ end function fct_visc_deriv
 !! [analogous to (4.28)] by Greve and Blatter (Springer, 2009).
 !-------------------------------------------------------------------------------
 function visc_iter_sm(de_val_m, ratefac_val, enh_val, &
-                      sm_coeff_1, sm_coeff_2, sm_coeff_3)
+                      sm_coeff_0, sm_coeff_1, sm_coeff_2)
 
 implicit none
 
 real(dp)             :: visc_iter_sm
 real(dp), intent(in) :: de_val_m
 real(dp), intent(in) :: ratefac_val, enh_val
-real(dp), intent(in) :: sm_coeff_1, sm_coeff_2, sm_coeff_3
+real(dp), intent(in) :: sm_coeff_0, sm_coeff_1, sm_coeff_2
 
 integer(i4b) :: n
 integer(i4b) :: max_iters
@@ -677,7 +720,7 @@ do while ((.not.flag_rescheck1).and.(n <= max_iters))
    n = n+1
 
    res = fct_visc_sm(de_val_m, ratefac_val, enh_val, visc_val, &
-                     sm_coeff_1, sm_coeff_2, sm_coeff_3)
+                     sm_coeff_0, sm_coeff_1, sm_coeff_2)
 
    if (res < 0.0_dp) then
       visc_val = 10.0_dp*visc_val
@@ -704,10 +747,10 @@ if (flag_rescheck1) then
                  - res &
                    /fct_visc_sm_deriv(de_val_m, ratefac_val, &
                                       enh_val, visc_val, &
-                                      sm_coeff_1, sm_coeff_2, sm_coeff_3)
+                                      sm_coeff_0, sm_coeff_1, sm_coeff_2)
 
       res = fct_visc_sm(de_val_m, ratefac_val, enh_val, visc_val, &
-                        sm_coeff_1, sm_coeff_2, sm_coeff_3)
+                        sm_coeff_0, sm_coeff_1, sm_coeff_2)
 
       if (abs(res) < eps) then
          flag_rescheck2 = .true. 
@@ -726,7 +769,7 @@ end function visc_iter_sm
 !! [equation (4.33) by Greve and Blatter (Springer, 2009)].
 !-------------------------------------------------------------------------------
 function fct_visc_sm(de_val_m, ratefac_val, enh_val, visc_val, &
-                     sm_coeff_1, sm_coeff_2, sm_coeff_3)
+                     sm_coeff_0, sm_coeff_1, sm_coeff_2)
 
 implicit none
 
@@ -734,16 +777,16 @@ real(dp)             :: fct_visc_sm
 real(dp), intent(in) :: de_val_m
 real(dp), intent(in) :: ratefac_val, enh_val
 real(dp), intent(in) :: visc_val
-real(dp), intent(in) :: sm_coeff_1, sm_coeff_2, sm_coeff_3
+real(dp), intent(in) :: sm_coeff_0, sm_coeff_1, sm_coeff_2
 
 real(dp) :: de_visc_factor
 
 de_visc_factor = de_val_m*de_val_m*visc_val*visc_val
                    
 fct_visc_sm = 2.0_dp*enh_val*ratefac_val*visc_val &
-              * ( sm_coeff_1 &
-                  + 4.0_dp*sm_coeff_2*de_visc_factor &
-                    * ( 1.0_dp + 4.0_dp*sm_coeff_3*de_visc_factor ) ) &
+              * ( sm_coeff_0 &
+                  + 4.0_dp*sm_coeff_1*de_visc_factor &
+                    * ( 1.0_dp + 4.0_dp*sm_coeff_2*de_visc_factor ) ) &
               - 1.0_dp
 
 end function fct_visc_sm
@@ -753,7 +796,7 @@ end function fct_visc_sm
 !! [equation (4.33) by Greve and Blatter (Springer, 2009)].
 !-------------------------------------------------------------------------------
 function fct_visc_sm_deriv(de_val_m, ratefac_val, enh_val, visc_val, &
-                           sm_coeff_1, sm_coeff_2, sm_coeff_3)
+                           sm_coeff_0, sm_coeff_1, sm_coeff_2)
 
 implicit none
 
@@ -761,7 +804,7 @@ real(dp)             :: fct_visc_sm_deriv
 real(dp), intent(in) :: de_val_m
 real(dp), intent(in) :: ratefac_val, enh_val
 real(dp), intent(in) :: visc_val
-real(dp), intent(in) :: sm_coeff_1, sm_coeff_2, sm_coeff_3
+real(dp), intent(in) :: sm_coeff_0, sm_coeff_1, sm_coeff_2
 
 real(dp) :: de_visc_factor
 
@@ -769,9 +812,9 @@ real(dp), parameter :: twenty_over_three = 6.666666666666667_dp
                           
 de_visc_factor = de_val_m*de_val_m*visc_val*visc_val
                           
-fct_visc_sm_deriv = 2.0_dp*sm_coeff_1*enh_val*ratefac_val &
-                   + 24.0_dp*sm_coeff_2*enh_val*ratefac_val*de_visc_factor &
-                     * ( 1.0_dp + twenty_over_three*sm_coeff_3*de_visc_factor )
+fct_visc_sm_deriv = 2.0_dp*sm_coeff_0*enh_val*ratefac_val &
+                   + 24.0_dp*sm_coeff_1*enh_val*ratefac_val*de_visc_factor &
+                     * ( 1.0_dp + twenty_over_three*sm_coeff_2*de_visc_factor )
          
 end function fct_visc_sm_deriv
 

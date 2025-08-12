@@ -389,8 +389,10 @@ contains
 #if (FLOW_LAW==1)
   enh_mult = exp(-d_n_power_law*2.0_dp*frac_dust)
 #elif (FLOW_LAW==4)
-  errormsg = ' >>> mod_enhance_dust: FLOW_LAW==4 not yet implemented!'
-  call error(errormsg)
+  enh_mult = exp(-2.0_dp*frac_dust)
+              ! assuming that the linear (n=1) contribution
+              ! in the polynomial Smith-Morland flow law
+              ! is dominant under Martian conditions
 #endif
 
   enh_t = enh_t * enh_mult

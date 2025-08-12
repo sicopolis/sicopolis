@@ -7,7 +7,7 @@
 %   heat conductivity and specific heat required by SICOPOLIS.
 %
 % Author: Ralf Greve
-% Date:   2025-08-09
+% Date:   2025-08-12
 %==========================================================================
 
 clear variables
@@ -204,28 +204,14 @@ end
 
 %  ------ Scaling, non-dimensionalization
 
-if n_RF < 7
-   stress_dev_scale       = 1.0e+05;
-   stress_dev_scale_unit  = 'Pa';
-   strain_rate_scale      = 2.5e-02;
-   strain_rate_scale_unit = 'a-1';
-elseif n_RF == 7
-   stress_dev_scale       = 1.0;
-   stress_dev_scale_unit  = '-';
-   strain_rate_scale      = 1.0;
-   strain_rate_scale_unit = '-';
-end
-
-if n_RF < 7
-   RF_scale = (strain_rate_scale/year2sec)/stress_dev_scale^3;
-elseif n_RF == 7
-   RF_scale = 1.0;
-   %%% RF_scale = (strain_rate_scale/year2sec)/stress_dev_scale;
-   %%%       Scaling needs to be checked!
-end
+stress_dev_scale       = 1.0e+05;
+stress_dev_scale_unit  = 'Pa';
+strain_rate_scale      = 2.5e-02;
+strain_rate_scale_unit = 'a-1';
 
 if n_RF > 1 && n_RF < 7
-RF = RF/RF_scale;
+   RF_scale = (strain_rate_scale/year2sec)/stress_dev_scale^3;
+   RF = RF/RF_scale;
 end
 
 %-------- Heat conductivity KAPPA(T)

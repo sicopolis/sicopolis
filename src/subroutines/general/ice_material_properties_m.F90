@@ -417,7 +417,8 @@ sm_coeff_2 = sm_coeff_2 &
                      ! dimensionless -> s-1 Pa-5
 
 creep = sm_coeff_0 &
-           + sigma_val**2 * (sm_coeff_1 + sm_coeff_2 * sigma_val**2)
+           + (sigma_val*sigma_val) &
+               * (sm_coeff_1 + sm_coeff_2*(sigma_val*sigma_val))
                      ! Smith-Morland (polynomial) flow law, modified
 
 #endif
@@ -779,14 +780,14 @@ real(dp), intent(in) :: ratefac_val, enh_val
 real(dp), intent(in) :: visc_val
 real(dp), intent(in) :: sm_coeff_0, sm_coeff_1, sm_coeff_2
 
-real(dp) :: de_visc_factor
+real(dp) :: de_visc_square
 
-de_visc_factor = de_val_m*de_val_m*visc_val*visc_val
-                   
+de_visc_square = (de_val_m*de_val_m)*(visc_val*visc_val)
+
 fct_visc_sm = 2.0_dp*enh_val*ratefac_val*visc_val &
               * ( sm_coeff_0 &
-                  + 4.0_dp*sm_coeff_1*de_visc_factor &
-                    * ( 1.0_dp + 4.0_dp*sm_coeff_2*de_visc_factor ) ) &
+                  + 4.0_dp*de_visc_square &
+                    * ( sm_coeff_1 + 4.0_dp*sm_coeff_2*de_visc_square ) ) &
               - 1.0_dp
 
 end function fct_visc_sm
@@ -806,16 +807,18 @@ real(dp), intent(in) :: ratefac_val, enh_val
 real(dp), intent(in) :: visc_val
 real(dp), intent(in) :: sm_coeff_0, sm_coeff_1, sm_coeff_2
 
-real(dp) :: de_visc_factor
+real(dp) :: de_visc_square
 
-real(dp), parameter :: twenty_over_three = 6.666666666666667_dp
-                          
-de_visc_factor = de_val_m*de_val_m*visc_val*visc_val
-                          
-fct_visc_sm_deriv = 2.0_dp*sm_coeff_0*enh_val*ratefac_val &
-                   + 24.0_dp*sm_coeff_1*enh_val*ratefac_val*de_visc_factor &
-                     * ( 1.0_dp + twenty_over_three*sm_coeff_2*de_visc_factor )
-         
+real(dp), parameter :: frac_20_3 = 6.666666666666667_dp
+
+de_visc_square = (de_val_m*de_val_m)*(visc_val*visc_val)
+
+fct_visc_sm_deriv = 2.0_dp*enh_val*ratefac_val &
+                    * ( sm_coeff_0 &
+                        + 12.0_dp*de_visc_square &
+                          * ( sm_coeff_1 &
+                              + frac_20_3*sm_coeff_2*de_visc_square ) )
+
 end function fct_visc_sm_deriv
 
 #endif /* FLOW_LAW==4 */

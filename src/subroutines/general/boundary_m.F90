@@ -1629,6 +1629,8 @@ end do
 !-------- Calving --------
 
 calving = 0.0_dp   ! Initialization
+calving_1 = 0.0_dp   ! Initialization
+calving_2 = 0.0_dp   ! Initialization
 
 #if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
 call calving_underwater_ice()

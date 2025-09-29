@@ -716,6 +716,11 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
    if (mask_tmp(j,i)==3) then
       mask_tmp(j,i) = 2 
+#if (ICE_SHELF_CALVING==3)
+      calving_1(j,i) = H_new(j,i)*dtime_inv
+#elif (ICE_SHELF_CALVING_2==3)
+      calving_2(j,i) = H_new(j,i)*dtime_inv
+#endif
       H_new(j,i) = 0.0_dp
    end if 
 
@@ -768,6 +773,11 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
       H_new(j,i) = max(H_new_tmp - dHdt_retreat*dtime, 0.0_dp)
       calving(j,i) = calving(j,i) +  (H_new_tmp - H_new(j,i))*dtime_inv
+#if (ICE_SHELF_CALVING==7)
+      calving_1(j,i) = (H_new_tmp - H_new(j,i))*dtime_inv
+#elif (ICE_SHELF_CALVING_2==7)
+      calving_2(j,i) = (H_new_tmp - H_new(j,i))*dtime_inv
+#endif
    end if
 end do
 #endif
@@ -1436,7 +1446,7 @@ integer(i4b) :: ij, i, j, kc, kt
 real(dp)     :: rhosw_rho_ratio, rho_rhosw_ratio
 real(dp)     :: H_inv
 logical      :: flag_calving_event
-real(dp)     :: w_crit, H_crit
+real(dp)     :: w_crit, w_crit2, w_crit2_cstePart, H_crit
 real(dp)     :: dHdt_retreat, DX_inMeter_inv, F_rate, H_new_tmp, calv_retreat_mask, zs_new_tmp
 
 real(dp), dimension(0:JMAX,0:IMAX) :: H_sea_new, H_balance
@@ -1582,6 +1592,11 @@ do
       if ( flag_calving_front_1(j,i).and.(H_new(j,i) < H_CALV) ) then
          flag_calving_event = .true.  ! calving event,
          mask(j,i)          = 2   ! floating ice point changes to sea point
+#if (ICE_SHELF_CALVING==2)
+         calving_1(j,i) = H_new(j,i)*dtime_inv
+#elif (ICE_SHELF_CALVING_2==2)
+         calving_2(j,i) = H_new(j,i)*dtime_inv
+#endif
       end if
 
    end do
@@ -1625,6 +1640,11 @@ do while (flag_calving_event)
       if ( (flag_calving_front_1(j,i)).and.(H_new(j,i) < H_CALV) ) then
          flag_calving_event = .true.  ! calving event,
          mask(j,i)          = 2   ! floating ice point changes to sea point
+#if (ICE_SHELF_CALVING==2)
+         calving_1(j,i) = H_new(j,i)*dtime_inv
+#elif (ICE_SHELF_CALVING_2==2)
+         calving_2(j,i) = H_new(j,i)*dtime_inv
+#endif
       end if
 
    end do
@@ -1641,8 +1661,14 @@ do ij=1, (IMAX+1)*(JMAX+1)
    i = n2i(ij)   ! i=0...IMAX
    j = n2j(ij)   ! j=0...JMAX
 
-   if (mask(j,i)==3) mask(j,i) = 2 ! float-kill: all floating ice points changed to sea points
-
+   if (mask(j,i)==3) then
+      mask(j,i) = 2 ! float-kill: all floating ice points changed to sea points
+#if (ICE_SHELF_CALVING==3)
+      calving_1(j,i) = H_new(j,i)*dtime_inv
+#elif (ICE_SHELF_CALVING_2==3)
+      calving_2(j,i) = H_new(j,i)*dtime_inv
+#endif
+   end if 
 end do
 
 #elif (ICE_SHELF_CALVING==4 || ICE_SHELF_CALVING_2==4)
@@ -1690,6 +1716,11 @@ do
       if ( flag_calving_front_1(j,i) ) then
          if ( (z_sl(j,i) - zl_new(j,i) >= w_crit) .and. (H_new(j,i) >= H_crit) ) then
             flag_calving_event = .true.  ! calving event,
+#if (ICE_SHELF_CALVING==4)
+            calving_1(j,i) = H_new(j,i)*dtime_inv
+#elif (ICE_SHELF_CALVING_2==4)
+            calving_2(j,i) = H_new(j,i)*dtime_inv
+#endif
             mask(j,i)          = 2   ! floating ice point changes to sea point
          end if
       end if
@@ -1722,7 +1753,7 @@ end do
 
 w_crit = SIG_MAX * SQRT( RHO*RHO_SWC*RHO_SWC/(RHO_SW*(RHO_SWC - RHO)*(RHO_SW - RHO_SWC)) )  / (RHO * G)
 H_crit = RHO_SW*w_crit/RHO
-w_crit = w_crit * SQRT( 1 + 2*(1 - RHO/RHO_SWC)*TAU_BASE_CREVASSE*L_CREVASSE/(SIG_MAX*SIG_MAX) ) 
+w_crit2_cstePart = 2*(1 - RHO/RHO_SWC)*RHO*RHO*G*G*TAU_BASE_CREVASSE*L_CREVASSE/(SIG_MAX*SIG_MAX)
 
 do
    flag_calving_front_1 = .false.
@@ -1752,9 +1783,17 @@ do
        ) flag_calving_front_1(j,i) = .true.   ! preliminary detection of the calving front
       
       if ( flag_calving_front_1(j,i) ) then
-         if ( (mask(j,i)==3) .and. (H_new(j,i) >= H_crit) ) then
-            flag_calving_event = .true.  ! calving event,
-            mask(j,i)          = 2   ! floating ice point changes to sea point
+         if ( H_new(j,i) >= H_crit ) then
+            w_crit2 = w_crit * SQRT( 1 + w_crit2_cstePart*H_new(j,i)*H_new(j,i) ) 
+            if ( (mask(j,i)==3) .or. (z_sl(j,i) - zl_new(j,i) >= w_crit2) ) then
+               flag_calving_event = .true.  ! calving event,
+               mask(j,i) = 2   ! floating ice point changes to sea point
+#if (ICE_SHELF_CALVING==5)
+               calving_1(j,i) = H_new(j,i)*dtime_inv
+#elif (ICE_SHELF_CALVING_2==5)
+               calving_2(j,i) = H_new(j,i)*dtime_inv
+#endif
+            end if
          end if
       end if
    end do

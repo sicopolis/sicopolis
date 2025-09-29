@@ -2366,8 +2366,8 @@ contains
 
 #elif (FLOW_LAW==4)
 
-     ! RF_scale = (strain_rate_scale/year2sec_aux)/stress_dev_scale
-     RF_scale = 1.0_dp   ! no scaling required
+     RF_scale = 1.0_dp
+                ! no scaling required, dimensionless rate factor will be used
 
 #endif
 

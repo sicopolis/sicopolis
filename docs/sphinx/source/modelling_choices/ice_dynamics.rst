@@ -11,7 +11,7 @@ The dynamics (force balance) of grounded ice can be chosen in the run-specs head
 
 * ``2``: Hybrid shallow-ice--shelfy-stream (SIA/SStA) dynamics (Bernales et al. :cite:`bernales_etal_2017a, bernales_etal_2017b`).
 
-* ``3``: DIVA (depth-integrated viscosity approximation) dynamics (Goldberg :cite:`goldberg_2011`, Lipscomb et al. :cite:`lipscomb_etal_2019`).
+* ``3``: DIVA (depth-integrated viscosity approximation) dynamics (Goldberg :cite:`goldberg_2011`, Lipscomb et al. :cite:`lipscomb_etal_2019`, Grandadam :cite:`grandadam_2024`).
 
 The parameter ``MARGIN`` controls how the grounded ice can extend into the sea:
 

@@ -1272,9 +1272,9 @@ real(dp)     :: rhosw_rho_ratio, rho_rhosw_ratio
 real(dp)     :: H_inv
 logical      :: flag_calving_event
 real(dp)     :: w_crit, w_crit2, w_crit2_cstePart, H_crit
-real(dp)     :: dHdt_retreat, DX_inMeter_inv, F_rate, H_new_tmp, numberOfFace
+real(dp)     :: dHdt_retreat, DX_inMeter_inv, F_rate, numberOfFace
 
-real(dp), dimension(0:JMAX,0:IMAX) :: H_sea_new, H_balance
+real(dp), dimension(0:JMAX,0:IMAX) :: H_sea_new, H_balance, H_new_tmp
 
 !-------- Term abbreviations --------
 
@@ -1488,7 +1488,7 @@ end do
 calving_horizontal = 0.0_dp
 
 if ( FRONTAL_CALVING_RATE > 0.0_dp ) then
-
+   H_new_tmp = H_new
    DX_inMeter_inv = 1.0_dp/(DX*1000.0_dp)
    F_rate = FRONTAL_CALVING_RATE*DX_inMeter_inv/year2sec
    flag_calving_front_1 = .false.
@@ -1523,21 +1523,27 @@ if ( FRONTAL_CALVING_RATE > 0.0_dp ) then
          if ( mask(j+1, i)==2 ) numberOfFace = numberOfFace + 1
          if ( mask(j-1, i)==2 ) numberOfFace = numberOfFace + 1
 
-         H_new_tmp = H_new(j,i)
          dHdt_retreat = F_rate * numberOfFace * &
             max( &
-              H_new(j,     i), &
-              H_new(j,   i+1), &
-              H_new(j+1, i+1), &
-              H_new(j-1, i+1), &
-              H_new(j,   i-1), &
-              H_new(j+1, i-1), &
-              H_new(j-1, i-1), &
-              H_new(j+1,   i), &
-              H_new(j-1,   i)  &
+              H_new_tmp(j,     i), &
+              H_new_tmp(j,   i+1), &
+              H_new_tmp(j,   i-1), &
+              H_new_tmp(j+1,   i), &
+              H_new_tmp(j-1,   i)  &
             ) 
 
-         H_new(j,i) = H_new_tmp - dHdt_retreat*dtime
+         H_new(j,i) = H_new_tmp(j,i) - dHdt_retreat*dtime
+
+      end if
+   end do
+
+   do ij=1, (IMAX+1)*(JMAX+1)
+
+      i = n2i(ij)   ! i=0...IMAX
+      j = n2j(ij)   ! j=0...JMAX
+
+      if ( flag_calving_front_1(j,i) ) then
+
          if (H_new(j,i) > eps_H) then
             if (H_new(j,i)<H_balance(j,i).and.zl_new(j,i)<z_sl(j,i)) then
                mask(j,i)     = 3
@@ -1568,8 +1574,8 @@ if ( FRONTAL_CALVING_RATE > 0.0_dp ) then
 
          end if
 
-         calving(j,i) = calving(j,i) + (H_new_tmp - H_new(j,i))*dtime_inv
-         calving_horizontal(j,i) = (H_new_tmp - H_new(j,i))*dtime_inv
+         calving(j,i) = calving(j,i) + (H_new_tmp(j,i) - H_new(j,i))*dtime_inv
+         calving_horizontal(j,i) = (H_new_tmp(j,i) - H_new(j,i))*dtime_inv
       end if
    end do
 

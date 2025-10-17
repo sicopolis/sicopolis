@@ -99,36 +99,35 @@ character(len=64), parameter :: thisroutine = 'output1'
 integer(i4b), save :: n_flx_ave_cnt = 0
 real(dp)           :: r_n_flx_ave_cnt_inv
 
-real(dp), dimension(0:JMAX,0:IMAX), save :: accum_sum         = 0.0_dp, &
-                                            snowfall_sum      = 0.0_dp, &
-                                            rainfall_sum      = 0.0_dp, &
-                                            as_perp_sum       = 0.0_dp, &
-                                            as_perp_apl_sum   = 0.0_dp, &
-                                            smb_corr_sum      = 0.0_dp, &
-                                            mb_source_apl_sum = 0.0_dp, &
-                                            runoff_sum        = 0.0_dp, &
-                                            runoff_apl_sum    = 0.0_dp, &
-                                            Q_b_tot_sum       = 0.0_dp, &
-                                            Q_b_apl_sum       = 0.0_dp, &
-                                            calving_sum       = 0.0_dp, &
-                                            calving_1_sum     = 0.0_dp, &
-                                            calving_2_sum     = 0.0_dp, &
-                                            calving_apl_sum   = 0.0_dp, &
+real(dp), dimension(0:JMAX,0:IMAX), save :: accum_sum              = 0.0_dp, &
+                                            snowfall_sum           = 0.0_dp, &
+                                            rainfall_sum           = 0.0_dp, &
+                                            as_perp_sum            = 0.0_dp, &
+                                            as_perp_apl_sum        = 0.0_dp, &
+                                            smb_corr_sum           = 0.0_dp, &
+                                            mb_source_apl_sum      = 0.0_dp, &
+                                            runoff_sum             = 0.0_dp, &
+                                            runoff_apl_sum         = 0.0_dp, &
+                                            Q_b_tot_sum            = 0.0_dp, &
+                                            Q_b_apl_sum            = 0.0_dp, &
+                                            calving_sum            = 0.0_dp, &
+                                            calving_horizontal_sum = 0.0_dp, &
+                                            calving_apl_sum        = 0.0_dp, &
 #if (DISC>0)   /* Ice discharge parameterisation */
-                                            dis_perp_sum      = 0.0_dp, &
+                                            dis_perp_sum           = 0.0_dp, &
 #endif
-                                            q_geo_sum         = 0.0_dp, &
-                                            Q_bm_sum          = 0.0_dp, &
-                                            Q_tld_sum         = 0.0_dp, &
-                                            am_perp_sum       = 0.0_dp, &
-                                            dzs_dtau_sum      = 0.0_dp, &
-                                            dzm_dtau_sum      = 0.0_dp, &
-                                            dzb_dtau_sum      = 0.0_dp, &
-                                            dzl_dtau_sum      = 0.0_dp, &
-                                            dH_c_dtau_sum     = 0.0_dp, &
-                                            dH_t_dtau_sum     = 0.0_dp, &
-                                            dH_dtau_sum       = 0.0_dp, &
-                                            q_gl_g_sum        = 0.0_dp
+                                            q_geo_sum              = 0.0_dp, &
+                                            Q_bm_sum               = 0.0_dp, &
+                                            Q_tld_sum              = 0.0_dp, &
+                                            am_perp_sum            = 0.0_dp, &
+                                            dzs_dtau_sum           = 0.0_dp, &
+                                            dzm_dtau_sum           = 0.0_dp, &
+                                            dzb_dtau_sum           = 0.0_dp, &
+                                            dzl_dtau_sum           = 0.0_dp, &
+                                            dH_c_dtau_sum          = 0.0_dp, &
+                                            dH_t_dtau_sum          = 0.0_dp, &
+                                            dH_dtau_sum            = 0.0_dp, &
+                                            q_gl_g_sum             = 0.0_dp
 
 #if (defined(CLIMATOLOGY_EXTRACTION_HACK))
     !%% Climatology extraction hack (must not be used routinely)!
@@ -150,8 +149,7 @@ real(dp), dimension(0:JMAX,0:IMAX) :: accum_flx         , &
                                       Q_b_tot_flx       , &
                                       Q_b_apl_flx       , &
                                       calving_flx       , &
-                                      calving_1_flx     , &
-                                      calving_2_flx     , &
+                                      calving_horizontal_flx     , &
                                       calving_apl_flx   , &
 #if (DISC>0)   /* Ice discharge parameterisation */
                                       dis_perp_flx      , &
@@ -212,7 +210,7 @@ real(sp), dimension(0:IMAX,0:JMAX) :: lambda_conv, phi_conv, &
             z_sl_conv, &
             Q_b_tot_conv, Q_b_apl_conv, &
             calving_conv, calving_apl_conv, &
-            calving_1_conv, calving_2_conv, &
+            calving_horizontal_conv, &
             q_geo_conv, &
             zs_conv, zm_conv, zb_conv, zl_conv, zl0_conv, wss_conv, &
             H_cold_conv, H_temp_conv, H_conv, &
@@ -1280,7 +1278,7 @@ call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
             thisroutine )
 
-!    ---- calving_1
+!    ---- calving_horizontal
 
 call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
             thisroutine )
@@ -1288,49 +1286,21 @@ call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)), &
             thisroutine )
 
 #if (NETCDF4_ENABLED==1)
-call check( nf90_def_var(ncid, 'calving_1', NF90_FLOAT, nc2d, ncv, &
+call check( nf90_def_var(ncid, 'calving_horizontal', NF90_FLOAT, nc2d, ncv, &
             deflate_level=n_deflate_level, shuffle=flag_shuffle), &
             thisroutine )
 #else
-call check( nf90_def_var(ncid, 'calving_1', NF90_FLOAT, nc2d, ncv), &
+call check( nf90_def_var(ncid, 'calving_horizontal', NF90_FLOAT, nc2d, ncv), &
             thisroutine )
 #endif
 
 buffer = 'm a-1'
 call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)), &
             thisroutine )
-buffer = 'land_ice_volume_flux_due_to_calving_1'
+buffer = 'land_ice_volume_flux_due_to_calving_horizontal'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
             thisroutine )
 buffer = 'Calving_1 flux'
-call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
-            thisroutine )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
-            thisroutine )
-
-!    ---- calving_2
-
-call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
-            thisroutine )
-call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)), &
-            thisroutine )
-
-#if (NETCDF4_ENABLED==1)
-call check( nf90_def_var(ncid, 'calving_2', NF90_FLOAT, nc2d, ncv, &
-            deflate_level=n_deflate_level, shuffle=flag_shuffle), &
-            thisroutine )
-#else
-call check( nf90_def_var(ncid, 'calving_2', NF90_FLOAT, nc2d, ncv), &
-            thisroutine )
-#endif
-
-buffer = 'm a-1'
-call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)), &
-            thisroutine )
-buffer = 'land_ice_volume_flux_due_to_calving_2'
-call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
-            thisroutine )
-buffer = 'Calving_2 flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
             thisroutine )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
@@ -4227,8 +4197,7 @@ runoff_apl_flx    = runoff_apl
 Q_b_tot_flx       = Q_b_tot
 Q_b_apl_flx       = Q_b_apl
 calving_flx       = calving
-calving_1_flx     = calving_1
-calving_2_flx     = calving_2
+calving_horizontal_flx     = calving_horizontal
 calving_apl_flx   = calving_apl
 #if (DISC>0)   /* Ice discharge parameterisation */
 dis_perp_flx      = dis_perp
@@ -4271,8 +4240,7 @@ if ( .not.((OUTPUT==3).and.(flag_3d_output)) ) then
       Q_b_tot_sum       = 0.0_dp
       Q_b_apl_sum       = 0.0_dp
       calving_sum       = 0.0_dp
-      calving_1_sum     = 0.0_dp
-      calving_2_sum     = 0.0_dp
+      calving_horizontal_sum     = 0.0_dp
       calving_apl_sum   = 0.0_dp
 #if (DISC>0)   /* Ice discharge parameterisation */
       dis_perp_sum      = 0.0_dp
@@ -4312,8 +4280,7 @@ if ( .not.((OUTPUT==3).and.(flag_3d_output)) ) then
    Q_b_tot_sum       = Q_b_tot_sum       + Q_b_tot
    Q_b_apl_sum       = Q_b_apl_sum       + Q_b_apl
    calving_sum       = calving_sum       + calving
-   calving_1_sum     = calving_1_sum     + calving_1
-   calving_2_sum     = calving_2_sum     + calving_2
+   calving_horizontal_sum     = calving_horizontal_sum     + calving_horizontal
    calving_apl_sum   = calving_apl_sum   + calving_apl
 #if (DISC>0)   /* Ice discharge parameterisation */
    dis_perp_sum      = dis_perp_sum      +  dis_perp
@@ -4355,8 +4322,7 @@ if ( .not.((OUTPUT==3).and.(flag_3d_output)) ) then
       Q_b_tot_flx       = Q_b_tot_sum       * r_n_flx_ave_cnt_inv
       Q_b_apl_flx       = Q_b_apl_sum       * r_n_flx_ave_cnt_inv
       calving_flx       = calving_sum       * r_n_flx_ave_cnt_inv
-      calving_1_flx     = calving_1_sum     * r_n_flx_ave_cnt_inv
-      calving_2_flx     = calving_2_sum     * r_n_flx_ave_cnt_inv
+      calving_horizontal_flx     = calving_horizontal_sum     * r_n_flx_ave_cnt_inv
       calving_apl_flx   = calving_apl_sum   * r_n_flx_ave_cnt_inv
 #if (DISC>0)   /* Ice discharge parameterisation */
       dis_perp_flx      = dis_perp_sum      * r_n_flx_ave_cnt_inv
@@ -4399,8 +4365,7 @@ else   ! (OUTPUT==3).and.(flag_3d_output)
    Q_b_tot_flx       = Q_b_tot
    Q_b_apl_flx       = Q_b_apl
    calving_flx       = calving
-   calving_1_flx     = calving_1
-   calving_2_flx     = calving_2
+   calving_horizontal_flx     = calving_horizontal
    calving_apl_flx   = calving_apl
 #if (DISC>0)   /* Ice discharge parameterisation */
    dis_perp_flx      = dis_perp
@@ -4514,8 +4479,7 @@ do j=0, JMAX
    Q_b_tot_conv(i,j)       = real(Q_b_tot_flx(j,i)*year2sec,sp)
    Q_b_apl_conv(i,j)       = real(Q_b_apl_flx(j,i)*year2sec,sp)
    calving_conv(i,j)       = real(calving_flx(j,i)*year2sec,sp)
-   calving_1_conv(i,j)     = real(calving_1_flx(j,i)*year2sec,sp)
-   calving_2_conv(i,j)     = real(calving_2_flx(j,i)*year2sec,sp)
+   calving_horizontal_conv(i,j)     = real(calving_horizontal_flx(j,i)*year2sec,sp)
    calving_apl_conv(i,j)   = real(calving_apl_flx(j,i)*year2sec,sp)
 
 #if (DISC>0)   /* Ice discharge parameterisation */
@@ -4854,13 +4818,8 @@ call check( nf90_put_var(ncid, ncv, calving_conv, &
                          start=nc2cor_ij, count=nc2cnt_ij), &
             thisroutine )
 
-call check( nf90_inq_varid(ncid, 'calving_1', ncv), thisroutine )
-call check( nf90_put_var(ncid, ncv, calving_1_conv, &
-                         start=nc2cor_ij, count=nc2cnt_ij), &
-            thisroutine )
-
-call check( nf90_inq_varid(ncid, 'calving_2', ncv), thisroutine )
-call check( nf90_put_var(ncid, ncv, calving_2_conv, &
+call check( nf90_inq_varid(ncid, 'calving_horizontal', ncv), thisroutine )
+call check( nf90_put_var(ncid, ncv, calving_horizontal_conv, &
                          start=nc2cor_ij, count=nc2cnt_ij), &
             thisroutine )
 
@@ -5401,7 +5360,7 @@ real(dp) :: time_val, &
             H_max, H_t_max, zs_max, vs_max, Tbh_max, &
             dV_dt, Q_s, precip_tot, runoff_tot, &
             Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-            calv_tot, calv_1_tot, calv_2_tot, mbp, mb_resid, mb_mis, disc_lsc, disc_ssc
+            calv_tot, calv_horizontal_tot, mbp, mb_resid, mb_mis, disc_lsc, disc_ssc
 real(dp) :: x_pos, y_pos
 real(dp), dimension(0:JMAX,0:IMAX) :: H_cold, H_temp
 real(dp) :: Tbh_help
@@ -5442,8 +5401,7 @@ real(dp), dimension(0:99), save :: Q_s_sum         = 0.0_dp, &
                                    Q_b_sum         = 0.0_dp, &
                                    Q_temp_sum      = 0.0_dp, &
                                    calv_tot_sum    = 0.0_dp, &
-                                   calv_1_tot_sum  = 0.0_dp, &
-                                   calv_2_tot_sum  = 0.0_dp, &
+                                   calv_horizontal_tot_sum  = 0.0_dp, &
 #if (DISC>0)
                                    disc_lsc_sum    = 0.0_dp, &
                                    disc_ssc_sum    = 0.0_dp, &
@@ -5466,8 +5424,7 @@ real(dp) :: Q_s_flx        , &
             Q_b_flx        , &
             Q_temp_flx     , &
             calv_tot_flx   , &
-            calv_1_tot_flx   , &
-            calv_2_tot_flx   , &
+            calv_horizontal_tot_flx   , &
 #if (DISC>0)
             disc_lsc_flx   , &
             disc_ssc_flx   , &
@@ -5542,7 +5499,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
                             H_max, H_t_max, zs_max, vs_max, Tbh_max, &
                             dV_dt, Q_s, precip_tot, runoff_tot, &
                             Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-                            calv_tot, calv_1_tot, calv_2_tot, disc_lsc, disc_ssc, &
+                            calv_tot, calv_horizontal_tot, disc_lsc, disc_ssc, &
                             mbp, mb_resid, mb_mis)
 
    else
@@ -5559,7 +5516,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
                             H_max, H_t_max, zs_max, vs_max, Tbh_max, &
                             dV_dt, Q_s, precip_tot, runoff_tot, &
                             Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-                            calv_tot, calv_1_tot, calv_2_tot, disc_lsc, disc_ssc, &
+                            calv_tot, calv_horizontal_tot, disc_lsc, disc_ssc, &
                             mbp, mb_resid, mb_mis, &
                             opt_flag_region=flag_region)
 
@@ -5581,8 +5538,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
    Q_b_flx         = Q_b
    Q_temp_flx      = Q_temp
    calv_tot_flx    = calv_tot
-   calv_1_tot_flx  = calv_1_tot
-   calv_2_tot_flx  = calv_2_tot
+   calv_horizontal_tot_flx  = calv_horizontal_tot
 #if (DISC>0)
    disc_lsc_flx    = disc_lsc
    disc_ssc_flx    = disc_ssc
@@ -5608,8 +5564,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       Q_b_sum(n)         = 0.0_dp
       Q_temp_sum(n)      = 0.0_dp
       calv_tot_sum(n)    = 0.0_dp
-      calv_1_tot_sum(n)  = 0.0_dp
-      calv_2_tot_sum(n)  = 0.0_dp
+      calv_horizontal_tot_sum(n)  = 0.0_dp
 #if (DISC>0)
       disc_lsc_sum(n)    = 0.0_dp
       disc_ssc_sum(n)    = 0.0_dp
@@ -5634,8 +5589,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
    Q_b_sum(n)         = Q_b_sum(n)        + Q_b
    Q_temp_sum(n)      = Q_temp_sum(n)     + Q_temp
    calv_tot_sum(n)    = calv_tot_sum(n)   + calv_tot
-   calv_1_tot_sum(n)  = calv_1_tot_sum(n) + calv_1_tot
-   calv_2_tot_sum(n)  = calv_2_tot_sum(n) + calv_2_tot
+   calv_horizontal_tot_sum(n)  = calv_horizontal_tot_sum(n) + calv_horizontal_tot
 #if (DISC>0)
    disc_lsc_sum(n)    = disc_lsc_sum(n)   + disc_lsc
    disc_ssc_sum(n)    = disc_ssc_sum(n)   + disc_ssc
@@ -5662,8 +5616,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       Q_b_flx         = Q_b_sum(n)        * r_n_flx_ave_cnt_inv
       Q_temp_flx      = Q_temp_sum(n)     * r_n_flx_ave_cnt_inv
       calv_tot_flx    = calv_tot_sum(n)   * r_n_flx_ave_cnt_inv
-      calv_1_tot_flx  = calv_1_tot_sum(n) * r_n_flx_ave_cnt_inv
-      calv_2_tot_flx  = calv_2_tot_sum(n) * r_n_flx_ave_cnt_inv
+      calv_horizontal_tot_flx  = calv_horizontal_tot_sum(n) * r_n_flx_ave_cnt_inv
 #if (DISC>0)
       disc_lsc_flx    = disc_lsc_sum(n)   * r_n_flx_ave_cnt_inv
       disc_ssc_flx    = disc_ssc_sum(n)   * r_n_flx_ave_cnt_inv
@@ -6316,28 +6269,11 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       call check( nf90_put_att(ncid(n), ncv, 'long_name', trim(buffer)), &
                   thisroutine )
 
-!    ---- calv_1_tot
-
-      call check( nf90_inq_dimid(ncid(n), 't', nc1d), thisroutine )
-
-      call check( nf90_def_var(ncid(n), 'calv_1_tot', NF90_FLOAT, nc1d, ncv), &
-                  thisroutine )
-
-      buffer = 'm3 ice equiv. a-1'
-      call check( nf90_put_att(ncid(n), ncv, 'units', trim(buffer)), &
-                  thisroutine )
-      buffer = 'tendency_of_land_ice_volume_due_to_calving_1'
-      call check( nf90_put_att(ncid(n), ncv, 'standard_name', trim(buffer)), &
-                  thisroutine )
-      buffer = 'Total calving_1 rate'
-      call check( nf90_put_att(ncid(n), ncv, 'long_name', trim(buffer)), &
-                  thisroutine )
-
-!    ---- calv_2_tot
+!    ---- calv_horizontal_tot
 
     call check( nf90_inq_dimid(ncid(n), 't', nc1d), thisroutine )
 
-    call check( nf90_def_var(ncid(n), 'calv_2_tot', NF90_FLOAT, nc1d, ncv), &
+    call check( nf90_def_var(ncid(n), 'calv_horizontal_tot', NF90_FLOAT, nc1d, ncv), &
                 thisroutine )
 
     buffer = 'm3 ice equiv. a-1'
@@ -6727,12 +6663,8 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       call check( nf90_put_var(ncid(n), ncv, real(calv_tot_flx,sp), &
                                start=nc1cor), thisroutine )
 
-      call check( nf90_inq_varid(ncid(n), 'calv_1_tot', ncv), thisroutine )
-      call check( nf90_put_var(ncid(n), ncv, real(calv_1_tot_flx,sp), &
-                               start=nc1cor), thisroutine )
-
-      call check( nf90_inq_varid(ncid(n), 'calv_2_tot', ncv), thisroutine )
-      call check( nf90_put_var(ncid(n), ncv, real(calv_2_tot_flx,sp), &
+      call check( nf90_inq_varid(ncid(n), 'calv_horizontal_tot', ncv), thisroutine )
+      call check( nf90_put_var(ncid(n), ncv, real(calv_horizontal_tot_flx,sp), &
                                start=nc1cor), thisroutine )
 
 #if (DISC>0)
@@ -6822,7 +6754,7 @@ subroutine scalar_variables(time, &
                             H_max, H_t_max, zs_max, vs_max, Tbh_max, &
                             dV_dt, Q_s, precip_tot, runoff_tot, &
                             Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-                            calv_tot, calv_1_tot, calv_2_tot, disc_lsc, disc_ssc, &
+                            calv_tot, calv_horizontal_tot, disc_lsc, disc_ssc, &
                             mbp, mb_resid, mb_mis, &
                             opt_flag_region)
 
@@ -6839,14 +6771,14 @@ real(dp), intent(out) :: time_val, &
                          H_max, H_t_max, zs_max, vs_max, Tbh_max, &
                          dV_dt, Q_s, precip_tot, runoff_tot, &
                          Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-                         calv_tot, calv_1_tot, calv_2_tot, mbp, mb_resid, &
+                         calv_tot, calv_horizontal_tot, mbp, mb_resid, &
                          mb_mis, disc_lsc, disc_ssc
 
 integer(i4b) :: i, j
 
 real(dp) :: V_gr_redu, A_surf, rhosw_rho_ratio
 real(dp) :: vs_help, Tbh_help
-real(dp) :: MB, LMT, GIMB, SIMB, LMH, OMH, PAT, PAH, LQH, CAL1, CAL2
+real(dp) :: MB, LMT, GIMB, SIMB, LMH, OMH, PAT, PAH, LQH, CALH
 
 logical, dimension(0:JMAX,0:IMAX) :: flag_region
 
@@ -7061,8 +6993,7 @@ OMH    = 0.0_dp
 PAT    = 0.0_dp
 PAH    = 0.0_dp
 mb_mis = 0.0_dp
-CAL1   = 0.0_dp
-CAL2   = 0.0_dp
+CALH   = 0.0_dp
 
 do i=0, IMAX
 do j=0, JMAX
@@ -7097,8 +7028,7 @@ do j=0, JMAX
 
       ! Actual ice mass balance (from top melt, bottom melt and calving)
       MB = MB + mb_source_apl(j,i)*cell_area(j,i)
-      CAL1 = CAL1 + calving_1(j,i) * cell_area(j,i)
-      CAL2 = CAL2 + calving_2(j,i) * cell_area(j,i)
+      CALH = CALH + calving_horizontal(j,i) * cell_area(j,i)
    end if
 
 end do
@@ -7110,8 +7040,7 @@ runoff_tot = LMT + LMH
 ! Ice discharge (excluding basal melt)
 calv_tot   = OMH + PAT + PAH
 
-calv_1_tot = CAL1
-calv_2_tot = CAL2
+calv_horizontal_tot = CALH
 
 ! Ice discharge from ice flow, large scale
 disc_lsc   = OMH
@@ -7146,9 +7075,7 @@ runoff_tot = runoff_tot * year2sec
                         ! m3/s ice equiv. -> m3/a ice equiv.
 calv_tot   = calv_tot   * year2sec
                         ! m3/s ice equiv. -> m3/a ice equiv.
-calv_1_tot = calv_1_tot * year2sec
-                        ! m3/s ice equiv. -> m3/a ice equiv.
-calv_2_tot = calv_2_tot * year2sec
+calv_horizontal_tot = calv_horizontal_tot * year2sec
                         ! m3/s ice equiv. -> m3/a ice equiv.
 
 if (precip_tot /= 0.0_dp) then

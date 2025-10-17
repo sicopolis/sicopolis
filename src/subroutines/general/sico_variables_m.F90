@@ -605,10 +605,7 @@ real(dp), dimension(0:JMAX,0:IMAX) :: Q_b_apl
 real(dp), dimension(0:JMAX,0:IMAX) :: calving
    !! Calving rate of grounded and floating ice
 
-real(dp), dimension(0:JMAX,0:IMAX) :: calving_1
-!! Calving rate of grounded and floating ice
-
-real(dp), dimension(0:JMAX,0:IMAX) :: calving_2
+real(dp), dimension(0:JMAX,0:IMAX) :: calving_horizontal
 !! Calving rate of grounded and floating ice
 
 real(dp), dimension(0:JMAX,0:IMAX) :: calving_apl

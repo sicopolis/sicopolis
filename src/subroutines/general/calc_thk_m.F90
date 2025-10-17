@@ -128,7 +128,9 @@ do ij=1, (IMAX+1)*(JMAX+1)
    H_new(j,i)  = H(j,i)    ! will be overwritten later
 
 !-------- Source term for the ice thickness equation --------
-   
+   as_perp(j,i) = max(as_perp(j,i), 0.0_dp)
+   Q_b_tot(j,i) = max(Q_b_tot(j,i), 0.0_dp)
+
    mb_source(j,i) = as_perp(j,i) - Q_b_tot(j,i) - calving(j,i)
 
 end do
@@ -503,11 +505,6 @@ real(dp)     :: vx_m_1, vx_m_2, vy_m_1, vy_m_2
 real(dp)     :: upH_x_1, upH_x_2, upH_y_1, upH_y_2
 real(dp)     :: sq_g22_x_1, sq_g22_x_2, sq_g11_y_1, sq_g11_y_2
 
-#if (ICE_SHELF_CALVING==7 || ICE_SHELF_CALVING_2==7)
-real(dp)     :: rhosw_rho_ratio, rho_rhosw_ratio, H_new_tmp, F_rate, DX_inMeter_inv, dtime_inv, dHdt_retreat, numberOfFace
-real(dp), dimension(0:JMAX,0:IMAX) :: mask_tmp, zb_new_tmp, zs_new_tmp
-real(dp), dimension(0:JMAX,0:IMAX) :: H_sea_new, H_balance
-#endif
 
 !-------- Solution of the explicit scheme --------
 
@@ -609,178 +606,6 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
 end do
 !$omp end parallel do
-
-#if (ICE_SHELF_CALVING==7 || ICE_SHELF_CALVING_2==7)
-
-#if !(defined(FRONTAL_CALVING_RATE))
-   errormsg = ' >>> calc_thk_mask_update_aux3: FRONTAL_CALVING_RATE undefined! Required for ICE_SHELF_CALVING==7'
-   call error(errormsg)
-#endif 
-
-DX_inMeter_inv = 1.0_dp/(DX*1000.0_dp)
-F_rate = FRONTAL_CALVING_RATE*DX_inMeter_inv/year2sec
-flag_calving_front_1 = .false.
-
-mask_tmp = mask
-zb_new_tmp = zb_new
-zs_new_tmp = zs_new
-dtime_inv = 1.0_dp/dtime
-
-rhosw_rho_ratio = RHO_SW/RHO
-rho_rhosw_ratio = RHO/RHO_SW
-zs_new_tmp    = zb_new_tmp + H_new   ! ice surface topography
-H_sea_new = z_sl - zl_new    ! sea depth
-H_balance = H_sea_new*rhosw_rho_ratio
-
-if ( ( mask_tmp(j,i) <= 1 &
-      .and.    (mask_tmp(j,i+1)>1.or.mask_tmp(j,i-1)>1 &
-            .or.mask_tmp(j+1,i)>1.or.mask_tmp(j-1,i)>1) ) &
-     .or. &
-     ( mask_tmp(j,i)>=2 &
-      .and.    (mask_tmp(j,i+1)==0.or.mask_tmp(j,i-1)==0  &
-            .or.mask_tmp(j+1,i)==0.or.mask_tmp(j-1,i)==0) ) ) then
-
-   if (H_new(j,i) >= eps_H) then
-
-      if (H_new(j,i)<H_balance(j,i).and.zl_new(j,i)<z_sl(j,i)) then
-         mask_tmp(j,i)     = 3
-         zb_new_tmp(j,i)   = z_sl(j,i)-rho_rhosw_ratio*H_new(j,i)
-         zs_new_tmp(j,i)   = zb_new_tmp(j,i)+H_new(j,i)
-      else
-         mask_tmp(j,i)     = 0
-         zb_new_tmp(j,i)   = zl_new(j,i)
-         zs_new_tmp(j,i)   = zb_new_tmp(j,i)+H_new(j,i)
-      end if
-
-   else   ! if (H_new(j,i) <= eps_H) then
-
-      if (zl_new(j,i)>z_sl(j,i)) then
-         mask_tmp(j,i)     = 1
-         zb_new_tmp(j,i)   = zl_new(j,i)
-         zs_new_tmp(j,i)   = zb_new_tmp(j,i)
-      else
-         mask_tmp(j,i)     = 2
-         zb_new_tmp(j,i)   = z_sl(j,i)
-         zs_new_tmp(j,i)   = z_sl(j,i)
-      end if
-
-   end if
-
-else if (mask_tmp(j,i) <= 1) then   ! grounded ice or ice-free land
-
-   if (H_new(j,i) >= eps_H) then   ! can change mask_tmp 0 or 1
-      mask_tmp(j,i)     = 0
-      zb_new_tmp(j,i)   = zl_new(j,i)
-      zs_new_tmp(j,i)   = zb_new_tmp(j,i)+H_new(j,i)
-   else
-      mask_tmp(j,i)     = 1
-      zb_new_tmp(j,i)   = zl_new(j,i)
-      zs_new_tmp(j,i)   = zl_new(j,i)
-   end if
-
-else   ! if (mask_tmp(j,i)==2.or.mask_tmp(j,i)==3) then
-
-   if (H_new(j,i) > eps_H) then
-
-      if (H_new(j,i)<H_balance(j,i).and.zl_new(j,i)<z_sl(j,i)) then
-         mask_tmp(j,i)     = 3
-         zb_new_tmp(j,i)   = z_sl(j,i)-rho_rhosw_ratio*H_new(j,i)
-         zs_new_tmp(j,i)   = zb_new_tmp(j,i)+H_new(j,i)
-      else
-         mask_tmp(j,i)     = 0
-         zb_new_tmp(j,i)   = zl_new(j,i)
-         zs_new_tmp(j,i)   = zb_new_tmp(j,i)+H_new(j,i)
-      end if
-
-   else   ! if (H_new(j,i) <= eps_H) then
-
-      if (zl_new(j,i)>z_sl(j,i)) then
-         mask_tmp(j,i)     = 1
-         zb_new_tmp(j,i)   = zl_new(j,i)
-         zs_new_tmp(j,i)   = zb_new_tmp(j,i)
-      else
-         mask_tmp(j,i)     = 2
-         zb_new_tmp(j,i)   = z_sl(j,i)
-         zs_new_tmp(j,i)   = z_sl(j,i)
-      end if
-
-   end if
-
-end if
-
-#if (ICE_SHELF_CALVING==3 || ICE_SHELF_CALVING_2==3)
-do ij=1, (IMAX+1)*(JMAX+1)
-
-   i = n2i(ij)   ! i=0...IMAX
-   j = n2j(ij)   ! j=0...JMAX
-
-   if (mask_tmp(j,i)==3) then
-      mask_tmp(j,i) = 2 
-#if (ICE_SHELF_CALVING==3)
-      calving_1(j,i) = H_new(j,i)*dtime_inv
-#elif (ICE_SHELF_CALVING_2==3)
-      calving_2(j,i) = H_new(j,i)*dtime_inv
-#endif
-      H_new(j,i) = 0.0_dp
-   end if 
-
-end do
-#endif
-
-do ij=1, (IMAX+1)*(JMAX+1)
-
-   i = n2i(ij)   ! i=0...IMAX
-   j = n2j(ij)   ! j=0...JMAX
-
-#if (ICE_SHELF_CALVING_TYPE==0)
-   if ( ( ((mask_tmp(j,i)==0).and.(zb_new_tmp(j,i)<z_sl(j,i))).or.(mask_tmp(j,i)==3) ) &   ! grounded or floating ice
-#elif (ICE_SHELF_CALVING_TYPE==1)
-   if ( (mask_tmp(j,i)==3) &   ! floating ice
-#elif (ICE_SHELF_CALVING_TYPE==2)
-   if ( ((mask_tmp(j,i)==0).and.(zb_new_tmp(j,i)<z_sl(j,i))) &   ! grounded ice
-#else
-   errormsg = ' >>> calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
-   call error(errormsg)
-   if (.true. &
-#endif
-      .and. &
-         (    (mask_tmp(j,i+1)==2)   &   ! with
-          .or.(mask_tmp(j,i-1)==2)   &   ! one
-          .or.(mask_tmp(j+1,i)==2)   &   ! neighbouring
-          .or.(mask_tmp(j-1,i)==2) ) &   ! sea point
-      ) flag_calving_front_1(j,i) = .true.   ! preliminary detection of the calving front
-   
-   if ( flag_calving_front_1(j,i) ) then
-      numberOfFace = 0
-      if ( mask_tmp(j, i+1)==2 ) numberOfFace = numberOfFace + 1
-      if ( mask_tmp(j, i-1)==2 ) numberOfFace = numberOfFace + 1
-      if ( mask_tmp(j+1, i)==2 ) numberOfFace = numberOfFace + 1
-      if ( mask_tmp(j-1, i)==2 ) numberOfFace = numberOfFace + 1
-
-      H_new_tmp = H_new(j,i)
-      dHdt_retreat = F_rate * numberOfFace * &
-         max( &
-           z_sl(j,     i) - zb_new_tmp(j,     i), &
-           z_sl(j,   i+1) - zb_new_tmp(j,   i+1), &
-           z_sl(j+1, i+1) - zb_new_tmp(j+1, i+1), &
-           z_sl(j-1, i+1) - zb_new_tmp(j-1, i+1), &
-           z_sl(j,   i-1) - zb_new_tmp(j,   i-1), &
-           z_sl(j+1, i-1) - zb_new_tmp(j+1, i-1), &
-           z_sl(j-1, i-1) - zb_new_tmp(j-1, i-1), &
-           z_sl(j+1,   i) - zb_new_tmp(j+1,   i), &
-           z_sl(j-1,   i) - zb_new_tmp(j-1,   i)  &
-         ) 
-
-      H_new(j,i) = max(H_new_tmp - dHdt_retreat*dtime, 0.0_dp)
-      calving(j,i) = calving(j,i) +  (H_new_tmp - H_new(j,i))*dtime_inv
-#if (ICE_SHELF_CALVING==7)
-      calving_1(j,i) = (H_new_tmp - H_new(j,i))*dtime_inv
-#elif (ICE_SHELF_CALVING_2==7)
-      calving_2(j,i) = (H_new_tmp - H_new(j,i))*dtime_inv
-#endif
-   end if
-end do
-#endif
 
 end subroutine calc_thk_expl
 
@@ -1447,7 +1272,7 @@ real(dp)     :: rhosw_rho_ratio, rho_rhosw_ratio
 real(dp)     :: H_inv
 logical      :: flag_calving_event
 real(dp)     :: w_crit, w_crit2, w_crit2_cstePart, H_crit
-real(dp)     :: dHdt_retreat, DX_inMeter_inv, F_rate, H_new_tmp, calv_retreat_mask, zs_new_tmp
+real(dp)     :: dHdt_retreat, DX_inMeter_inv, F_rate, H_new_tmp, numberOfFace
 
 real(dp), dimension(0:JMAX,0:IMAX) :: H_sea_new, H_balance
 
@@ -1463,7 +1288,6 @@ H_sea_new = z_sl - zl_new    ! sea depth
 H_balance = H_sea_new*rhosw_rho_ratio
 
 #if (THK_EVOL>=1)
-
 do i=1, IMAX-1
    do j=1, JMAX-1
 
@@ -1558,7 +1382,7 @@ do i=1, IMAX-1
    end do
 end do
 
-#if (ICE_SHELF_CALVING==2 || ICE_SHELF_CALVING_2==2)
+#if (ICE_SHELF_CALVING==2)
 
 #if !defined(ALLOW_TAPENADE) /* Normal */
 
@@ -1592,13 +1416,7 @@ do
       if ( flag_calving_front_1(j,i).and.(H_new(j,i) < H_CALV) ) then
          flag_calving_event = .true.  ! calving event,
          mask(j,i)          = 2   ! floating ice point changes to sea point
-#if (ICE_SHELF_CALVING==2)
-         calving_1(j,i) = H_new(j,i)*dtime_inv
-#elif (ICE_SHELF_CALVING_2==2)
-         calving_2(j,i) = H_new(j,i)*dtime_inv
-#endif
       end if
-
    end do
    end do
 
@@ -1640,11 +1458,6 @@ do while (flag_calving_event)
       if ( (flag_calving_front_1(j,i)).and.(H_new(j,i) < H_CALV) ) then
          flag_calving_event = .true.  ! calving event,
          mask(j,i)          = 2   ! floating ice point changes to sea point
-#if (ICE_SHELF_CALVING==2)
-         calving_1(j,i) = H_new(j,i)*dtime_inv
-#elif (ICE_SHELF_CALVING_2==2)
-         calving_2(j,i) = H_new(j,i)*dtime_inv
-#endif
       end if
 
    end do
@@ -1654,7 +1467,7 @@ end do
 
 #endif /* Normal vs. Tapenade */
 
-#elif (ICE_SHELF_CALVING==3 || ICE_SHELF_CALVING_2==3)
+#elif (ICE_SHELF_CALVING==3)
 
 do ij=1, (IMAX+1)*(JMAX+1)
 
@@ -1663,32 +1476,22 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
    if (mask(j,i)==3) then
       mask(j,i) = 2 ! float-kill: all floating ice points changed to sea points
-#if (ICE_SHELF_CALVING==3)
-      calving_1(j,i) = H_new(j,i)*dtime_inv
-#elif (ICE_SHELF_CALVING_2==3)
-      calving_2(j,i) = H_new(j,i)*dtime_inv
-#endif
    end if 
 end do
 
-#elif (ICE_SHELF_CALVING==4 || ICE_SHELF_CALVING_2==4)
+#elif ( ICE_SHELF_CALVING==4 || (defined(FRONTAL_CALVING_RATE) && ICE_SHELF_CALVING!=1) )
 
-#if !(defined(RHO_SWC))
-  errormsg = ' >>> calc_thk_mask_update_aux3: RHO_SWC undefined! Required for ICE_SHELF_CALVING==4'
-  call error(errormsg)
-#endif
+#if !(defined(FRONTAL_CALVING_RATE))
+   errormsg = ' >>> calc_thk_mask_update_aux3: FRONTAL_CALVING_RATE undefined! Required for ICE_SHELF_CALVING==4'
+   call error(errormsg)
+#endif 
+calving_horizontal = 0.0_dp
 
-#if !(defined(SIG_MAX))
-  errormsg = ' >>> calc_thk_mask_update_aux3: SIG_MAX undefined! Required for ICE_SHELF_CALVING==4'
-  call error(errormsg)
-#endif
+if ( FRONTAL_CALVING_RATE > 0.0_dp ) then
 
-w_crit = SIG_MAX * SQRT( RHO*RHO_SWC*RHO_SWC/(RHO_SW*(RHO_SWC - RHO)*(RHO_SW - RHO_SWC)) )  / (RHO * G)
-H_crit = RHO_SW*w_crit/RHO
-
-do
+   DX_inMeter_inv = 1.0_dp/(DX*1000.0_dp)
+   F_rate = FRONTAL_CALVING_RATE*DX_inMeter_inv/year2sec
    flag_calving_front_1 = .false.
-   flag_calving_event   = .false.
 
    do ij=1, (IMAX+1)*(JMAX+1)
 
@@ -1711,25 +1514,71 @@ do
              .or.(mask(j,i-1)==2)   &   ! one
              .or.(mask(j+1,i)==2)   &   ! neighbouring
              .or.(mask(j-1,i)==2) ) &   ! sea point
-       ) flag_calving_front_1(j,i) = .true.   ! preliminary detection of the calving front
+         ) flag_calving_front_1(j,i) = .true.   ! preliminary detection of the calving front
       
       if ( flag_calving_front_1(j,i) ) then
-         if ( (z_sl(j,i) - zl_new(j,i) >= w_crit) .and. (H_new(j,i) >= H_crit) ) then
-            flag_calving_event = .true.  ! calving event,
-#if (ICE_SHELF_CALVING==4)
-            calving_1(j,i) = H_new(j,i)*dtime_inv
-#elif (ICE_SHELF_CALVING_2==4)
-            calving_2(j,i) = H_new(j,i)*dtime_inv
-#endif
-            mask(j,i)          = 2   ! floating ice point changes to sea point
+         numberOfFace = 0
+         if ( mask(j, i+1)==2 ) numberOfFace = numberOfFace + 1
+         if ( mask(j, i-1)==2 ) numberOfFace = numberOfFace + 1
+         if ( mask(j+1, i)==2 ) numberOfFace = numberOfFace + 1
+         if ( mask(j-1, i)==2 ) numberOfFace = numberOfFace + 1
+
+         H_new_tmp = H_new(j,i)
+         dHdt_retreat = F_rate * numberOfFace * &
+            max( &
+              H_new(j,     i), &
+              H_new(j,   i+1), &
+              H_new(j+1, i+1), &
+              H_new(j-1, i+1), &
+              H_new(j,   i-1), &
+              H_new(j+1, i-1), &
+              H_new(j-1, i-1), &
+              H_new(j+1,   i), &
+              H_new(j-1,   i)  &
+            ) 
+
+         H_new(j,i) = H_new_tmp - dHdt_retreat*dtime
+         if (H_new(j,i) > eps_H) then
+            if (H_new(j,i)<H_balance(j,i).and.zl_new(j,i)<z_sl(j,i)) then
+               mask(j,i)     = 3
+               zb_new(j,i)   = z_sl(j,i)-rho_rhosw_ratio*H_new(j,i)
+               dzb_dtau(j,i) = dtime_inv*(zb_new(j,i)-zb(j,i))
+               zs_new(j,i)   = zb_new(j,i)+H_new(j,i)
+            else
+               mask(j,i)     = 0
+               zb_new(j,i)   = zl_new(j,i)
+               dzb_dtau(j,i) = dzl_dtau(j,i)
+               zs_new(j,i)   = zb_new(j,i)+H_new(j,i)
+            end if
+
+         else   ! if (H_new(j,i) <= eps_H) then
+            if (zl_new(j,i)>z_sl(j,i)) then
+               H_new(j,i) = 0.0_dp
+               mask(j,i)     = 1
+               zb_new(j,i)   = zl_new(j,i)
+               dzb_dtau(j,i) = dtime_inv*(zb_new(j,i)-zb(j,i))
+               zs_new(j,i)   = zb_new(j,i)
+            else
+               H_new(j,i) = 0.0_dp
+               mask(j,i)     = 2
+               zb_new(j,i)   = z_sl(j,i)
+               dzb_dtau(j,i) = 0.0_dp
+               zs_new(j,i)   = z_sl(j,i)
+            end if
+
          end if
+
+         calving(j,i) = calving(j,i) + (H_new_tmp - H_new(j,i))*dtime_inv
+         calving_horizontal(j,i) = (H_new_tmp - H_new(j,i))*dtime_inv
       end if
    end do
 
-   if (.not.flag_calving_event) exit
-end do
+else if ( FRONTAL_CALVING_RATE < 0.0_dp ) then
+   errormsg = ' >>> calc_thk_mask_update_aux3: FRONTAL_CALVING_RATE must be positive (== mass loss).'
+   call error(errormsg)
+end if 
 
-#elif (ICE_SHELF_CALVING==5 || ICE_SHELF_CALVING_2==5)
+#elif (ICE_SHELF_CALVING==5)
 
 #if !(defined(RHO_SWC))
   errormsg = ' >>> calc_thk_mask_update_aux3: RHO_SWC undefined! Required for ICE_SHELF_CALVING==5'
@@ -1788,11 +1637,6 @@ do
             if ( (mask(j,i)==3) .or. (z_sl(j,i) - zl_new(j,i) >= w_crit2) ) then
                flag_calving_event = .true.  ! calving event,
                mask(j,i) = 2   ! floating ice point changes to sea point
-#if (ICE_SHELF_CALVING==5)
-               calving_1(j,i) = H_new(j,i)*dtime_inv
-#elif (ICE_SHELF_CALVING_2==5)
-               calving_2(j,i) = H_new(j,i)*dtime_inv
-#endif
             end if
          end if
       end if
@@ -1802,7 +1646,6 @@ do
 end do
 
 #endif
-
 #endif
 
 !  ------ Adjustment due to prescribed target topography
@@ -1831,7 +1674,6 @@ do j=0, JMAX
    else if (mask(j,i) == 3) then   ! floating ice
 
       H_new(j,i) = zs_new(j,i)-zb_new(j,i)   ! ice thickness
-
       zb_new(j,i) = z_sl(j,i) - rho_rhosw_ratio*H_new(j,i)  ! floating condition
       zs_new(j,i) = zb_new(j,i) + H_new(j,i)
 

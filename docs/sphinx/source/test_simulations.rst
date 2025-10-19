@@ -108,17 +108,17 @@ Run ``repo_heino50_st``
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
 | Run                                 | Model time               | Time step\ :sup:`†`                  | CPU time                   |
 +=====================================+==========================+======================================+============================+
-| repo\_vialov3d25                    | :math:`100\,\mathrm{ka}` | :math:`20\,\mathrm{a}`               | :math:`1.0\,\mathrm{min}`  |
+| repo\_vialov3d25                    | :math:`100\,\mathrm{ka}` | :math:`20\,\mathrm{a}`               | :math:`0.9\,\mathrm{min}`  |
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
-| repo\_emtp2sge25\_expA              | :math:`200\,\mathrm{ka}` | :math:`20\,\mathrm{a}`               | :math:`4.7\,\mathrm{min}`  |
+| repo\_emtp2sge25\_expA              | :math:`200\,\mathrm{ka}` | :math:`20\,\mathrm{a}`               | :math:`4.3\,\mathrm{min}`  |
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
-| repo\_grl16\_bm5\_ss25ka            | :math:`25\,\mathrm{ka}`  | :math:`5\,\mathrm{a}`                | :math:`10.9\,\mathrm{min}` |
+| repo\_grl16\_bm5\_ss25ka            | :math:`25\,\mathrm{ka}`  | :math:`5\,\mathrm{a}`                | :math:`11.1\,\mathrm{min}` |
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
-| repo\_grl16\_bm5\_init100a          | :math:`100\,\mathrm{a}`  | :math:`5\,\mathrm{a}`                | :math:`1.6\,\mathrm{sec}`  |
+| repo\_grl16\_bm5\_init100a          | :math:`100\,\mathrm{a}`  | :math:`5\,\mathrm{a}`                | :math:`1.5\,\mathrm{sec}`  |
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
-| repo\_grl16\_bm5\_ss25ka_nudged     | :math:`25\,\mathrm{ka}`  | :math:`5\,\mathrm{a}`                | :math:`11.0\,\mathrm{min}` |
+| repo\_grl16\_bm5\_ss25ka_nudged     | :math:`25\,\mathrm{ka}`  | :math:`5\,\mathrm{a}`                | :math:`11.2\,\mathrm{min}` |
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
-| repo\_ant64\_bm3\_ss25ka            | :math:`25\,\mathrm{ka}`  | :math:`2\,/\,10\,\mathrm{a}`         | :math:`8.9\,\mathrm{min}`  |
+| repo\_ant64\_bm3\_ss25ka            | :math:`25\,\mathrm{ka}`  | :math:`2\,/\,10\,\mathrm{a}`         | :math:`8.6\,\mathrm{min}`  |
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
 | repo\_grl20\_b2\_paleo21            | :math:`140\,\mathrm{ka}` | :math:`5\,\mathrm{a}`                | :math:`0.9\,\mathrm{hrs}`  |
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
@@ -130,17 +130,17 @@ Run ``repo_heino50_st``
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
 | repo\_ant64\_b2\_spinup09\_init100a | :math:`100\,\mathrm{a}`  | :math:`2\,/\,10\,\mathrm{a}`         | :math:`4.3\,\mathrm{sec}`  |
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
-| repo\_ant64\_b2\_spinup09\_fixtopo  | :math:`140\,\mathrm{ka}` | :math:`3.\bar{3}\,/\,10\,\mathrm{a}` | :math:`0.9\,\mathrm{hrs}`  |
+| repo\_ant64\_b2\_spinup09\_fixtopo  | :math:`140\,\mathrm{ka}` | :math:`3.\bar{3}\,/\,10\,\mathrm{a}` | :math:`1.0\,\mathrm{hrs}`  |
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
 | repo\_ant64\_b2\_spinup09           | :math:`500\,\mathrm{a}`  | :math:`1\,/\,5\,\mathrm{a}`          | :math:`0.7\,\mathrm{min}`  |
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
-| repo\_ant64\_b2\_future09\_ctrl     | :math:`100\,\mathrm{a}`  | :math:`1\,/\,5\,\mathrm{a}`          | :math:`9.7\,\mathrm{sec}`  |
+| repo\_ant64\_b2\_future09\_ctrl     | :math:`100\,\mathrm{a}`  | :math:`1\,/\,5\,\mathrm{a}`          | :math:`8.6\,\mathrm{sec}`  |
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
-| repo\_ant64\_b2\_future09\_asmb     | :math:`100\,\mathrm{a}`  | :math:`1\,/\,5\,\mathrm{a}`          | :math:`9.7\,\mathrm{sec}`  |
+| repo\_ant64\_b2\_future09\_asmb     | :math:`100\,\mathrm{a}`  | :math:`1\,/\,5\,\mathrm{a}`          | :math:`8.2\,\mathrm{sec}`  |
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
-| repo\_ant64\_b2\_future09\_abmb     | :math:`100\,\mathrm{a}`  | :math:`1\,/\,5\,\mathrm{a}`          | :math:`10.2\,\mathrm{sec}` |
+| repo\_ant64\_b2\_future09\_abmb     | :math:`100\,\mathrm{a}`  | :math:`1\,/\,5\,\mathrm{a}`          | :math:`8.6\,\mathrm{sec}`  |
 +-------------------------------------+--------------------------+--------------------------------------+----------------------------+
 
-| Table 1: Model times, time steps and computing (CPU) times for the EISMINT, Greenland and Antarctica test simulations contained in the script ``multi_sico_1.sh``, run with SICOPOLIS v24 (revision bdf61628b) and the Intel Fortran compiler 2021.8.0 for Linux (optimization options ``-xHOST -O3 -no-prec-div``) on a single core of a 12-Core Intel Xeon Gold 6256 (3.6 GHz) PC under openSUSE Leap 15.5.
+| Table 1: Model times, time steps and computing (CPU) times for the EISMINT, Greenland and Antarctica test simulations contained in the script ``multi_sico_1.sh``, run with SICOPOLIS v25 (revision b2b0b31fa of 2025-10-16) and the gfortran compiler v13.3.1 for Linux (optimization options ``-O3 -ffast-math -ffree-line-length-none``) on a single core of a 12-Core Intel Xeon Gold 6256 (3.6 GHz) PC under openSUSE Leap 15.6.
 | |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| \ :sup:`†`: If one value is given, this is the common dynamic (velocity, ice thickness) and thermodynamic (temperature, water content, age) time step. If two values, separated by a slash (/), are given, the first one is the dynamic, the second one the thermodynamic time step.
 | |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| \ :sup:`\*`: For this run, see the remark in the :ref:`subsection on the resolution-doubler tool <plotting_and_tools-res_dbl>`.

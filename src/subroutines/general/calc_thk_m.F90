@@ -128,8 +128,6 @@ do ij=1, (IMAX+1)*(JMAX+1)
    H_new(j,i)  = H(j,i)    ! will be overwritten later
 
 !-------- Source term for the ice thickness equation --------
-   as_perp(j,i) = max(as_perp(j,i), 0.0_dp)
-   Q_b_tot(j,i) = max(Q_b_tot(j,i), 0.0_dp)
 
    mb_source(j,i) = as_perp(j,i) - Q_b_tot(j,i) - calving(j,i)
 

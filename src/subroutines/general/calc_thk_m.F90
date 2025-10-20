@@ -1382,92 +1382,8 @@ do i=1, IMAX-1
    end do
 end do
 
-#if (ICE_SHELF_CALVING==2)
 
-#if !defined(ALLOW_TAPENADE) /* Normal */
-
-do
-
-   flag_calving_front_1 = .false.
-   flag_calving_event   = .false.
-
-   do i=1, IMAX-1
-   do j=1, JMAX-1
-#if (ICE_SHELF_CALVING_TYPE==0)
-      if ( ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
-#elif (ICE_SHELF_CALVING_TYPE==1)
-      if ( (mask(j,i)==3) &   ! floating ice
-#elif (ICE_SHELF_CALVING_TYPE==2)
-      if ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))) &   ! grounded ice
-#else
-      errormsg = ' >>> calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
-      call error(errormsg)
-      if (.true. &
-#endif
-           .and. &
-             (    (mask(j,i+1)==2)   &   ! with
-              .or.(mask(j,i-1)==2)   &   ! one
-              .or.(mask(j+1,i)==2)   &   ! neighbouring
-              .or.(mask(j-1,i)==2) ) &   ! sea point
-         ) &
-         flag_calving_front_1(j,i) = .true.   ! preliminary detection
-                                              ! of the calving front
-
-      if ( flag_calving_front_1(j,i).and.(H_new(j,i) < H_CALV) ) then
-         flag_calving_event = .true.  ! calving event,
-         mask(j,i)          = 2   ! floating ice point changes to sea point
-      end if
-   end do
-   end do
-
-   if (.not.flag_calving_event) exit
-
-end do
-
-#else /* Tapenade */
-
-   flag_calving_event   = .true.
-
-do while (flag_calving_event)
-
-   flag_calving_front_1 = .false.
-   flag_calving_event   = .false.
-
-   do i=1, IMAX-1
-   do j=1, JMAX-1
-
-#if (ICE_SHELF_CALVING_TYPE==0)
-      if ( ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
-#elif (ICE_SHELF_CALVING_TYPE==1)
-      if ( (mask(j,i)==3) &   ! floating ice
-#elif (ICE_SHELF_CALVING_TYPE==2)
-      if ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))) &   ! grounded ice
-#else
-      errormsg = ' >>> calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
-      call error(errormsg)
-      if (.true. &
-#endif
-           .and. &
-             (    (mask(j,i+1)==2)   &   ! with
-              .or.(mask(j,i-1)==2)   &   ! one
-              .or.(mask(j+1,i)==2)   &   ! neighbouring
-              .or.(mask(j-1,i)==2) ) &   ! sea point
-         ) flag_calving_front_1(j,i) = .true.       ! preliminary detection
-                                                  ! of the calving front
-
-      if ( (flag_calving_front_1(j,i)).and.(H_new(j,i) < H_CALV) ) then
-         flag_calving_event = .true.  ! calving event,
-         mask(j,i)          = 2   ! floating ice point changes to sea point
-      end if
-
-   end do
-   end do
-
-end do
-
-#endif /* Normal vs. Tapenade */
-
-#elif (ICE_SHELF_CALVING==3)
+#if (ICE_SHELF_CALVING==3)
 
 do ij=1, (IMAX+1)*(JMAX+1)
 
@@ -1478,8 +1394,10 @@ do ij=1, (IMAX+1)*(JMAX+1)
       mask(j,i) = 2 ! float-kill: all floating ice points changed to sea points
    end if 
 end do
+#endif /* ICE_SHELF_CALVING==3 */
 
-#elif ( ICE_SHELF_CALVING==4 || (defined(FRONTAL_CALVING_RATE) && ICE_SHELF_CALVING!=1) )
+
+#if ( ICE_SHELF_CALVING==4 || (defined(FRONTAL_CALVING_RATE) && ICE_SHELF_CALVING!=1) )
 
 #if !(defined(FRONTAL_CALVING_RATE))
    errormsg = ' >>> calc_thk_mask_update_aux3: FRONTAL_CALVING_RATE undefined! Required for ICE_SHELF_CALVING==4'
@@ -1584,7 +1502,97 @@ else if ( FRONTAL_CALVING_RATE < 0.0_dp ) then
    call error(errormsg)
 end if 
 
-#elif (ICE_SHELF_CALVING==5)
+#endif /* ICE_SHELF_CALVING==4 */
+
+
+#if (ICE_SHELF_CALVING==2)
+
+#if !defined(ALLOW_TAPENADE) /* Normal */
+
+do
+
+   flag_calving_front_1 = .false.
+   flag_calving_event   = .false.
+
+   do i=1, IMAX-1
+   do j=1, JMAX-1
+#if (ICE_SHELF_CALVING_TYPE==0)
+      if ( ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+#elif (ICE_SHELF_CALVING_TYPE==1)
+      if ( (mask(j,i)==3) &   ! floating ice
+#elif (ICE_SHELF_CALVING_TYPE==2)
+      if ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))) &   ! grounded ice
+#else
+      errormsg = ' >>> calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
+      call error(errormsg)
+      if (.true. &
+#endif
+           .and. &
+             (    (mask(j,i+1)==2)   &   ! with
+              .or.(mask(j,i-1)==2)   &   ! one
+              .or.(mask(j+1,i)==2)   &   ! neighbouring
+              .or.(mask(j-1,i)==2) ) &   ! sea point
+         ) &
+         flag_calving_front_1(j,i) = .true.   ! preliminary detection
+                                              ! of the calving front
+
+      if ( flag_calving_front_1(j,i).and.(H_new(j,i) < H_CALV) ) then
+         flag_calving_event = .true.  ! calving event,
+         mask(j,i)          = 2   ! floating ice point changes to sea point
+      end if
+   end do
+   end do
+
+   if (.not.flag_calving_event) exit
+
+end do
+
+#else /* Tapenade */
+
+   flag_calving_event   = .true.
+
+do while (flag_calving_event)
+
+   flag_calving_front_1 = .false.
+   flag_calving_event   = .false.
+
+   do i=1, IMAX-1
+   do j=1, JMAX-1
+
+#if (ICE_SHELF_CALVING_TYPE==0)
+      if ( ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))).or.(mask(j,i)==3) ) &   ! grounded or floating ice
+#elif (ICE_SHELF_CALVING_TYPE==1)
+      if ( (mask(j,i)==3) &   ! floating ice
+#elif (ICE_SHELF_CALVING_TYPE==2)
+      if ( ((mask(j,i)==0).and.(zb_new(j,i)<z_sl(j,i))) &   ! grounded ice
+#else
+      errormsg = ' >>> calc_thk_mask_update_aux3: ICE_SHELF_CALVING_TYPE must be O or 1 or 2.'
+      call error(errormsg)
+      if (.true. &
+#endif
+           .and. &
+             (    (mask(j,i+1)==2)   &   ! with
+              .or.(mask(j,i-1)==2)   &   ! one
+              .or.(mask(j+1,i)==2)   &   ! neighbouring
+              .or.(mask(j-1,i)==2) ) &   ! sea point
+         ) flag_calving_front_1(j,i) = .true.       ! preliminary detection
+                                                  ! of the calving front
+
+      if ( (flag_calving_front_1(j,i)).and.(H_new(j,i) < H_CALV) ) then
+         flag_calving_event = .true.  ! calving event,
+         mask(j,i)          = 2   ! floating ice point changes to sea point
+      end if
+
+   end do
+   end do
+
+end do
+
+#endif /* Normal vs. Tapenade */
+#endif /* ICE_SHELF_CALVING==2 */
+
+
+#if (ICE_SHELF_CALVING==5)
 
 #if !(defined(RHO_SWC))
   errormsg = ' >>> calc_thk_mask_update_aux3: RHO_SWC undefined! Required for ICE_SHELF_CALVING==5'
@@ -1651,8 +1659,8 @@ do
    if (.not.flag_calving_event) exit
 end do
 
-#endif
-#endif
+#endif /* ICE_SHELF_CALVING==5 */
+#endif /* THK_EVOL>=1 */
 
 !  ------ Adjustment due to prescribed target topography
 

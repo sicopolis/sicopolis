@@ -1269,10 +1269,10 @@ integer(i4b) :: ij, i, j, kc, kt
 real(dp)     :: rhosw_rho_ratio, rho_rhosw_ratio
 real(dp)     :: H_inv
 logical      :: flag_calving_event
-real(dp)     :: w_crit, w_crit2, w_crit2_cstePart, H_crit
+real(dp)     :: w_crit, w_crit2, w_crit2_cstePart, H_crit, H_tmp
 real(dp)     :: dHdt_retreat, DX_inMeter_inv, F_rate, numberOfFace
 
-real(dp), dimension(0:JMAX,0:IMAX) :: H_sea_new, H_balance, H_new_tmp
+real(dp), dimension(0:JMAX,0:IMAX) :: H_sea_new, H_balance
 
 !-------- Term abbreviations --------
 
@@ -1404,7 +1404,6 @@ end do
 calving_horizontal = 0.0_dp
 
 if ( FRONTAL_CALVING_RATE > 0.0_dp ) then
-   H_new_tmp = H_new
    DX_inMeter_inv = 1.0_dp/(DX*1000.0_dp)
    F_rate = FRONTAL_CALVING_RATE*DX_inMeter_inv/year2sec
    flag_calving_front_1 = .false.
@@ -1441,14 +1440,17 @@ if ( FRONTAL_CALVING_RATE > 0.0_dp ) then
 
          dHdt_retreat = F_rate * numberOfFace * &
             max( &
-              H_new_tmp(j,     i), &
-              H_new_tmp(j,   i+1), &
-              H_new_tmp(j,   i-1), &
-              H_new_tmp(j+1,   i), &
-              H_new_tmp(j-1,   i)  &
+              z_sl(j,     i) - zb_new(j,     i), &
+              z_sl(j,   i+1) - zb_new(j,   i+1), &
+              z_sl(j,   i-1) - zb_new(j,   i-1), &
+              z_sl(j+1,   i) - zb_new(j+1,   i), &
+              z_sl(j-1,   i) - zb_new(j-1,   i)  &
             ) 
 
-         H_new(j,i) = H_new_tmp(j,i) - dHdt_retreat*dtime
+         H_tmp =  H_new(j,i)
+         H_new(j,i) = H_tmp - dHdt_retreat*dtime
+         calving_horizontal(j,i) = (max(H_tmp - H_new(j,i), H_tmp))*dtime_inv
+         calving(j,i) = calving(j,i) + calving_horizontal(j,i)
 
       end if
    end do
@@ -1487,11 +1489,7 @@ if ( FRONTAL_CALVING_RATE > 0.0_dp ) then
                dzb_dtau(j,i) = 0.0_dp
                zs_new(j,i)   = z_sl(j,i)
             end if
-
          end if
-
-         calving(j,i) = calving(j,i) + (H_new_tmp(j,i) - H_new(j,i))*dtime_inv
-         calving_horizontal(j,i) = (H_new_tmp(j,i) - H_new(j,i))*dtime_inv
       end if
    end do
 

@@ -1175,6 +1175,16 @@ write(10, fmt=trim(fmt2)) 'FIN_VISC = ', FIN_VISC
 #if (FIN_VISC==2)
 write(10, fmt=trim(fmt3)) 'SIGMA_RES =', SIGMA_RES
 #endif
+#elif (FLOW_LAW==4)
+#if (defined(SM_COEFF0))
+write(10, fmt=trim(fmt3)) 'SM_COEFF0 =', SM_COEFF0
+#endif
+#if (defined(SM_COEFF1))
+write(10, fmt=trim(fmt3)) 'SM_COEFF1 =', SM_COEFF1
+#endif
+#if (defined(SM_COEFF2))
+write(10, fmt=trim(fmt3)) 'SM_COEFF2 =', SM_COEFF2
+#endif
 #endif
 #if (defined(D_E_MIN))
 write(10, fmt=trim(fmt3)) 'D_E_MIN =', D_E_MIN

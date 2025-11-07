@@ -64,6 +64,8 @@ contains
 
 #if (BASAL_HYDROLOGY==1)
   real(dp), save                     :: rho_rho_w_ratio
+  real(dp)                           :: ratio_melt_drain
+  logical                            :: flag_melt_drain
   integer , dimension(0:IMAX,0:JMAX) :: hydro_icemask
   real(dp), dimension(0:IMAX,0:JMAX) :: hydro_topg, hydro_thk, &
                                         hydro_temppabase, hydro_supply, &
@@ -92,6 +94,22 @@ contains
 
   end if
 
+#if (!defined(MELT_DRAIN))
+  flag_melt_drain  = .false.
+  ratio_melt_drain = 0.0_dp
+#else
+  ratio_melt_drain = real(MELT_DRAIN,dp)
+  if (ratio_melt_drain > 0.0_dp) then
+     flag_melt_drain = .true.
+     if (ratio_melt_drain > 1.0_dp) then
+        ratio_melt_drain = 1.0_dp
+     end if
+  else
+     flag_melt_drain  = .false.
+     ratio_melt_drain = 0.0_dp
+  end if
+#endif
+
   do i=0, IMAX
   do j=0, JMAX
 
@@ -101,14 +119,12 @@ contains
      if (mask(j,i)==0) then   ! grounded ice
         hydro_icemask(i,j) = 1
         hydro_thk(i,j)     = H(j,i)
-#if (!defined(MELT_DRAIN) || MELT_DRAIN==0)
-        hydro_supply(i,j)  = rho_rho_w_ratio*Q_b_tot(j,i)
-#elif (MELT_DRAIN==1)   /* drainage of surface melt water included */
-        hydro_supply(i,j)  = rho_rho_w_ratio*(Q_b_tot(j,i) + runoff(j,i))
-#else
-        errormsg = ' >>> calc_thk_water_bas: MELT_DRAIN must be 0 or 1!'
-        call error(errormsg)
-#endif
+        if (.not.flag_melt_drain) then
+           hydro_supply(i,j)  = rho_rho_w_ratio*Q_b_tot(j,i)
+        else
+           hydro_supply(i,j)  = rho_rho_w_ratio &
+                                * (Q_b_tot(j,i) + ratio_melt_drain*runoff(j,i))
+        end if
      else
         hydro_icemask(i,j) = 0
         hydro_thk(i,j)     = 0.0_dp

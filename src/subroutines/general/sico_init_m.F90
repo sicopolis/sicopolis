@@ -1986,7 +1986,7 @@ write(10, fmt=trim(fmt1)) ' '
 #if (defined(BASAL_HYDROLOGY))
 write(10, fmt=trim(fmt2)) 'BASAL_HYDROLOGY = ', BASAL_HYDROLOGY
 #if (BASAL_HYDROLOGY==1 && defined(MELT_DRAIN))
-write(10, fmt=trim(fmt2)) 'MELT_DRAIN = ', MELT_DRAIN
+write(10, fmt=trim(fmt3)) 'MELT_DRAIN =', real(MELT_DRAIN,dp)
 #endif
 #endif
 

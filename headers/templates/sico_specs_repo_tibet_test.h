@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2025-11-02'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2025-11-07'
 !                      Date of last change
 
 !-------- Domain --------
@@ -941,10 +941,13 @@
 !                           computed by flux routing scheme
 
 #define MELT_DRAIN 0
-!                       Input for water film under grounded ice
-!                       (only for BASAL_HYDROLOGY==1):
-!                       0 : Basal meltwater only
-!                       1 : Basal meltwater plus surface runoff
+!                       Fraction of surface meltwater that drains to the base
+!                       and contributes to the water film under grounded ice
+!                       (real number between 0.0d0 and 1.0d0 or integer 0/1,
+!                       only for BASAL_HYDROLOGY==1).
+!                       If 0, only basal meltwater contributes.
+!                       If 1, basal meltwater plus 100% of surface meltwater
+!                       contribute.
 
 !-------- Basal sliding --------
 

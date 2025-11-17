@@ -7,7 +7,7 @@
 %   heat conductivity and specific heat required by SICOPOLIS.
 %
 % Author: Ralf Greve
-% Date:   2025-08-12
+% Date:   2025-11-17
 %==========================================================================
 
 clear variables
@@ -23,7 +23,7 @@ disp(' (3) Constant value for CalvingMIP')
 disp(' (4) EISMINT Phase 2 SGE')
 disp(' (5) Greve, Weis and Hutter (1998)')
 disp(' (6) Cuffey and Paterson (2010)')
-disp(' (7) Smith and Morland (1981) [modified]')
+disp(' (7) Smith and Morland (1981) [rescaled]')
 disp(' ')
 
 prompt = 'Enter [1-7] ';
@@ -179,10 +179,10 @@ elseif n_RF == 6
 elseif n_RF == 7
 %  ------ RF(T) by Smith and Morland, 1981,
 %                  Cold Reg. Sci. Technol. 5, 141-150
-%                  [modified]
+%                  [rescaled]
 
-   c1 =  4.33224;
-   c2 =  2.05665;
+   c1 =  4.3322;
+   c2 =  2.0566;
    d1 = 11.9567;
    d2 =  2.9494;
    DT = 20.0;
@@ -198,7 +198,7 @@ elseif n_RF == 7
 
    ch_ref_RF = ['Smith and Morland, 1981, ' ...
                 'Cold Reg. Sci. Technol. 5, 141-150; ' ...
-                'modified'];
+                'rescaled'];
 
 end
 

@@ -392,19 +392,19 @@ sm_strain_rate_scale = 0.025_dp *sec2year   ! a-1 -> s-1
 #if (defined(SM_COEFF0))
 sm_coeff(0) = SM_COEFF0
 #else
-sm_coeff(0) = 0.386193_dp   ! dimensionless
+sm_coeff(0) = 0.3862_dp   ! dimensionless
 #endif
 
 #if (defined(SM_COEFF1))
 sm_coeff(1) = SM_COEFF1
 #else
-sm_coeff(1) = 0.370448_dp   ! dimensionless
+sm_coeff(1) = 0.3704_dp   ! dimensionless
 #endif
 
 #if (defined(SM_COEFF2))
 sm_coeff(2) = SM_COEFF2
 #else
-sm_coeff(2) = 0.034303_dp   ! dimensionless
+sm_coeff(2) = 0.0343_dp   ! dimensionless
 #endif
 
 factor_aux = sm_stress_dev_scale_inv * sm_stress_dev_scale_inv
@@ -523,19 +523,19 @@ sm_strain_rate_scale = 0.025_dp *sec2year   ! a-1 -> s-1
 #if (defined(SM_COEFF0))
 sm_coeff(0) = SM_COEFF0
 #else
-sm_coeff(0) = 0.386193_dp   ! dimensionless
+sm_coeff(0) = 0.3862_dp   ! dimensionless
 #endif
 
 #if (defined(SM_COEFF1))
 sm_coeff(1) = SM_COEFF1
 #else
-sm_coeff(1) = 0.370448_dp   ! dimensionless
+sm_coeff(1) = 0.3704_dp   ! dimensionless
 #endif
 
 #if (defined(SM_COEFF2))
 sm_coeff(2) = SM_COEFF2
 #else
-sm_coeff(2) = 0.034303_dp   ! dimensionless
+sm_coeff(2) = 0.0343_dp   ! dimensionless
 #endif
 
 factor_aux = sm_stress_dev_scale_inv * sm_stress_dev_scale_inv

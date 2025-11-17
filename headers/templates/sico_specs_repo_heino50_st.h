@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2025-11-07'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2025-11-17'
 !                      Date of last change
 
 !-------- Domain --------
@@ -407,9 +407,9 @@
 !                         for the regularized Nye-Glen flow law
 !                         (in Pa; only for FLOW_LAW==1 and FIN_VISC==2)
 
-#define SM_COEFF0 0.386193d0
-#define SM_COEFF1 0.370448d0
-#define SM_COEFF2 0.034303d0
+#define SM_COEFF0 0.3862d0
+#define SM_COEFF1 0.3704d0
+#define SM_COEFF2 0.0343d0
 !                         Coefficients for the Smith-Morland flow law
 !                         (dimensionless, only for FLOW_LAW==4)
 

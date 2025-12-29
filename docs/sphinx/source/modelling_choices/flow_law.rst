@@ -7,7 +7,7 @@ Several options for the flow law of polycrystalline ice are available. They can 
 
 * ``1``: Nye-Glen flow law (Glen :cite:`glen_1955`, Nye :cite:`nye_1957`) with stress exponent :math:`n`.
 
-* ``4``: Polynomial flow law by Smith and Morland :cite:`smith_morland_1981` (summarized by Greve and Blatter :cite:`greve_blatter_2009`, Section 4.3.3).
+* ``4``: Polynomial flow law by Smith and Morland :cite:`smith_morland_1981`, modified by Greve and Staroszczyk :cite:`greve_staroszczyk_2026`.
 
 The rate factor :math:`A(T')` is defined as a list for integer temperature values, to be read from a file specified in the run-specs header (parameter ``RF_KAPPA_C_FILE``). Between integer temperatures, linear interpolation is applied. To avoid problems with varying units and numerical values, a dimensionless formulation is chosen (Greve :cite:`greve_2025`).
 

@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2025-11-17'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2026-01-23'
 !                      Date of last change
 
 !-------- Domain --------
@@ -745,9 +745,9 @@
 !                       present mean-annual air temperature (in C/m)
 !                       (for TSURFACE==1, 2, 3, 4, 5)
 
-#define INSOL_MA_90S_FILE 'mars_laskar_const.dat'
-!                       Name of the file containing the mean-annual south-polar
-!                       insolation (for TSURFACE==5, 6)
+#define ORBITAL_PARAMETER_FILE 'mars_laskar_const.dat'
+!                       Name of the file containing the orbital parameters
+!                       (for TSURFACE==5, 6)
 
 #define ALBEDO 0.3d0
 !                       Albedo of the residual cap (only for TSURFACE==4, 5, 6)

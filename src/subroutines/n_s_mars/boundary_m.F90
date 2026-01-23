@@ -84,7 +84,7 @@ real(dp), intent(in) :: time, dtime, dxi, deta
 
 integer(i4b) :: i, j
 integer(i4b) :: i_gr, i_kl
-integer(i4b) :: ndata_insol
+integer(i4b) :: ndata_orb_par
 real(dp), dimension(0:JMAX,0:IMAX) :: z_sl_old
 real(dp) :: z_sl_old_mean
 real(dp) :: z_sl_min, t1, t2, t3, t4, t5, t6
@@ -191,11 +191,11 @@ insol_ma_90_present = (sol/pi)*sin(obliq0)/sqrt(1.0_dp-ecc0**2)
 
 #elif (TSURFACE==5 || TSURFACE==6)
 
-!  ------ Mean annual insolation at the north/south pole
+!  ------ Orbital parameters
 
-ndata_insol = (insol_time_max-insol_time_min)/insol_time_stp
+ndata_orb_par = (orb_par_time_max-orb_par_time_min)/orb_par_time_stp
 
-if (time*sec2year.lt.real(insol_time_min,dp)) then
+if (time*sec2year.lt.real(orb_par_time_min,dp)) then
 
    insol_ma_90_now = insol_ma_90(0)
    obl_now         = obl_data(0)
@@ -203,15 +203,15 @@ if (time*sec2year.lt.real(insol_time_min,dp)) then
    ave_now         = ave_data(0)
    cp_now          = cp_data(0)
 
-else if (time*sec2year.lt.real(insol_time_max,dp)) then
+else if (time*sec2year.lt.real(orb_par_time_max,dp)) then
 
    i_kl = floor(((time*sec2year) &
-          -real(insol_time_min,dp))/real(insol_time_stp,dp))
+          -real(orb_par_time_min,dp))/real(orb_par_time_stp,dp))
    i_kl = max(i_kl, 0)
 
    i_gr = ceiling(((time*sec2year) &
-          -real(insol_time_min,dp))/real(insol_time_stp,dp))
-   i_gr = min(i_gr, ndata_insol)
+          -real(orb_par_time_min,dp))/real(orb_par_time_stp,dp))
+   i_gr = min(i_gr, ndata_orb_par)
 
    if (i_kl.eq.i_gr) then
 
@@ -223,8 +223,8 @@ else if (time*sec2year.lt.real(insol_time_max,dp)) then
 
    else
 
-      time_kl = (insol_time_min + i_kl*insol_time_stp) *year2sec
-      time_gr = (insol_time_min + i_gr*insol_time_stp) *year2sec
+      time_kl = (orb_par_time_min + i_kl*orb_par_time_stp) *year2sec
+      time_gr = (orb_par_time_min + i_gr*orb_par_time_stp) *year2sec
 
       insol_ma_90_now = insol_ma_90(i_kl) &
                 +(insol_ma_90(i_gr)-insol_ma_90(i_kl)) &
@@ -261,17 +261,17 @@ else if (time*sec2year.lt.real(insol_time_max,dp)) then
 
 else
 
-   insol_ma_90_now = insol_ma_90(ndata_insol)
-   obl_now         = obl_data(ndata_insol)
-   ecc_now         = ecc_data(ndata_insol)
-   ave_now         = ave_data(ndata_insol)
-   cp_now          = cp_data(ndata_insol)
+   insol_ma_90_now = insol_ma_90(ndata_orb_par)
+   obl_now         = obl_data(ndata_orb_par)
+   ecc_now         = ecc_data(ndata_orb_par)
+   ave_now         = ave_data(ndata_orb_par)
+   cp_now          = cp_data(ndata_orb_par)
 
 end if
 
 !    ---- Present value
 
-if (time_present*sec2year.lt.real(insol_time_min,dp)) then
+if (time_present*sec2year.lt.real(orb_par_time_min,dp)) then
 
    insol_ma_90_present = insol_ma_90(0)
    obl_present         = obl_data(0)
@@ -279,15 +279,15 @@ if (time_present*sec2year.lt.real(insol_time_min,dp)) then
    ave_present         = ave_data(0)
    cp_present          = cp_data(0)
 
-else if (time_present*sec2year.lt.real(insol_time_max,dp)) then
+else if (time_present*sec2year.lt.real(orb_par_time_max,dp)) then
 
    i_kl = floor(((time_present*sec2year) &
-          -real(insol_time_min,dp))/real(insol_time_stp,dp))
+          -real(orb_par_time_min,dp))/real(orb_par_time_stp,dp))
    i_kl = max(i_kl, 0)
 
    i_gr = ceiling(((time_present*sec2year) &
-          -real(insol_time_min,dp))/real(insol_time_stp,dp))
-   i_gr = min(i_gr, ndata_insol)
+          -real(orb_par_time_min,dp))/real(orb_par_time_stp,dp))
+   i_gr = min(i_gr, ndata_orb_par)
 
    if (i_kl.eq.i_gr) then
 
@@ -299,8 +299,8 @@ else if (time_present*sec2year.lt.real(insol_time_max,dp)) then
 
    else
 
-      time_kl = (insol_time_min + i_kl*insol_time_stp) *year2sec
-      time_gr = (insol_time_min + i_gr*insol_time_stp) *year2sec
+      time_kl = (orb_par_time_min + i_kl*orb_par_time_stp) *year2sec
+      time_gr = (orb_par_time_min + i_gr*orb_par_time_stp) *year2sec
 
       insol_ma_90_present = insol_ma_90(i_kl) &
                 +(insol_ma_90(i_gr)-insol_ma_90(i_kl)) &
@@ -337,11 +337,11 @@ else if (time_present*sec2year.lt.real(insol_time_max,dp)) then
 
 else
 
-   insol_ma_90_present = insol_ma_90(ndata_insol)
-   obl_present         = obl_data(ndata_insol)
-   ecc_present         = ecc_data(ndata_insol)
-   ave_present         = ave_data(ndata_insol)
-   cp_present          = cp_data(ndata_insol)
+   insol_ma_90_present = insol_ma_90(ndata_orb_par)
+   obl_present         = obl_data(ndata_orb_par)
+   ecc_present         = ecc_data(ndata_orb_par)
+   ave_present         = ave_data(ndata_orb_par)
+   cp_present          = cp_data(ndata_orb_par)
 
 end if
 

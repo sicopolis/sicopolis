@@ -37,14 +37,14 @@ use sico_types_m
 implicit none
 save
 
-integer(i4b) :: insol_time_min
-   !! Minimum time of the data values for the insolation etc.
+integer(i4b) :: orb_par_time_min
+   !! Minimum time of the data values for the orbital parameters
 
-integer(i4b) :: insol_time_stp
-   !! Time step of the data values for the insolation etc.
+integer(i4b) :: orb_par_time_stp
+   !! Time step of the data values for the orbital parameters
 
-integer(i4b) :: insol_time_max
-   !! Maximum time of the data values for the insolation etc.
+integer(i4b) :: orb_par_time_max
+   !! Maximum time of the data values for the orbital parameters
 
 real(dp), dimension(0:100000) :: insol_ma_90
    !! Data values for the mean-annual north- or south-polar insolation

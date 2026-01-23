@@ -4,7 +4,7 @@
 !
 !! Computation of the daily mean surface temperature of Mars based on
 !! obliquity, eccentricity and the anomaly of vernal equinox
-!! (local insolation temperature scheme = LIT scheme).
+!! (local insolation temperature = LIT scheme).
 !!
 !!##### Authors
 !!
@@ -32,15 +32,13 @@
 !-------------------------------------------------------------------------------
 !> Computation of the daily mean surface temperature of Mars based on
 !! obliquity, eccentricity and the anomaly of vernal equinox
-!! (local insolation temperature scheme = LIT scheme).
+!! (local insolation temperature = LIT scheme).
 !-------------------------------------------------------------------------------
 module mars_instemp_m
 
    use sico_types_m
 
    implicit none
-
-   public
 
    type ins
       !! Martian surface temperatures
@@ -55,7 +53,7 @@ module mars_instemp_m
 contains
 
 !-------------------------------------------------------------------------------
-!> Main subroutine of module mars_instemp_m
+!> Main subroutine of module mars_instemp_m.
 !-------------------------------------------------------------------------------
    subroutine setinstemp ( o, ecc, ave, obl, sma, sa, sac, op, ct )
 
@@ -63,25 +61,26 @@ contains
 
       type(ins)          :: o
       real(dp), optional :: ecc   ! eccentricity
-      real(dp), optional :: ave   ! anom. of vernal equinox in degree
-      real(dp), optional :: obl   ! obliquity in degree
-      real(dp), optional :: sma   ! semi-major axis in AU
+      real(dp), optional :: ave   ! anomaly of vernal equinox (in degrees)
+      real(dp), optional :: obl   ! obliquity (in degrees)
+      real(dp), optional :: sma   ! semi-major axis (in AU)
       real(dp), optional :: sa    ! surface albedo (planetary mean)
       real(dp), optional :: sac   ! surface albedo (seasonal CO2 ice caps)
-      real(dp), optional :: op    ! orbital period in seconds
-      real(dp), optional :: ct    ! CO2 condensation temperature in K
+      real(dp), optional :: op    ! orbital period (in seconds)
+      real(dp), optional :: ct    ! CO2 condensation temperature (in K)
 
       logical      :: co2layer(-90:90)
       integer(i4b) :: iphi, ipsi, year
       integer(i4b), parameter :: yearmax = 2
       real(dp), parameter :: pi = 3.141592653589793_dp, deg2rad = pi/180.0_dp
-      real(dp), parameter :: SB = 5.67051e-8_dp
-                             ! Wikipedia gives 5.670400E-8 +- 0.000040E-8
+      real(dp), parameter :: SB = 5.670374419e-8_dp
       real(dp) :: tptd, seps, sdelta, cdelta
       real(dp) :: albact, albact_co2, delta, du, e, eps, f, &
                   lambda, phi, psi, psi0, r
       real(dp) :: tau0, teq, ufac, usum, w, wg
       real(dp), dimension(-90:90) :: co2, t
+
+      real(dp) :: one_three_hundred_and_sixtieth
 
       real(dp) :: j0
       real(dp) :: a
@@ -89,7 +88,9 @@ contains
       real(dp) :: u
       real(dp) :: tco2
 
-      j0   = 1367.6_dp   ! solar constant for Earth in W/m**2
+      one_three_hundred_and_sixtieth = 1.0_dp/360.0_dp
+
+      j0 = 1367.6_dp   ! solar constant for Earth (in W/m**2)
 
       if ( present(ecc) ) then
          e = ecc
@@ -151,9 +152,13 @@ contains
       t = 273.15_dp
       co2 = 0.0_dp
       co2layer = .false.
+
       do year = 1, yearmax
+
          usum = 0.0_dp
+
          do ipsi = 0, 360, 1
+
             psi = ipsi * deg2rad
             r = ( a**2 - f**2 ) / ( a + f*cos(psi) )
             du = ufac * r**2
@@ -162,6 +167,7 @@ contains
             delta  = asin( seps * sin(lambda) )
             sdelta = sin(delta)
             cdelta = cos(delta)
+
             do iphi = -89, 89, 1
                phi = iphi * deg2rad
                tptd = -tan(phi) * tan(delta)
@@ -204,6 +210,7 @@ contains
                end if
                if ( year .eq. yearmax ) o%t(ipsi,iphi) = t(iphi)
             end do
+
             if ( year .eq. yearmax .and. ipsi .eq. 0 ) then
                o%tam = 0.0_dp
                o%tmax = 0.0_dp
@@ -213,27 +220,31 @@ contains
                   o%tmax(iphi) = max( o%tmax(iphi), t(iphi) )
                end do
             end if
+
          end do
-         o%tam = o%tam / 360._dp
+
+         o%tam = o%tam * one_three_hundred_and_sixtieth   ! o%tam / 360.0_dp
+
       end do
-      o%t(:,-90)  = o%t(:,-89)  + ( o%t(:,-89)  - o%t(:,-88) )  / 2._dp
-      o%t(:, 90)  = o%t(:, 89)  + ( o%t(:, 89)  - o%t(:, 88) )  / 2._dp
-      o%tam(-90)  = o%tam(-89)  + ( o%tam(-89)  - o%tam(-88) )  / 2._dp
-      o%tam( 90)  = o%tam( 89)  + ( o%tam( 89)  - o%tam( 88) )  / 2._dp
-      o%tmax(-90) = o%tmax(-89) + ( o%tmax(-89) - o%tmax(-88) ) / 2._dp
-      o%tmax( 90) = o%tmax( 89) + ( o%tmax( 89) - o%tmax( 88) ) / 2._dp
+
+      o%t(:,-90)  = o%t(:,-89)  + ( o%t(:,-89)  - o%t(:,-88)  ) * 0.5_dp
+      o%t(:, 90)  = o%t(:, 89)  + ( o%t(:, 89)  - o%t(:, 88)  ) * 0.5_dp
+      o%tam(-90)  = o%tam(-89)  + ( o%tam(-89)  - o%tam(-88)  ) * 0.5_dp
+      o%tam( 90)  = o%tam( 89)  + ( o%tam( 89)  - o%tam( 88)  ) * 0.5_dp
+      o%tmax(-90) = o%tmax(-89) + ( o%tmax(-89) - o%tmax(-88) ) * 0.5_dp
+      o%tmax( 90) = o%tmax( 89) + ( o%tmax( 89) - o%tmax( 88) ) * 0.5_dp
 
    end subroutine
 
 !-------------------------------------------------------------------------------
-!> Annual mean temperature at latitude phi
+!> Annual mean temperature at latitude phi.
 !-------------------------------------------------------------------------------
-   function instam ( o, phi )
+   real(dp) function instam ( o, phi )
 
       implicit none
-      real(dp)     :: instam
-      type(ins)    :: o
-      real(dp)     :: phi
+
+      type(ins) :: o
+      real(dp)  :: phi
 
       integer(i4b) :: iphi1, iphi2
 
@@ -250,14 +261,14 @@ contains
    end function instam
 
 !-------------------------------------------------------------------------------
-!> Annual maximum temperature at latitude phi
+!> Annual maximum temperature at latitude phi.
 !-------------------------------------------------------------------------------
-   function instmax ( o, phi )
+   real(dp) function instmax ( o, phi )
 
       implicit none
-      real(dp)     :: instmax
-      type(ins)    :: o
-      real(dp)     :: phi
+
+      type(ins) :: o
+      real(dp)  :: phi
 
       integer(i4b) :: iphi1, iphi2
 
@@ -274,14 +285,14 @@ contains
    end function instmax
 
 !-------------------------------------------------------------------------------
-!> Temperature at orbit position psi and latitude phi
+!> Temperature at orbit position psi and latitude phi.
 !-------------------------------------------------------------------------------
-   function inst ( o, psi, phi )
+   real(dp) function inst ( o, psi, phi )
 
       implicit none
-      real(dp)     :: inst
-      type(ins)    :: o
-      real(dp)     :: psi, phi
+
+      type(ins) :: o
+      real(dp)  :: psi, phi
 
       integer(i4b) :: ipsi1, ipsi2
 
@@ -298,12 +309,12 @@ contains
    end function inst
 
 !-------------------------------------------------------------------------------
-!> Temperature at orbit position ipsi (integer) and latitude phi
+!> Temperature at orbit position ipsi (integer value) and latitude phi.
 !-------------------------------------------------------------------------------
-   function inst1 ( o, ipsi, phi )
+   real(dp) function inst1 ( o, ipsi, phi )
 
       implicit none
-      real(dp)     :: inst1
+
       type(ins)    :: o
       integer(i4b) :: ipsi
       real(dp)     :: phi
@@ -321,6 +332,8 @@ contains
                * ( phi - iphi1 )
 
    end function inst1
+
+!-------------------------------------------------------------------------------
 
 end module mars_instemp_m
 !

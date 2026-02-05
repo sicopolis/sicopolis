@@ -110,35 +110,47 @@ logical, dimension(0:JMAX,0:IMAX) :: check_point
 type (ins) :: temp_now, temp_present
 #endif
 
-real(dp), parameter :: time_present = 0.0_dp   ! Present time [s]
+real(dp), parameter :: time_present = 0.0_dp
+                          ! Present time [s]
 
 #if (defined(NMARS))
 real(dp), parameter :: zs_90_present = -2.0e+03_dp
-                        ! Present elevation of the north pole [m]
+                          ! Present elevation of the north pole [m]
 #elif (defined(SMARS))
 real(dp), parameter :: zs_90_present = 3.85e+03_dp
-                        ! Present elevation of the south pole [m]
+                          ! Present elevation of the south pole [m]
 #endif
 
-real(dp), parameter :: &
-          sol     = 590.0_dp, &   ! Solar constant [W/m2]
-          epsilon = 1.0_dp,   &   ! Emissivity
-          sigma   = 5.67e-08_dp   ! Stefan-Boltzmann constant [W/(m2*K4)]
+real(dp), parameter :: sol = 590.0_dp
+                          ! Solar constant for Mars [W/m2]
 
-real(dp), parameter :: &
-          lambda_H2O = 2.86e+06_dp, &   ! Latent heat [J/kg]
-          R_H2O      = 461.5_dp,  &     ! Gas constant [J/(kg*K)]
-          temp0_ref  = 173.0_dp         ! Atmopheric reference temperature [K]
+real(dp), parameter :: emiss = 1.0_dp
+                          ! Emissivity
+
+real(dp), parameter :: sigma = 5.670374419e-08_dp
+                          ! Stefan-Boltzmann constant [W/(m2*K4)]
+
+real(dp), parameter :: lambda_H2O = 2.86e+06_dp
+                          ! Latent heat [J/kg]
+
+real(dp), parameter :: R_H2O = 461.5_dp
+                          ! Gas constant [J/(kg*K)]
+
+real(dp), parameter :: temp0_ref = 173.0_dp
+                          ! Atmopheric reference temperature [K]
 
 #if (defined(NMARS))
-real(dp), parameter :: temp_s_min = -125.0_dp
+real(dp), parameter :: temp_CO2_C = -125.0_dp
                           ! Minimum ice-surface temperature 
                           ! (sublimation temperature of CO2) [C]
 #elif (defined(SMARS))
-real(dp), parameter :: temp_s_min = -128.0_dp
+real(dp), parameter :: temp_CO2_C = -128.0_dp
                           ! Minimum ice-surface temperature 
                           ! (sublimation temperature of CO2) [C]
 #endif
+
+real(dp), parameter :: temp_CO2_K = temp_CO2_C + 273.15_dp   ! C -> K
+                          ! Sublimation temperature of CO2 [K]
 
 !-------- Initialization of variables --------
 
@@ -351,13 +363,13 @@ end if
 
 !  ------ Mean-annual surface temperature at the north/south pole
 
-temp_ma_90 = sqrt(sqrt(insol_ma_90_now*(1.0_dp-ALBEDO)/(epsilon*sigma))) &
+temp_ma_90 = sqrt(sqrt(insol_ma_90_now*(1.0_dp-ALBEDO)/(emiss*sigma))) &
              -273.15_dp   ! K -> C
 
 !    ---- Present value
 
 temp_ma_90_present &
-        = sqrt(sqrt(insol_ma_90_present*(1.0_dp-ALBEDO)/(epsilon*sigma))) &
+        = sqrt(sqrt(insol_ma_90_present*(1.0_dp-ALBEDO)/(emiss*sigma))) &
           -273.15_dp   ! K -> C
 
 !  ------ Surface-temperature deviation at the north/south pole
@@ -370,7 +382,8 @@ delta_ts = temp_ma_90 - temp_ma_90_present
 
 call setinstemp(temp_now, &
                 ecc = ecc_now, ave = ave_now*rad2deg, &
-                obl = obl_now*rad2deg, sa = ALBEDO, ct = 148.7_dp)
+                obl = obl_now*rad2deg, &
+                sa = ALBEDO, ct = temp_CO2_K)
 
 #if (defined(NMARS))
 temp_ma_90 = instam(temp_now,  90.0_dp) + (DELTA_TS0) &
@@ -384,7 +397,8 @@ temp_ma_90 = instam(temp_now, -90.0_dp) + (DELTA_TS0) &
 
 call setinstemp(temp_present, &
                 ecc = ecc_present, ave = ave_present*rad2deg, &
-                obl = obl_present*rad2deg, sa = ALBEDO, ct = 148.7_dp)
+                obl = obl_present*rad2deg, &
+                sa = ALBEDO, ct = temp_CO2_K)
 
 #if (defined(NMARS))
 temp_ma_90_present = instam(temp_present,  90.0_dp) + (DELTA_TS0) &
@@ -651,7 +665,7 @@ end do
 
 temp_s = min(temp_ma, -eps)        ! Cut-off of positive air temperatures
 
-temp_s = max(temp_s, temp_s_min)   ! Cut-off of air temperatures below the
+temp_s = max(temp_s, temp_CO2_C)   ! Cut-off of air temperatures below the
                                    ! sublimation temperature of CO2
 
 !-------- Calving --------

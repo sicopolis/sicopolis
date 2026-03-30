@@ -2,13 +2,13 @@
 % bedmachine_ant_to_sico
 %
 % Description:
-%   Reading of the BedMachine data (currently version 3)
+%   Reading of the BedMachine data (currently version 4)
 %   for the Antarctic ice sheet,
 %   downsampling them on the resolutions used by SICOPOLIS,
 %   writing them on NetCDF files in the format required by SICOPOLIS.
 %
 % Author: Ralf Greve
-% Date:   2025-05-02
+% Date:   2026-03-30
 %==========================================================================
 
 clear variables
@@ -16,11 +16,12 @@ close all
 
 %-------- Parameter settings --------
 
-bm_version = '3';   % Version number of BedMachine data (string)
-% bm_version = '3p8';   %%% (not officially released version)
+bm_version    = '4';   % Version number of BedMachine data (string)
+bm_subversion = '1';   % Sub-version number of BedMachine data (string)
 
-inpath   = ['/uchi/greve/sicopolis/data/ant_bedmachine/v' bm_version];
-filename = ['BedMachineAntarctica-v' bm_version '.nc'];
+inpath     = ['/uchi/greve/sicopolis/data/ant_bedmachine/v' bm_version];
+bm_version = [bm_version 'p' bm_subversion];
+filename   = ['BedMachineAntarctica-v' bm_version '.nc'];
 
 A = 6378137.0;
 %   WGS84 semi-major axis [m]

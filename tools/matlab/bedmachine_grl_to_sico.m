@@ -2,13 +2,13 @@
 % bedmachine_grl_to_sico
 %
 % Description:
-%   Reading of the BedMachine data (currently version 5)
+%   Reading of the BedMachine data (currently version 6)
 %   for the Greenland ice sheet,
 %   downsampling them on the resolutions used by SICOPOLIS,
 %   writing them on NetCDF files in the format required by SICOPOLIS.
 %
 % Author: Ralf Greve
-% Date:   2025-05-02
+% Date:   2026-03-30
 %==========================================================================
 
 clear variables
@@ -16,7 +16,7 @@ close all
 
 %-------- Parameter settings --------
 
-bm_version = '5';   % Version number of BedMachine data (string)
+bm_version = '6';   % Version number of BedMachine data (string)
 
 inpath   = ['/uchi/greve/sicopolis/data/grl_bedmachine/v' bm_version];
 filename = ['BedMachineGreenland-v' bm_version '_compressed.nc'];

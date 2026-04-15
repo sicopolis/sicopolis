@@ -82,7 +82,7 @@ integer(i4b)       :: i, j, kc, kt, kr, m, n, ir, jr, n1, n2
 integer(i4b)       :: ios, ios1, ios2, ios3, ios4
 integer(i4b)       :: istat, ierr
 integer(i4b)       :: n_q_geo_mod
-integer(i4b)       :: ndata_insol
+integer(i4b)       :: ndata_orb_par
 integer(i4b)       :: itercount
 real(dp)           :: dtime0, dtime_temp0, dtime_wss0, dtime_out0, dtime_ser0
 real(dp)           :: time_init0, time_end0
@@ -1073,12 +1073,9 @@ write(10, fmt=trim(fmt3)) 'TEMP0_MA_90S =', TEMP0_MA_90S
 write(10, fmt=trim(fmt3)) 'C_MA =', C_MA
 write(10, fmt=trim(fmt3)) 'GAMMA_MA =', GAMMA_MA
 #endif
-#if (TSURFACE==5)
-#if (defined(NMARS))
-write(10, fmt=trim(fmt1)) 'INSOL_MA_90N_FILE = '//INSOL_MA_90N_FILE
-#elif (defined(SMARS))
-write(10, fmt=trim(fmt1)) 'INSOL_MA_90S_FILE = '//INSOL_MA_90S_FILE
-#endif
+#if (TSURFACE==5 || TSURFACE==6)
+write(10, fmt=trim(fmt1)) 'ORBITAL_PARAMETER_FILE = ' &
+                          // trim(ORBITAL_PARAMETER_FILE)
 #endif
 #if (TSURFACE==4 || TSURFACE==5 || TSURFACE==6)
 write(10, fmt=trim(fmt3)) 'ALBEDO =', ALBEDO
@@ -1599,7 +1596,7 @@ call error(errormsg)
 
 #endif
 
-!-------- Reading of insolation data  --------
+!-------- Reading of the orbital parameters --------
 
 insol_ma_90 = 0.0_dp   ! Assignment of dummy values
 obl_data    = 0.0_dp
@@ -1609,38 +1606,35 @@ cp_data     = 0.0_dp
 
 #if (TSURFACE==5 || TSURFACE==6)
 
-#if (defined(NMARS))
 filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
-                     trim(INSOL_MA_90N_FILE)
-#elif (defined(SMARS))
-filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
-                     trim(INSOL_MA_90S_FILE)
-#endif
+                     trim(ORBITAL_PARAMETER_FILE)
 
 open(21, iostat=ios, file=trim(filename_with_path), status='old')
 
 if (ios /= 0) then
-   errormsg = ' >>> sico_init: Error when opening the insolation-data file!'
+   errormsg = ' >>> sico_init: Error when opening the orbital-parameter file!'
    call error(errormsg)
 end if
 
-read(21, fmt=*) ch_dummy, insol_time_min, insol_time_stp, insol_time_max
+read(21, fmt=*) ch_dummy, orb_par_time_min, orb_par_time_stp, orb_par_time_max
 
 if (ch_dummy /= '#') then
-   errormsg = ' >>> sico_init: insol_time_min, insol_time_stp, insol_time_max' &
+   errormsg = ' >>> sico_init:' &
             //         end_of_line &
-            //'        not defined in insolation-data file!'
+            //'        orb_par_time_min, orb_par_time_stp, orb_par_time_max' &
+            //         end_of_line &
+            //'        not defined in orbital-parameter file!'
    call error(errormsg)
 end if
 
-ndata_insol = (insol_time_max-insol_time_min)/insol_time_stp
+ndata_orb_par = (orb_par_time_max-orb_par_time_min)/orb_par_time_stp
 
-if (ndata_insol > 100000) then
-   errormsg = ' >>> sico_init: Too many data in insolation-data file!'
+if (ndata_orb_par > 100000) then
+   errormsg = ' >>> sico_init: Too many data in orbital-parameter file!'
    call error(errormsg)
 end if
 
-do n=0, ndata_insol
+do n=0, ndata_orb_par
    read(21, fmt=*) d_dummy, &
                    ecc_data(n), obl_data(n), cp_data(n), &
                    ave_data(n), insol_ma_90(n)

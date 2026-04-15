@@ -16,8 +16,8 @@ max_frontpage_items: 20
 search: true
 sort: src
 source: false
-version: v25
-year: 2025
+version: v26
+year: 2026
 graph: true
 output_dir: ./docs/ford
 force: true
@@ -41,7 +41,7 @@ See <https://sicopolis.readthedocs.io/en/latest/references.html>.
 
 ##### Copyright
 
-Copyright 2009-2025 [SICOPOLIS Authors](https://sicopolis.readthedocs.io/en/latest/introduction.html#authorship).
+Copyright 2009-2026 [SICOPOLIS Authors](https://sicopolis.readthedocs.io/en/latest/introduction.html#authorship).
 
 ##### License
 

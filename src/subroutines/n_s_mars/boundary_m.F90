@@ -84,7 +84,7 @@ real(dp), intent(in) :: time, dtime, dxi, deta
 
 integer(i4b) :: i, j
 integer(i4b) :: i_gr, i_kl
-integer(i4b) :: ndata_insol
+integer(i4b) :: ndata_orb_par
 real(dp), dimension(0:JMAX,0:IMAX) :: z_sl_old
 real(dp) :: z_sl_old_mean
 real(dp) :: z_sl_min, t1, t2, t3, t4, t5, t6
@@ -110,35 +110,47 @@ logical, dimension(0:JMAX,0:IMAX) :: check_point
 type (ins) :: temp_now, temp_present
 #endif
 
-real(dp), parameter :: time_present = 0.0_dp   ! Present time [s]
+real(dp), parameter :: time_present = 0.0_dp
+                          ! Present time [s]
 
 #if (defined(NMARS))
 real(dp), parameter :: zs_90_present = -2.0e+03_dp
-                        ! Present elevation of the north pole [m]
+                          ! Present elevation of the north pole [m]
 #elif (defined(SMARS))
 real(dp), parameter :: zs_90_present = 3.85e+03_dp
-                        ! Present elevation of the south pole [m]
+                          ! Present elevation of the south pole [m]
 #endif
 
-real(dp), parameter :: &
-          sol     = 590.0_dp, &   ! Solar constant [W/m2]
-          epsilon = 1.0_dp,   &   ! Emissivity
-          sigma   = 5.67e-08_dp   ! Stefan-Boltzmann constant [W/(m2*K4)]
+real(dp), parameter :: sol = 590.0_dp
+                          ! Solar constant for Mars [W/m2]
 
-real(dp), parameter :: &
-          lambda_H2O = 2.86e+06_dp, &   ! Latent heat [J/kg]
-          R_H2O      = 461.5_dp,  &     ! Gas constant [J/(kg*K)]
-          temp0_ref  = 173.0_dp         ! Atmopheric reference temperature [K]
+real(dp), parameter :: emiss = 1.0_dp
+                          ! Emissivity
+
+real(dp), parameter :: sigma = 5.670374419e-08_dp
+                          ! Stefan-Boltzmann constant [W/(m2*K4)]
+
+real(dp), parameter :: lambda_H2O = 2.86e+06_dp
+                          ! Latent heat [J/kg]
+
+real(dp), parameter :: R_H2O = 461.5_dp
+                          ! Gas constant [J/(kg*K)]
+
+real(dp), parameter :: temp0_ref = 173.0_dp
+                          ! Atmopheric reference temperature [K]
 
 #if (defined(NMARS))
-real(dp), parameter :: temp_s_min = -125.0_dp
+real(dp), parameter :: temp_CO2_C = -125.0_dp
                           ! Minimum ice-surface temperature 
                           ! (sublimation temperature of CO2) [C]
 #elif (defined(SMARS))
-real(dp), parameter :: temp_s_min = -128.0_dp
+real(dp), parameter :: temp_CO2_C = -128.0_dp
                           ! Minimum ice-surface temperature 
                           ! (sublimation temperature of CO2) [C]
 #endif
+
+real(dp), parameter :: temp_CO2_K = temp_CO2_C + 273.15_dp   ! C -> K
+                          ! Sublimation temperature of CO2 [K]
 
 !-------- Initialization of variables --------
 
@@ -191,11 +203,11 @@ insol_ma_90_present = (sol/pi)*sin(obliq0)/sqrt(1.0_dp-ecc0**2)
 
 #elif (TSURFACE==5 || TSURFACE==6)
 
-!  ------ Mean annual insolation at the north/south pole
+!  ------ Orbital parameters
 
-ndata_insol = (insol_time_max-insol_time_min)/insol_time_stp
+ndata_orb_par = (orb_par_time_max-orb_par_time_min)/orb_par_time_stp
 
-if (time*sec2year.lt.real(insol_time_min,dp)) then
+if (time*sec2year.lt.real(orb_par_time_min,dp)) then
 
    insol_ma_90_now = insol_ma_90(0)
    obl_now         = obl_data(0)
@@ -203,15 +215,15 @@ if (time*sec2year.lt.real(insol_time_min,dp)) then
    ave_now         = ave_data(0)
    cp_now          = cp_data(0)
 
-else if (time*sec2year.lt.real(insol_time_max,dp)) then
+else if (time*sec2year.lt.real(orb_par_time_max,dp)) then
 
    i_kl = floor(((time*sec2year) &
-          -real(insol_time_min,dp))/real(insol_time_stp,dp))
+          -real(orb_par_time_min,dp))/real(orb_par_time_stp,dp))
    i_kl = max(i_kl, 0)
 
    i_gr = ceiling(((time*sec2year) &
-          -real(insol_time_min,dp))/real(insol_time_stp,dp))
-   i_gr = min(i_gr, ndata_insol)
+          -real(orb_par_time_min,dp))/real(orb_par_time_stp,dp))
+   i_gr = min(i_gr, ndata_orb_par)
 
    if (i_kl.eq.i_gr) then
 
@@ -223,8 +235,8 @@ else if (time*sec2year.lt.real(insol_time_max,dp)) then
 
    else
 
-      time_kl = (insol_time_min + i_kl*insol_time_stp) *year2sec
-      time_gr = (insol_time_min + i_gr*insol_time_stp) *year2sec
+      time_kl = (orb_par_time_min + i_kl*orb_par_time_stp) *year2sec
+      time_gr = (orb_par_time_min + i_gr*orb_par_time_stp) *year2sec
 
       insol_ma_90_now = insol_ma_90(i_kl) &
                 +(insol_ma_90(i_gr)-insol_ma_90(i_kl)) &
@@ -261,17 +273,17 @@ else if (time*sec2year.lt.real(insol_time_max,dp)) then
 
 else
 
-   insol_ma_90_now = insol_ma_90(ndata_insol)
-   obl_now         = obl_data(ndata_insol)
-   ecc_now         = ecc_data(ndata_insol)
-   ave_now         = ave_data(ndata_insol)
-   cp_now          = cp_data(ndata_insol)
+   insol_ma_90_now = insol_ma_90(ndata_orb_par)
+   obl_now         = obl_data(ndata_orb_par)
+   ecc_now         = ecc_data(ndata_orb_par)
+   ave_now         = ave_data(ndata_orb_par)
+   cp_now          = cp_data(ndata_orb_par)
 
 end if
 
 !    ---- Present value
 
-if (time_present*sec2year.lt.real(insol_time_min,dp)) then
+if (time_present*sec2year.lt.real(orb_par_time_min,dp)) then
 
    insol_ma_90_present = insol_ma_90(0)
    obl_present         = obl_data(0)
@@ -279,15 +291,15 @@ if (time_present*sec2year.lt.real(insol_time_min,dp)) then
    ave_present         = ave_data(0)
    cp_present          = cp_data(0)
 
-else if (time_present*sec2year.lt.real(insol_time_max,dp)) then
+else if (time_present*sec2year.lt.real(orb_par_time_max,dp)) then
 
    i_kl = floor(((time_present*sec2year) &
-          -real(insol_time_min,dp))/real(insol_time_stp,dp))
+          -real(orb_par_time_min,dp))/real(orb_par_time_stp,dp))
    i_kl = max(i_kl, 0)
 
    i_gr = ceiling(((time_present*sec2year) &
-          -real(insol_time_min,dp))/real(insol_time_stp,dp))
-   i_gr = min(i_gr, ndata_insol)
+          -real(orb_par_time_min,dp))/real(orb_par_time_stp,dp))
+   i_gr = min(i_gr, ndata_orb_par)
 
    if (i_kl.eq.i_gr) then
 
@@ -299,8 +311,8 @@ else if (time_present*sec2year.lt.real(insol_time_max,dp)) then
 
    else
 
-      time_kl = (insol_time_min + i_kl*insol_time_stp) *year2sec
-      time_gr = (insol_time_min + i_gr*insol_time_stp) *year2sec
+      time_kl = (orb_par_time_min + i_kl*orb_par_time_stp) *year2sec
+      time_gr = (orb_par_time_min + i_gr*orb_par_time_stp) *year2sec
 
       insol_ma_90_present = insol_ma_90(i_kl) &
                 +(insol_ma_90(i_gr)-insol_ma_90(i_kl)) &
@@ -337,11 +349,11 @@ else if (time_present*sec2year.lt.real(insol_time_max,dp)) then
 
 else
 
-   insol_ma_90_present = insol_ma_90(ndata_insol)
-   obl_present         = obl_data(ndata_insol)
-   ecc_present         = ecc_data(ndata_insol)
-   ave_present         = ave_data(ndata_insol)
-   cp_present          = cp_data(ndata_insol)
+   insol_ma_90_present = insol_ma_90(ndata_orb_par)
+   obl_present         = obl_data(ndata_orb_par)
+   ecc_present         = ecc_data(ndata_orb_par)
+   ave_present         = ave_data(ndata_orb_par)
+   cp_present          = cp_data(ndata_orb_par)
 
 end if
 
@@ -351,13 +363,13 @@ end if
 
 !  ------ Mean-annual surface temperature at the north/south pole
 
-temp_ma_90 = sqrt(sqrt(insol_ma_90_now*(1.0_dp-ALBEDO)/(epsilon*sigma))) &
+temp_ma_90 = sqrt(sqrt(insol_ma_90_now*(1.0_dp-ALBEDO)/(emiss*sigma))) &
              -273.15_dp   ! K -> C
 
 !    ---- Present value
 
 temp_ma_90_present &
-        = sqrt(sqrt(insol_ma_90_present*(1.0_dp-ALBEDO)/(epsilon*sigma))) &
+        = sqrt(sqrt(insol_ma_90_present*(1.0_dp-ALBEDO)/(emiss*sigma))) &
           -273.15_dp   ! K -> C
 
 !  ------ Surface-temperature deviation at the north/south pole
@@ -370,7 +382,8 @@ delta_ts = temp_ma_90 - temp_ma_90_present
 
 call setinstemp(temp_now, &
                 ecc = ecc_now, ave = ave_now*rad2deg, &
-                obl = obl_now*rad2deg, sa = ALBEDO, ct = 148.7_dp)
+                obl = obl_now*rad2deg, &
+                sa = ALBEDO, ct = temp_CO2_K)
 
 #if (defined(NMARS))
 temp_ma_90 = instam(temp_now,  90.0_dp) + (DELTA_TS0) &
@@ -384,7 +397,8 @@ temp_ma_90 = instam(temp_now, -90.0_dp) + (DELTA_TS0) &
 
 call setinstemp(temp_present, &
                 ecc = ecc_present, ave = ave_present*rad2deg, &
-                obl = obl_present*rad2deg, sa = ALBEDO, ct = 148.7_dp)
+                obl = obl_present*rad2deg, &
+                sa = ALBEDO, ct = temp_CO2_K)
 
 #if (defined(NMARS))
 temp_ma_90_present = instam(temp_present,  90.0_dp) + (DELTA_TS0) &
@@ -651,7 +665,7 @@ end do
 
 temp_s = min(temp_ma, -eps)        ! Cut-off of positive air temperatures
 
-temp_s = max(temp_s, temp_s_min)   ! Cut-off of air temperatures below the
+temp_s = max(temp_s, temp_CO2_C)   ! Cut-off of air temperatures below the
                                    ! sublimation temperature of CO2
 
 !-------- Calving --------

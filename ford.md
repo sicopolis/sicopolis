@@ -36,7 +36,7 @@ See <https://sicopolis.readthedocs.io/en/latest/references.html>.
 
 - Model website: <https://www.sicopolis.net/>  
 - User manual: <https://sicopolis.readthedocs.io/>  
-- GitLab repository: <https://gitlab.awi.de/sicopolis/sicopolis/>  
+- GitHub repository: <https://github.com/sicopolis/sicopolis/>  
 - SICOPOLIS community @ Zenodo: <https://zenodo.org/communities/sicopolis/>
 
 ##### Copyright

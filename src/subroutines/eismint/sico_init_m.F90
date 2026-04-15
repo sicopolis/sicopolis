@@ -1132,6 +1132,16 @@ write(10, fmt=trim(fmt2)) 'FIN_VISC = ', FIN_VISC
 #if (FIN_VISC==2)
 write(10, fmt=trim(fmt3)) 'SIGMA_RES =', SIGMA_RES
 #endif
+#elif (FLOW_LAW==4)
+#if (defined(SM_COEFF0))
+write(10, fmt=trim(fmt3)) 'SM_COEFF0 =', SM_COEFF0
+#endif
+#if (defined(SM_COEFF1))
+write(10, fmt=trim(fmt3)) 'SM_COEFF1 =', SM_COEFF1
+#endif
+#if (defined(SM_COEFF2))
+write(10, fmt=trim(fmt3)) 'SM_COEFF2 =', SM_COEFF2
+#endif
 #endif
 #if (defined(D_E_MIN))
 write(10, fmt=trim(fmt3)) 'D_E_MIN =', D_E_MIN
@@ -1303,7 +1313,7 @@ write(10, fmt=trim(fmt1)) ' '
 #if (defined(BASAL_HYDROLOGY))
 write(10, fmt=trim(fmt2)) 'BASAL_HYDROLOGY = ', BASAL_HYDROLOGY
 #if (BASAL_HYDROLOGY==1 && defined(MELT_DRAIN))
-write(10, fmt=trim(fmt2)) 'MELT_DRAIN = ', MELT_DRAIN
+write(10, fmt=trim(fmt3)) 'MELT_DRAIN =', real(MELT_DRAIN,dp)
 #endif
 #endif
 

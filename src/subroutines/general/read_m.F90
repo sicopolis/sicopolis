@@ -1980,6 +1980,8 @@ contains
   !     ncid:      ID of the output file
   !     ncv:       Variable ID
 
+  character(len=64), parameter :: thisroutine = 'read_2d_input'
+
   character(len=  8) :: ch_imax
   character(len=128) :: fmt4
 
@@ -2037,21 +2039,21 @@ contains
      end if
 
      if ((n_var_type==0).and.(flag_nc_mm)) then
-        call check( nf90_get_var(ncid, ncv, r_aux_conv_mm) )
+        call check( nf90_get_var(ncid, ncv, r_aux_conv_mm), thisroutine )
      else if ((n_var_type==0).and.(.not.flag_nc_mm)) then
-        call check( nf90_get_var(ncid, ncv, r_aux_conv) )
+        call check( nf90_get_var(ncid, ncv, r_aux_conv), thisroutine )
      else if (n_var_type==1) then
-        call check( nf90_get_var(ncid, ncv, r_aux_conv) )
+        call check( nf90_get_var(ncid, ncv, r_aux_conv), thisroutine )
      else if (n_var_type==2) then
-        call check( nf90_get_var(ncid, ncv, n_aux_conv) )
+        call check( nf90_get_var(ncid, ncv, n_aux_conv), thisroutine )
      else if (n_var_type==3) then
-        call check( nf90_get_var(ncid, ncv, mask_aux_conv) )
+        call check( nf90_get_var(ncid, ncv, mask_aux_conv), thisroutine )
      else
         errormsg = ' >>> read_2d_input: n_var_type must be between 0 and 3!'
         call error(errormsg)
      end if
 
-     call check( nf90_close(ncid) )
+     call check( nf90_close(ncid), thisroutine )
 
   else   ! ASCII file
 

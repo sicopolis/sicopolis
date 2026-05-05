@@ -67,8 +67,8 @@ The values used here for C_SLIDE_DIMLESS will be changed in the code
 and are arbitrary (just used as a template), as long as the correct
 synthaxing is used.
 
-The program will output in a folder 'my_results_{name_of_run}'
-different parameters, namely:
+The program will write several computed parameters in a folder
+'./tmp/iterative_sliding_{name_of_run}' , namely:
 rmsd_lin
 slope_lin
 rmsd_log7
@@ -122,12 +122,12 @@ n_reg = max(max(sub) for sub in reg)
 path = './sico_in/grl/'
 filename = f'SurfVel_Greenland_MEaSUREs_GridEPSG3413_{dx}km.nc'
 
-#-------- RESULTS FOLDER --------
+#-------- FOLDER FOR COMPUTED PARAMETERS --------
 
 try :
-    os.mkdir(f'./my_results_{name_of_run}')
+    os.mkdir(f'./tmp/iterative_sliding_{name_of_run}')
 except:
-    print(f'The results folder \'my_results_{name_of_run}\' already exists. Please change its name or move it elsewhere and try again.')
+    print(f'The folder \'iterative_sliding_{name_of_run}\' already exists. Please change its name or move it elsewhere and try again.')
     exit()
 
 obs = nc.Dataset(path+filename)
@@ -154,7 +154,7 @@ def get_intercepts(k):
     iteration number, and returns the slopes, rmsd and intercept
     for computing the sliding coefficient in each region.'''
 
-    dir = ''
+    # dir = ''
     dir = '.'
     path = f'{dir}/sico_out/{name_of_run}_{modifier}_{k}/'
     filename = f'{name_of_run}_{modifier}_{k}{tslice}.nc'
@@ -240,31 +240,33 @@ def get_intercepts(k):
 
     # Writing the data
     print(f'Writing data for iteration {k+1}')
-    with open(f'{dir}/my_results_{name_of_run}/{modifier}_rmsd_lin.txt', 'a') as f:
+    dir2 = './tmp'
+
+    with open(f'{dir2}/iterative_sliding_{name_of_run}/{modifier}_rmsd_lin.txt', 'a') as f:
         g = (f'{rmsd_lin[k]},' for k in range(len(rmsd_lin)))
         for x in g:
             f.write(str(x))
         f.write('\n')
 
-    with open(f'{dir}/my_results_{name_of_run}/{modifier}_slope_lin.txt', 'a') as f:
+    with open(f'{dir2}/iterative_sliding_{name_of_run}/{modifier}_slope_lin.txt', 'a') as f:
         g = (f'{slope_lin[k]},' for k in range(len(slope_lin)))
         for x in g:
             f.write(str(x))
         f.write('\n')
 
-    with open(f'{dir}/my_results_{name_of_run}/{modifier}_rmsd_log.txt', 'a') as f:
+    with open(f'{dir2}/iterative_sliding_{name_of_run}/{modifier}_rmsd_log.txt', 'a') as f:
         g = (f'{rmsd_log[k]},' for k in range(len(rmsd_log)))
         for x in g:
             f.write(str(x))
         f.write('\n')
 
-    with open(f'{dir}/my_results_{name_of_run}/{modifier}_intercept_log.txt', 'a') as f:
+    with open(f'{dir2}/iterative_sliding_{name_of_run}/{modifier}_intercept_log.txt', 'a') as f:
         g = (f'{intercept_log[k]},' for k in range(len(intercept_log)))
         for x in g:
             f.write(str(x))
         f.write('\n')
 
-    with open(f'{dir}/my_results_{name_of_run}/{modifier}_slope_log.txt', 'a') as f:
+    with open(f'{dir2}/iterative_sliding_{name_of_run}/{modifier}_slope_log.txt', 'a') as f:
         g = (f'{slope_log[k]},' for k in range(len(slope_log)))
         for x in g:
             f.write(str(x))

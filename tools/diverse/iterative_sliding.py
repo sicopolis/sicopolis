@@ -68,15 +68,14 @@ and are arbitrary (just used as a template), as long as the correct
 synthaxing is used.
 
 The program will write several computed parameters in a folder
-'./tmp/iterative_sliding_{name_of_run}' , namely:
-rmsd_lin
-slope_lin
-rmsd_log7
-res
-intercept_log
-slope_log
-in their own txt files. Another Python script is provided for
-plotting out of the box.
+'./tmp/iterative_sliding_{name_of_run}', namely:
+  rmsd_lin
+  slope_lin
+  rmsd_log
+  slope_log
+  intercept_log
+in their own txt files. Another Python script is provided for plotting
+out of the box.
 
 Execution of the script:
   python3.11 my_iterative_sliding_xxx.py
@@ -85,29 +84,35 @@ SICOPOLIS output must be in the standard directory './sico_out';
 otherwise, the script won't work!
 
 Created by Tom Dangleterre
-Last update: 2026-05-05 by Ralf Greve
+Last update: 2026-05-10 by Ralf Greve
 '''
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #-------- VARIABLES TO FILL --------
 
-name_of_run = 'grl16_bm6_spinup01_cal_100ka_iter'  # Name of the 'startup' file ('0th' iteration)
-
-modifier = 1.0  # Value of the modifier, the change in the sliding coefficients is too agressive without it (typically 0.5-1.0)
+name_of_run = 'grl16_bm6_spinup11_cal_100ka_iter'
+# Name of the 'startup' file ('0th' iteration)
 
 dx = 16  # Resolution
 
-anfdatname = 'grl16_bm6_spinup01_cal_100ka'  # Name of the initial-conditions simulation
+kmax = 7  # Maximum number of iterations (typically 5-15)
+
+modifier = 1.0
+# Value of the modifier (relaxation factor) for the iterations;
+# typically 0.5-1.0 (the smaller, the less aggressive)
+
+tslice = '0001'
+# Time-slice number for final state of iterations k=0...kmax
+# (which is used for comparison with observed surface veocities)
+
+anfdatname = 'grl16_bm6_spinup11_cal_100ka'  # Name of the initial-conditions simulation
 # For example ant32_bm3_jare_aq1_spinup03_holocene_1
 # NOT TO USE:
 #   ant32_bm3_jare_aq1_spinup03_holocene_10002.nc
 #   (no time-slice number, no extension)
-tslice = '0001'  # Time-slice number for initial conditions
 
-targetname = 'grl16_bm6_spinup01_smooth_100a'  # Name of the target simulation for nudging
-
-kmax = 7  # Maximum number of iterations, 10-15 is usually enough
+targetname = 'grl16_bm6_spinup11_smooth_100a'  # Name of the target simulation for nudging
 
 # Regions file, to change according to the ice sheet
 path = './sico_in/grl/'

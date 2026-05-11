@@ -84,7 +84,7 @@ SICOPOLIS output must be in the standard directory './sico_out';
 otherwise, the script won't work!
 
 Created by Tom Dangleterre
-Last update: 2026-05-10 by Ralf Greve
+Last update: 2026-05-11 by Ralf Greve
 '''
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -94,7 +94,7 @@ Last update: 2026-05-10 by Ralf Greve
 name_of_run = 'grl16_bm6_spinup11_cal_100ka_iter'
 # Name of the 'startup' file ('0th' iteration)
 
-dx = 16  # Resolution
+dx = '16'  # Resolution
 
 kmax = 7  # Maximum number of iterations (typically 5-15)
 

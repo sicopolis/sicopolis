@@ -32,16 +32,6 @@ follow the naming convention 'name_of_run_iteration_modifier'.
 The entry for C_SLIDE_DIMLESS must be in the line specified by the
 variable 'line_number_c_slide' (to be set below).
 
-There must also be template file 'my_multi_sico_iter_k.sh' in the folder.
-The four lines starting with 'line_number_sico_sh' (to be set below)
-in its 'run' function must either be empty (recommended),
-or can be filled with something like the following block:
-
-   (./sico.sh ${MULTI_OPTIONS_1} -m ant32_bm3_jare_spinup03_fixtopo_k \
-              -a ${MULTI_OUTDIR}/ant32_bm36_jare_aq1_spinup03_fixtopo \
-              -t ${MULTI_OUTDIR}/ant32_bm36_jare_aq1_spinup01_init100a) \
-              >out_multi_ant32_k.dat 2>&1
-
 The program will write several computed parameters in a folder
 './tmp/iterative_sliding_{name_of_run}', namely:
   rmsd_lin
@@ -60,34 +50,28 @@ SICOPOLIS output must be in the standard directory './sico_out';
 otherwise, the script won't work!
 
 Created by Tom Dangleterre
-Last update: 2026-05-13 by Ralf Greve
+Last update: 2026-05-15 by Ralf Greve
 '''
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #-------- VARIABLES TO FILL --------
 
-name_of_run = 'ant32_bm4p1_spinup01_cal_100ka_iter'
+name_of_run = 'grl16_bm6_spinup11_cal_100ka_iter'
 # Name of the 'startup' header ('0th' iteration)
 
-dx = '32'  # Resolution
+dx = '16'  # Resolution
 
-line_number_c_slide = 1140
+line_number_c_slide = 1179
 # Line number of the entry for C_SLIDE_DIMLESS in the 'startup' header.
 # '1140' for Antarctica / '1179' for Greenland should work.
 
-line_number_sico_sh = 129
-# line_number_sico_sh ... line_number_sico_sh + 3
-# -> line numbers of the four empty lines in the template file
-# 'my_multi_sico_iter_k.sh'.
-# '129' should work.
+line_num = line_number_c_slide-1
+# Python indexing starts with 0, therefore the '-1' is needed
 
-line_num_1 = line_number_c_slide-1   # Python indexing starts with 0,
-line_num_2 = line_number_sico_sh-1   # therefore the '-1' is needed
+kmax = 7  # Maximum number of iterations (typically 5-15)
 
-kmax = 12  # Maximum number of iterations (typically 5-15)
-
-modifier = [1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+modifier = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 # Values of the modifier (relaxation factor) for the iterations;
 # typically 0.5-1.0 (the smaller, the less aggressive).
 # Length of array must be kmax+1 (k=0...kmax).
@@ -101,17 +85,17 @@ tslice = '0001'
 # Time-slice number for final state of iterations k=0...kmax
 # (which is used for comparison with observed surface velocities)
 
-anfdatname = 'ant32_bm4p1_spinup01_cal_100ka'  # Name of the initial-conditions simulation
+anfdatname = 'grl16_bm6_spinup11_cal_100ka'  # Name of the initial-conditions simulation
 # For example ant32_bm3_jare_aq1_spinup03_holocene_1
 # NOT TO USE:
 #   ant32_bm3_jare_aq1_spinup03_holocene_10002.nc
 #   (no time-slice number, no extension)
 
-targetname = 'ant32_bm4p1_spinup01_smooth_100a'  # Name of the target simulation for nudging
+targetname = 'grl16_bm6_spinup11_smooth_100a'  # Name of the target simulation for nudging
 
 # Regions file, to change according to the ice sheet
-path = './sico_in/ant/'
-filename = f'ant{dx}_imbie2016_basins_extrapolated.nc'
+path = './sico_in/grl/'
+filename = f'grl{dx}_zwally2012_basins_with-negis_extrapolated.nc'
 
 regions = nc.Dataset(path+filename)
 reg = regions['n_basin'][:]
@@ -119,8 +103,8 @@ n_reg = max(max(sub) for sub in reg)
 
 # Change the following depending on the ice sheet studied, dx is the resolution entered earlier
 # Adjust the path to the MEaSUREs surface velocities maps 
-path = './sico_in/ant/'
-filename = f'SurfVel_Antarctica_MEaSUREs_GridEPSG3031_{dx}km.nc'
+path = './sico_in/grl/'
+filename = f'SurfVel_Greenland_MEaSUREs_GridEPSG3413_{dx}km.nc'
 
 #-------- FOLDER FOR COMPUTED PARAMETERS --------
 
@@ -286,24 +270,13 @@ new_file = open(f'./headers/sico_specs_{name_of_run}_{k:02d}_{modifier[k]}.h','w
 new_file.write(''.join(content))
 new_file.close()
 
-run = open(f'./my_multi_sico_iter_k.sh', 'r')
-run_ctn = run.readlines()
-run.close()
+sico_sh_opts = f'-m {name_of_run}_{k:02d}_{modifier[k]}'
+sico_sh_opts = f'{sico_sh_opts} -a ${{PWD}}/sico_out/{anfdatname}'
+sico_sh_opts = f'{sico_sh_opts} -t ${{PWD}}/sico_out/{targetname}'
 
-run_ctn[line_num_2  ] = f'   (./sico.sh ${{MULTI_OPTIONS_1}} -m {name_of_run}_{k:02d}_{modifier[k]} \\\n'
-run_ctn[line_num_2+1] = f'              -a ${{MULTI_OUTDIR}}/{anfdatname} \\\n'
-run_ctn[line_num_2+2] = f'              -t ${{MULTI_OUTDIR}}/{targetname}) \\\n'
-run_ctn[line_num_2+3] = f'              >${{SICO_SH_OUT_DIR}}/out_{name_of_run}_{k:02d}_{modifier[k]}.dat 2>&1\n'
-
-run = open(f'./my_multi_sico_iter_{name_of_run}_{k:02d}_{modifier[k]}.sh', 'w')
-run.write(''.join(run_ctn))
-run.close()
-
-time.sleep(5)
-os.chmod(f'./my_multi_sico_iter_{name_of_run}_{k:02d}_{modifier[k]}.sh', 0o755 )
 time.sleep(5)
 print(f'Running iteration {k}...')
-os.system(f'(./my_multi_sico_iter_{name_of_run}_{k:02d}_{modifier[k]}.sh) >tmp/out_multi_{name_of_run}_{k:02d}_{modifier[k]}.dat 2>&1')
+os.system(f'(./sico.sh {sico_sh_opts}) >tmp/out_{name_of_run}_{k:02d}_{modifier[k]}.dat 2>&1')
 time.sleep(15)
 print(f'Iteration {k} finished...')
 
@@ -317,7 +290,7 @@ while k <= kmax:
     header = open(f'./headers/sico_specs_{name_of_run}_{k:02d}_{modifier[k]}.h', 'r')
     content = header.readlines()
     header.close()
-    a = content[line_num_1]
+    a = content[line_num]
     a = a.replace('#define C_SLIDE_DIMLESS [', '')
     a = a.replace(' ', '')
     a = a.replace('\\', '')
@@ -347,7 +320,7 @@ while k <= kmax:
     values = values[:-2]
     values +=  ']\n'
 
-    content[line_num_1] = values
+    content[line_num] = values
 
     #-------- CREATION OF THE NEXT ITERATION
 
@@ -358,33 +331,21 @@ while k <= kmax:
         new_file.write(''.join(content))
         new_file.close()
 
-        run = open('./my_multi_sico_iter_k.sh', 'r')
-        run_ctn = run.readlines()
-        run.close()
-
-        # Create new run.sh
-        run_ctn[line_num_2  ] = f'   (./sico.sh ${{MULTI_OPTIONS_1}} -m {name_of_run}_{k:02d}_{modifier[k]} \\\n'
-        run_ctn[line_num_2+1] = f'              -a ${{MULTI_OUTDIR}}/{anfdatname} \\\n'
-        run_ctn[line_num_2+2] = f'              -t ${{MULTI_OUTDIR}}/{targetname}) \\\n'
-        run_ctn[line_num_2+3] = f'              >${{SICO_SH_OUT_DIR}}/out_{name_of_run}_{k:02d}_{modifier[k]}.dat 2>&1\n'
-
-        run = open(f'./my_multi_sico_iter_{name_of_run}_{k:02d}_{modifier[k]}.sh', 'w')
-        run.write(''.join(run_ctn))
-        run.close()
+        sico_sh_opts = f'-m {name_of_run}_{k:02d}_{modifier[k]}'
+        sico_sh_opts = f'{sico_sh_opts} -a ${{PWD}}/sico_out/{anfdatname}'
+        sico_sh_opts = f'{sico_sh_opts} -t ${{PWD}}/sico_out/{targetname}'
 
         #-------- RUNNING THE NEXT ITERATION
 
         time.sleep(5)
-        os.chmod(f'./my_multi_sico_iter_{name_of_run}_{k:02d}_{modifier[k]}.sh', 0o755 )
-        time.sleep(5)
         print(f'Running iteration {k}...')
-        os.system(f'(./my_multi_sico_iter_{name_of_run}_{k:02d}_{modifier[k]}.sh) >tmp/out_multi_{name_of_run}_{k:02d}_{modifier[k]}.dat 2>&1')
+        os.system(f'(./sico.sh {sico_sh_opts}) >tmp/out_{name_of_run}_{k:02d}_{modifier[k]}.dat 2>&1')
         time.sleep(15)
         print(f'Iteration {k} finished...')
 
 #-------- END OF SCRIPT --------
 
-print('Job done. It worked on the first time. Probably.')
+print(f'kmax = {kmax}, thus iteration {k} will not be carried out. Job done.')
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #

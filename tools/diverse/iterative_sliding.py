@@ -29,9 +29,6 @@ An initial 'startup' header is needed, which will be run first
 as a string to the variable 'name_of_run'. Subsequent iterations
 follow the naming convention 'name_of_run_iteration_modifier'.
 
-The entry for C_SLIDE_DIMLESS must be in the line specified by the
-variable 'line_number_c_slide' (to be set below).
-
 The program will write several computed parameters in a folder
 './tmp/iterative_sliding_{name_of_run}', namely:
   rmsd_lin
@@ -50,24 +47,17 @@ SICOPOLIS output must be in the standard directory './sico_out';
 otherwise, the script won't work!
 
 Created by Tom Dangleterre
-Last update: 2026-05-15 by Ralf Greve
+Last update: 2026-05-20 by Ralf Greve
 '''
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #-------- VARIABLES TO FILL --------
 
-name_of_run = 'grl16_bm6_spinup11_cal_100ka_iter'
+dx = '16'  # Resolution (string)
+
+name_of_run = f'grl{dx}_bm6_spinup11_cal_100ka_iter'
 # Name of the 'startup' header ('0th' iteration)
-
-dx = '16'  # Resolution
-
-line_number_c_slide = 1179
-# Line number of the entry for C_SLIDE_DIMLESS in the 'startup' header.
-# '1140' for Antarctica / '1179' for Greenland should work.
-
-line_num = line_number_c_slide-1
-# Python indexing starts with 0, therefore the '-1' is needed
 
 kmax = 7  # Maximum number of iterations (typically 5-15)
 
@@ -85,13 +75,13 @@ tslice = '0001'
 # Time-slice number for final state of iterations k=0...kmax
 # (which is used for comparison with observed surface velocities)
 
-anfdatname = 'grl16_bm6_spinup11_cal_100ka'  # Name of the initial-conditions simulation
+anfdatname = f'grl{dx}_bm6_spinup11_cal_100ka'  # Name of the initial-conditions simulation
 # For example ant32_bm3_jare_aq1_spinup03_holocene_1
 # NOT TO USE:
 #   ant32_bm3_jare_aq1_spinup03_holocene_10002.nc
 #   (no time-slice number, no extension)
 
-targetname = 'grl16_bm6_spinup11_smooth_100a'  # Name of the target simulation for nudging
+targetname = f'grl{dx}_bm6_spinup11_smooth_100a'  # Name of the target simulation for nudging
 
 # Regions file, to change according to the ice sheet
 path = './sico_in/grl/'
@@ -290,6 +280,16 @@ while k <= kmax:
     header = open(f'./headers/sico_specs_{name_of_run}_{k:02d}_{modifier[k]}.h', 'r')
     content = header.readlines()
     header.close()
+
+    line_num = None
+    for num, line in enumerate(content):
+        if '#define C_SLIDE_DIMLESS' in line:
+            line_num = num
+            break
+    if line_num is None:
+        print(f'Error: \'C_SLIDE_DIMLESS\' was not found in the header file!')
+        exit()
+
     a = content[line_num]
     a = a.replace('#define C_SLIDE_DIMLESS [', '')
     a = a.replace(' ', '')
@@ -318,7 +318,7 @@ while k <= kmax:
     for j in range(n_reg):
         values += f'{C[j]}d0, '
     values = values[:-2]
-    values +=  ']\n'
+    values += ' ]\n'
 
     content[line_num] = values
 

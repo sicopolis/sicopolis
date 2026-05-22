@@ -47,7 +47,7 @@ SICOPOLIS output must be in the standard directory './sico_out';
 otherwise, the script won't work!
 
 Created by Tom Dangleterre
-Last update: 2026-05-20 by Ralf Greve
+Last update: 2026-05-22 by Ralf Greve
 '''
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -70,6 +70,8 @@ modifier = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 if len(modifier) != kmax+1:
     print(f'Length of \'modifier\' array does not match value of \'kmax\'!')
     exit()
+
+Cmin = 0.01  # Lower threshold for the dimensionless sliding coefficient
 
 tslice = '0001'
 # Time-slice number for final state of iterations k=0...kmax
@@ -312,7 +314,7 @@ while k <= kmax:
     # print([round(slope_log[j], 4) for j in range(len(slope_log))])
     # print('slope_log length', len(slope_log))
     # print('sliding coeff length', len(slide))
-    C = [max(round(slide[k]/slope_log[k],4),0.01) for k in range(n_reg)]
+    C = [max(round(slide[k]/slope_log[k],4),Cmin) for k in range(n_reg)]
 
     values = f'#define C_SLIDE_DIMLESS [ '
     for j in range(n_reg):

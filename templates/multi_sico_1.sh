@@ -10,7 +10,7 @@ LANG=C
 #
 #  Author: Ralf Greve
 #
-#  Date: 2024-06-18
+#  Date: 2026-05-24
 #
 ################################################################################
 
@@ -126,71 +126,88 @@ function run()
 
    #--------
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_vialov3d25) \
+   (./sico.sh -m repo_vialov3d25 \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_101.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_emtp2sge25_expA) \
+   (./sico.sh -m repo_emtp2sge25_expA \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_102.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_grl16_bm5_ss25ka) \
+   (./sico.sh -m repo_grl16_bm5_ss25ka \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_103.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_grl16_bm5_init100a) \
+   (./sico.sh -m repo_grl16_bm5_init100a \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_104.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_grl16_bm5_ss25ka_nudged \
+   (./sico.sh -m repo_grl16_bm5_ss25ka_nudged \
+                 ${MULTI_OPTIONS_1} \
               -t ${MULTI_OUTDIR}/repo_grl16_bm5_init100a) \
               >${SICO_SH_OUT_DIR}/out_multi_105.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant64_bm3_ss25ka) \
+   (./sico.sh -m repo_ant64_bm3_ss25ka \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_106.dat 2>&1
 
    #--------
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_grl20_b2_paleo21) \
+   (./sico.sh -m repo_grl20_b2_paleo21 \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_111.dat 2>&1
 
    cd $PWD/tools ; echo 0004 | \
-   (./tools.sh -p resolution_doubler ${MULTI_OPTIONS_2} \
-               -m repo_grl20_b2_paleo21) \
+   (./tools.sh -p resolution_doubler \
+               -m repo_grl20_b2_paleo21 \
+                  ${MULTI_OPTIONS_2}) \
                >$OLDPWD/${SICO_SH_OUT_DIR}/out_multi_112.dat 2>&1
    cd $OLDPWD
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_grl10_b2_paleo21 \
+   (./sico.sh -m repo_grl10_b2_paleo21 \
+                 ${MULTI_OPTIONS_1} \
               -a ${MULTI_OUTDIR}/repo_grl20_b2_paleo21) \
               >${SICO_SH_OUT_DIR}/out_multi_113.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_grl10_b2_future21_ctrl \
+   (./sico.sh -m repo_grl10_b2_future21_ctrl \
+                 ${MULTI_OPTIONS_1} \
               -a ${MULTI_OUTDIR}/repo_grl10_b2_paleo21) \
               >${SICO_SH_OUT_DIR}/out_multi_114.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_grl10_b2_future21_asmb \
+   (./sico.sh -m repo_grl10_b2_future21_asmb \
+                 ${MULTI_OPTIONS_1} \
               -a ${MULTI_OUTDIR}/repo_grl10_b2_paleo21) \
               >${SICO_SH_OUT_DIR}/out_multi_115.dat 2>&1
 
    #--------
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant64_b2_spinup09_init100a) \
+   (./sico.sh -m repo_ant64_b2_spinup09_init100a \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_121.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant64_b2_spinup09_fixtopo \
+   (./sico.sh -m repo_ant64_b2_spinup09_fixtopo \
+                 ${MULTI_OPTIONS_1} \
               -a ${MULTI_OUTDIR}/repo_ant64_b2_spinup09_init100a \
               -t ${MULTI_OUTDIR}/repo_ant64_b2_spinup09_init100a) \
               >${SICO_SH_OUT_DIR}/out_multi_122.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant64_b2_spinup09 \
+   (./sico.sh -m repo_ant64_b2_spinup09 \
+                 ${MULTI_OPTIONS_1} \
               -a ${MULTI_OUTDIR}/repo_ant64_b2_spinup09_fixtopo) \
               >${SICO_SH_OUT_DIR}/out_multi_123.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant64_b2_future09_ctrl \
+   (./sico.sh -m repo_ant64_b2_future09_ctrl \
+                 ${MULTI_OPTIONS_1} \
               -a ${MULTI_OUTDIR}/repo_ant64_b2_spinup09) \
               >${SICO_SH_OUT_DIR}/out_multi_124.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant64_b2_future09_asmb \
+   (./sico.sh -m repo_ant64_b2_future09_asmb \
+                 ${MULTI_OPTIONS_1} \
               -a ${MULTI_OUTDIR}/repo_ant64_b2_spinup09) \
               >${SICO_SH_OUT_DIR}/out_multi_125.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_ant64_b2_future09_abmb \
+   (./sico.sh -m repo_ant64_b2_future09_abmb \
+                 ${MULTI_OPTIONS_1} \
               -a ${MULTI_OUTDIR}/repo_ant64_b2_spinup09) \
               >${SICO_SH_OUT_DIR}/out_multi_126.dat 2>&1
 }

@@ -10,7 +10,7 @@ LANG=C
 #
 #  Author: Ralf Greve
 #
-#  Date: 2024-06-18
+#  Date: 2026-05-24
 #
 ################################################################################
 
@@ -126,35 +126,44 @@ function run()
 
    #--------
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_asf2_steady) \
+   (./sico.sh -m repo_asf2_steady \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_201.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_asf2_surge) \
+   (./sico.sh -m repo_asf2_surge \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_202.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_scand_test) \
+   (./sico.sh -m repo_scand_test \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_203.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_tibet_test) \
+   (./sico.sh -m repo_tibet_test \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_204.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_nmars10_steady) \
+   (./sico.sh -m repo_nmars10_steady \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_205.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_smars10_steady) \
+   (./sico.sh -m repo_smars10_steady \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_206.dat 2>&1
 
-   (./sico.sh ${MULTI_OPTIONS_1} -m repo_nhem80_nt012_new) \
+   (./sico.sh -m repo_nhem80_nt012_new \
+                 ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_207.dat 2>&1
 
    #--------
 
-   ## (./sico.sh ${MULTI_OPTIONS_1} -m repo_emtshelf25_expH) \
+   ## (./sico.sh -m repo_emtshelf25_expH \
+   ##               ${MULTI_OPTIONS_1}) \
    ##            >${SICO_SH_OUT_DIR}/out_multi_211.dat 2>&1
 
    #--------
 
-   ## (./sico.sh ${MULTI_OPTIONS_1} -m repo_heino50_st) \
+   ## (./sico.sh -m repo_heino50_st \
+   ##               ${MULTI_OPTIONS_1}) \
    ##            >${SICO_SH_OUT_DIR}/out_multi_212.dat 2>&1
 }
 

@@ -574,10 +574,31 @@ if ( firstcall%boundary &
 
    do i=0, IMAX
    do j=0, JMAX
+
       temp_maat_anom(j,i) = temp_maat_anom_conv(i,j)
-      dtemp_maat_dz(j,i)  = dtemp_maat_dz_conv(i,j)
-      smb_anom(j,i)       = smb_anom_conv(i,j)
-      dsmb_dz(j,i)        = dsmb_dz_conv(i,j)
+      if ( (temp_maat_anom(j,i) > no_value_pos_1) &
+           .or. &
+           (temp_maat_anom(j,i) < no_value_neg_1) ) &
+         temp_maat_anom(j,i) = 0.0_dp
+
+      dtemp_maat_dz(j,i) = dtemp_maat_dz_conv(i,j)
+      if ( (dtemp_maat_dz(j,i) > no_value_pos_1) &
+           .or. &
+           (dtemp_maat_dz(j,i) < no_value_neg_1) ) &
+         dtemp_maat_dz(j,i) = 0.0_dp
+
+      smb_anom(j,i) = smb_anom_conv(i,j)
+      if ( (smb_anom(j,i) > no_value_pos_1) &
+           .or. &
+           (smb_anom(j,i) < no_value_neg_1) ) &
+         smb_anom(j,i) = 0.0_dp
+
+      dsmb_dz(j,i) = dsmb_dz_conv(i,j)
+      if ( (dsmb_dz(j,i) > no_value_pos_1) &
+           .or. &
+           (dsmb_dz(j,i) < no_value_neg_1) ) &
+         dsmb_dz(j,i) = 0.0_dp
+
    end do
    end do
 

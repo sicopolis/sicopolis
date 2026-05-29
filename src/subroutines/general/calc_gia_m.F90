@@ -227,7 +227,7 @@ else
 
 end if
 
-if (target_topo_tau*sec2year > no_value_pos_1) then
+if (target_topo_tau*sec2year > r_no_value_pos_1) then
            ! relaxation time target_topo_tau interpreted as infinity
 
 #if (!defined(ALLOW_GRDCHK) && !defined(ALLOW_TAPENADE)) /* Normal */
@@ -255,7 +255,7 @@ dzl_dtau = (zl_new-zl)*dtime_inv
 
 target_topo_tau = target_topo_tau_0
 
-if (target_topo_tau*sec2year > no_value_pos_1) then
+if (target_topo_tau*sec2year > r_no_value_pos_1) then
            ! relaxation time target_topo_tau interpreted as infinity
 
 #if (!defined(ALLOW_GRDCHK) && !defined(ALLOW_TAPENADE)) /* Normal */
@@ -623,11 +623,11 @@ write(23,'(a)') &
 
 do j=JMAX, 0, -1
    do i=0, IMAX-1
-      zl0_smoothed(j,i) = max(zl0_smoothed(j,i), no_value_neg_2)
+      zl0_smoothed(j,i) = max(zl0_smoothed(j,i), r_no_value_neg_2)
       write(23,'(f8.1)', advance='no') zl0_smoothed(j,i)
    end do
    i=IMAX
-      zl0_smoothed(j,i) = max(zl0_smoothed(j,i), no_value_neg_2)
+      zl0_smoothed(j,i) = max(zl0_smoothed(j,i), r_no_value_neg_2)
       write(23,'(f8.1)') zl0_smoothed(j,i)
 end do
 

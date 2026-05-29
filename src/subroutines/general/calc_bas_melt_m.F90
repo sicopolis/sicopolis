@@ -98,7 +98,7 @@ Q_bm = 0.0_dp   ! initialisation
 #if (defined(Z_ABYSS))
 z_abyssal = Z_ABYSS
 #else
-z_abyssal = no_value_neg_1
+z_abyssal = r_no_value_neg_1
 #endif
 
 do i=1, IMAX-1
@@ -804,7 +804,7 @@ if ( firstcall%sub_ice_shelf_melting_param_2 &
       do j=0, JMAX
       do n=0, NZ_TF_BM
          if (isnan(tf_bm_aux(i,j,n))) then
-            tf_bm(n,j,i) = no_value_neg_2
+            tf_bm(n,j,i) = r_no_value_neg_2
          else
             tf_bm(n,j,i) = tf_bm_aux(i,j,n)
          end if
@@ -904,7 +904,7 @@ end do
 
 dz_inv = 1.0_dp/DZ_TF_BM
 
-tf_bm_no_value_neg = 0.999_dp*no_value_neg_2
+tf_bm_no_value_neg = 0.999_dp*r_no_value_neg_2
 
 tf_bm_local = 1.0_dp   ! default value
 

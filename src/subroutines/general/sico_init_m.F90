@@ -2601,7 +2601,7 @@ do i=0, IMAX
 do j=0, JMAX
 do n=0, NZ_TF_BM
    if (isnan(tf_bm_present_aux(i,j,n))) then
-      tf_bm_present(n,j,i) = no_value_neg_2
+      tf_bm_present(n,j,i) = r_no_value_neg_2
    else
       tf_bm_present(n,j,i) = tf_bm_present_aux(i,j,n)
                              ! swap indices -> SICOPOLIS standard

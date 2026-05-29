@@ -321,7 +321,7 @@ contains
   enh_stream = ENH_STREAM
   if (enh_stream >= 0.0_dp) flag_enh_stream = .true.
 #else
-  enh_stream = no_value_neg_1   ! negative dummy value
+  enh_stream = r_no_value_neg_1   ! negative dummy value
 #endif
 
   end subroutine calc_enhance_stream_const

@@ -6736,9 +6736,9 @@ V_temp     = 0.0_dp
 A_temp     = 0.0_dp
 H_max      = 0.0_dp
 H_t_max    = 0.0_dp
-zs_max     = no_value_neg_2
+zs_max     = r_no_value_neg_2
 vs_max     = 0.0_dp
-Tbh_max    = no_value_neg_2
+Tbh_max    = r_no_value_neg_2
 
 do i=0, IMAX
 do j=0, JMAX

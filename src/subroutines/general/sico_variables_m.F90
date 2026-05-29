@@ -1576,16 +1576,16 @@ logical :: flag_grads_nc_tweaks
    !!   .true.: optimized output,
    !!  .false.: normal NetCDF output (default)
 
-real(dp), parameter :: no_value_pos_1 =  1.11e+11_dp
+real(dp), parameter :: r_no_value_pos_1 =  1.11e+11_dp
    !! Positive no-value parameter
 
-real(dp), parameter :: no_value_pos_2 =  9.999e+03_dp
+real(dp), parameter :: r_no_value_pos_2 =  9.999e+03_dp
    !! Positive no-value parameter
 
-real(dp), parameter :: no_value_neg_1 = -1.11e+11_dp
+real(dp), parameter :: r_no_value_neg_1 = -1.11e+11_dp
    !! Negative no-value parameter
 
-real(dp), parameter :: no_value_neg_2 = -9.999e+03_dp
+real(dp), parameter :: r_no_value_neg_2 = -9.999e+03_dp
    !! Negative no-value parameter
 
 character(len=256) :: errormsg

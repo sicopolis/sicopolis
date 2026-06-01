@@ -4,7 +4,7 @@ import netCDF4 as nc
 from math import log10, sqrt, isnan
 from matplotlib import pyplot as plt
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 '''
 This script will start a chain of simulations with the objective
@@ -50,7 +50,7 @@ Created by Tom Dangleterre
 Last update: 2026-05-22 by Ralf Greve
 '''
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #-------- VARIABLES TO FILL --------
 
@@ -349,5 +349,5 @@ while k <= kmax:
 
 print(f'kmax = {kmax}, thus iteration {k} will not be carried out. Job done.')
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #

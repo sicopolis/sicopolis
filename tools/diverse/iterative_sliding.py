@@ -77,26 +77,25 @@ tslice = '0001'
 # Time-slice number for final state of iterations k=0...kmax
 # (which is used for comparison with observed surface velocities)
 
-anfdatname = f'grl{dx}_bm6_spinup11_cal_100ka'  # Name of the initial-conditions simulation
-# For example ant32_bm3_jare_aq1_spinup03_holocene_1
-# NOT TO USE:
-#   ant32_bm3_jare_aq1_spinup03_holocene_10002.nc
-#   (no time-slice number, no extension)
+anfdatname = f'grl{dx}_bm6_spinup11_cal_100ka'
+# Name of the initial-conditions simulation
+# (no time-slice number, no file extension)
 
-targetname = f'grl{dx}_bm6_spinup11_smooth_100a'  # Name of the target simulation for nudging
+targetname = f'grl{dx}_bm6_spinup11_smooth_100a'
+# Name of the target simulation for nudging
+# (no time-slice number, no file extension)
 
-# Regions file, to change according to the ice sheet
 path = './sico_in/grl/'
 filename = f'grl{dx}_zwally2012_basins_with-negis_extrapolated.nc'
+# Regions file (e.g., IMBIE, Zwally...)
 
 regions = nc.Dataset(path+filename)
 reg = regions['n_basin'][:]
 n_reg = max(max(sub) for sub in reg)
 
-# Change the following depending on the ice sheet studied, dx is the resolution entered earlier
-# Adjust the path to the MEaSUREs surface velocities maps 
 path = './sico_in/grl/'
 filename = f'SurfVel_Greenland_MEaSUREs_GridEPSG3413_{dx}km.nc'
+# File containing the observed surface velocities
 
 #-------- FOLDER FOR COMPUTED PARAMETERS --------
 

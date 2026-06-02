@@ -33,6 +33,9 @@ Make sure you have python 3 and the netCDF4 library installed through
 the command pip install netcdf4.
 
 Will save the files in the results folder created during the iterative script.
+
+Created by Tom Dangleterre
+Last update: 2026-06-02 by Ralf Greve
 '''
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -60,10 +63,10 @@ if len(modifier) != kmax+1:
     exit()
 
 topo_file_name = f'{domain}_bm6_{dx}_topo'
-# Name of the topography file (without extension '.nc')
+# File containing the observed topography [\!/ without extension '.nc']
 
 regions_file_name = f'{domain}{dx}_zwally2012_basins_with-negis_extrapolated'
-# Name of the regions file (without extension '.nc')
+# Regions file (e.g., IMBIE, Zwally...) [\!/ without extension '.nc']
 
 tslice = '0001'
 # Time-slice number for final state of iterations k=0...kmax
@@ -101,7 +104,9 @@ def avg_sliding_slope(n):
                     ntot_ground +=1
         frac_region.append(ntot_reg)
     return (frac_region, ntot_ground)
-    
+
+print()
+
 txt = open(f'./tmp/iterative_sliding_{name_of_run}/slope_log.txt', 'r')
 
 content = txt.readlines()
@@ -112,22 +117,19 @@ for k in range(len(content)):
     content[k].pop()
     content[k] = [round(float(content[k][j]),4) for j in range(len(content[k]))]   
 
-X = []
-Y = []
-num_reg = len(content[0])
+num_reg  = len(content[0])
 num_iter = len(content)
-
-print(f'num_reg  ={num_reg:3d}')
-print(f'num_iter ={num_iter:3d}')
-print()
 
 if num_iter-1 != kmax:
     print(f'Detected value of \'num_iter\' does not match set value of \'kmax\'!')
     exit()
 
-slide = [[] for j in range(num_reg)]
-
 print('Calculating the average slope for each iteration... \n')
+
+X = []
+Y = []
+
+slide = [[] for j in range(num_reg)]
 
 for k in range(num_iter):
     avg = 0
@@ -137,7 +139,7 @@ for k in range(num_iter):
         slide[j].append(content[k][j])
         avg = avg + frac_region[j] * content[k][j] / ntot_ground
     Y.append(avg)
-    print('Iteration',k,':', avg)
+    print(f'Iteration {k:2d} :', avg)
 
 #-------- Plotting the slopes --------
 
@@ -145,19 +147,21 @@ print()
 print('Making plots... \n')
 
 plt.figure()
-plt.title(f'Evolution of the slopes against iteration \n', fontsize = 14)
+# plt.title(f'Evolution of the slopes against iteration \n', fontsize = 14)
 plt.xlabel('Number of iterations', fontsize = 14)
 plt.ylabel('Slope', fontsize = 14)
 plt.tight_layout(rect=[0, 0, 0.85, 1])
 
 fig = plt.gcf()
 
-for k in range(len(slide)):
-    plt.plot(X, slide[k], label=f'{k}')
+for k in range(num_reg):
+    plt.plot(X, slide[k], label=f'{k+1}')
 
 plt.plot(X, Y, label = 'Avg', linewidth=6)
 plt.plot(X, [1 for k in range(len(Y))], 'k--')
+
 plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+
 fig.savefig(f'./tmp/iterative_sliding_{name_of_run}/slope_evol_{name_of_run}.png', dpi=600)
 plt.close('all')
 
@@ -165,7 +169,7 @@ plt.close('all')
 
 C = []
 
-for k in range(1,num_iter):
+for k in range(num_iter):
     header = open(f'./sico_out/{name_of_run}_{k:02d}_{modifier[k]}/sico_specs_{name_of_run}_{k:02d}_{modifier[k]}.h', 'r')
     content = header.readlines()
     header.close()
@@ -191,32 +195,30 @@ for k in range(1,num_iter):
     combi = [float(a[k]) for k in range(len(a))]
     C.append(combi)
 
-X = []
 Y = []
 
-slide = [[] for j in range(len(C[0]))]
-for k in range(len(C)):
-    X.append(k)
-    for j in range(len(C[0])):
+slide = [[] for j in range(num_reg)]
+for k in range(num_iter):
+    for j in range(num_reg):
         slide[j].append(C[k][j])
 
-X.append(len(C))
-
 plt.figure()
-plt.title('Evolution of the sliding coefficient against iteration\n', fontsize = 14)
+# plt.title('Evolution of the sliding coefficient against iteration\n', fontsize = 14)
 plt.xlabel('Number of iterations', fontsize = 14)
 plt.ylabel('Sliding coefficients', fontsize = 14)
 plt.tight_layout(rect=[0, 0, 0.85, 1])
 
 fig = plt.gcf()
 
-for k in range(len(slide)):
-    plt.plot(X, [1] + slide[k], label = f'{k+1}')
-    # !!! This needs to be changed !!!
+for k in range(num_reg):
+    plt.plot(X, slide[k], label = f'{k+1}')
 
 plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+
 fig.savefig(f'./tmp/iterative_sliding_{name_of_run}/c_slide_evol_{name_of_run}.png', dpi=600)
 plt.close('all')
+
+#-------- Further plots ... --------
 
 # def create_coeff_map():
 # 
@@ -319,7 +321,7 @@ plt.close('all')
 
 #-------- End of script --------
 
-print('Job done.')
+print('Job done.\n')
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #

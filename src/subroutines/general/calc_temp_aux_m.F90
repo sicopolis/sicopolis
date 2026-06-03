@@ -1,8 +1,9 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !
-!  Module :  c a l c _ t e m p _ m e l t _ b a s _ m
+!  Module :  c a l c _ t e m p _ a u x _ m
 !
-!! Computation of the melting and basal temperatures.
+!! Computation of the melting temperature, basal temperature, vertical
+!! temperature gradient at the base and mean (depth-averaged) temperature.
 !!
 !!##### Authors
 !!
@@ -28,9 +29,10 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> Computation of the melting and basal temperatures.
+!> Computation of the melting temperature, basal temperature, vertical
+!! temperature gradient at the base and mean (depth-averaged) temperature.
 !-------------------------------------------------------------------------------
-module calc_temp_melt_bas_m
+module calc_temp_aux_m
 
   use sico_types_m
   use sico_variables_m
@@ -41,17 +43,17 @@ module calc_temp_melt_bas_m
 
   implicit none
 
-  private
-  public :: calc_temp_melt, calc_temp_bas
+  public
 
 contains
 
 !-------------------------------------------------------------------------------
-!> Computation of the melting temperatures.
+!> Computation of the melting temperature.
 !-------------------------------------------------------------------------------
   subroutine calc_temp_melt()
 
   implicit none
+
   integer(i4b) :: i, j, kc, kt
   real(dp), dimension(0:KCMAX) :: atm1
   real(dp), dimension(0:KTMAX) :: atm2
@@ -80,11 +82,12 @@ contains
   end subroutine calc_temp_melt
 
 !-------------------------------------------------------------------------------
-!> Computation of the basal temperatures.
+!> Computation of the basal temperature.
 !-------------------------------------------------------------------------------
   subroutine calc_temp_bas()
 
   implicit none
+
   integer(i4b) :: i, j
 
 !-------- Computation of the basal temperatures --------
@@ -123,6 +126,113 @@ contains
   end subroutine calc_temp_bas
 
 !-------------------------------------------------------------------------------
+!> Computation of the vertical temperature gradient at the base.
+!-------------------------------------------------------------------------------
+  subroutine calc_temp_bas_grad(dzeta_c, dzeta_t)
 
-end module calc_temp_melt_bas_m
+  implicit none
+
+  real(dp), intent(in) :: dzeta_c, dzeta_t
+
+  integer(i4b) :: i, j
+  real(dp)     :: fct_c
+
+  if (flag_aa_nonzero) then
+     fct_c = (ea-1.0_dp)/aa
+  else
+     fct_c = 1.0_dp
+  end if
+
+  do i=0, IMAX
+  do j=0, JMAX
+
+     if ( (mask(j,i) == 0).or.(mask(j,i) == 3) ) then
+                                   ! glaciated land or floating ice
+
+        if ( (n_cts(j,i) == -1).or.(n_cts(j,i) == 0) ) then
+
+           dtemp_dz_b(j,i) = fct_c*(temp_c(1,j,i)-temp_c(0,j,i)) &
+                                   / (H_c(j,i)*dzeta_c)
+
+        else   ! n_cts(j,i) == 1, temperate ice layer in kt domain
+
+           dtemp_dz_b(j,i) = (temp_t_m(1,j,i)-temp_t_m(0,j,i)) &
+                             / (H_t(j,i)*dzeta_t)
+
+        end if
+
+     else   ! mask(j,i) == 1 or 2, ice-free land or sea
+
+        dtemp_dz_b(j,i) = 0.0_dp
+
+     end if
+
+  end do
+  end do
+
+  end subroutine calc_temp_bas_grad
+
+!-------------------------------------------------------------------------------
+!> Computation of the mean (depth-averaged) temperature.
+!-------------------------------------------------------------------------------
+  subroutine calc_temp_mean(dzeta_c, dzeta_t)
+
+  implicit none
+
+  real(dp), intent(in) :: dzeta_c, dzeta_t
+
+  integer(i4b) :: i, j, kc, kt
+  real(dp), dimension(0:KCMAX) :: ctemp_c
+  real(dp), dimension(0:KTMAX) :: ctemp_t
+
+  do i=0, IMAX
+  do j=0, JMAX
+
+     if ( (mask(j,i) == 0).or.(mask(j,i) == 3) ) then
+                                   ! glaciated land or floating ice
+
+        if (n_cts(j,i) == 1) then
+           do kt=0, KTMAX
+              ctemp_t(kt) = (H_t(j,i)*dzeta_t) * temp_t_m(kt,j,i)
+           end do
+        else
+           ctemp_t = 0.0_dp   ! not needed
+        end if
+
+        do kc=0, KCMAX
+           ctemp_c(kc) = (H_c(j,i)*(aa*eaz_c(kc)/(ea-1.0_dp))*dzeta_c) &
+                         * temp_c(kc,j,i)
+        end do
+
+        temp_mean(j,i) = 0.0_dp
+
+        if (n_cts(j,i) == 1) then
+           do kt=0, KTMAX-1
+              temp_mean(j,i) = temp_mean(j,i)+0.5_dp*(ctemp_t(kt+1)+ctemp_t(kt))
+           end do
+        end if
+
+        do kc=0, KCMAX-1
+           temp_mean(j,i) = temp_mean(j,i)+0.5_dp*(ctemp_c(kc+1)+ctemp_c(kc))
+        end do
+
+        temp_mean(j,i) = temp_mean(j,i)/H(j,i)
+
+     else   ! mask(j,i) == 1 or 2, ice-free land or sea
+
+        ctemp_c = 0.0_dp   ! not needed
+        ctemp_t = 0.0_dp   ! not needed
+
+        temp_mean(j,i) = temp_c(0,j,i)
+
+     end if
+
+  end do
+  end do
+
+  end subroutine calc_temp_mean
+
+!-------------------------------------------------------------------------------
+
+end module calc_temp_aux_m
 !

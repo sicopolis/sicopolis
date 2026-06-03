@@ -533,6 +533,12 @@ real(dp), dimension(0:JMAX,0:IMAX) :: temp_b
 real(dp), dimension(0:JMAX,0:IMAX) :: temph_b
    !! Basal temperature relative to the pressure melting point
 
+real(dp), dimension(0:JMAX,0:IMAX) :: dtemp_dz_b
+   !! Vertical temperature gradient at the base
+
+real(dp), dimension(0:JMAX,0:IMAX) :: temp_mean
+   !! Mean (depth-averaged) temperature
+
 real(dp), dimension(0:JMAX,0:IMAX) :: Q_bm
    !! Basal melting rate
 

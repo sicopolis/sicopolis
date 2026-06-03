@@ -65,7 +65,7 @@ subroutine sico_init(dtime, dtime_temp, dtime_wss, dtime_out, dtime_ser, &
   use calc_vxy_m
   use calc_vz_m
   use calc_dxyz_m
-  use calc_temp_melt_bas_m
+  use calc_temp_aux_m
 
   use output_m
 
@@ -1918,9 +1918,18 @@ end do
 
 #endif
 
-!-------- Initial velocities --------
+!-------- Auxiliary temperature quantities --------
 
 call calc_temp_melt()
+
+#if (!(ANF_DAT==3) || defined(LEGACY_RESTART))
+call calc_temp_bas()
+call calc_temp_bas_grad(dzeta_c, dzeta_t)
+call calc_temp_mean(dzeta_c, dzeta_t)
+#endif
+
+!-------- Initial velocities --------
+
 call flag_update_gf_gl_cf()
 call calc_vxy_b_init()
 call calc_dzs_dxy_aux(dxi, deta)

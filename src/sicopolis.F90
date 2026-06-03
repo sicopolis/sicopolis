@@ -5,7 +5,7 @@
 !
 #define       MODEL_SICOPOLIS
 #define       VERSION '26'
-#define       DATE    '2026-05-29'
+#define       DATE    '2026-06-03'
 !
 !! Main program of SICOPOLIS.
 !!
@@ -134,7 +134,7 @@
 #include "subroutines/general/mars_instemp_m.f90"
 #endif
 
-#include "subroutines/general/calc_temp_melt_bas_m.F90"
+#include "subroutines/general/calc_temp_aux_m.F90"
 #include "subroutines/general/calc_bas_melt_m.F90"
 #include "subroutines/general/calc_thk_water_bas_m.F90"
 

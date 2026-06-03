@@ -221,7 +221,7 @@ real(sp), dimension(0:IMAX,0:JMAX) :: lambda_conv, phi_conv, &
             vx_s_g_conv, vy_s_g_conv, vz_s_conv, vh_s_conv, &
             vx_m_g_conv, vy_m_g_conv,            vh_m_conv, &
             c_slide_conv, &
-            temp_b_conv, temph_b_conv, &
+            temp_b_conv, temph_b_conv, dtemp_dz_b_conv, temp_mean_conv, &
             tau_dr_conv, tau_b_conv, &
             p_b_w_conv, q_w_conv, q_w_x_conv, q_w_y_conv, H_w_conv, &
             q_gl_g_conv, &
@@ -2778,6 +2778,62 @@ call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
             thisroutine )
 
+!    ---- dtemp_dz_b
+
+call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
+            thisroutine )
+call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)), &
+            thisroutine )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'dtemp_dz_b', NF90_FLOAT, nc2d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle), &
+            thisroutine )
+#else
+call check( nf90_def_var(ncid, 'dtemp_dz_b', NF90_FLOAT, nc2d, ncv), &
+            thisroutine )
+#endif
+
+buffer = 'degC m-1'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)), &
+            thisroutine )
+buffer = 'basal_temperature_vertical_gradient'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
+            thisroutine )
+buffer = 'Vertical temperature gradient at the ice base'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
+            thisroutine )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
+            thisroutine )
+
+!    ---- temp_mean
+
+call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
+            thisroutine )
+call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)), &
+            thisroutine )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'temp_mean', NF90_FLOAT, nc2d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle), &
+            thisroutine )
+#else
+call check( nf90_def_var(ncid, 'temp_mean', NF90_FLOAT, nc2d, ncv), &
+            thisroutine )
+#endif
+
+buffer = 'degC'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)), &
+            thisroutine )
+buffer = 'vertical_mean_temperature'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
+            thisroutine )
+buffer = 'Vertical mean (depth-averaged) temperature'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
+            thisroutine )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
+            thisroutine )
+
 !    ---- tau_dr
 
 call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
@@ -4490,8 +4546,10 @@ do j=0, JMAX
    vy_m_g_conv(i,j)    = real(vy_m_g(j,i)*year2sec,sp)
    vh_m_conv(i,j)      = sqrt( vx_m_g_conv(i,j)**2 + vy_m_g_conv(i,j)**2 )
    c_slide_conv(i,j)   = real(c_slide(j,i)*year2sec,sp)
-   temp_b_conv(i,j)    = real(temp_b(j,i),sp)
-   temph_b_conv(i,j)   = real(temph_b(j,i),sp)
+   temp_b_conv(i,j)     = real(temp_b(j,i),sp)
+   temph_b_conv(i,j)    = real(temph_b(j,i),sp)
+   dtemp_dz_b_conv(i,j) = real(dtemp_dz_b(j,i),sp)
+   temp_mean_conv(i,j)  = real(temp_mean(j,i),sp)
    tau_dr_conv(i,j)    = real(tau_dr(j,i),sp)
    tau_b_conv(i,j)     = real(tau_b(j,i),sp)
    p_b_w_conv(i,j)     = real(p_b_w(j,i),sp)
@@ -5042,6 +5100,16 @@ call check( nf90_put_var(ncid, ncv, temp_b_conv, &
 
 call check( nf90_inq_varid(ncid, 'temph_b', ncv), thisroutine )
 call check( nf90_put_var(ncid, ncv, temph_b_conv, &
+                         start=nc2cor_ij, count=nc2cnt_ij), &
+            thisroutine )
+
+call check( nf90_inq_varid(ncid, 'dtemp_dz_b', ncv), thisroutine )
+call check( nf90_put_var(ncid, ncv, dtemp_dz_b_conv, &
+                         start=nc2cor_ij, count=nc2cnt_ij), &
+            thisroutine )
+
+call check( nf90_inq_varid(ncid, 'temp_mean', ncv), thisroutine )
+call check( nf90_put_var(ncid, ncv, temp_mean_conv, &
                          start=nc2cor_ij, count=nc2cnt_ij), &
             thisroutine )
 

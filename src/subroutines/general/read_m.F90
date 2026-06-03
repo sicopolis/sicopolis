@@ -137,7 +137,7 @@ contains
               vx_b_g_conv, vy_b_g_conv, vz_b_conv, vh_b_conv, &
               vx_s_g_conv, vy_s_g_conv, vz_s_conv, vh_s_conv, &
               vx_m_g_conv, vy_m_g_conv,            vh_m_conv, &
-              temp_b_conv, temph_b_conv, &
+              temp_b_conv, temph_b_conv, dtemp_dz_b_conv, temp_mean_conv, &
               tau_dr_conv, tau_b_conv, &
               p_b_w_conv, q_w_conv, q_w_x_conv, q_w_y_conv, H_w_conv, &
               q_gl_g_conv, &
@@ -948,6 +948,28 @@ contains
      call error(errormsg)
   end if
 
+  istat = nf90_inq_varid(ncid, 'dtemp_dz_b', ncv)
+  if (istat == nf90_noerr) then
+     call check( nf90_get_var(ncid, ncv, dtemp_dz_b_conv) )
+  else
+     warningmsg = ' >>> read_tms_nc: Variable ''dtemp_dz_b'' ' &
+                //                   end_of_line &
+                //'                  not available in read nc file.'
+     call warning(warningmsg)
+     dtemp_dz_b_conv = 0.0_sp
+  end if
+
+  istat = nf90_inq_varid(ncid, 'temp_mean', ncv)
+  if (istat == nf90_noerr) then
+     call check( nf90_get_var(ncid, ncv, temp_mean_conv) )
+  else
+     warningmsg = ' >>> read_tms_nc: Variable ''temp_mean'' ' &
+                //                   end_of_line &
+                //'                  not available in read nc file.'
+     call warning(warningmsg)
+     temp_mean_conv = 0.0_sp
+  end if
+
   istat = nf90_inq_varid(ncid, 'tau_dr', ncv)
   if (istat == nf90_noerr) then
      call check( nf90_get_var(ncid, ncv, tau_dr_conv) )
@@ -1466,8 +1488,10 @@ contains
         vx_s_g(j,i)  = real(vx_s_g_conv(i,j),dp)*sec2year
         vy_s_g(j,i)  = real(vy_s_g_conv(i,j),dp)*sec2year
         vz_s(j,i)    = real(vz_s_conv(i,j),dp)*sec2year
-        temp_b(j,i)  = real(temp_b_conv(i,j),dp)
-        temph_b(j,i) = real(temph_b_conv(i,j),dp)
+        temp_b(j,i)     = real(temp_b_conv(i,j),dp)
+        temph_b(j,i)    = real(temph_b_conv(i,j),dp)
+        dtemp_dz_b(j,i) = real(dtemp_dz_b_conv(i,j),dp)
+        temp_mean(j,i)  = real(temp_mean_conv(i,j),dp)
         p_b_w(j,i)   = real(p_b_w_conv(i,j),dp)
         q_w(j,i)     = real(q_w_conv(i,j),dp)*sec2year
         q_w_x(j,i)   = real(q_w_x_conv(i,j),dp)*sec2year

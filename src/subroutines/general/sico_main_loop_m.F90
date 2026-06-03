@@ -73,7 +73,7 @@ contains
   use calc_dxyz_m
   use calc_gia_m
   use calc_thk_m
-  use calc_temp_melt_bas_m
+  use calc_temp_aux_m
   use calc_bas_melt_m
   use calc_thk_water_bas_m
   use calc_pressure_water_bas_m
@@ -103,7 +103,7 @@ contains
   real(dp)     :: dtime_temp_inv
   logical      :: flag_3d_output, flag_output1, flag_output2
   
-  !-------- Begin of main loop (time integration) --------
+!-------- Begin of main loop (time integration) --------
   
   write(unit=6, fmt='(/a/)') ' -------- sico_main_loop --------'
   
@@ -128,19 +128,19 @@ contains
   
   write(unit=6, fmt='(2x,i0)') itercount
   
-  !-------- Update of time --------
+!-------- Update of time --------
   
   time      = time_init + real(itercount,dp)*dtime
   
-  !-------- Save old mask --------
+!-------- Save old mask --------
   
   mask_old = mask
   
-  !-------- Boundary conditions --------
+!-------- Boundary conditions --------
   
   call boundary(time, dtime, dxi, deta)
   
-  !-------- Temperature, water content, age, flow enhancement factor --------
+!-------- Temperature, water content, age, flow enhancement factor --------
   
   if ( mod(itercount, iter_temp) == 0 ) then
      flag_calc_temp = .true.
@@ -152,7 +152,7 @@ contains
 
        write(unit=6, fmt='(10x,a)') 'Computation of T'
   
-  !  ------ Temperature, water content, age
+!  ------ Temperature, water content, age
   
 #if (CALCMOD==1)
      call calc_temp_poly(dxi, deta, dzeta_c, dzeta_t, dzeta_r, dtime_temp)
@@ -175,14 +175,14 @@ contains
      call error(errormsg)
 #endif
   
-  !  ------ Time derivative of H_t (further time derivatives are
-  !         computed in subroutine calc_thk_xxx)
+!  ------ Time derivative of H_t (further time derivatives are
+!         computed in subroutine calc_thk_xxx)
   
      dtime_temp_inv = 1.0_dp/dtime_temp
   
      dH_t_dtau      = (H_t_new - H_t)*dtime_temp_inv
   
-  !  ------ New values -> old values
+!  ------ New values -> old values
   
      n_cts   = n_cts_new
      kc_cts  = kc_cts_new
@@ -201,7 +201,7 @@ contains
      omega_c = omega_c_new
 #endif
   
-  !  ------ Flow enhancement factor
+!  ------ Flow enhancement factor
   
 #if (ENHMOD==1)
      call calc_enhance_1()
@@ -223,7 +223,7 @@ contains
   !     End of computation of temperature, water content, age and
   !     enhancement factor (only if flag_calc_temp == .true.)
   
-  !-------- Velocity --------
+!-------- Velocity --------
 
   call flag_update_gf_gl_cf()
   call calc_dzs_dxy_aux(dxi, deta)
@@ -256,7 +256,7 @@ contains
   
   call calc_dxyz(dxi, deta, dzeta_c, dzeta_t)
   
-  !-------- Glacial isostatic adjustment and ice topography --------
+!-------- Glacial isostatic adjustment and ice topography --------
   
   call calc_gia(time, dtime, dxi, deta, itercount, iter_wss)
   
@@ -302,7 +302,7 @@ contains
 
   call flag_update_gf_gl_cf()
 
-  !  ------ New values -> old values
+!  ------ New values -> old values
   
   zs  = zs_new
   zm  = zm_new
@@ -311,32 +311,42 @@ contains
   H   = H_new
   H_c = H_c_new
   H_t = H_t_new
-  
-  !-------- Melting temperature --------
+
+!-------- Auxiliary temperature quantities --------
+
+!  ------ Melting temperature
 
   call calc_temp_melt()
 
-  !-------- Basal temperature --------
+!  ------ Basal temperature
 
   call calc_temp_bas()
 
-  !-------- Basal melting rate --------
+!  ------ Vertical temperature gradient at the base
+
+  call calc_temp_bas_grad(dzeta_c, dzeta_t)
+
+!  ------ Mean (depth-averaged) temperature
+
+  call calc_temp_mean(dzeta_c, dzeta_t)
+
+!-------- Basal melting rate --------
 
   call calc_qbm(time, dzeta_c, dzeta_r)
 
-  !-------- Effective thickness of subglacial water  --------
+!-------- Effective thickness of subglacial water  --------
 
   call calc_thk_water_bas()
 
-  !-------- Basal water pressure --------
+!-------- Basal water pressure --------
 
   call calc_pressure_water_bas()
 
-  !-------- Data output --------
+!-------- Data output --------
 
 #if !(defined(ALLOW_GRDCHK) || defined(ALLOW_TAPENADE))
 
-  !  ------ Time-slice data
+!  ------ Time-slice data
   
 #if (OUTPUT==1)
 
@@ -453,7 +463,7 @@ contains
   
 #endif
 
-  !  ------ Time-series data
+!  ------ Time-series data
 
   flag_output2 = .false.
 

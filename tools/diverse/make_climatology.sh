@@ -88,7 +88,7 @@ dir1="${outdir}"
 dir2="."
 
 filename1="${runname}${two_d}${ergnum}.nc"
-filename2="${runname}_${year1}-${year2}.nc"
+filename2="${runname}${two_d}${ergnum}_climatology_${year1}-${year2}.nc"
 filename3="${dir1}/${filename1}"
 filename4="${dir2}/${filename2}"
 

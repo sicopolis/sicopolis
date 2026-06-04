@@ -2,8 +2,8 @@
 !
 !  Module :  b o u n d a r y _ m
 !
-!! Computation of the surface temperature (must be less than 0 degC)
-!! and of the accumulation-ablation function.
+!! Computation of the surface temperature (must be < 0 degC),
+!! the accumulation-ablation function (SMB), calving and frontal melting.
 !!
 !!##### Authors
 !!
@@ -29,8 +29,8 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> Computation of the surface temperature (must be less than 0 degC)
-!! and of the accumulation-ablation function.
+!> Computation of the surface temperature (must be < 0 degC),
+!! the accumulation-ablation function (SMB), calving and frontal melting.
 !-------------------------------------------------------------------------------
 module boundary_m
 
@@ -51,8 +51,8 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Main routine of boundary_m:
-!! Computation of the surface temperature (must be less than 0 degC)
-!! and of the accumulation-ablation function.
+!! Computation of the surface temperature (must be < 0 degC),
+!! the accumulation-ablation function (SMB), calving and frontal melting.
 !-------------------------------------------------------------------------------
 subroutine boundary(time, dtime, dxi, deta)
 
@@ -83,7 +83,8 @@ real(dp), intent(in) :: time, dtime, dxi, deta
 ! (defined as global variables in module sico_variables_m):
 !
 !    delta_ts, glac_index, z_mar,
-!    accum(j,i), runoff(j,i), as_perp(j,i), calving(j,i), temp_s(j,i)
+!    temp_s(j,i), accum(j,i), runoff(j,i), as_perp(j,i),
+!    calving(j,i), frontal_melting(j,i)
 
 integer(i4b) :: i, j, n
 integer(i4b) :: i_gr, i_kl
@@ -1704,6 +1705,10 @@ call discharge(dxi, deta)
 calving = calving + dis_perp
 
 #endif
+
+!-------- Frontal melting --------
+
+frontal_melting = 0.0_dp   ! Initialization
 
 !-------- Antarctica only: Ice-shelf collapse mask --------
 

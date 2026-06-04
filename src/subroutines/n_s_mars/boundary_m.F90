@@ -4,9 +4,10 @@
 !
 !! NMARS/SMARS domains:
 !! Mars Atmosphere-Ice Coupler MAIC-1.5.
-!! Computation of the surface temperature (must be less than 0 degC)
-!! and of the accumulation-ablation rate for the polar caps of Mars.
-!! Computation of the geothermal heat flux.
+!! Computation of the surface temperature (must be < 0 degC)
+!! and of the accumulation-ablation rate (SMB) for the polar caps of Mars.
+!! Further,
+!! computation of calving, frontal melting and the geothermal heat flux.
 !!
 !!##### Authors
 !!
@@ -34,9 +35,10 @@
 !-------------------------------------------------------------------------------
 !> NMARS/SMARS domains:
 !! Mars Atmosphere-Ice Coupler MAIC-1.5.
-!! Computation of the surface temperature (must be less than 0 degC)
-!! and of the accumulation-ablation rate for the polar caps of Mars.
-!! Computation of the geothermal heat flux.
+!! Computation of the surface temperature (must be < 0 degC)
+!! and of the accumulation-ablation rate (SMB) for the polar caps of Mars.
+!! Further,
+!! computation of calving, frontal melting and the geothermal heat flux.
 !-------------------------------------------------------------------------------
 module boundary_m
 
@@ -53,10 +55,11 @@ contains
 
 !-------------------------------------------------------------------------------
 !> Main routine of boundary_m:
-!! Mars Atmosphere-Ice Coupler MAIC-1.5:
-!! Computation of the surface temperature (must be less than 0 degC)
-!! and of the accumulation-ablation rate for the polar caps of Mars.
-!! Computation of the geothermal heat flux.
+!! Mars Atmosphere-Ice Coupler MAIC-1.5.
+!! Computation of the surface temperature (must be < 0 degC)
+!! and of the accumulation-ablation rate (SMB) for the polar caps of Mars.
+!! Further,
+!! computation of calving, frontal melting and the geothermal heat flux.
 !-------------------------------------------------------------------------------
 subroutine boundary(time, dtime, dxi, deta)
 
@@ -80,7 +83,8 @@ real(dp), intent(in) :: time, dtime, dxi, deta
 ! (defined as global variables in module sico_variables_m):
 !
 !    delta_ts, glac_index, z_mar,
-!    accum(j,i), runoff(j,i), as_perp(j,i), calving(j,i), temp_s(j,i)
+!    temp_s(j,i), accum(j,i), runoff(j,i), as_perp(j,i),
+!    calving(j,i), frontal_melting(j,i)
 
 integer(i4b) :: i, j
 integer(i4b) :: i_gr, i_kl
@@ -678,6 +682,10 @@ call calving_underwater_ice()
 
 #endif
 
+!-------- Frontal melting --------
+
+frontal_melting = 0.0_dp   ! Initialization
+
 !-------- Geothermal heat flux --------
 
 #if (CHASM==1)
@@ -703,6 +711,8 @@ end do
 end do
 
 #endif
+
+!-------- First-call flag --------
 
 if (firstcall%boundary) firstcall%boundary = .false.
 

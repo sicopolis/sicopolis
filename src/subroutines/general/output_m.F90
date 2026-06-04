@@ -112,6 +112,8 @@ real(dp), dimension(0:JMAX,0:IMAX), save :: accum_sum         = 0.0_dp, &
                                             Q_b_apl_sum       = 0.0_dp, &
                                             calving_sum       = 0.0_dp, &
                                             calving_apl_sum   = 0.0_dp, &
+                                            frontal_melting_sum     = 0.0_dp, &
+                                            frontal_melting_apl_sum = 0.0_dp, &
 #if (DISC>0)   /* Ice discharge parameterisation */
                                             dis_perp_sum      = 0.0_dp, &
 #endif
@@ -149,6 +151,8 @@ real(dp), dimension(0:JMAX,0:IMAX) :: accum_flx         , &
                                       Q_b_apl_flx       , &
                                       calving_flx       , &
                                       calving_apl_flx   , &
+                                      frontal_melting_flx     , &
+                                      frontal_melting_apl_flx , &
 #if (DISC>0)   /* Ice discharge parameterisation */
                                       dis_perp_flx      , &
 #endif
@@ -208,6 +212,7 @@ real(sp), dimension(0:IMAX,0:JMAX) :: lambda_conv, phi_conv, &
             z_sl_conv, &
             Q_b_tot_conv, Q_b_apl_conv, &
             calving_conv, calving_apl_conv, &
+            frontal_melting_conv, frontal_melting_apl_conv, &
             q_geo_conv, &
             zs_conv, zm_conv, zb_conv, zl_conv, zl0_conv, wss_conv, &
             H_cold_conv, H_temp_conv, H_conv, &
@@ -1298,6 +1303,62 @@ buffer = 'applied_land_ice_volume_flux_due_to_calving'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
             thisroutine )
 buffer = 'Applied calving flux'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
+            thisroutine )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
+            thisroutine )
+
+!    ---- frontal_melting
+
+call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
+            thisroutine )
+call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)), &
+            thisroutine )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'frontal_melting', NF90_FLOAT, nc2d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle), &
+            thisroutine )
+#else
+call check( nf90_def_var(ncid, 'frontal_melting', NF90_FLOAT, nc2d, ncv), &
+            thisroutine )
+#endif
+
+buffer = 'm a-1'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)), &
+            thisroutine )
+buffer = 'land_ice_volume_flux_due_to_frontal_melting'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
+            thisroutine )
+buffer = 'Frontal melting'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
+            thisroutine )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
+            thisroutine )
+
+!    ---- frontal_melting_apl
+
+call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
+            thisroutine )
+call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)), &
+            thisroutine )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'frontal_melting_apl', NF90_FLOAT, nc2d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle), &
+            thisroutine )
+#else
+call check( nf90_def_var(ncid, 'frontal_melting_apl', NF90_FLOAT, nc2d, ncv), &
+            thisroutine )
+#endif
+
+buffer = 'm a-1'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)), &
+            thisroutine )
+buffer = 'applied_land_ice_volume_flux_due_to_frontal_melting'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
+            thisroutine )
+buffer = 'Applied frontal melting'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
             thisroutine )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
@@ -4223,6 +4284,8 @@ Q_b_tot_flx       = Q_b_tot
 Q_b_apl_flx       = Q_b_apl
 calving_flx       = calving
 calving_apl_flx   = calving_apl
+frontal_melting_flx     = frontal_melting
+frontal_melting_apl_flx = frontal_melting_apl
 #if (DISC>0)   /* Ice discharge parameterisation */
 dis_perp_flx      = dis_perp
 #endif
@@ -4265,6 +4328,8 @@ if ( .not.((OUTPUT==3).and.(flag_3d_output)) ) then
       Q_b_apl_sum       = 0.0_dp
       calving_sum       = 0.0_dp
       calving_apl_sum   = 0.0_dp
+      frontal_melting_sum     = 0.0_dp
+      frontal_melting_apl_sum = 0.0_dp
 #if (DISC>0)   /* Ice discharge parameterisation */
       dis_perp_sum      = 0.0_dp
 #endif
@@ -4304,6 +4369,8 @@ if ( .not.((OUTPUT==3).and.(flag_3d_output)) ) then
    Q_b_apl_sum       = Q_b_apl_sum       + Q_b_apl
    calving_sum       = calving_sum       + calving
    calving_apl_sum   = calving_apl_sum   + calving_apl
+   frontal_melting_sum     = frontal_melting_sum     + frontal_melting
+   frontal_melting_apl_sum = frontal_melting_apl_sum + frontal_melting_apl
 #if (DISC>0)   /* Ice discharge parameterisation */
    dis_perp_sum      = dis_perp_sum      +  dis_perp
 #endif
@@ -4345,6 +4412,8 @@ if ( .not.((OUTPUT==3).and.(flag_3d_output)) ) then
       Q_b_apl_flx       = Q_b_apl_sum       * r_n_flx_ave_cnt_inv
       calving_flx       = calving_sum       * r_n_flx_ave_cnt_inv
       calving_apl_flx   = calving_apl_sum   * r_n_flx_ave_cnt_inv
+      frontal_melting_flx     = frontal_melting_sum     * r_n_flx_ave_cnt_inv
+      frontal_melting_apl_flx = frontal_melting_apl_sum * r_n_flx_ave_cnt_inv
 #if (DISC>0)   /* Ice discharge parameterisation */
       dis_perp_flx      = dis_perp_sum      * r_n_flx_ave_cnt_inv
 #endif
@@ -4387,6 +4456,8 @@ else   ! (OUTPUT==3).and.(flag_3d_output)
    Q_b_apl_flx       = Q_b_apl
    calving_flx       = calving
    calving_apl_flx   = calving_apl
+   frontal_melting_flx     = frontal_melting
+   frontal_melting_apl_flx = frontal_melting_apl
 #if (DISC>0)   /* Ice discharge parameterisation */
    dis_perp_flx      = dis_perp
 #endif
@@ -4500,6 +4571,8 @@ do j=0, JMAX
    Q_b_apl_conv(i,j)       = real(Q_b_apl_flx(j,i)*year2sec,sp)
    calving_conv(i,j)       = real(calving_flx(j,i)*year2sec,sp)
    calving_apl_conv(i,j)   = real(calving_apl_flx(j,i)*year2sec,sp)
+   frontal_melting_conv(i,j)     = real(frontal_melting_flx(j,i)*year2sec,sp)
+   frontal_melting_apl_conv(i,j) = real(frontal_melting_apl_flx(j,i)*year2sec,sp)
 
 #if (DISC>0)   /* Ice discharge parameterisation */
    dis_perp_conv(i,j)  = real(dis_perp_flx(j,i)*year2sec,sp)
@@ -4841,6 +4914,16 @@ call check( nf90_put_var(ncid, ncv, calving_conv, &
 
 call check( nf90_inq_varid(ncid, 'calving_apl', ncv), thisroutine )
 call check( nf90_put_var(ncid, ncv, calving_apl_conv, &
+                         start=nc2cor_ij, count=nc2cnt_ij), &
+            thisroutine )
+
+call check( nf90_inq_varid(ncid, 'frontal_melting', ncv), thisroutine )
+call check( nf90_put_var(ncid, ncv, frontal_melting_conv, &
+                         start=nc2cor_ij, count=nc2cnt_ij), &
+            thisroutine )
+
+call check( nf90_inq_varid(ncid, 'frontal_melting_apl', ncv), thisroutine )
+call check( nf90_put_var(ncid, ncv, frontal_melting_apl_conv, &
                          start=nc2cor_ij, count=nc2cnt_ij), &
             thisroutine )
 
@@ -5386,7 +5469,8 @@ real(dp) :: time_val, &
             H_max, H_t_max, zs_max, vs_max, Tbh_max, &
             dV_dt, Q_s, precip_tot, runoff_tot, &
             Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-            calv_tot, mbp, mb_resid, mb_mis, disc_lsc, disc_ssc
+            calv_tot, front_melt_tot, mbp, mb_resid, mb_mis, &
+            disc_lsc, disc_ssc
 real(dp) :: x_pos, y_pos
 real(dp), dimension(0:JMAX,0:IMAX) :: H_cold, H_temp
 real(dp) :: Tbh_help
@@ -5427,6 +5511,7 @@ real(dp), dimension(0:99), save :: Q_s_sum         = 0.0_dp, &
                                    Q_b_sum         = 0.0_dp, &
                                    Q_temp_sum      = 0.0_dp, &
                                    calv_tot_sum    = 0.0_dp, &
+                                   front_melt_tot_sum = 0.0_dp, &
 #if (DISC>0)
                                    disc_lsc_sum    = 0.0_dp, &
                                    disc_ssc_sum    = 0.0_dp, &
@@ -5449,6 +5534,7 @@ real(dp) :: Q_s_flx        , &
             Q_b_flx        , &
             Q_temp_flx     , &
             calv_tot_flx   , &
+            front_melt_tot_flx , &
 #if (DISC>0)
             disc_lsc_flx   , &
             disc_ssc_flx   , &
@@ -5523,7 +5609,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
                             H_max, H_t_max, zs_max, vs_max, Tbh_max, &
                             dV_dt, Q_s, precip_tot, runoff_tot, &
                             Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-                            calv_tot, disc_lsc, disc_ssc, &
+                            calv_tot, front_melt_tot, disc_lsc, disc_ssc, &
                             mbp, mb_resid, mb_mis)
 
    else
@@ -5540,7 +5626,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
                             H_max, H_t_max, zs_max, vs_max, Tbh_max, &
                             dV_dt, Q_s, precip_tot, runoff_tot, &
                             Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-                            calv_tot, disc_lsc, disc_ssc, &
+                            calv_tot, front_melt_tot, disc_lsc, disc_ssc, &
                             mbp, mb_resid, mb_mis, &
                             opt_flag_region=flag_region)
 
@@ -5562,6 +5648,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
    Q_b_flx         = Q_b
    Q_temp_flx      = Q_temp
    calv_tot_flx    = calv_tot
+   front_melt_tot_flx = front_melt_tot
 #if (DISC>0)
    disc_lsc_flx    = disc_lsc
    disc_ssc_flx    = disc_ssc
@@ -5587,6 +5674,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       Q_b_sum(n)         = 0.0_dp
       Q_temp_sum(n)      = 0.0_dp
       calv_tot_sum(n)    = 0.0_dp
+      front_melt_tot_sum(n) = 0.0_dp
 #if (DISC>0)
       disc_lsc_sum(n)    = 0.0_dp
       disc_ssc_sum(n)    = 0.0_dp
@@ -5611,6 +5699,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
    Q_b_sum(n)         = Q_b_sum(n)        + Q_b
    Q_temp_sum(n)      = Q_temp_sum(n)     + Q_temp
    calv_tot_sum(n)    = calv_tot_sum(n)   + calv_tot
+   front_melt_tot_sum(n) = front_melt_tot_sum(n) + front_melt_tot
 #if (DISC>0)
    disc_lsc_sum(n)    = disc_lsc_sum(n)   + disc_lsc
    disc_ssc_sum(n)    = disc_ssc_sum(n)   + disc_ssc
@@ -5637,6 +5726,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       Q_b_flx         = Q_b_sum(n)        * r_n_flx_ave_cnt_inv
       Q_temp_flx      = Q_temp_sum(n)     * r_n_flx_ave_cnt_inv
       calv_tot_flx    = calv_tot_sum(n)   * r_n_flx_ave_cnt_inv
+      front_melt_tot_flx = front_melt_tot_sum(n) * r_n_flx_ave_cnt_inv
 #if (DISC>0)
       disc_lsc_flx    = disc_lsc_sum(n)   * r_n_flx_ave_cnt_inv
       disc_ssc_flx    = disc_ssc_sum(n)   * r_n_flx_ave_cnt_inv
@@ -6289,6 +6379,24 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       call check( nf90_put_att(ncid(n), ncv, 'long_name', trim(buffer)), &
                   thisroutine )
 
+!    ---- front_melt_tot
+
+      call check( nf90_inq_dimid(ncid(n), 't', nc1d), thisroutine )
+
+      call check( nf90_def_var(ncid(n), &
+                               'front_melt_tot', NF90_FLOAT, nc1d, ncv), &
+                  thisroutine )
+
+      buffer = 'm3 ice equiv. a-1'
+      call check( nf90_put_att(ncid(n), ncv, 'units', trim(buffer)), &
+                  thisroutine )
+      buffer = 'tendency_of_land_ice_volume_due_to_frontal_melting'
+      call check( nf90_put_att(ncid(n), ncv, 'standard_name', trim(buffer)), &
+                  thisroutine )
+      buffer = 'Total frontal melting rate'
+      call check( nf90_put_att(ncid(n), ncv, 'long_name', trim(buffer)), &
+                  thisroutine )
+
 #if (DISC>0)
 
 !    ---- disc_lsc
@@ -6666,6 +6774,10 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       call check( nf90_put_var(ncid(n), ncv, real(calv_tot_flx,sp), &
                                start=nc1cor), thisroutine )
 
+      call check( nf90_inq_varid(ncid(n), 'front_melt_tot', ncv), thisroutine )
+      call check( nf90_put_var(ncid(n), ncv, real(front_melt_tot_flx,sp), &
+                               start=nc1cor), thisroutine )
+
 #if (DISC>0)
       call check( nf90_inq_varid(ncid(n), 'disc_lsc', ncv), thisroutine )
       call check( nf90_put_var(ncid(n), ncv, real(disc_lsc_flx,sp), &
@@ -6753,7 +6865,7 @@ subroutine scalar_variables(time, &
                             H_max, H_t_max, zs_max, vs_max, Tbh_max, &
                             dV_dt, Q_s, precip_tot, runoff_tot, &
                             Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-                            calv_tot, disc_lsc, disc_ssc, &
+                            calv_tot, front_melt_tot, disc_lsc, disc_ssc, &
                             mbp, mb_resid, mb_mis, &
                             opt_flag_region)
 
@@ -6770,7 +6882,7 @@ real(dp), intent(out) :: time_val, &
                          H_max, H_t_max, zs_max, vs_max, Tbh_max, &
                          dV_dt, Q_s, precip_tot, runoff_tot, &
                          Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-                         calv_tot, mbp, mb_resid, &
+                         calv_tot, front_melt_tot, mbp, mb_resid, &
                          mb_mis, disc_lsc, disc_ssc
 
 integer(i4b) :: i, j
@@ -6993,6 +7105,8 @@ PAT    = 0.0_dp
 PAH    = 0.0_dp
 mb_mis = 0.0_dp
 
+front_melt_tot = 0.0_dp
+
 do i=0, IMAX
 do j=0, JMAX
 
@@ -7026,6 +7140,9 @@ do j=0, JMAX
 
       ! Actual ice mass balance (from top melt, bottom melt and calving)
       MB = MB + mb_source_apl(j,i)*cell_area(j,i)
+
+      front_melt_tot = front_melt_tot &
+                          + frontal_melting_apl(j,i) * cell_area(j,i)
 
    end if
 
@@ -7071,6 +7188,8 @@ runoff_tot = runoff_tot * year2sec
                         ! m3/s ice equiv. -> m3/a ice equiv.
 calv_tot   = calv_tot   * year2sec
                         ! m3/s ice equiv. -> m3/a ice equiv.
+front_melt_tot = front_melt_tot * year2sec
+                        ! m3/s ice equiv. -> m3/a ice equiv.
 
 if (precip_tot /= 0.0_dp) then
    mbp = calv_tot/precip_tot
@@ -7078,7 +7197,7 @@ else
    mbp = 0.0_dp
 end if
 
-mb_resid = Q_s + bmb_tot - calv_tot - dV_dt
+mb_resid = Q_s + bmb_tot - calv_tot - front_melt_tot - dV_dt
 !!% (previously) mb_resid = MB - dV_dt
 
 end subroutine scalar_variables

@@ -614,6 +614,12 @@ real(dp), dimension(0:JMAX,0:IMAX) :: calving
 real(dp), dimension(0:JMAX,0:IMAX) :: calving_apl
    !! Applied calving rate of grounded and floating ice
 
+real(dp), dimension(0:JMAX,0:IMAX) :: frontal_melting
+   !! Frontal melting rate
+
+real(dp), dimension(0:JMAX,0:IMAX) :: frontal_melting_apl
+   !! Applied frontal melting rate
+
 integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_ablation_type
    !! Mask indicating ablation type:
    !!   2: visible (ocean, for later developments),

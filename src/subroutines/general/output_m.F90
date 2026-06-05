@@ -5469,7 +5469,8 @@ real(dp) :: time_val, &
             H_max, H_t_max, zs_max, vs_max, Tbh_max, &
             dV_dt, Q_s, precip_tot, runoff_tot, &
             Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-            calv_tot, front_melt_tot, mbp, mb_resid, mb_mis, &
+            calv_tot, front_melt_tot, q_gl_tot, &
+            mbp, mb_resid, mb_mis, &
             disc_lsc, disc_ssc
 real(dp) :: x_pos, y_pos
 real(dp), dimension(0:JMAX,0:IMAX) :: H_cold, H_temp
@@ -5512,6 +5513,7 @@ real(dp), dimension(0:99), save :: Q_s_sum         = 0.0_dp, &
                                    Q_temp_sum      = 0.0_dp, &
                                    calv_tot_sum    = 0.0_dp, &
                                    front_melt_tot_sum = 0.0_dp, &
+                                   q_gl_tot_sum    = 0.0_dp, &
 #if (DISC>0)
                                    disc_lsc_sum    = 0.0_dp, &
                                    disc_ssc_sum    = 0.0_dp, &
@@ -5535,6 +5537,7 @@ real(dp) :: Q_s_flx        , &
             Q_temp_flx     , &
             calv_tot_flx   , &
             front_melt_tot_flx , &
+            q_gl_tot_flx   , &
 #if (DISC>0)
             disc_lsc_flx   , &
             disc_ssc_flx   , &
@@ -5609,7 +5612,8 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
                             H_max, H_t_max, zs_max, vs_max, Tbh_max, &
                             dV_dt, Q_s, precip_tot, runoff_tot, &
                             Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-                            calv_tot, front_melt_tot, disc_lsc, disc_ssc, &
+                            calv_tot, front_melt_tot, q_gl_tot, &
+                            disc_lsc, disc_ssc, &
                             mbp, mb_resid, mb_mis)
 
    else
@@ -5626,7 +5630,8 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
                             H_max, H_t_max, zs_max, vs_max, Tbh_max, &
                             dV_dt, Q_s, precip_tot, runoff_tot, &
                             Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-                            calv_tot, front_melt_tot, disc_lsc, disc_ssc, &
+                            calv_tot, front_melt_tot, q_gl_tot, &
+                            disc_lsc, disc_ssc, &
                             mbp, mb_resid, mb_mis, &
                             opt_flag_region=flag_region)
 
@@ -5649,6 +5654,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
    Q_temp_flx      = Q_temp
    calv_tot_flx    = calv_tot
    front_melt_tot_flx = front_melt_tot
+   q_gl_tot_flx    = q_gl_tot
 #if (DISC>0)
    disc_lsc_flx    = disc_lsc
    disc_ssc_flx    = disc_ssc
@@ -5675,6 +5681,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       Q_temp_sum(n)      = 0.0_dp
       calv_tot_sum(n)    = 0.0_dp
       front_melt_tot_sum(n) = 0.0_dp
+      q_gl_tot_sum(n)    = 0.0_dp
 #if (DISC>0)
       disc_lsc_sum(n)    = 0.0_dp
       disc_ssc_sum(n)    = 0.0_dp
@@ -5700,6 +5707,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
    Q_temp_sum(n)      = Q_temp_sum(n)     + Q_temp
    calv_tot_sum(n)    = calv_tot_sum(n)   + calv_tot
    front_melt_tot_sum(n) = front_melt_tot_sum(n) + front_melt_tot
+   q_gl_tot_sum(n)    = q_gl_tot_sum(n)   + q_gl_tot
 #if (DISC>0)
    disc_lsc_sum(n)    = disc_lsc_sum(n)   + disc_lsc
    disc_ssc_sum(n)    = disc_ssc_sum(n)   + disc_ssc
@@ -5727,6 +5735,7 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       Q_temp_flx      = Q_temp_sum(n)     * r_n_flx_ave_cnt_inv
       calv_tot_flx    = calv_tot_sum(n)   * r_n_flx_ave_cnt_inv
       front_melt_tot_flx = front_melt_tot_sum(n) * r_n_flx_ave_cnt_inv
+      q_gl_tot_flx    = q_gl_tot_sum(n)   * r_n_flx_ave_cnt_inv
 #if (DISC>0)
       disc_lsc_flx    = disc_lsc_sum(n)   * r_n_flx_ave_cnt_inv
       disc_ssc_flx    = disc_ssc_sum(n)   * r_n_flx_ave_cnt_inv
@@ -6397,6 +6406,23 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       call check( nf90_put_att(ncid(n), ncv, 'long_name', trim(buffer)), &
                   thisroutine )
 
+!    ---- q_gl_tot
+
+      call check( nf90_inq_dimid(ncid(n), 't', nc1d), thisroutine )
+
+      call check( nf90_def_var(ncid(n), 'q_gl_tot', NF90_FLOAT, nc1d, ncv), &
+                  thisroutine )
+
+      buffer = 'm3 ice equiv. a-1'
+      call check( nf90_put_att(ncid(n), ncv, 'units', trim(buffer)), &
+                  thisroutine )
+      buffer = 'tendency_of_grounded_ice_volume_due_to_flux_at_grounding_line'
+      call check( nf90_put_att(ncid(n), ncv, 'standard_name', trim(buffer)), &
+                  thisroutine )
+      buffer = 'Total volume flux across the grounding line'
+      call check( nf90_put_att(ncid(n), ncv, 'long_name', trim(buffer)), &
+                  thisroutine )
+
 #if (DISC>0)
 
 !    ---- disc_lsc
@@ -6778,6 +6804,10 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       call check( nf90_put_var(ncid(n), ncv, real(front_melt_tot_flx,sp), &
                                start=nc1cor), thisroutine )
 
+      call check( nf90_inq_varid(ncid(n), 'q_gl_tot', ncv), thisroutine )
+      call check( nf90_put_var(ncid(n), ncv, real(q_gl_tot_flx,sp), &
+                               start=nc1cor), thisroutine )
+
 #if (DISC>0)
       call check( nf90_inq_varid(ncid(n), 'disc_lsc', ncv), thisroutine )
       call check( nf90_put_var(ncid(n), ncv, real(disc_lsc_flx,sp), &
@@ -6865,7 +6895,8 @@ subroutine scalar_variables(time, &
                             H_max, H_t_max, zs_max, vs_max, Tbh_max, &
                             dV_dt, Q_s, precip_tot, runoff_tot, &
                             Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-                            calv_tot, front_melt_tot, disc_lsc, disc_ssc, &
+                            calv_tot, front_melt_tot, q_gl_tot, &
+                            disc_lsc, disc_ssc, &
                             mbp, mb_resid, mb_mis, &
                             opt_flag_region)
 
@@ -6882,7 +6913,8 @@ real(dp), intent(out) :: time_val, &
                          H_max, H_t_max, zs_max, vs_max, Tbh_max, &
                          dV_dt, Q_s, precip_tot, runoff_tot, &
                          Q_b, Q_temp, bmb_tot, bmb_gr_tot, bmb_fl_tot, &
-                         calv_tot, front_melt_tot, mbp, mb_resid, &
+                         calv_tot, front_melt_tot, q_gl_tot, &
+                         mbp, mb_resid, &
                          mb_mis, disc_lsc, disc_ssc
 
 integer(i4b) :: i, j
@@ -7107,6 +7139,8 @@ mb_mis = 0.0_dp
 
 front_melt_tot = 0.0_dp
 
+q_gl_tot = 0.0_dp
+
 do i=0, IMAX
 do j=0, JMAX
 
@@ -7199,6 +7233,11 @@ end if
 
 mb_resid = Q_s + bmb_tot - calv_tot - front_melt_tot - dV_dt
 !!% (previously) mb_resid = MB - dV_dt
+
+q_gl_tot = 0.0_dp   !!! \!/ STILL TO BE COMPUTED... \!/ !!!
+
+!%% q_gl_tot = q_gl_tot * year2sec
+!%%                        ! m3/s ice equiv. -> m3/a ice equiv.
 
 end subroutine scalar_variables
 

@@ -433,13 +433,14 @@ real(dp) :: year2sec_erg=0.0_dp, time_erg=0.0_dp, &
             bmb_tot_erg=0.0_dp, &
             bmb_gr_tot_erg=0.0_dp, bmb_fl_tot_erg=0.0_dp, &
             calv_tot_erg=0.0_dp, front_melt_tot_erg=0.0_dp, &
+            q_gl_tot_erg=0.0_dp, &
             xi_erg(0:IMAX), eta_erg(0:JMAX), &
             sigma_level_c_erg(0:KCMAX), sigma_level_t_erg(0:KTMAX), &
             sigma_level_r_erg(0:KRMAX)
 real(dp), dimension(0:IMAX,0:JMAX) :: lon_erg, lat_erg, &
             H_erg, zs_erg, zb_erg, zl_erg, zl0_erg, &
             as_perp_apl_erg, Q_b_apl_erg, &
-            calving_apl_erg, frontal_melting_apl_erg, &
+            calving_apl_erg, frontal_melting_apl_erg, q_gl_g_erg, &
             q_geo_erg, &
             dH_dtau_erg, &
             vx_s_g_erg, vy_s_g_erg, vz_s_erg, vh_s_erg, &
@@ -448,8 +449,7 @@ real(dp), dimension(0:IMAX,0:JMAX) :: lon_erg, lat_erg, &
             temp_s_erg, temp_mean_erg, temp_b_erg, temph_b_erg, &
             dtemp_dz_b_erg, &
             H_w_erg, p_b_w_erg, &
-            tau_dr_erg, tau_b_erg, &
-            q_gl_g_erg
+            tau_dr_erg, tau_b_erg
 
 integer(i4b) :: ios
 integer(i4b) :: istat, istat1, istat2
@@ -1149,6 +1149,16 @@ else
    call write_message(ch_msg, 'error')
 end if
 
+istat = nf90_inq_varid(ncid, 'q_gl_tot', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, q_gl_tot_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''q_gl_tot'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
+
 end if
 
 !-------- Closing of file --------
@@ -1269,7 +1279,7 @@ do j=0, JMAX
    base_r(i,j)  = zb_erg(i,j)    ! m
    topg_r(i,j)  = zl_erg(i,j)    ! m
 
-   acabf_r(i,j) = as_perp_apl_erg(i,j) * rho/year_to_year_or_sec
+   acabf_r(i,j) = as_perp_apl_erg(i,j) * (rho/year_to_year_or_sec)
                                        ! m/a -> kg/(m2*a) | kg/(m2*s)
 
    libmassbf_r(i,j) = Q_b_apl_erg(i,j) * (-rho/year_to_year_or_sec)
@@ -1347,9 +1357,8 @@ do j=0, JMAX
       lifmassbf_r(i,j) = real(NF90_FILL_FLOAT,dp)
    end if
 
-   ligroundf_r(i,j)  = real(NF90_FILL_FLOAT,dp)
-                       !%% q_gl_g_erg(i,j) * rho/year_to_year_or_sec
-                                                ! m/a -> kg/(m2*a) | kg/(m2*s)
+   ligroundf_r(i,j)  = q_gl_g_erg(i,j) * (rho/year_to_year_or_sec)
+                                                ! m2/a -> kg/(m*a) | kg/(m*s)
 
    if ((mask_erg(i,j)==0).or.(mask_erg(i,j)==3)) &
       sftgif_r(i,j)  = 1.0_dp   ! grounded or floating ice
@@ -1369,15 +1378,15 @@ lim_r             = V_tot_erg * rho   ! m3 -> kg
 limnsw_r          = V_af_erg  * rho   ! m3 -> kg
 iareagr_r         = A_grounded_erg    ! m2
 iareafl_r         = A_floating_erg    ! m2
-dlimdt_r          = dV_dt_erg * rho/year_to_year_or_sec
+dlimdt_r          = dV_dt_erg * (rho/year_to_year_or_sec)
                                 ! m3/a -> kg/a | kg/s
-tendacabf_r       = Q_s_erg * rho/year_to_year_or_sec
+tendacabf_r       = Q_s_erg * (rho/year_to_year_or_sec)
                                 ! m3/a -> kg/a | kg/s
-tendlibmassbf_r   = bmb_tot_erg * rho/year_to_year_or_sec
+tendlibmassbf_r   = bmb_tot_erg * (rho/year_to_year_or_sec)
                                 ! m3/a -> kg/a | kg/s
-tendlibmassbfgr_r = bmb_gr_tot_erg * rho/year_to_year_or_sec
+tendlibmassbfgr_r = bmb_gr_tot_erg * (rho/year_to_year_or_sec)
                                 ! m3/a -> kg/a | kg/s
-tendlibmassbffl_r = bmb_fl_tot_erg * rho/year_to_year_or_sec
+tendlibmassbffl_r = bmb_fl_tot_erg * (rho/year_to_year_or_sec)
                                 ! m3/a -> kg/a | kg/s
 tendlicalvf_r     = calv_tot_erg * (-rho/year_to_year_or_sec)
                                 ! m3/a -> kg/a | kg/s,
@@ -1385,8 +1394,8 @@ tendlicalvf_r     = calv_tot_erg * (-rho/year_to_year_or_sec)
 tendlifmassbf_r   = front_melt_tot_erg * (-rho/year_to_year_or_sec)
                                 ! m3/a -> kg/a | kg/s,
                                 ! sign changed to negative for loss
-tendligroundf_r   = real(NF90_FILL_FLOAT,dp)
-                                ! kg/a | kg/s
+tendligroundf_r   = q_gl_tot_erg * (rho/year_to_year_or_sec)
+                                ! m3/a -> kg/a | kg/s
 
 x_r            = real(NF90_FILL_FLOAT,dp)
 y_r            = real(NF90_FILL_FLOAT,dp)
@@ -1978,23 +1987,23 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Total frontal melting'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
-!%% !      -- tendligroundf
-!%%
-!%% call check( nf90_inq_dimid(ncid, 'time', nc1d) )
-!%%
-!%% #if (NETCDF4_ENABLED==1)
-!%% call check( nf90_def_var(ncid, 'tendligroundf', NF90_FLOAT, nc1d, ncv, &
-!%%             deflate_level=n_deflate_level, shuffle=flag_shuffle) )
-!%% #else
-!%% call check( nf90_def_var(ncid, 'tendligroundf', NF90_FLOAT, nc1d, ncv) )
-!%% #endif
-!%%
-!%% buffer = 'kg '//ch_time_unit//'-1'
-!%% call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
-!%% buffer = 'tendency_of_land_ice_mass_due_to_flux_at_grounding_line'
-!%% call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
-!%% buffer = 'Total grounding line flux'
-!%% call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+!      -- tendligroundf
+
+call check( nf90_inq_dimid(ncid, 'time', nc1d) )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'tendligroundf', NF90_FLOAT, nc1d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle) )
+#else
+call check( nf90_def_var(ncid, 'tendligroundf', NF90_FLOAT, nc1d, ncv) )
+#endif
+
+buffer = 'kg '//ch_time_unit//'-1'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
+buffer = 'tendency_of_grounded_ice_mass_due_to_flux_at_grounding_line'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
+buffer = 'Total grounding line flux'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
 end if
 
@@ -2817,28 +2826,28 @@ call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
-!%% !      -- ligroundf
-!%%
-!%% call check( nf90_inq_dimid(ncid, 'x', nc3d(1)) )
-!%% call check( nf90_inq_dimid(ncid, 'y', nc3d(2)) )
-!%% call check( nf90_inq_dimid(ncid, 'time', nc3d(3)) )
-!%%
-!%% #if (NETCDF4_ENABLED==1)
-!%% call check( nf90_def_var(ncid, 'ligroundf', NF90_FLOAT, nc3d, ncv, &
-!%%             deflate_level=n_deflate_level, shuffle=flag_shuffle) )
-!%% #else
-!%% call check( nf90_def_var(ncid, 'ligroundf', NF90_FLOAT, nc3d, ncv) )
-!%% #endif
-!%%
-!%% buffer = 'kg m-2 '//ch_time_unit//'-1'
-!%% call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
-!%% buffer = 'land_ice_specific_mass_flux_at_grounding_line'
-!%% call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
-!%% buffer = 'Grounding line flux'
-!%% call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-!%% call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
-!%% call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-!%% call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+!      -- ligroundf
+
+call check( nf90_inq_dimid(ncid, 'x', nc3d(1)) )
+call check( nf90_inq_dimid(ncid, 'y', nc3d(2)) )
+call check( nf90_inq_dimid(ncid, 'time', nc3d(3)) )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'ligroundf', NF90_FLOAT, nc3d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle) )
+#else
+call check( nf90_def_var(ncid, 'ligroundf', NF90_FLOAT, nc3d, ncv) )
+#endif
+
+buffer = 'kg m '//ch_time_unit//'-1'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
+buffer = 'land_ice_specific_mass_flux_at_grounding_line'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
+buffer = 'Grounding line flux'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 end if
 
@@ -3142,10 +3151,10 @@ nc1cor(1) = n
 nc1cnt(1) = 1
 call check( nf90_put_var(ncid, ncv, tendlifmassbf_val, start=nc1cor, count=nc1cnt) )
 
-!%% call check( nf90_inq_varid(ncid, 'tendligroundf', ncv) )
-!%% nc1cor(1) = n
-!%% nc1cnt(1) = 1
-!%% call check( nf90_put_var(ncid, ncv, tendligroundf_val, start=nc1cor, count=nc1cnt) )
+call check( nf90_inq_varid(ncid, 'tendligroundf', ncv) )
+nc1cor(1) = n
+nc1cnt(1) = 1
+call check( nf90_put_var(ncid, ncv, tendligroundf_val, start=nc1cor, count=nc1cnt) )
 
 end if
 
@@ -3478,14 +3487,14 @@ nc3cnt(2) = JMAX + 1
 nc3cnt(3) = 1
 call check( nf90_put_var(ncid, ncv, lifmassbf_val, start=nc3cor, count=nc3cnt) )
 
-!%% call check( nf90_inq_varid(ncid, 'ligroundf', ncv) )
-!%% nc3cor(1) = 1
-!%% nc3cor(2) = 1
-!%% nc3cor(3) = n
-!%% nc3cnt(1) = IMAX + 1
-!%% nc3cnt(2) = JMAX + 1
-!%% nc3cnt(3) = 1
-!%% call check( nf90_put_var(ncid, ncv, ligroundf_val, start=nc3cor, count=nc3cnt) )
+call check( nf90_inq_varid(ncid, 'ligroundf', ncv) )
+nc3cor(1) = 1
+nc3cor(2) = 1
+nc3cor(3) = n
+nc3cnt(1) = IMAX + 1
+nc3cnt(2) = JMAX + 1
+nc3cnt(3) = 1
+call check( nf90_put_var(ncid, ncv, ligroundf_val, start=nc3cor, count=nc3cnt) )
 
 end if
 

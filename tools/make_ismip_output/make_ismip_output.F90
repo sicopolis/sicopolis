@@ -432,13 +432,14 @@ real(dp) :: year2sec_erg=0.0_dp, time_erg=0.0_dp, &
             dV_dt_erg=0.0_dp, Q_s_erg=0.0_dp, &
             bmb_tot_erg=0.0_dp, &
             bmb_gr_tot_erg=0.0_dp, bmb_fl_tot_erg=0.0_dp, &
-            calv_tot_erg=0.0_dp, &
+            calv_tot_erg=0.0_dp, front_melt_tot_erg=0.0_dp, &
             xi_erg(0:IMAX), eta_erg(0:JMAX), &
             sigma_level_c_erg(0:KCMAX), sigma_level_t_erg(0:KTMAX), &
             sigma_level_r_erg(0:KRMAX)
 real(dp), dimension(0:IMAX,0:JMAX) :: lon_erg, lat_erg, &
             H_erg, zs_erg, zb_erg, zl_erg, zl0_erg, &
-            as_perp_apl_erg, Q_b_apl_erg, calving_apl_erg, &
+            as_perp_apl_erg, Q_b_apl_erg, &
+            calving_apl_erg, frontal_melting_apl_erg, &
             q_geo_erg, &
             dH_dtau_erg, &
             vx_s_g_erg, vy_s_g_erg, vz_s_erg, vh_s_erg, &
@@ -747,6 +748,17 @@ else
           //'              not available in read nc file.'
    call write_message(ch_msg, 'warning')
    calving_apl_erg = real(NF90_FILL_FLOAT,dp)
+end if
+
+istat = nf90_inq_varid(ncid, 'frontal_melting_apl', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, frontal_melting_apl_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''frontal_melting_apl'' ' &
+          //               end_of_line &
+          //'              not available in read nc file.'
+   call write_message(ch_msg, 'warning')
+   frontal_melting_apl_erg = real(NF90_FILL_FLOAT,dp)
 end if
 
 istat = nf90_inq_varid(ncid, 'q_geo', ncv)
@@ -1127,6 +1139,16 @@ else
    call write_message(ch_msg, 'error')
 end if
 
+istat = nf90_inq_varid(ncid, 'front_melt_tot', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, front_melt_tot_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''front_melt_tot'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
+
 end if
 
 !-------- Closing of file --------
@@ -1305,15 +1327,23 @@ do j=0, JMAX
 
    strbasemag_r(i,j) = tau_b_erg(i,j)   ! Pa
 
-   if (abs(calving_apl_erg(i,j)) < 0.999_dp*real(NF90_FILL_FLOAT,dp)) then
-      licalvf_r(i,j)   = calving_apl_erg(i,j) * (-rho/year_to_year_or_sec)
-                                          ! m/a -> kg/(m2*a) | kg/(m2*s),
-                                          ! sign changed to negative for loss
-      lifmassbf_r(i,j) = calving_apl_erg(i,j) * (-rho/year_to_year_or_sec)
-                                          ! m/a -> kg/(m2*a) | kg/(m2*s),
-                                          ! sign changed to negative for loss
+   if (abs(calving_apl_erg(i,j)) < 0.999_dp*real(NF90_FILL_FLOAT,dp)) &
+   then
+      licalvf_r(i,j) = calving_apl_erg(i,j) &
+                          * (-rho/year_to_year_or_sec)
+                               ! m/a -> kg/(m2*a) | kg/(m2*s),
+                               ! sign changed to negative for loss
    else
-      licalvf_r(i,j)   = real(NF90_FILL_FLOAT,dp)
+      licalvf_r(i,j) = real(NF90_FILL_FLOAT,dp)
+   end if
+
+   if (abs(frontal_melting_apl_erg(i,j)) < 0.999_dp*real(NF90_FILL_FLOAT,dp)) &
+   then
+      lifmassbf_r(i,j) = frontal_melting_apl_erg(i,j) &
+                            * (-rho/year_to_year_or_sec)
+                                 ! m/a -> kg/(m2*a) | kg/(m2*s),
+                                 ! sign changed to negative for loss
+   else
       lifmassbf_r(i,j) = real(NF90_FILL_FLOAT,dp)
    end if
 
@@ -1352,7 +1382,7 @@ tendlibmassbffl_r = bmb_fl_tot_erg * rho/year_to_year_or_sec
 tendlicalvf_r     = calv_tot_erg * (-rho/year_to_year_or_sec)
                                 ! m3/a -> kg/a | kg/s,
                                 ! sign changed to negative for loss
-tendlifmassbf_r   = calv_tot_erg * (-rho/year_to_year_or_sec)
+tendlifmassbf_r   = front_melt_tot_erg * (-rho/year_to_year_or_sec)
                                 ! m3/a -> kg/a | kg/s,
                                 ! sign changed to negative for loss
 tendligroundf_r   = real(NF90_FILL_FLOAT,dp)
@@ -1943,9 +1973,9 @@ call check( nf90_def_var(ncid, 'tendlifmassbf', NF90_FLOAT, nc1d, ncv) )
 
 buffer = 'kg '//ch_time_unit//'-1'
 call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
-buffer = 'tendency_of_land_ice_mass_due_to_calving_and_ice_front_melting'
+buffer = 'tendency_of_land_ice_mass_due_to_ice_front_melting'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
-buffer = 'Total calving and ice front melting flux'
+buffer = 'Total frontal melting'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
 !%% !      -- tendligroundf
@@ -2779,9 +2809,9 @@ call check( nf90_def_var(ncid, 'lifmassbf', NF90_FLOAT, nc3d, ncv) )
 
 buffer = 'kg m-2 '//ch_time_unit//'-1'
 call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
-buffer = 'land_ice_specific_mass_flux_due_to_calving_and_ice_front_melting'
+buffer = 'land_ice_specific_mass_flux_due_to_ice_front_melting'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
-buffer = 'Ice front melt and calving flux'
+buffer = 'Frontal melting'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )

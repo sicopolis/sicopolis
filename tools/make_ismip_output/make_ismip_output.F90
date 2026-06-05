@@ -2,7 +2,7 @@
 !
 !  Program   : m a k e _ i s m i p _ o u t p u t . F 9 0
 !
-!! Generating ISMIP6 output from the time-dependent NetCDF data produced by
+!! Generating ISMIP7 output from the time-dependent NetCDF data produced by
 !! SICOPOLIS.
 !!
 !!##### Authors
@@ -31,9 +31,9 @@
 !-------- Settings --------
 
 #define TIME_UNIT 2
-!                     Time unit of ISMIP6 output to be generated:
+!                     Time unit of ISMIP7 output to be generated:
 !                      1 - days for time itself, seconds for other
-!                          time-dependent variables (ISMIP6 default)
+!                          time-dependent variables (ISMIP7 default)
 !                      2 - years
 
 #define YEAR_REF 1990
@@ -55,15 +55,14 @@ integer, parameter :: dp  = kind(1.0d0)            ! double-precision reals
 integer(i4b)            :: ndat = 0
 integer(i4b), parameter :: ndat_max = 9999
 
-real(dp), parameter :: no_value_large_dp = 1.0e+20_dp
-real(dp), parameter :: no_value_neg_dp = -9999.0_dp
+real(dp), parameter :: r_no_value_neg_dp = -9999.0_dp
 real(dp), parameter :: eps_dp = 1.0e-05_dp
 
 end module make_ismip_output_common
 
 !-------------------------------------------------------------------------------
 !> Main program:
-!! Generating ISMIP6 output from the time-dependent NetCDF data produced by
+!! Generating ISMIP7 output from the time-dependent NetCDF data produced by
 !! SICOPOLIS.
 !-------------------------------------------------------------------------------
 program make_ismip_output
@@ -103,6 +102,7 @@ real(dp)           :: iareafl_val
 real(dp)           :: dlimdt_val
 real(dp)           :: tendacabf_val
 real(dp)           :: tendlibmassbf_val
+real(dp)           :: tendlibmassbfgr_val
 real(dp)           :: tendlibmassbffl_val
 real(dp)           :: tendlicalvf_val
 real(dp)           :: tendlifmassbf_val
@@ -129,9 +129,13 @@ real(dp)           :: xvelmean_val(0:IMAX,0:JMAX)
 real(dp)           :: yvelmean_val(0:IMAX,0:JMAX)
 real(dp)           :: horvelmean_val(0:IMAX,0:JMAX)
 real(dp)           :: litemptop_val(0:IMAX,0:JMAX)
+real(dp)           :: litempavg_val(0:IMAX,0:JMAX)
 real(dp)           :: litempbot_val(0:IMAX,0:JMAX)
 real(dp)           :: litempbotgr_val(0:IMAX,0:JMAX)
 real(dp)           :: litempbotfl_val(0:IMAX,0:JMAX)
+real(dp)           :: litempgrad_val(0:IMAX,0:JMAX)
+real(dp)           :: litempgradgr_val(0:IMAX,0:JMAX)
+real(dp)           :: litempgradfl_val(0:IMAX,0:JMAX)
 real(dp)           :: strbasemag_val(0:IMAX,0:JMAX)
 real(dp)           :: licalvf_val(0:IMAX,0:JMAX)
 real(dp)           :: lifmassbf_val(0:IMAX,0:JMAX)
@@ -232,7 +236,7 @@ do n_variable_type = 1, 2
                 lon_val, lat_val, &
                 lim_val, limnsw_val, iareagr_val, iareafl_val, &
                 dlimdt_val, tendacabf_val, &
-                tendlibmassbf_val, tendlibmassbffl_val, &
+                tendlibmassbf_val, tendlibmassbfgr_val, tendlibmassbffl_val, &
                 tendlicalvf_val, tendlifmassbf_val, &
                 tendligroundf_val, &
                 lithk_val, orog_val, base_val, topg_val, &
@@ -243,8 +247,9 @@ do n_variable_type = 1, 2
                 xvelsurf_val, yvelsurf_val, zvelsurf_val, horvelsurf_val, &
                 xvelbase_val, yvelbase_val, zvelbase_val, horvelbase_val, &
                 xvelmean_val, yvelmean_val, horvelmean_val, &
-                litemptop_val, &
+                litemptop_val, litempavg_val, &
                 litempbot_val, litempbotgr_val, litempbotfl_val, &
+                litempgrad_val, litempgradgr_val, litempgradfl_val, &
                 strbasemag_val, &
                 licalvf_val, lifmassbf_val, ligroundf_val, &
                 sftgif_val, sftgrf_val, sftflf_val)
@@ -271,7 +276,7 @@ do n_variable_type = 1, 2
                     lon_val, lat_val, &
                     lim_val, limnsw_val, iareagr_val, iareafl_val, &
                     dlimdt_val, tendacabf_val, &
-                    tendlibmassbf_val, tendlibmassbffl_val, &
+                    tendlibmassbf_val, tendlibmassbfgr_val, tendlibmassbffl_val, &
                     tendlicalvf_val, tendlifmassbf_val, &
                     tendligroundf_val, &
                     lithk_val, orog_val, base_val, topg_val, &
@@ -282,8 +287,9 @@ do n_variable_type = 1, 2
                     xvelsurf_val, yvelsurf_val, zvelsurf_val, horvelsurf_val, &
                     xvelbase_val, yvelbase_val, zvelbase_val, horvelbase_val, &
                     xvelmean_val, yvelmean_val, horvelmean_val, &
-                    litemptop_val, &
+                    litemptop_val, litempavg_val, &
                     litempbot_val, litempbotgr_val, litempbotfl_val, &
+                    litempgrad_val, litempgradgr_val, litempgradfl_val, &
                     strbasemag_val, &
                     licalvf_val, lifmassbf_val, ligroundf_val, &
                     sftgif_val, sftgrf_val, sftflf_val)
@@ -318,7 +324,7 @@ subroutine read_nc(run_name, n_variable_dim, n_variable_type, ergnum, n, &
                    lon_r, lat_r, &
                    lim_r, limnsw_r, iareagr_r, iareafl_r, &
                    dlimdt_r, tendacabf_r, &
-                   tendlibmassbf_r, tendlibmassbffl_r, &
+                   tendlibmassbf_r, tendlibmassbfgr_r, tendlibmassbffl_r, &
                    tendlicalvf_r, tendlifmassbf_r, &
                    tendligroundf_r, &
                    lithk_r, orog_r, base_r, topg_r, &
@@ -329,8 +335,9 @@ subroutine read_nc(run_name, n_variable_dim, n_variable_type, ergnum, n, &
                    xvelsurf_r, yvelsurf_r, zvelsurf_r, horvelsurf_r, &
                    xvelbase_r, yvelbase_r, zvelbase_r, horvelbase_r, &
                    xvelmean_r, yvelmean_r, horvelmean_r, &
-                   litemptop_r, &
+                   litemptop_r, litempavg_r, &
                    litempbot_r, litempbotgr_r, litempbotfl_r, &
+                   litempgrad_r, litempgradgr_r, litempgradfl_r, &
                    strbasemag_r, &
                    licalvf_r, lifmassbf_r, ligroundf_r, &
                    sftgif_r, sftgrf_r, sftflf_r)
@@ -367,6 +374,7 @@ real(dp),          intent(out) :: iareafl_r
 real(dp),          intent(out) :: dlimdt_r
 real(dp),          intent(out) :: tendacabf_r
 real(dp),          intent(out) :: tendlibmassbf_r
+real(dp),          intent(out) :: tendlibmassbfgr_r
 real(dp),          intent(out) :: tendlibmassbffl_r
 real(dp),          intent(out) :: tendlicalvf_r
 real(dp),          intent(out) :: tendlifmassbf_r
@@ -393,9 +401,13 @@ real(dp),          intent(out) :: xvelmean_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: yvelmean_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: horvelmean_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: litemptop_r(0:IMAX,0:JMAX)
+real(dp),          intent(out) :: litempavg_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: litempbot_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: litempbotgr_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: litempbotfl_r(0:IMAX,0:JMAX)
+real(dp),          intent(out) :: litempgrad_r(0:IMAX,0:JMAX)
+real(dp),          intent(out) :: litempgradgr_r(0:IMAX,0:JMAX)
+real(dp),          intent(out) :: litempgradfl_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: strbasemag_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: licalvf_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: lifmassbf_r(0:IMAX,0:JMAX)
@@ -418,7 +430,8 @@ real(dp) :: year2sec_erg=0.0_dp, time_erg=0.0_dp, &
             V_tot_erg=0.0_dp, V_af_erg=0.0_dp, &
             A_grounded_erg=0.0_dp, A_floating_erg=0.0_dp, &
             dV_dt_erg=0.0_dp, Q_s_erg=0.0_dp, &
-            bmb_tot_erg=0.0_dp, bmb_fl_tot_erg=0.0_dp, &
+            bmb_tot_erg=0.0_dp, &
+            bmb_gr_tot_erg=0.0_dp, bmb_fl_tot_erg=0.0_dp, &
             calv_tot_erg=0.0_dp, &
             xi_erg(0:IMAX), eta_erg(0:JMAX), &
             sigma_level_c_erg(0:KCMAX), sigma_level_t_erg(0:KTMAX), &
@@ -431,7 +444,8 @@ real(dp), dimension(0:IMAX,0:JMAX) :: lon_erg, lat_erg, &
             vx_s_g_erg, vy_s_g_erg, vz_s_erg, vh_s_erg, &
             vx_b_g_erg, vy_b_g_erg, vz_b_erg, vh_b_erg, &
             vx_m_g_erg, vy_m_g_erg,           vh_m_erg, &
-            temp_s_erg, temp_b_erg, temph_b_erg, &
+            temp_s_erg, temp_mean_erg, temp_b_erg, temph_b_erg, &
+            dtemp_dz_b_erg, &
             H_w_erg, p_b_w_erg, &
             tau_dr_erg, tau_b_erg, &
             q_gl_g_erg
@@ -502,14 +516,14 @@ mapping_r = 1                     ! initial value
 mapping_grid_mapping_name_r = 'xxx'   ! initial value
 mapping_ellipsoid_r         = 'xxx'   ! initial value
 
-mapping_semi_major_axis_r     = no_value_neg_dp   ! initial value
-mapping_inv_flattening_r      = no_value_neg_dp   ! initial value
-mapping_radius_of_sphere_r    = no_value_neg_dp   ! initial value
-mapping_latitude_origin_r     = no_value_neg_dp   ! initial value
-mapping_standard_parallel_r   = no_value_neg_dp   ! initial value
-mapping_reference_longitude_r = no_value_neg_dp   ! initial value
-mapping_false_E_r             = no_value_neg_dp   ! initial value
-mapping_false_N_r             = no_value_neg_dp   ! initial value
+mapping_semi_major_axis_r     = r_no_value_neg_dp   ! initial value
+mapping_inv_flattening_r      = r_no_value_neg_dp   ! initial value
+mapping_radius_of_sphere_r    = r_no_value_neg_dp   ! initial value
+mapping_latitude_origin_r     = r_no_value_neg_dp   ! initial value
+mapping_standard_parallel_r   = r_no_value_neg_dp   ! initial value
+mapping_reference_longitude_r = r_no_value_neg_dp   ! initial value
+mapping_false_E_r             = r_no_value_neg_dp   ! initial value
+mapping_false_N_r             = r_no_value_neg_dp   ! initial value
 
 if (n_variable_dim == 1) then
 
@@ -732,7 +746,7 @@ else
           //               end_of_line &
           //'              not available in read nc file.'
    call write_message(ch_msg, 'warning')
-   calving_apl_erg = no_value_large_dp
+   calving_apl_erg = real(NF90_FILL_FLOAT,dp)
 end if
 
 istat = nf90_inq_varid(ncid, 'q_geo', ncv)
@@ -875,6 +889,16 @@ else
    call write_message(ch_msg, 'error')
 end if
 
+istat = nf90_inq_varid(ncid, 'temp_mean', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, temp_mean_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''temp_mean'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
+
 istat = nf90_inq_varid(ncid, 'temp_b', ncv)
 if (istat == nf90_noerr) then
    call check( nf90_get_var(ncid, ncv, temp_b_erg) )
@@ -890,6 +914,16 @@ if (istat == nf90_noerr) then
    call check( nf90_get_var(ncid, ncv, temph_b_erg) )
 else
    ch_msg = ' >>> read_nc: Variable ''temph_b'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
+
+istat = nf90_inq_varid(ncid, 'dtemp_dz_b', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, dtemp_dz_b_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''dtemp_dz_b'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
    call write_message(ch_msg, 'error')
@@ -1063,19 +1097,24 @@ else
    call write_message(ch_msg, 'error')
 end if
 
-istat1 = nf90_inq_varid(ncid, 'bmb_fl_tot', ncv)
-if (istat1 == nf90_noerr) then
+istat = nf90_inq_varid(ncid, 'bmb_gr_tot', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, bmb_gr_tot_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''bmb_gr_tot'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
+
+istat = nf90_inq_varid(ncid, 'bmb_fl_tot', ncv)
+if (istat == nf90_noerr) then
    call check( nf90_get_var(ncid, ncv, bmb_fl_tot_erg, start=nc1cor) )
 else
-   istat2 = nf90_inq_varid(ncid, 'bmb_si_tot', ncv)   ! obsolete name
-   if (istat2 == nf90_noerr) then
-      call check( nf90_get_var(ncid, ncv, bmb_fl_tot_erg, start=nc1cor) )
-   else
-      ch_msg = ' >>> read_nc: Variable ''bmb_fl_tot'' ' &
-             //               end_of_line &
-             //'              not available in read nc file!'
-      call write_message(ch_msg, 'error')
-   end if
+   ch_msg = ' >>> read_nc: Variable ''bmb_fl_tot'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
 end if
 
 istat = nf90_inq_varid(ncid, 'calv_tot', ncv)
@@ -1173,17 +1212,18 @@ end if
 
 if (n_variable_dim == 1) then
 
-lim_r             = no_value_large_dp
-limnsw_r          = no_value_large_dp
-iareagr_r         = no_value_large_dp
-iareafl_r         = no_value_large_dp
-dlimdt_r          = no_value_large_dp
-tendacabf_r       = no_value_large_dp
-tendlibmassbf_r   = no_value_large_dp
-tendlibmassbffl_r = no_value_large_dp
-tendlicalvf_r     = no_value_large_dp
-tendlifmassbf_r   = no_value_large_dp
-tendligroundf_r   = no_value_large_dp
+lim_r             = real(NF90_FILL_FLOAT,dp)
+limnsw_r          = real(NF90_FILL_FLOAT,dp)
+iareagr_r         = real(NF90_FILL_FLOAT,dp)
+iareafl_r         = real(NF90_FILL_FLOAT,dp)
+dlimdt_r          = real(NF90_FILL_FLOAT,dp)
+tendacabf_r       = real(NF90_FILL_FLOAT,dp)
+tendlibmassbf_r   = real(NF90_FILL_FLOAT,dp)
+tendlibmassbfgr_r = real(NF90_FILL_FLOAT,dp)
+tendlibmassbffl_r = real(NF90_FILL_FLOAT,dp)
+tendlicalvf_r     = real(NF90_FILL_FLOAT,dp)
+tendlifmassbf_r   = real(NF90_FILL_FLOAT,dp)
+tendligroundf_r   = real(NF90_FILL_FLOAT,dp)
 
 do i=0, IMAX
    x_r(i) = xi_erg(i)   ! m
@@ -1215,19 +1255,15 @@ do j=0, JMAX
                                        ! sign changed to negative for loss
 
    if (mask_erg(i,j)==0) then
-      libmassbfgr_r(i,j) = Q_b_apl_erg(i,j) * (-rho/year_to_year_or_sec)
-                                            ! m/a -> kg/(m2*a) | kg/(m2*s),
-                                            ! sign changed to negative for loss
+      libmassbfgr_r(i,j) = libmassbf_r(i,j)
    else
-      libmassbfgr_r(i,j) = no_value_large_dp
+      libmassbfgr_r(i,j) = real(NF90_FILL_FLOAT,dp)
    end if
 
    if (mask_erg(i,j)==3) then
-      libmassbffl_r(i,j) = Q_b_apl_erg(i,j) * (-rho/year_to_year_or_sec)
-                                            ! m/a -> kg/(m2*a) | kg/(m2*s),
-                                            ! sign changed to negative for loss
+      libmassbffl_r(i,j) = libmassbf_r(i,j)
    else
-      libmassbffl_r(i,j) = no_value_large_dp
+      libmassbffl_r(i,j) = real(NF90_FILL_FLOAT,dp)
    end if
 
    hfgeoubed_r(i,j)  = q_geo_erg(i,j)   ! W/m2
@@ -1245,24 +1281,31 @@ do j=0, JMAX
    yvelmean_r(i,j)   = vy_m_g_erg(i,j)  / year_to_year_or_sec   ! m/a | m/s
    horvelmean_r(i,j) = vh_m_erg(i,j)    / year_to_year_or_sec   ! m/a | m/s
 
-   litemptop_r(i,j)  = temp_s_erg(i,j) + T0   ! C -> K
-   litempbot_r(i,j)  = temp_b_erg(i,j) + T0   ! C -> K
+   litemptop_r(i,j)  = temp_s_erg(i,j)    + T0   ! C -> K
+   litempavg_r(i,j)  = temp_mean_erg(i,j) + T0   ! C -> K
+   litempbot_r(i,j)  = temp_b_erg(i,j)    + T0   ! C -> K
+
+   litempgrad_r(i,j) = dtemp_dz_b_erg(i,j)
 
    if (mask_erg(i,j)==0) then
-      litempbotgr_r(i,j) = temp_b_erg(i,j) + T0   ! C -> K
+      litempbotgr_r(i,j)  = litempbot_r(i,j)
+      litempgradgr_r(i,j) = litempgrad_r(i,j)
    else
-      litempbotgr_r(i,j) = no_value_large_dp
+      litempbotgr_r(i,j)  = real(NF90_FILL_FLOAT,dp)
+      litempgradgr_r(i,j) = real(NF90_FILL_FLOAT,dp)
    end if
 
    if (mask_erg(i,j)==3) then
-      litempbotfl_r(i,j) = temp_b_erg(i,j) + T0   ! C -> K
+      litempbotfl_r(i,j)  = litempbot_r(i,j)
+      litempgradfl_r(i,j) = litempgrad_r(i,j)
    else
-      litempbotfl_r(i,j) = no_value_large_dp
+      litempbotfl_r(i,j)  = real(NF90_FILL_FLOAT,dp)
+      litempgradfl_r(i,j) = real(NF90_FILL_FLOAT,dp)
    end if
 
    strbasemag_r(i,j) = tau_b_erg(i,j)   ! Pa
 
-   if (abs(calving_apl_erg(i,j)) < 0.999_dp*no_value_large_dp) then
+   if (abs(calving_apl_erg(i,j)) < 0.999_dp*real(NF90_FILL_FLOAT,dp)) then
       licalvf_r(i,j)   = calving_apl_erg(i,j) * (-rho/year_to_year_or_sec)
                                           ! m/a -> kg/(m2*a) | kg/(m2*s),
                                           ! sign changed to negative for loss
@@ -1270,11 +1313,11 @@ do j=0, JMAX
                                           ! m/a -> kg/(m2*a) | kg/(m2*s),
                                           ! sign changed to negative for loss
    else
-      licalvf_r(i,j)   = no_value_large_dp
-      lifmassbf_r(i,j) = no_value_large_dp
+      licalvf_r(i,j)   = real(NF90_FILL_FLOAT,dp)
+      lifmassbf_r(i,j) = real(NF90_FILL_FLOAT,dp)
    end if
 
-   ligroundf_r(i,j)  = no_value_large_dp
+   ligroundf_r(i,j)  = real(NF90_FILL_FLOAT,dp)
                        !%% q_gl_g_erg(i,j) * rho/year_to_year_or_sec
                                                 ! m/a -> kg/(m2*a) | kg/(m2*s)
 
@@ -1302,6 +1345,8 @@ tendacabf_r       = Q_s_erg * rho/year_to_year_or_sec
                                 ! m3/a -> kg/a | kg/s
 tendlibmassbf_r   = bmb_tot_erg * rho/year_to_year_or_sec
                                 ! m3/a -> kg/a | kg/s
+tendlibmassbfgr_r = bmb_gr_tot_erg * rho/year_to_year_or_sec
+                                ! m3/a -> kg/a | kg/s
 tendlibmassbffl_r = bmb_fl_tot_erg * rho/year_to_year_or_sec
                                 ! m3/a -> kg/a | kg/s
 tendlicalvf_r     = calv_tot_erg * (-rho/year_to_year_or_sec)
@@ -1310,52 +1355,56 @@ tendlicalvf_r     = calv_tot_erg * (-rho/year_to_year_or_sec)
 tendlifmassbf_r   = calv_tot_erg * (-rho/year_to_year_or_sec)
                                 ! m3/a -> kg/a | kg/s,
                                 ! sign changed to negative for loss
-tendligroundf_r   = no_value_large_dp
+tendligroundf_r   = real(NF90_FILL_FLOAT,dp)
                                 ! kg/a | kg/s
 
-x_r           = no_value_large_dp
-y_r           = no_value_large_dp
-lon_r         = no_value_large_dp
-lat_r         = no_value_large_dp
-lithk_r       = no_value_large_dp
-orog_r        = no_value_large_dp
-base_r        = no_value_large_dp
-topg_r        = no_value_large_dp
-acabf_r       = no_value_large_dp
-libmassbf_r   = no_value_large_dp
-libmassbfgr_r = no_value_large_dp
-libmassbffl_r = no_value_large_dp
-hfgeoubed_r   = no_value_large_dp
-dlithkdt_r    = no_value_large_dp
-xvelsurf_r    = no_value_large_dp
-yvelsurf_r    = no_value_large_dp
-zvelsurf_r    = no_value_large_dp
-horvelsurf_r  = no_value_large_dp
-xvelbase_r    = no_value_large_dp
-yvelbase_r    = no_value_large_dp
-zvelbase_r    = no_value_large_dp
-horvelbase_r  = no_value_large_dp
-xvelmean_r    = no_value_large_dp
-yvelmean_r    = no_value_large_dp
-horvelmean_r  = no_value_large_dp
-litemptop_r   = no_value_large_dp
-litempbot_r   = no_value_large_dp
-litempbotgr_r = no_value_large_dp
-litempbotfl_r = no_value_large_dp
-strbasemag_r  = no_value_large_dp
-licalvf_r     = no_value_large_dp
-lifmassbf_r   = no_value_large_dp
-ligroundf_r   = no_value_large_dp
-sftgif_r      = no_value_large_dp
-sftgrf_r      = no_value_large_dp
-sftflf_r      = no_value_large_dp
+x_r            = real(NF90_FILL_FLOAT,dp)
+y_r            = real(NF90_FILL_FLOAT,dp)
+lon_r          = real(NF90_FILL_FLOAT,dp)
+lat_r          = real(NF90_FILL_FLOAT,dp)
+lithk_r        = real(NF90_FILL_FLOAT,dp)
+orog_r         = real(NF90_FILL_FLOAT,dp)
+base_r         = real(NF90_FILL_FLOAT,dp)
+topg_r         = real(NF90_FILL_FLOAT,dp)
+acabf_r        = real(NF90_FILL_FLOAT,dp)
+libmassbf_r    = real(NF90_FILL_FLOAT,dp)
+libmassbfgr_r  = real(NF90_FILL_FLOAT,dp)
+libmassbffl_r  = real(NF90_FILL_FLOAT,dp)
+hfgeoubed_r    = real(NF90_FILL_FLOAT,dp)
+dlithkdt_r     = real(NF90_FILL_FLOAT,dp)
+xvelsurf_r     = real(NF90_FILL_FLOAT,dp)
+yvelsurf_r     = real(NF90_FILL_FLOAT,dp)
+zvelsurf_r     = real(NF90_FILL_FLOAT,dp)
+horvelsurf_r   = real(NF90_FILL_FLOAT,dp)
+xvelbase_r     = real(NF90_FILL_FLOAT,dp)
+yvelbase_r     = real(NF90_FILL_FLOAT,dp)
+zvelbase_r     = real(NF90_FILL_FLOAT,dp)
+horvelbase_r   = real(NF90_FILL_FLOAT,dp)
+xvelmean_r     = real(NF90_FILL_FLOAT,dp)
+yvelmean_r     = real(NF90_FILL_FLOAT,dp)
+horvelmean_r   = real(NF90_FILL_FLOAT,dp)
+litemptop_r    = real(NF90_FILL_FLOAT,dp)
+litempavg_r    = real(NF90_FILL_FLOAT,dp)
+litempbot_r    = real(NF90_FILL_FLOAT,dp)
+litempbotgr_r  = real(NF90_FILL_FLOAT,dp)
+litempbotfl_r  = real(NF90_FILL_FLOAT,dp)
+litempgrad_r   = real(NF90_FILL_FLOAT,dp)
+litempgradgr_r = real(NF90_FILL_FLOAT,dp)
+litempgradfl_r = real(NF90_FILL_FLOAT,dp)
+strbasemag_r   = real(NF90_FILL_FLOAT,dp)
+licalvf_r      = real(NF90_FILL_FLOAT,dp)
+lifmassbf_r    = real(NF90_FILL_FLOAT,dp)
+ligroundf_r    = real(NF90_FILL_FLOAT,dp)
+sftgif_r       = real(NF90_FILL_FLOAT,dp)
+sftgrf_r       = real(NF90_FILL_FLOAT,dp)
+sftflf_r       = real(NF90_FILL_FLOAT,dp)
 
 end if
 
 end subroutine read_nc
 
 !-------------------------------------------------------------------------------
-!> Initialization of ISMIP6 NetCDF file.
+!> Initialization of ISMIP7 NetCDF file.
 !-------------------------------------------------------------------------------
 subroutine init_ismip_netcdf(run_name, n_variable_dim, n_variable_type, &
                    mapping_grid_mapping_name_val, &
@@ -1444,13 +1493,13 @@ call write_message(ch_msg, 'error')
 !-------- Open NetCDF file --------
 
 if ((n_variable_dim == 1).and.(n_variable_type == 1)) then
-   filename = trim(run_name)//'_ismip6_'//ch_time_unit//'_st_2d.nc'
+   filename = trim(run_name)//'_ismip_'//ch_time_unit//'_st_2d.nc'
 else if ((n_variable_dim == 1).and.(n_variable_type == 2)) then
-   filename = trim(run_name)//'_ismip6_'//ch_time_unit//'_fl_2d.nc'
+   filename = trim(run_name)//'_ismip_'//ch_time_unit//'_fl_2d.nc'
 else if ((n_variable_dim == 2).and.(n_variable_type == 1)) then
-   filename = trim(run_name)//'_ismip6_'//ch_time_unit//'_st_scalar.nc'
+   filename = trim(run_name)//'_ismip_'//ch_time_unit//'_st_scalar.nc'
 else if ((n_variable_dim == 2).and.(n_variable_type == 2)) then
-   filename = trim(run_name)//'_ismip6_'//ch_time_unit//'_fl_scalar.nc'
+   filename = trim(run_name)//'_ismip_'//ch_time_unit//'_fl_scalar.nc'
 end if
 
 write(6,'(a)') ' Now creating new NetCDF file '//trim(filename)//' ...'
@@ -1462,13 +1511,13 @@ ios = nf90_create(trim(filename_with_path), cmode, ncid)
 if (ios /= nf90_noerr) then
    ch_msg = ' >>> init_ismip_netcdf:' &
           //         end_of_line &
-          //'        Error when opening the new ISMIP6 NetCDF output file!'
+          //'        Error when opening the new ISMIP7 NetCDF output file!'
    call write_message(ch_msg, 'error')
 end if
 
 !-------- Global attributes --------
 
-buffer = 'ISMIP6 output of simulation '//trim(run_name)
+buffer = 'ISMIP7 output of simulation '//trim(run_name)
 call check( nf90_put_att(ncid, NF90_GLOBAL, 'title', trim(buffer)) )
 
 call set_ch_institution(buffer)
@@ -1518,15 +1567,15 @@ if (trim(mapping_ellipsoid_val) /= 'xxx' ) &
    call check( nf90_put_att(ncid, ncv, 'ellipsoid', &
                                         trim(mapping_ellipsoid_val)) )
 
-if (mapping_semi_major_axis_val > (no_value_neg_dp+eps_dp) ) &
+if (mapping_semi_major_axis_val > (r_no_value_neg_dp+eps_dp) ) &
    call check( nf90_put_att(ncid, ncv, 'semi_major_axis', &
                                         mapping_semi_major_axis_val) )
 
-if (mapping_inv_flattening_val > (no_value_neg_dp+eps_dp) ) &
+if (mapping_inv_flattening_val > (r_no_value_neg_dp+eps_dp) ) &
    call check( nf90_put_att(ncid, ncv, 'inverse_flattening', &
                                         mapping_inv_flattening_val) )
 
-if (mapping_radius_of_sphere_val > (no_value_neg_dp+eps_dp) ) &
+if (mapping_radius_of_sphere_val > (r_no_value_neg_dp+eps_dp) ) &
    call check( nf90_put_att(ncid, ncv, 'radius_of_sphere', &
                                         mapping_radius_of_sphere_val) )
 
@@ -1827,6 +1876,24 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Total BMB flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
+!      -- tendlibmassbfgr
+
+call check( nf90_inq_dimid(ncid, 'time', nc1d) )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'tendlibmassbfgr', NF90_FLOAT, nc1d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle) )
+#else
+call check( nf90_def_var(ncid, 'tendlibmassbfgr', NF90_FLOAT, nc1d, ncv) )
+#endif
+
+buffer = 'kg '//ch_time_unit//'-1'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
+buffer = 'tendency_of_grounded_ice_sheet_mass_due_to_basal_mass_balance'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
+buffer = 'Total BMB flux for grounded ice'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+
 !      -- tendlibmassbffl
 
 call check( nf90_inq_dimid(ncid, 'time', nc1d) )
@@ -1930,10 +1997,8 @@ buffer = 'land_ice_thickness'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Ice thickness'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- orog
@@ -1955,10 +2020,8 @@ buffer = 'surface_altitude'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Surface elevation'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- base
@@ -1980,10 +2043,8 @@ buffer = 'base_altitude'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Ice base elevation'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- topg
@@ -2005,10 +2066,8 @@ buffer = 'bedrock_altitude'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Bedrock elevation'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- xvelsurf
@@ -2030,10 +2089,8 @@ buffer = 'land_ice_surface_x_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Surface velocity in x'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- yvelsurf
@@ -2055,10 +2112,8 @@ buffer = 'land_ice_surface_y_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Surface velocity in y'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- zvelsurf
@@ -2080,10 +2135,8 @@ buffer = 'land_ice_surface_upward_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Surface velocity in z'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- horvelsurf
@@ -2105,10 +2158,8 @@ buffer = 'land_ice_surface_horizontal_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Horizontal surface velocity'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- xvelbase
@@ -2130,10 +2181,8 @@ buffer = 'land_ice_basal_x_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal velocity in x'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- yvelbase
@@ -2155,10 +2204,8 @@ buffer = 'land_ice_basal_y_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal velocity in y'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- zvelbase
@@ -2180,10 +2227,8 @@ buffer = 'land_ice_basal_upward_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal velocity in z'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- horvelbase
@@ -2205,10 +2250,8 @@ buffer = 'land_ice_basal_horizontal_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Horizontal basal velocity'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- xvelmean
@@ -2230,10 +2273,8 @@ buffer = 'land_ice_vertical_mean_x_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Mean velocity in x'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- yvelmean
@@ -2255,10 +2296,8 @@ buffer = 'land_ice_vertical_mean_y_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Mean velocity in y'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- horvelmean
@@ -2280,10 +2319,8 @@ buffer = 'land_ice_vertical_mean_horizontal_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Horizontal mean velocity'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- litemptop
@@ -2301,14 +2338,35 @@ call check( nf90_def_var(ncid, 'litemptop', NF90_FLOAT, nc3d, ncv) )
 
 buffer = 'K'
 call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
-buffer = 'temperature_at_top_of_ice_sheet_model'
+buffer = 'temperature_at_top_of_ice_sheet'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Surface temperature'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
+!      -- litempavg
+
+call check( nf90_inq_dimid(ncid, 'x', nc3d(1)) )
+call check( nf90_inq_dimid(ncid, 'y', nc3d(2)) )
+call check( nf90_inq_dimid(ncid, 'time', nc3d(3)) )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'litempavg', NF90_FLOAT, nc3d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle) )
+#else
+call check( nf90_def_var(ncid, 'litempavg', NF90_FLOAT, nc3d, ncv) )
+#endif
+
+buffer = 'K'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
+buffer = 'land_ice_vertical_mean_temperature'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
+buffer = 'Vertical mean (depth-averaged) temperature'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- litempbot
@@ -2326,14 +2384,12 @@ call check( nf90_def_var(ncid, 'litempbot', NF90_FLOAT, nc3d, ncv) )
 
 buffer = 'K'
 call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
-buffer = 'temperature_at_base_of_ice_sheet_model'
+buffer = 'temperature_at_base_of_ice_sheet'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal temperature'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- litempbotgr
@@ -2355,10 +2411,8 @@ buffer = 'temperature_at_base_of_grounded_ice_sheet'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal temperature for grounded ice'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- litempbotfl
@@ -2380,10 +2434,77 @@ buffer = 'temperature_at_base_of_floating_ice_shelf'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal temperature for floating ice'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
+!      -- litempgrad
+
+call check( nf90_inq_dimid(ncid, 'x', nc3d(1)) )
+call check( nf90_inq_dimid(ncid, 'y', nc3d(2)) )
+call check( nf90_inq_dimid(ncid, 'time', nc3d(3)) )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'litempgrad', NF90_FLOAT, nc3d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle) )
+#else
+call check( nf90_def_var(ncid, 'litempgrad', NF90_FLOAT, nc3d, ncv) )
+#endif
+
+buffer = 'K m-1'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
+buffer = 'vertical_temperature_gradient_at_base_of_ice_sheet'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
+buffer = 'Vertical temperature gradient at the ice base'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
+!      -- litempgradgr
+
+call check( nf90_inq_dimid(ncid, 'x', nc3d(1)) )
+call check( nf90_inq_dimid(ncid, 'y', nc3d(2)) )
+call check( nf90_inq_dimid(ncid, 'time', nc3d(3)) )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'litempgradgr', NF90_FLOAT, nc3d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle) )
+#else
+call check( nf90_def_var(ncid, 'litempgradgr', NF90_FLOAT, nc3d, ncv) )
+#endif
+
+buffer = 'K m-1'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
+buffer = 'vertical_temperature_gradient_at_base_of_grounded_ice_sheet'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
+buffer = 'Vertical temperature gradient at the grounded ice base'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
+!      -- litempgradfl
+
+call check( nf90_inq_dimid(ncid, 'x', nc3d(1)) )
+call check( nf90_inq_dimid(ncid, 'y', nc3d(2)) )
+call check( nf90_inq_dimid(ncid, 'time', nc3d(3)) )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'litempgradfl', NF90_FLOAT, nc3d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle) )
+#else
+call check( nf90_def_var(ncid, 'litempgradfl', NF90_FLOAT, nc3d, ncv) )
+#endif
+
+buffer = 'K m-1'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
+buffer = 'vertical_temperature_gradient_at_base_of_floating_ice_shelf'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
+buffer = 'Vertical temperature gradient at the floating ice base'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- strbasemag
@@ -2405,10 +2526,8 @@ buffer = 'land_ice_basal_drag'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal drag'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- sftgif
@@ -2430,10 +2549,8 @@ buffer = 'land_ice_area_fraction'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Land ice area fraction'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- sftgrf
@@ -2455,10 +2572,8 @@ buffer = 'grounded_ice_sheet_area_fraction'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Grounded ice sheet area fraction'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- sftflf
@@ -2480,10 +2595,8 @@ buffer = 'floating_ice_shelf_area_fraction'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Floating ice sheet area fraction'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !    ---- Flux variables
@@ -2509,10 +2622,8 @@ buffer = 'land_ice_surface_specific_mass_balance_flux'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Surface mass balance flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- libmassbf
@@ -2534,10 +2645,8 @@ buffer = 'land_ice_basal_specific_mass_balance_flux'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal mass balance flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- libmassbfgr
@@ -2559,10 +2668,8 @@ buffer = 'grounded_ice_sheet_basal_specific_mass_balance_flux'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal mass balance flux for grounded ice'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- libmassbffl
@@ -2584,10 +2691,8 @@ buffer = 'floating_ice_shelf_basal_specific_mass_balance_flux'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal mass balance flux for floating ice'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- hfgeoubed
@@ -2609,10 +2714,8 @@ buffer = 'upward_geothermal_heat_flux_in_land_ice'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Geothermal heat flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- dlithkdt
@@ -2634,10 +2737,8 @@ buffer = 'tendency_of_land_ice_thickness'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Ice thickness change'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- licalvf
@@ -2659,10 +2760,8 @@ buffer = 'land_ice_specific_mass_flux_due_to_calving'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Calving flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- lifmassbf
@@ -2684,10 +2783,8 @@ buffer = 'land_ice_specific_mass_flux_due_to_calving_and_ice_front_melting'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Ice front melt and calving flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, '_FillValue', &
-                                    real(no_value_large_dp,sp)) )
-call check( nf90_put_att(ncid, ncv, 'missing_value', &
-                                    real(no_value_large_dp,sp)) )
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !%% !      -- ligroundf
@@ -2709,10 +2806,8 @@ call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 !%% call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 !%% buffer = 'Grounding line flux'
 !%% call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-!%% call check( nf90_put_att(ncid, ncv, '_FillValue', &
-!%%                                     real(no_value_large_dp,sp)) )
-!%% call check( nf90_put_att(ncid, ncv, 'missing_value', &
-!%%                                     real(no_value_large_dp,sp)) )
+!%% call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+!%% call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 !%% call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 end if
@@ -2726,7 +2821,7 @@ call check( nf90_enddef(ncid) )
 end subroutine init_ismip_netcdf
 
 !-------------------------------------------------------------------------------
-!> Writing of ISMIP6 NetCDF file.
+!> Writing of ISMIP7 NetCDF file.
 !-------------------------------------------------------------------------------
 subroutine write_ismip_netcdf(run_name, n_variable_dim, n_variable_type, &
                     n, ncid, mapping_aux, &
@@ -2735,7 +2830,8 @@ subroutine write_ismip_netcdf(run_name, n_variable_dim, n_variable_type, &
                     lon_val, lat_val, &
                     lim_aux, limnsw_aux, iareagr_aux, iareafl_aux, &
                     dlimdt_aux, tendacabf_aux, &
-                    tendlibmassbf_aux, tendlibmassbffl_aux, &
+                    tendlibmassbf_aux, &
+                    tendlibmassbfgr_aux, tendlibmassbffl_aux, &
                     tendlicalvf_aux, tendlifmassbf_aux, &
                     tendligroundf_aux, &
                     lithk_val, orog_val, base_val, topg_val, &
@@ -2746,8 +2842,9 @@ subroutine write_ismip_netcdf(run_name, n_variable_dim, n_variable_type, &
                     xvelsurf_val, yvelsurf_val, zvelsurf_val, horvelsurf_val, &
                     xvelbase_val, yvelbase_val, zvelbase_val, horvelbase_val, &
                     xvelmean_val, yvelmean_val, horvelmean_val, &
-                    litemptop_val, &
+                    litemptop_val, litempavg_val, &
                     litempbot_val, litempbotgr_val, litempbotfl_val, &
+                    litempgrad_val, litempgradgr_val, litempgradfl_val, &
                     strbasemag_val, &
                     licalvf_val, lifmassbf_val, ligroundf_val, &
                     sftgif_val, sftgrf_val, sftflf_val)
@@ -2775,6 +2872,7 @@ real(dp),           intent(in) :: iareafl_aux
 real(dp),           intent(in) :: dlimdt_aux
 real(dp),           intent(in) :: tendacabf_aux
 real(dp),           intent(in) :: tendlibmassbf_aux
+real(dp),           intent(in) :: tendlibmassbfgr_aux
 real(dp),           intent(in) :: tendlibmassbffl_aux
 real(dp),           intent(in) :: tendlicalvf_aux
 real(dp),           intent(in) :: tendlifmassbf_aux
@@ -2801,9 +2899,13 @@ real(dp),           intent(in) :: xvelmean_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: yvelmean_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: horvelmean_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: litemptop_val(0:IMAX,0:JMAX)
+real(dp),           intent(in) :: litempavg_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: litempbot_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: litempbotgr_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: litempbotfl_val(0:IMAX,0:JMAX)
+real(dp),           intent(in) :: litempgrad_val(0:IMAX,0:JMAX)
+real(dp),           intent(in) :: litempgradgr_val(0:IMAX,0:JMAX)
+real(dp),           intent(in) :: litempgradfl_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: strbasemag_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: licalvf_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: lifmassbf_val(0:IMAX,0:JMAX)
@@ -2845,6 +2947,7 @@ real(dp)     :: iareafl_val(1)
 real(dp)     :: dlimdt_val(1)
 real(dp)     :: tendacabf_val(1)
 real(dp)     :: tendlibmassbf_val(1)
+real(dp)     :: tendlibmassbfgr_val(1)
 real(dp)     :: tendlibmassbffl_val(1)
 real(dp)     :: tendlicalvf_val(1)
 real(dp)     :: tendlifmassbf_val(1)
@@ -2861,6 +2964,7 @@ iareafl_val(1)         = iareafl_aux
 dlimdt_val(1)          = dlimdt_aux
 tendacabf_val(1)       = tendacabf_aux
 tendlibmassbf_val(1)   = tendlibmassbf_aux
+tendlibmassbfgr_val(1) = tendlibmassbfgr_aux
 tendlibmassbffl_val(1) = tendlibmassbffl_aux
 tendlicalvf_val(1)     = tendlicalvf_aux
 tendlifmassbf_val(1)   = tendlifmassbf_aux
@@ -2987,6 +3091,11 @@ call check( nf90_inq_varid(ncid, 'tendlibmassbf', ncv) )
 nc1cor(1) = n
 nc1cnt(1) = 1
 call check( nf90_put_var(ncid, ncv, tendlibmassbf_val, start=nc1cor, count=nc1cnt) )
+
+call check( nf90_inq_varid(ncid, 'tendlibmassbfgr', ncv) )
+nc1cor(1) = n
+nc1cnt(1) = 1
+call check( nf90_put_var(ncid, ncv, tendlibmassbfgr_val, start=nc1cor, count=nc1cnt) )
 
 call check( nf90_inq_varid(ncid, 'tendlibmassbffl', ncv) )
 nc1cor(1) = n
@@ -3164,6 +3273,15 @@ nc3cnt(2) = JMAX + 1
 nc3cnt(3) = 1
 call check( nf90_put_var(ncid, ncv, litemptop_val, start=nc3cor, count=nc3cnt) )
 
+call check( nf90_inq_varid(ncid, 'litempavg', ncv) )
+nc3cor(1) = 1
+nc3cor(2) = 1
+nc3cor(3) = n
+nc3cnt(1) = IMAX + 1
+nc3cnt(2) = JMAX + 1
+nc3cnt(3) = 1
+call check( nf90_put_var(ncid, ncv, litempavg_val, start=nc3cor, count=nc3cnt) )
+
 call check( nf90_inq_varid(ncid, 'litempbot', ncv) )
 nc3cor(1) = 1
 nc3cor(2) = 1
@@ -3190,6 +3308,33 @@ nc3cnt(1) = IMAX + 1
 nc3cnt(2) = JMAX + 1
 nc3cnt(3) = 1
 call check( nf90_put_var(ncid, ncv, litempbotfl_val, start=nc3cor, count=nc3cnt) )
+
+call check( nf90_inq_varid(ncid, 'litempgrad', ncv) )
+nc3cor(1) = 1
+nc3cor(2) = 1
+nc3cor(3) = n
+nc3cnt(1) = IMAX + 1
+nc3cnt(2) = JMAX + 1
+nc3cnt(3) = 1
+call check( nf90_put_var(ncid, ncv, litempgrad_val, start=nc3cor, count=nc3cnt) )
+
+call check( nf90_inq_varid(ncid, 'litempgradgr', ncv) )
+nc3cor(1) = 1
+nc3cor(2) = 1
+nc3cor(3) = n
+nc3cnt(1) = IMAX + 1
+nc3cnt(2) = JMAX + 1
+nc3cnt(3) = 1
+call check( nf90_put_var(ncid, ncv, litempgradgr_val, start=nc3cor, count=nc3cnt) )
+
+call check( nf90_inq_varid(ncid, 'litempgradfl', ncv) )
+nc3cor(1) = 1
+nc3cor(2) = 1
+nc3cor(3) = n
+nc3cnt(1) = IMAX + 1
+nc3cnt(2) = JMAX + 1
+nc3cnt(3) = 1
+call check( nf90_put_var(ncid, ncv, litempgradfl_val, start=nc3cor, count=nc3cnt) )
 
 call check( nf90_inq_varid(ncid, 'strbasemag', ncv) )
 nc3cor(1) = 1
@@ -3319,7 +3464,7 @@ end if
 end subroutine write_ismip_netcdf
 
 !-------------------------------------------------------------------------------
-!> Closing of ISMIP6 NetCDF file.
+!> Closing of ISMIP7 NetCDF file.
 !-------------------------------------------------------------------------------
 subroutine close_ismip_netcdf(ncid)
 

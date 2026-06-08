@@ -114,7 +114,8 @@ real(dp), dimension(0:JMAX,0:IMAX), save :: accum_sum         = 0.0_dp, &
                                             calving_apl_sum   = 0.0_dp, &
                                             frontal_melting_sum     = 0.0_dp, &
                                             frontal_melting_apl_sum = 0.0_dp, &
-#if (DISC>0)   /* Ice discharge parameterisation */
+                                            q_gl_g_sum        = 0.0_dp, &
+#if (DISC>0)   /* Ice discharge parameterization */
                                             dis_perp_sum      = 0.0_dp, &
 #endif
                                             q_geo_sum         = 0.0_dp, &
@@ -127,8 +128,7 @@ real(dp), dimension(0:JMAX,0:IMAX), save :: accum_sum         = 0.0_dp, &
                                             dzl_dtau_sum      = 0.0_dp, &
                                             dH_c_dtau_sum     = 0.0_dp, &
                                             dH_t_dtau_sum     = 0.0_dp, &
-                                            dH_dtau_sum       = 0.0_dp, &
-                                            q_gl_g_sum        = 0.0_dp
+                                            dH_dtau_sum       = 0.0_dp
 
 #if (defined(CLIMATOLOGY_EXTRACTION_HACK))
     !%% Climatology extraction hack (must not be used routinely)!
@@ -153,7 +153,8 @@ real(dp), dimension(0:JMAX,0:IMAX) :: accum_flx         , &
                                       calving_apl_flx   , &
                                       frontal_melting_flx     , &
                                       frontal_melting_apl_flx , &
-#if (DISC>0)   /* Ice discharge parameterisation */
+                                      q_gl_g_flx        , &
+#if (DISC>0)   /* Ice discharge parameterization */
                                       dis_perp_flx      , &
 #endif
                                       q_geo_flx         , &
@@ -166,8 +167,7 @@ real(dp), dimension(0:JMAX,0:IMAX) :: accum_flx         , &
                                       dzl_dtau_flx      , &
                                       dH_c_dtau_flx     , &
                                       dH_t_dtau_flx     , &
-                                      dH_dtau_flx       , &
-                                      q_gl_g_flx
+                                      dH_dtau_flx
 
 #if (defined(CLIMATOLOGY_EXTRACTION_HACK))
     !%% Climatology extraction hack (must not be used routinely)!
@@ -213,6 +213,7 @@ real(sp), dimension(0:IMAX,0:JMAX) :: lambda_conv, phi_conv, &
             Q_b_tot_conv, Q_b_apl_conv, &
             calving_conv, calving_apl_conv, &
             frontal_melting_conv, frontal_melting_apl_conv, &
+            q_gl_g_conv, &
             q_geo_conv, &
             zs_conv, zm_conv, zb_conv, zl_conv, zl0_conv, wss_conv, &
             H_cold_conv, H_temp_conv, H_conv, &
@@ -229,7 +230,6 @@ real(sp), dimension(0:IMAX,0:JMAX) :: lambda_conv, phi_conv, &
             temp_b_conv, temph_b_conv, dtemp_dz_b_conv, temp_mean_conv, &
             tau_dr_conv, tau_b_conv, &
             p_b_w_conv, q_w_conv, q_w_x_conv, q_w_y_conv, H_w_conv, &
-            q_gl_g_conv, &
             cst_dist_conv, cos_grad_tc_conv, dis_perp_conv, &
             ratio_sl_sia_x_conv, ratio_sl_sia_y_conv, ratio_sl_sia_conv, &
             vis_ave_g_conv, vis_int_g_conv
@@ -1364,7 +1364,35 @@ call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
             thisroutine )
 
-#if (DISC>0)   /* Ice discharge parameterisation */
+!    ---- q_gl_g
+
+call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
+            thisroutine )
+call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)), &
+            thisroutine )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'q_gl_g', NF90_FLOAT, nc2d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle), &
+            thisroutine )
+#else
+call check( nf90_def_var(ncid, 'q_gl_g', NF90_FLOAT, nc2d, ncv), &
+            thisroutine )
+#endif
+
+buffer = 'm a-1'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)), &
+            thisroutine )
+buffer = 'land_ice_volume_flux_across_grounding_line'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
+            thisroutine )
+buffer = 'Volume flux across the grounding line'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
+            thisroutine )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
+            thisroutine )
+
+#if (DISC>0)   /* Ice discharge parameterization */
 
 !    ---- dis_perp
 
@@ -3091,34 +3119,6 @@ call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
             thisroutine )
 
-!    ---- q_gl_g
-
-call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
-            thisroutine )
-call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)), &
-            thisroutine )
-
-#if (NETCDF4_ENABLED==1)
-call check( nf90_def_var(ncid, 'q_gl_g', NF90_FLOAT, nc2d, ncv, &
-            deflate_level=n_deflate_level, shuffle=flag_shuffle), &
-            thisroutine )
-#else
-call check( nf90_def_var(ncid, 'q_gl_g', NF90_FLOAT, nc2d, ncv), &
-            thisroutine )
-#endif
-
-buffer = 'm2 a-1'
-call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)), &
-            thisroutine )
-buffer = 'land_ice_volume_flux_across_gl'
-call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)), &
-            thisroutine )
-buffer = 'Horizontal volume flux across the grounding line'
-call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)), &
-            thisroutine )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping'), &
-            thisroutine )
-
 !    ---- ratio_sl_sia_x
 
 call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)), &
@@ -4286,7 +4286,8 @@ calving_flx       = calving
 calving_apl_flx   = calving_apl
 frontal_melting_flx     = frontal_melting
 frontal_melting_apl_flx = frontal_melting_apl
-#if (DISC>0)   /* Ice discharge parameterisation */
+q_gl_g_flx        = q_gl_g
+#if (DISC>0)   /* Ice discharge parameterization */
 dis_perp_flx      = dis_perp
 #endif
 q_geo_flx         = q_geo
@@ -4300,7 +4301,6 @@ dzl_dtau_flx      = dzl_dtau
 dH_c_dtau_flx     = dH_c_dtau
 dH_t_dtau_flx     = dH_t_dtau
 dH_dtau_flx       = dH_dtau
-q_gl_g_flx        = q_gl_g
 
 #if (defined(CLIMATOLOGY_EXTRACTION_HACK))
     !%% Climatology extraction hack (must not be used routinely)!
@@ -4330,7 +4330,8 @@ if ( .not.((OUTPUT==3).and.(flag_3d_output)) ) then
       calving_apl_sum   = 0.0_dp
       frontal_melting_sum     = 0.0_dp
       frontal_melting_apl_sum = 0.0_dp
-#if (DISC>0)   /* Ice discharge parameterisation */
+      q_gl_g_sum        = 0.0_dp
+#if (DISC>0)   /* Ice discharge parameterization */
       dis_perp_sum      = 0.0_dp
 #endif
       q_geo_sum         = 0.0_dp
@@ -4344,7 +4345,6 @@ if ( .not.((OUTPUT==3).and.(flag_3d_output)) ) then
       dH_c_dtau_sum     = 0.0_dp
       dH_t_dtau_sum     = 0.0_dp
       dH_dtau_sum       = 0.0_dp
-      q_gl_g_sum        = 0.0_dp
 
 #if (defined(CLIMATOLOGY_EXTRACTION_HACK))
     !%% Climatology extraction hack (must not be used routinely)!
@@ -4371,7 +4371,8 @@ if ( .not.((OUTPUT==3).and.(flag_3d_output)) ) then
    calving_apl_sum   = calving_apl_sum   + calving_apl
    frontal_melting_sum     = frontal_melting_sum     + frontal_melting
    frontal_melting_apl_sum = frontal_melting_apl_sum + frontal_melting_apl
-#if (DISC>0)   /* Ice discharge parameterisation */
+   q_gl_g_sum        = q_gl_g_sum        + q_gl_g
+#if (DISC>0)   /* Ice discharge parameterization */
    dis_perp_sum      = dis_perp_sum      +  dis_perp
 #endif
    q_geo_sum         = q_geo_sum         + q_geo
@@ -4385,7 +4386,6 @@ if ( .not.((OUTPUT==3).and.(flag_3d_output)) ) then
    dH_c_dtau_sum     = dH_c_dtau_sum     + dH_c_dtau
    dH_t_dtau_sum     = dH_t_dtau_sum     + dH_t_dtau
    dH_dtau_sum       = dH_dtau_sum       + dH_dtau
-   q_gl_g_sum        = q_gl_g_sum        + q_gl_g
       !   \!/ constant time step dtime assumed
       !       (otherwise, weighting with changing dtime would be required)
 
@@ -4414,7 +4414,8 @@ if ( .not.((OUTPUT==3).and.(flag_3d_output)) ) then
       calving_apl_flx   = calving_apl_sum   * r_n_flx_ave_cnt_inv
       frontal_melting_flx     = frontal_melting_sum     * r_n_flx_ave_cnt_inv
       frontal_melting_apl_flx = frontal_melting_apl_sum * r_n_flx_ave_cnt_inv
-#if (DISC>0)   /* Ice discharge parameterisation */
+      q_gl_g_flx        = q_gl_g_sum        * r_n_flx_ave_cnt_inv
+#if (DISC>0)   /* Ice discharge parameterization */
       dis_perp_flx      = dis_perp_sum      * r_n_flx_ave_cnt_inv
 #endif
       q_geo_flx         = q_geo_sum         * r_n_flx_ave_cnt_inv
@@ -4428,7 +4429,6 @@ if ( .not.((OUTPUT==3).and.(flag_3d_output)) ) then
       dH_c_dtau_flx     = dH_c_dtau_sum     * r_n_flx_ave_cnt_inv
       dH_t_dtau_flx     = dH_t_dtau_sum     * r_n_flx_ave_cnt_inv
       dH_dtau_flx       = dH_dtau_sum       * r_n_flx_ave_cnt_inv
-      q_gl_g_flx        = q_gl_g_sum        * r_n_flx_ave_cnt_inv
 
 #if (defined(CLIMATOLOGY_EXTRACTION_HACK))
     !%% Climatology extraction hack (must not be used routinely)!
@@ -4458,7 +4458,8 @@ else   ! (OUTPUT==3).and.(flag_3d_output)
    calving_apl_flx   = calving_apl
    frontal_melting_flx     = frontal_melting
    frontal_melting_apl_flx = frontal_melting_apl
-#if (DISC>0)   /* Ice discharge parameterisation */
+   q_gl_g_flx        = q_gl_g
+#if (DISC>0)   /* Ice discharge parameterization */
    dis_perp_flx      = dis_perp
 #endif
    q_geo_flx         = q_geo
@@ -4472,7 +4473,6 @@ else   ! (OUTPUT==3).and.(flag_3d_output)
    dH_c_dtau_flx     = dH_c_dtau
    dH_t_dtau_flx     = dH_t_dtau
    dH_dtau_flx       = dH_dtau
-   q_gl_g_flx        = q_gl_g
 
 #if (defined(CLIMATOLOGY_EXTRACTION_HACK))
     !%% Climatology extraction hack (must not be used routinely)!
@@ -4573,8 +4573,9 @@ do j=0, JMAX
    calving_apl_conv(i,j)   = real(calving_apl_flx(j,i)*year2sec,sp)
    frontal_melting_conv(i,j)     = real(frontal_melting_flx(j,i)*year2sec,sp)
    frontal_melting_apl_conv(i,j) = real(frontal_melting_apl_flx(j,i)*year2sec,sp)
+   q_gl_g_conv(i,j)        = real(q_gl_g_flx(j,i)*year2sec,sp)
 
-#if (DISC>0)   /* Ice discharge parameterisation */
+#if (DISC>0)   /* Ice discharge parameterization */
    dis_perp_conv(i,j)  = real(dis_perp_flx(j,i)*year2sec,sp)
    cst_dist_conv(i,j)  = real(cst_dist(j,i)*0.001_dp,sp)
    cos_grad_tc_conv(i,j) = real(cos_grad_tc(j,i),sp)
@@ -4630,7 +4631,6 @@ do j=0, JMAX
    q_w_x_conv(i,j)     = real(q_w_x(j,i)*year2sec,sp)
    q_w_y_conv(i,j)     = real(q_w_y(j,i)*year2sec,sp)
    H_w_conv(i,j)       = real(H_w(j,i),sp)
-   q_gl_g_conv(i,j)    = real(q_gl_g_flx(j,i)*year2sec,sp)
    ratio_sl_sia_x_conv(i,j) = real(ratio_sl_sia_x(j,i),sp)
    ratio_sl_sia_y_conv(i,j) = real(ratio_sl_sia_y(j,i),sp)
    ratio_sl_sia_conv(i,j)   = real(ratio_sl_sia(j,i),sp)
@@ -4927,7 +4927,12 @@ call check( nf90_put_var(ncid, ncv, frontal_melting_apl_conv, &
                          start=nc2cor_ij, count=nc2cnt_ij), &
             thisroutine )
 
-#if (DISC>0)   /* Ice discharge parameterisation */
+call check( nf90_inq_varid(ncid, 'q_gl_g', ncv), thisroutine )
+call check( nf90_put_var(ncid, ncv, q_gl_g_conv, &
+                         start=nc2cor_ij, count=nc2cnt_ij), &
+            thisroutine )
+
+#if (DISC>0)   /* Ice discharge parameterization */
 
 call check( nf90_inq_varid(ncid, 'dis_perp', ncv), thisroutine )
 call check( nf90_put_var(ncid, ncv, dis_perp_conv, &
@@ -5228,11 +5233,6 @@ call check( nf90_put_var(ncid, ncv, q_w_y_conv, &
 
 call check( nf90_inq_varid(ncid, 'H_w', ncv), thisroutine )
 call check( nf90_put_var(ncid, ncv, H_w_conv, &
-                         start=nc2cor_ij, count=nc2cnt_ij), &
-            thisroutine )
-
-call check( nf90_inq_varid(ncid, 'q_gl_g', ncv), thisroutine )
-call check( nf90_put_var(ncid, ncv, q_gl_g_conv, &
                          start=nc2cor_ij, count=nc2cnt_ij), &
             thisroutine )
 
@@ -7178,6 +7178,8 @@ do j=0, JMAX
       front_melt_tot = front_melt_tot &
                           + frontal_melting_apl(j,i) * cell_area(j,i)
 
+      q_gl_tot = q_gl_tot + q_gl_g(j,i) * cell_area(j,i)
+
    end if
 
 end do
@@ -7234,10 +7236,8 @@ end if
 mb_resid = Q_s + bmb_tot - calv_tot - front_melt_tot - dV_dt
 !!% (previously) mb_resid = MB - dV_dt
 
-q_gl_tot = 0.0_dp   !!! \!/ STILL TO BE COMPUTED... \!/ !!!
-
-!%% q_gl_tot = q_gl_tot * year2sec
-!%%                        ! m3/s ice equiv. -> m3/a ice equiv.
+q_gl_tot = q_gl_tot * year2sec
+                        ! m3/s ice equiv. -> m3/a ice equiv.
 
 end subroutine scalar_variables
 

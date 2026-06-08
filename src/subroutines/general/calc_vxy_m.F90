@@ -45,7 +45,8 @@ module calc_vxy_m
 
   private
   public :: calc_vxy_b_init, calc_dzs_dxy_aux, &
-            calc_vxy_b_sia, calc_vxy_sia, calc_vxy_static, calc_vxy_ssa
+            calc_vxy_b_sia, calc_vxy_sia, calc_vxy_static, calc_vxy_ssa, &
+            calc_q_gl
 
 contains
 
@@ -1499,22 +1500,6 @@ end do
 
 #endif
 
-!-------- Initialization of the variable q_gl_g
-!         (volume flux across the grounding line, to be
-!         computed in the routine calc_vxy_ssa
-!         if ice shelves are present)
-
-!$omp do
-do ij=1, (IMAX+1)*(JMAX+1)
-
-   i = n2i(ij)   ! i=0...IMAX
-   j = n2j(ij)   ! j=0...JMAX
-
-   q_gl_g(j,i) = 0.0_dp
-
-end do
-!$omp end do
-
 !$omp end parallel
 
 end subroutine calc_vxy_sia
@@ -1600,14 +1585,12 @@ flag_shelfy_stream_x = .false.
 flag_shelfy_stream_y = .false.
 flag_shelfy_stream   = .false.
 
-q_gl_g = 0.0_dp
-
 end subroutine calc_vxy_static
 
 !-------------------------------------------------------------------------------
-!> Computation of the horizontal velocity vx, vy, the horizontal volume flux
-!! qx, qy and the flux across the grounding line q_gl_g in the shallow shelf
-!! approximation (SSA) or the shelfy stream approximation (SStA).
+!> Computation of the horizontal velocity vx, vy, and the
+!! horizontal volume flux qx, qy in the shallow shelf approximation (SSA)
+!! or the shelfy stream approximation (SStA).
 !-------------------------------------------------------------------------------
 subroutine calc_vxy_ssa(dxi, deta, dzeta_c, dzeta_t)
 
@@ -1630,7 +1613,6 @@ real(dp) :: vh_max, vh_max_inv
 real(dp) :: ratio_sl_threshold, ratio_help
 real(dp), dimension(0:JMAX,0:IMAX) :: weigh_stream_x, weigh_stream_y
 real(dp), dimension(0:JMAX,0:IMAX) :: weigh_stream
-real(dp) :: qx_gl_g, qy_gl_g
 logical, dimension(0:JMAX,0:IMAX) :: flag_calc_vxy_ssa_x, flag_calc_vxy_ssa_y
 real(dp) :: v_ref, v_ref_sq_inv
 real(dp) :: v_b_sq
@@ -2346,35 +2328,6 @@ do j=1, JMAX-1
          tau_b(j,i) = c_drag(j,i) * sqrt(v_b_sq)**p_weert_inv(j,i)
       else
          tau_b(j,i) = 0.0_dp
-      end if
-
-#endif /* Normal vs. Tapenade */
-
-   end if
-
-end do
-end do
-
-!-------- Computation of the flux across the grounding line q_gl_g
-
-do i=1, IMAX-1
-do j=1, JMAX-1
-
-   if ( flag_grounding_line_1(j,i) ) then   ! grounding line
-
-      qx_gl_g = 0.5_dp*(qx(j,i)+qx(j,i-1))
-      qy_gl_g = 0.5_dp*(qy(j,i)+qy(j-1,i))
-
-#if !defined(ALLOW_TAPENADE) /* Normal */
-
-      q_gl_g(j,i) = sqrt(qx_gl_g*qx_gl_g+qy_gl_g*qy_gl_g)
-
-#else /* Tapenade: guarding against non-differentiable sqrt(0) */
-
-      if ( (qx_gl_g*qx_gl_g+qy_gl_g*qy_gl_g) > 0 ) then
-         q_gl_g(j,i) = sqrt(qx_gl_g*qx_gl_g+qy_gl_g*qy_gl_g)
-      else
-         q_gl_g(j,i) = 0.0_dp 
       end if
 
 #endif /* Normal vs. Tapenade */
@@ -4328,6 +4281,60 @@ else if (vel_abs > 0.9_dp*vel_max) then
 end if
 
 end subroutine velocity_limiter_gradual
+
+!-------------------------------------------------------------------------------
+!> Computation of the ice flux across the grounding line q_gl_g
+!! (purely diagnostic quantity).
+!-------------------------------------------------------------------------------
+subroutine calc_q_gl(dxi, deta)
+
+implicit none
+
+real(dp), intent(in) :: dxi, deta
+
+integer(i4b) :: i, j, ij
+
+do ij=1, (IMAX+1)*(JMAX+1)
+
+   i = n2i(ij)   ! i=0...IMAX
+   j = n2j(ij)   ! j=0...JMAX
+
+   q_gl_g(j,i) = 0.0_dp
+
+   if (flag_inner_point(j,i).and.flag_grounding_line_1(j,i)) then
+                                       ! inner point, grounding line
+
+      if (flag_grounding_line_2(j,i+1)) then
+         q_gl_g(j,i) = q_gl_g(j,i) &
+                          + max(qx(j,i), 0.0_dp)*(deta*sq_g22_sgx(j,i))
+                          ! counting outflow as positive requires '+' sign here
+      end if
+
+      if (flag_grounding_line_2(j,i-1)) then
+         q_gl_g(j,i) = q_gl_g(j,i) &
+                          - min(qx(j,i-1), 0.0_dp)*(deta*sq_g22_sgx(j,i-1))
+                          ! counting outflow as positive requires '-' sign here
+      end if
+
+      if (flag_grounding_line_2(j+1,i)) then
+         q_gl_g(j,i) = q_gl_g(j,i) &
+                          + max(qy(j,i), 0.0_dp)*(dxi*sq_g11_sgy(j,i))
+                          ! counting outflow as positive requires '+' sign here
+      end if
+
+      if (flag_grounding_line_2(j-1,i)) then
+         q_gl_g(j,i) = q_gl_g(j,i) &
+                          - min(qy(j-1,i), 0.0_dp)*(dxi*sq_g11_sgy(j-1,i))
+                          ! counting outflow as positive requires '-' sign here
+      end if
+
+      q_gl_g(j,i) = q_gl_g(j,i)/cell_area(j,i)
+
+   end if
+
+end do
+
+end subroutine calc_q_gl
 
 !-------------------------------------------------------------------------------
 

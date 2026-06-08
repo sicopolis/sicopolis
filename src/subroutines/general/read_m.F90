@@ -1497,6 +1497,7 @@ contains
         q_w_x(j,i)   = real(q_w_x_conv(i,j),dp)*sec2year
         q_w_y(j,i)   = real(q_w_y_conv(i,j),dp)*sec2year
         H_w(j,i)     = real(H_w_conv(i,j),dp)
+        q_gl_g(j,i)  = real(q_gl_g_conv(i,j),dp)*sec2year
         ratio_sl_sia_x(j,i) = real(ratio_sl_sia_x_conv(i,j),dp)
         ratio_sl_sia_y(j,i) = real(ratio_sl_sia_y_conv(i,j),dp)
         ratio_sl_sia(j,i)   = real(ratio_sl_sia_conv(i,j),dp)

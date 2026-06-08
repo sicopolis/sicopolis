@@ -1961,6 +1961,8 @@ errormsg = ' >>> sico_init: DYNAMICS must be between 0 and 3!'
 call error(errormsg)
 #endif
 
+call calc_q_gl(dxi, deta)
+
 #endif /* (!(ANF_DAT==3) || defined(LEGACY_RESTART)) */
 
 call calc_dxyz(dxi, deta, dzeta_c, dzeta_t)

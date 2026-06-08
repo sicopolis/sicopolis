@@ -1358,7 +1358,7 @@ do j=0, JMAX
    end if
 
    ligroundf_r(i,j)  = q_gl_g_erg(i,j) * (rho/year_to_year_or_sec)
-                                                ! m2/a -> kg/(m*a) | kg/(m*s)
+                                                ! m/a -> kg/(m2*a) | kg/(m2*s)
 
    if ((mask_erg(i,j)==0).or.(mask_erg(i,j)==3)) &
       sftgif_r(i,j)  = 1.0_dp   ! grounded or floating ice
@@ -2839,7 +2839,7 @@ call check( nf90_def_var(ncid, 'ligroundf', NF90_FLOAT, nc3d, ncv, &
 call check( nf90_def_var(ncid, 'ligroundf', NF90_FLOAT, nc3d, ncv) )
 #endif
 
-buffer = 'kg m '//ch_time_unit//'-1'
+buffer = 'kg m-2 '//ch_time_unit//'-1'
 call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
 buffer = 'land_ice_specific_mass_flux_at_grounding_line'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )

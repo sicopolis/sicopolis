@@ -85,6 +85,7 @@ real(sp), dimension(0:IMAX,0:JMAX) :: lambda_erg, phi_erg, &
             temp_s_erg, prec_erg, &
             snowfall_erg, rainfall_erg, pdd_erg, & 
             as_perp_erg, as_perp_apl_erg, smb_corr_erg, &
+            q_gl_g_erg, &
             z_sl_erg, &
             q_geo_erg, &
             zs_erg, zm_erg, zb_erg, zl_erg, zl0_erg, wss_erg, &
@@ -101,7 +102,6 @@ real(sp), dimension(0:IMAX,0:JMAX) :: lambda_erg, phi_erg, &
             temp_b_erg, temph_b_erg, &
             tau_dr_erg, tau_b_erg, &
             p_b_w_erg, q_w_erg, q_w_x_erg, q_w_y_erg, H_w_erg, &
-            q_gl_g_erg, &
             ratio_sl_sia_x_erg, ratio_sl_sia_y_erg, &
             vis_ave_g_erg, vis_int_g_erg
 real(sp), dimension(0:IMAX,0:JMAX) :: r_kc_cts_erg
@@ -159,6 +159,7 @@ real(sp), dimension(0:2*IMAX,0:2*JMAX) :: lambda_dbl, phi_dbl, &
             temp_s_dbl, prec_dbl, &
             snowfall_dbl, rainfall_dbl, pdd_dbl, & 
             as_perp_dbl, as_perp_apl_dbl, smb_corr_dbl, &
+            q_gl_g_dbl, &
             z_sl_dbl, &
             q_geo_dbl, &
             zs_dbl, zm_dbl, zb_dbl, zl_dbl, zl0_dbl, wss_dbl, &
@@ -175,7 +176,6 @@ real(sp), dimension(0:2*IMAX,0:2*JMAX) :: lambda_dbl, phi_dbl, &
             temp_b_dbl, temph_b_dbl, &
             tau_dr_dbl, tau_b_dbl, &
             p_b_w_dbl, q_w_dbl, q_w_x_dbl, q_w_y_dbl, H_w_dbl, &
-            q_gl_g_dbl, &
             ratio_sl_sia_x_dbl, ratio_sl_sia_y_dbl, &
             vis_ave_g_dbl, vis_int_g_dbl
 real(sp), dimension(0:2*IMAX,0:2*JMAX) :: r_kc_cts_dbl
@@ -625,6 +625,16 @@ if (istat == nf90_noerr) then
    call check( nf90_get_var(ncid, ncv, smb_corr_erg) )
 else
    ch_msg = ' >>> read_nc: Variable ''smb_corr'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
+
+istat = nf90_inq_varid(ncid, 'q_gl_g', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, q_gl_g_erg) )
+else
+   ch_msg = ' >>> read_nc: Variable ''q_gl_g'' ' &
           //               end_of_line &
           //'              not available in read nc file!'
    call write_message(ch_msg, 'error')
@@ -1219,16 +1229,6 @@ else
    call write_message(ch_msg, 'error')
 end if
 
-istat = nf90_inq_varid(ncid, 'q_gl_g', ncv)
-if (istat == nf90_noerr) then
-   call check( nf90_get_var(ncid, ncv, q_gl_g_erg) )
-else
-   ch_msg = ' >>> read_nc: Variable ''q_gl_g'' ' &
-          //               end_of_line &
-          //'              not available in read nc file!'
-   call write_message(ch_msg, 'error')
-end if
-
 istat = nf90_inq_varid(ncid, 'ratio_sl_sia_x', ncv)
 if (istat == nf90_noerr) then
    call check( nf90_get_var(ncid, ncv, ratio_sl_sia_x_erg) )
@@ -1662,6 +1662,7 @@ do jj = 0, 2*JMAX, 2
    as_perp_dbl(ii,jj)   = as_perp_erg(i,j)
    as_perp_apl_dbl(ii,jj) = as_perp_apl_erg(i,j)
    smb_corr_dbl(ii,jj)  = smb_corr_erg(i,j)
+   q_gl_g_dbl(ii,jj)    = q_gl_g_erg(i,j)
    z_sl_dbl(ii,jj)      = z_sl_erg(i,j)
 #if (DISC>0)   /* Ice discharge parameterisation */
    dis_perp_dbl(ii,jj)    = dis_perp_erg(i,j)
@@ -1724,7 +1725,6 @@ do jj = 0, 2*JMAX, 2
    q_w_x_dbl(ii,jj)     = q_w_x_erg(i,j)
    q_w_y_dbl(ii,jj)     = q_w_y_erg(i,j)
    H_w_dbl(ii,jj)       = H_w_erg(i,j)
-   q_gl_g_dbl(ii,jj)    = q_gl_g_erg(i,j)
    ratio_sl_sia_x_dbl(ii,jj) = ratio_sl_sia_x_erg(i,j)
    ratio_sl_sia_y_dbl(ii,jj) = ratio_sl_sia_y_erg(i,j)
    vis_ave_g_dbl(ii,jj) = vis_ave_g_erg(i,j)
@@ -1750,6 +1750,7 @@ do jj = 0, 2*JMAX, 2
    as_perp_dbl(ii,jj)   = 0.5*(as_perp_erg(i1,j)+as_perp_erg(i2,j))
    as_perp_apl_dbl(ii,jj) = 0.5*(as_perp_apl_erg(i1,j)+as_perp_apl_erg(i2,j))
    smb_corr_dbl(ii,jj)  = 0.5*(smb_corr_erg(i1,j)+smb_corr_erg(i2,j))
+   q_gl_g_dbl(ii,jj)    = 0.5*(q_gl_g_erg(i1,j)+q_gl_g_erg(i2,j))
    z_sl_dbl(ii,jj)      = 0.5*(z_sl_erg(i1,j)+z_sl_erg(i2,j))
 #if (DISC>0)   /* Ice discharge parameterisation */
    dis_perp_dbl(ii,jj)    = 0.5*(dis_perp_erg(i1,j)+dis_perp_erg(i2,j))
@@ -1814,7 +1815,6 @@ do jj = 0, 2*JMAX, 2
    q_w_x_dbl(ii,jj)     = 0.5*(q_w_x_erg(i1,j)+q_w_x_erg(i2,j))
    q_w_y_dbl(ii,jj)     = 0.5*(q_w_y_erg(i1,j)+q_w_y_erg(i2,j))
    H_w_dbl(ii,jj)       = 0.5*(H_w_erg(i1,j)+H_w_erg(i2,j))
-   q_gl_g_dbl(ii,jj)    = 0.5*(q_gl_g_erg(i1,j)+q_gl_g_erg(i2,j))
    ratio_sl_sia_x_dbl(ii,jj) = 0.5*( ratio_sl_sia_x_erg(i1,j) &
                                     +ratio_sl_sia_x_erg(i2,j))
    ratio_sl_sia_y_dbl(ii,jj) = 0.5*( ratio_sl_sia_y_erg(i1,j) &
@@ -1841,6 +1841,7 @@ do jj = 1, 2*JMAX-1, 2
    as_perp_dbl(ii,jj)   = 0.5*(as_perp_erg(i,j1)+as_perp_erg(i,j2))
    as_perp_apl_dbl(ii,jj) = 0.5*(as_perp_apl_erg(i,j1)+as_perp_apl_erg(i,j2))
    smb_corr_dbl(ii,jj)  = 0.5*(smb_corr_erg(i,j1)+smb_corr_erg(i,j2))
+   q_gl_g_dbl(ii,jj)    = 0.5*(q_gl_g_erg(i,j1)+q_gl_g_erg(i,j2))
    z_sl_dbl(ii,jj)      = 0.5*(z_sl_erg(i,j1)+z_sl_erg(i,j2))
 #if (DISC>0)   /* Ice discharge parameterisation */
    dis_perp_dbl(ii,jj)    = 0.5*(dis_perp_erg(i,j1)+dis_perp_erg(i,j2))
@@ -1905,7 +1906,6 @@ do jj = 1, 2*JMAX-1, 2
    q_w_x_dbl(ii,jj)     = 0.5*(q_w_x_erg(i,j1)+q_w_x_erg(i,j2))
    q_w_y_dbl(ii,jj)     = 0.5*(q_w_y_erg(i,j1)+q_w_y_erg(i,j2))
    H_w_dbl(ii,jj)       = 0.5*(H_w_erg(i,j1)+H_w_erg(i,j2))
-   q_gl_g_dbl(ii,jj)    = 0.5*(q_gl_g_erg(i,j1)+q_gl_g_erg(i,j2))
    ratio_sl_sia_x_dbl(ii,jj) = 0.5*( ratio_sl_sia_x_erg(i,j1) &
                                     +ratio_sl_sia_x_erg(i,j2))
    ratio_sl_sia_y_dbl(ii,jj) = 0.5*( ratio_sl_sia_y_erg(i,j1) &
@@ -1947,6 +1947,8 @@ do jj = 1, 2*JMAX-1, 2
                                   +as_perp_apl_erg(i2,j2) )
    smb_corr_dbl(ii,jj)  = 0.25*( smb_corr_erg(i1,j1)+smb_corr_erg(i2,j1) &
                                 +smb_corr_erg(i1,j2)+smb_corr_erg(i2,j2) )
+   q_gl_g_dbl(ii,jj)    = 0.25*( q_gl_g_erg(i1,j1)+q_gl_g_erg(i2,j1) &
+                                +q_gl_g_erg(i1,j2)+q_gl_g_erg(i2,j2) )
    z_sl_dbl(ii,jj)      = 0.25*( z_sl_erg(i1,j1)+z_sl_erg(i2,j1) &
                                 +z_sl_erg(i1,j2)+z_sl_erg(i2,j2) )
 #if (DISC>0)   /* Ice discharge parameterisation */
@@ -2079,8 +2081,6 @@ do jj = 1, 2*JMAX-1, 2
                                 +q_w_y_erg(i1,j2)+q_w_y_erg(i2,j2) )
    H_w_dbl(ii,jj)       = 0.25*( H_w_erg(i1,j1)+H_w_erg(i2,j1) &
                                 +H_w_erg(i1,j2)+H_w_erg(i2,j2) )
-   q_gl_g_dbl(ii,jj)    = 0.25*( q_gl_g_erg(i1,j1)+q_gl_g_erg(i2,j1) &
-                                +q_gl_g_erg(i1,j2)+q_gl_g_erg(i2,j2) )
    ratio_sl_sia_x_dbl(ii,jj) = 0.25*( ratio_sl_sia_x_erg(i1,j1) &
                                      +ratio_sl_sia_x_erg(i2,j1) &
                                      +ratio_sl_sia_x_erg(i1,j2) &
@@ -3144,6 +3144,26 @@ call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
 buffer = 'land_ice_surface_mass_balance_diagnosed_correction'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Diagnosed correction of the mass balance at the ice surface'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
+!    ---- q_gl_g
+
+call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)) )
+call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)) )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'q_gl_g', NF90_FLOAT, nc2d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle) )
+#else
+call check( nf90_def_var(ncid, 'q_gl_g', NF90_FLOAT, nc2d, ncv) )
+#endif
+
+buffer = 'm a-1'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
+buffer = 'land_ice_volume_flux_across_grounding_line'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
+buffer = 'Volume flux across the grounding line'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
@@ -4315,26 +4335,6 @@ buffer = 'Thickness of the water column under the ice base'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
-!    ---- q_gl_g
-
-call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)) )
-call check( nf90_inq_dimid(ncid, trim(coord_id(2)), nc2d(2)) )
-
-#if (NETCDF4_ENABLED==1)
-call check( nf90_def_var(ncid, 'q_gl_g', NF90_FLOAT, nc2d, ncv, &
-            deflate_level=n_deflate_level, shuffle=flag_shuffle) )
-#else
-call check( nf90_def_var(ncid, 'q_gl_g', NF90_FLOAT, nc2d, ncv) )
-#endif
-
-buffer = 'm2 a-1'
-call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
-buffer = 'land_ice_volume_flux_across_gl'
-call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
-buffer = 'Horizontal volume flux across the grounding line'
-call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
-
 !    ---- ratio_sl_sia_x
 
 call check( nf90_inq_dimid(ncid, trim(coord_id(1)), nc2d(1)) )
@@ -5139,6 +5139,10 @@ call check( nf90_inq_varid(ncid, 'smb_corr', ncv) )
 call check( nf90_put_var(ncid, ncv, smb_corr_dbl, &
                          start=nc2cor_ij, count=nc2cnt_ij) )
 
+call check( nf90_inq_varid(ncid, 'q_gl_g', ncv) )
+call check( nf90_put_var(ncid, ncv, q_gl_g_dbl, &
+                         start=nc2cor_ij, count=nc2cnt_ij) )
+
 call check( nf90_inq_varid(ncid, 'z_sl', ncv) )
 call check( nf90_put_var(ncid, ncv, z_sl_dbl, &
                          start=nc2cor_ij, count=nc2cnt_ij) )
@@ -5370,10 +5374,6 @@ call check( nf90_put_var(ncid, ncv, q_w_y_dbl, &
 
 call check( nf90_inq_varid(ncid, 'H_w', ncv) )
 call check( nf90_put_var(ncid, ncv, H_w_dbl, &
-                         start=nc2cor_ij, count=nc2cnt_ij) )
-
-call check( nf90_inq_varid(ncid, 'q_gl_g', ncv) )
-call check( nf90_put_var(ncid, ncv, q_gl_g_dbl, &
                          start=nc2cor_ij, count=nc2cnt_ij) )
 
 call check( nf90_inq_varid(ncid, 'ratio_sl_sia_x', ncv) )

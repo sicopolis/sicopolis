@@ -312,6 +312,10 @@ contains
   H_c = H_c_new
   H_t = H_t_new
 
+!-------- Ice flux across the grounding line --------
+
+  call calc_q_gl(dxi, deta)
+
 !-------- Auxiliary temperature quantities --------
 
 !  ------ Melting temperature

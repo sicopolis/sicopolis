@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2025-11-17'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2026-06-09'
 !                      Date of last change
 
 !-------- Domain --------
@@ -1095,38 +1095,46 @@
 !                         Width of ice marginal ring (in km)
 !                         (only for DISC>0)
 
-!-------- Retreat masks due to oceanic forcing --------
+!-------- Frontal melting (at grounded, vertical fronts) --------
 
-#define RETREAT_MASK 0
-!                         0 : No retreat masks provided
-!                         1 : Retreat masks provided
+#define FRONTAL_MELTING 0
+!                       0 : No frontal melting
+!                       1 : Parameterization as a function of the
+!                           subglacial discharge and the ocean thermal forcing,
+!                           by ISMIP7-Greenland
 
-#define RETREAT_MASK_DIR 'none'
+#define SGD_TF_DIR 'none'
 !                       Directory for the
-!                       yearly retreat masks due to oceanic forcing
-!                       (for RETREAT_MASK==1)
+!                       subglacial discharge and the ocean thermal forcing
+!                       (for FRONTAL_MELTING==1)
 
-#define RETREAT_MASK_FILES 'none'
-!                       NetCDF files containing the
-!                       yearly retreat masks due to oceanic forcing
+#define SGD_SUBDIR 'none'
+!                       Subdirectory for the subglacial discharge
+!                       (for FRONTAL_MELTING==1)
+
+#define SGD_FILES 'none'
+!                       NetCDF files containing the yearly subglacial discharge
 !                       (without final year number and .nc extension)
-!                       (for RETREAT_MASK==1)
+!                       (for FRONTAL_MELTING==1)
 
-#define RETREAT_MASK_H_REF_FILE 'none'
-!                       NetCDF file containing the
-!                       reference ice thickness for the
-!                       yearly retreat masks due to oceanic forcing
-!                       (for RETREAT_MASK==1)
+#define TF_SUBDIR 'none'
+!                       Subdirectory for the ocean thermal forcing
+!                       (for FRONTAL_MELTING==1)
 
-#define RETREAT_MASK_TIME_MIN -9999
-!                       Minimum time of the yearly retreat masks
-!                       (in year CE)
-!                       (for RETREAT_MASK==1)
+#define TF_FILES 'none'
+!                       NetCDF files containing the yearly ocean thermal forcing
+!                       (without final year number and .nc extension)
+!                       (for FRONTAL_MELTING==1)
 
-#define RETREAT_MASK_TIME_MAX 9999
-!                       Maximum time of the yearly retreat masks
-!                       (in year CE)
-!                       (for RETREAT_MASK==1)
+#define SGD_TF_TIME_MIN -9999
+!                       Minimum time of the yearly subglacial discharge
+!                       and ocean thermal forcing (in year CE)
+!                       (for FRONTAL_MELTING==1)
+
+#define SGD_TF_TIME_MAX 9999
+!                       Maximum time of the yearly subglacial discharge
+!                       and ocean thermal forcing (in year CE)
+!                       (for FRONTAL_MELTING==1)
 
 !-------- Sea level --------
 

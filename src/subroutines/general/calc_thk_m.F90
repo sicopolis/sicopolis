@@ -143,7 +143,7 @@ subroutine calc_thk_sia_expl(time, dtime, dxi, deta)
 
 !$ use omp_lib
 
-#if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
+#if (ICE_SHELF_COLLAPSE_MASK==1)
   use calving_m
 #endif
 
@@ -220,7 +220,7 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
 !  ------ Calving due to prescribed retreat mask
 
-#if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
+#if (ICE_SHELF_COLLAPSE_MASK==1)
    call calving_retreat_mask(time, dtime, i, j)
 #endif
 
@@ -238,7 +238,7 @@ subroutine calc_thk_sia_impl(time, dtime, dxi, deta)
 
 use sico_maths_m
 
-#if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
+#if (ICE_SHELF_COLLAPSE_MASK==1)
   use calving_m
 #endif
 
@@ -471,7 +471,7 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
 !-------- Calving due to prescribed retreat mask --------
 
-#if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
+#if (ICE_SHELF_COLLAPSE_MASK==1)
    call calving_retreat_mask(time, dtime, i, j)
 #endif
 
@@ -489,7 +489,7 @@ subroutine calc_thk_expl(time, dtime, dxi, deta)
 
 !$ use omp_lib
 
-#if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
+#if (ICE_SHELF_COLLAPSE_MASK==1)
   use calving_m
 #endif
 
@@ -597,7 +597,7 @@ do ij=1, (IMAX+1)*(JMAX+1)
 
 !  ------ Calving due to prescribed retreat mask
 
-#if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
+#if (ICE_SHELF_COLLAPSE_MASK==1)
    call calving_retreat_mask(time, dtime, i, j)
 #endif
 

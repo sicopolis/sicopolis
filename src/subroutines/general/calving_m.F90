@@ -117,11 +117,10 @@ contains
 
   end subroutine calving_underwater_ice
 
-#if (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1)
+#if (ICE_SHELF_COLLAPSE_MASK==1)
 !-------------------------------------------------------------------------------
-!> Adjustment of the newly computed ice thickness distribution due to either
-!! the retreat mask due to oceanic forcing or the ice-shelf collapse mask
-!! (counted as calving).
+!> Adjustment of the newly computed ice thickness distribution
+!! due to the ice-shelf collapse mask (counted as calving).
 !-------------------------------------------------------------------------------
   subroutine calving_retreat_mask(time, dtime, i, j)
 
@@ -147,11 +146,7 @@ contains
 
   dHdt_retreat = 0.0_dp   ! initialization
 
-#if (RETREAT_MASK==1)
-  if (H_new(j,i) > 0.0_dp) then
-#elif (ICE_SHELF_COLLAPSE_MASK==1)
   if ((H_new(j,i) > 0.0_dp).and.(mask(j,i)==3)) then
-#endif
 
      dHdt_retreat = -(1.0_dp-r_mask_retreat(j,i))*H_ref_retreat(j,i) &
                                                  *dtime_1year_inv
@@ -169,7 +164,7 @@ contains
 
   end subroutine calving_retreat_mask
 
-#endif   /* (RETREAT_MASK==1 || ICE_SHELF_COLLAPSE_MASK==1) */
+#endif   /* (ICE_SHELF_COLLAPSE_MASK==1) */
 
 !-------------------------------------------------------------------------------
 

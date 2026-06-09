@@ -1148,7 +1148,7 @@ real(dp), dimension(0:JMAX,0:IMAX) :: temp_lti
 
 #endif
 
-!-------- ISMIP6-like climate forcing --------
+!-------- ISMIP6/7-type climate forcing --------
 
 #if (TSURFACE==6 && ACCSURFACE==6 && ABLSURFACE==6)
 
@@ -1203,28 +1203,39 @@ real(dp), dimension(0:7) :: ab_anom_larmip
 
 #endif
 
-!-------- ISMIP6-like oceanic forcing --------
+!-------- ISMIP6/7-type ocean thermal forcing
+!         (for ice-shelf basal melting) --------
 
 #if (FLOATING_ICE_BASAL_MELTING==6)
 
 real(dp), dimension(0:NZ_TF_BM) :: z_tf_bm_present
-   !! Equidistant depth points of the
-   !! present-day thermal forcing data of the ocean
+   !! Equidistant depth points of the present-day ocean thermal forcing
 
 real(dp), dimension(0:NZ_TF_BM,0:JMAX,0:IMAX) :: tf_bm_present
-   !! Present-day thermal forcing data of the ocean
+   !! Present-day ocean thermal forcing
 
 real(dp), dimension(0:NZ_TF_BM) :: z_tf_bm
-   !! Equidistant depth points of the
-   !! thermal forcing data of the ocean
+   !! Equidistant depth points of the ocean thermal forcing
 
 real(dp), dimension(0:NZ_TF_BM,0:JMAX,0:IMAX) :: tf_bm
-   !! Thermal forcing data of the ocean
+   !! Ocean thermal forcing
 
 #endif
 
-!-------- ISMIP6-like prescribed ice-shelf collapse
-!                                or grounded-ice retreat --------
+!-------- ISMIP7-type ocean thermal forcing
+!         (for frontal melting at grounded, vertical fronts) --------
+
+#if (FRONTAL_MELTING==1)
+
+real(dp), dimension(0:JMAX,0:IMAX) :: tf
+   !! Ocean thermal forcing
+
+real(dp), dimension(0:JMAX,0:IMAX) :: sgd
+   !! Subglacial discharge
+
+#endif
+
+!-------- ISMIP6/7-type prescribed ice-shelf collapse --------
 
 #if (defined(ANT) && ICE_SHELF_COLLAPSE_MASK==1) /* Antarctica */
 
@@ -1233,16 +1244,6 @@ real(dp), dimension(0:JMAX,0:IMAX) :: H_ref_retreat
 
 real(dp), dimension(0:JMAX,0:IMAX) :: r_mask_retreat
    !! Ice-shelf collapse mask
-
-#endif
-
-#if (defined(GRL) && RETREAT_MASK==1) /* Greenland */
-
-real(dp), dimension(0:JMAX,0:IMAX) :: H_ref_retreat
-   !! Reference ice thickness for the retreat mask
-
-real(dp), dimension(0:JMAX,0:IMAX) :: r_mask_retreat
-   !! Retreat mask
 
 #endif
 
@@ -1535,17 +1536,17 @@ type(flag_firstcall) :: firstcall
    !! First-call flags for several routines
 
 integer(i4b) :: n_year_CE_surf_clim_save = -9999
-   !! Time (in years CE) for ISMIP6-type surface climate forcing data
+   !! Time (in years CE) for ISMIP6/7-type surface climate forcing data
 
 integer(i4b) :: n_year_CE_bas_melt_save = -9999
    !! Time (in years CE) for the thermal forcing data of the ocean
-   !! for the ISMIP6 non-local sub-ice-shelf melting parameterization
+   !! for the ISMIP6/7 non-local sub-ice-shelf melting parameterization
+
+integer(i4b) :: n_year_CE_front_melt_save = -9999
+   !! Time (in years CE) for the ISMIP7 frontal melting parameterization
 
 integer(i4b) :: n_year_CE_isc_save = -9999
-   !! Time (in years CE) for ISMIP6-type ice-shelf collapse masks
-
-integer(i4b) :: n_year_CE_rtr_save = -9999
-   !! Time (in years CE) for ISMIP6-type ice-sheet retreat masks
+   !! Time (in years CE) for ISMIP6/7-type ice-shelf collapse masks
 
 integer(i4b), dimension(0:99) :: ncid_ser
    !! IDs of the NetCDF time-series output files

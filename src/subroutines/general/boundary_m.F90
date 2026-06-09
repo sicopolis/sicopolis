@@ -154,17 +154,17 @@ real(dp) :: target_topo_tau_inv
 real(dp) :: smb_no_ice
 #endif
 
+#if (FRONTAL_MELTING==1)
+integer(i4b)       :: n_year_CE_front_melt
+character(len= 16) :: ch_year_CE_front_melt
+character(len=256) :: filename_front_melt
+real(dp), dimension(0:IMAX,0:JMAX) :: sgd_conv, tf_conv
+#endif
+
 #if (defined(ANT) && ICE_SHELF_COLLAPSE_MASK==1)
 integer(i4b)       :: n_year_CE_isc
 character(len= 16) :: ch_year_CE_isc
 character(len=256) :: filename_isc
-real(dp), dimension(0:IMAX,0:JMAX) :: r_mask_retreat_conv
-#endif
-
-#if (defined(GRL) && RETREAT_MASK==1)
-integer(i4b)       :: n_year_CE_rtr
-character(len= 16) :: ch_year_CE_rtr
-character(len=256) :: filename_rtr
 real(dp), dimension(0:IMAX,0:JMAX) :: r_mask_retreat_conv
 #endif
 
@@ -1708,7 +1708,138 @@ calving = calving + dis_perp
 
 !-------- Frontal melting --------
 
-frontal_melting = 0.0_dp   ! Initialization
+#if (FRONTAL_MELTING==0)
+
+frontal_melting     = 0.0_dp   ! no frontal melting
+frontal_melting_apl = 0.0_dp   ! no frontal melting
+
+#elif (FRONTAL_MELTING==1)
+
+n_year_CE_front_melt = n_year_CE
+
+if (n_year_CE_front_melt < SGD_TF_TIME_MIN) then
+   n_year_CE_front_melt = SGD_TF_TIME_MIN
+else if (n_year_CE_front_melt > SGD_TF_TIME_MAX) then
+   n_year_CE_front_melt = SGD_TF_TIME_MAX
+end if
+
+if ( firstcall%boundary &
+     .or.(n_year_CE_front_melt /= n_year_CE_front_melt_save) ) then
+
+   write(ch_year_CE_front_melt, '(i0)') n_year_CE_front_melt
+
+!  ------ Subglacial discharge
+
+   if ( (trim(adjustl(SGD_FILES)) /= 'none') &
+        .and. &
+        (trim(adjustl(SGD_FILES)) /= 'None') &
+        .and. &
+        (trim(adjustl(SGD_FILES)) /= 'NONE') ) then
+
+      filename_front_melt = trim(SGD_TF_DIR)//'/'// &
+                            trim(SGD_SUBDIR)//'/'// &
+                            trim(SGD_FILES)//trim(ch_year_CE_front_melt)//'.nc'
+
+      ios = nf90_open(trim(filename_front_melt), NF90_NOWRITE, ncid)
+
+      if (ios /= nf90_noerr) then
+         errormsg = ' >>> boundary: Error when opening the file' &
+                  //                end_of_line &
+                  //'               for the subglacial discharge!'
+         call error(errormsg)
+      end if
+
+      istat1 = nf90_inq_varid(ncid, 'sgd', ncv)
+
+      if (istat1 /= nf90_noerr) then
+         errormsg = ' >>> boundary: Error when inquiring the variable' &
+                  //                end_of_line &
+                  //'               for the subglacial discharge!'
+         call error(errormsg)
+      end if
+
+      call check( nf90_get_var(ncid, ncv, sgd_conv), thisroutine )
+
+      call check( nf90_close(ncid), thisroutine )
+
+   else
+
+      sgd_conv = 0.0_dp
+
+   end if
+
+!  ------ Ocean thermal forcing
+
+   if ( (trim(adjustl(TF_FILES)) /= 'none') &
+        .and. &
+        (trim(adjustl(TF_FILES)) /= 'None') &
+        .and. &
+        (trim(adjustl(TF_FILES)) /= 'NONE') ) then
+
+      filename_front_melt = trim(SGD_TF_DIR)//'/'// &
+                            trim(TF_SUBDIR)//'/'// &
+                            trim(TF_FILES)//trim(ch_year_CE_front_melt)//'.nc'
+
+      ios = nf90_open(trim(filename_front_melt), NF90_NOWRITE, ncid)
+
+      if (ios /= nf90_noerr) then
+         errormsg = ' >>> boundary: Error when opening the file' &
+                  //                end_of_line &
+                  //'               for the ocean thermal forcing!'
+         call error(errormsg)
+      end if
+
+      istat1 = nf90_inq_varid(ncid, 'tf', ncv)
+
+      if (istat1 /= nf90_noerr) then
+         errormsg = ' >>> boundary: Error when inquiring the variable' &
+                  //                end_of_line &
+                  //'               for the ocean thermal forcing!'
+         call error(errormsg)
+      end if
+
+      call check( nf90_get_var(ncid, ncv, tf_conv), thisroutine )
+
+      call check( nf90_close(ncid), thisroutine )
+
+   else
+
+      tf_conv = 0.0_dp
+
+   end if
+
+!  ------ Conversion of all data
+
+   do i=0, IMAX
+   do j=0, JMAX
+
+      sgd(j,i) = sgd_conv(i,j)
+      if ( (sgd(j,i) > r_no_value_pos_1) &
+           .or. &
+           (sgd(j,i) < r_no_value_neg_1) ) &
+         sgd(j,i) = 0.0_dp
+
+      tf(j,i) = tf_conv(i,j)
+      if ( (tf(j,i) > r_no_value_pos_1) &
+           .or. &
+           (tf(j,i) < r_no_value_neg_1) ) &
+         tf(j,i) = 0.0_dp
+
+   end do
+   end do
+
+end if
+
+!  ------ Save value of n_year_CE_front_melt
+
+n_year_CE_front_melt_save = n_year_CE_front_melt
+
+#else
+
+errormsg = ' >>> boundary: FRONTAL_MELTING must be either 0 or 1!'
+call error(errormsg)
+
+#endif
 
 !-------- Antarctica only: Ice-shelf collapse mask --------
 
@@ -1759,56 +1890,6 @@ else if (n_year_CE_isc /= n_year_CE_isc_save) then
 end if
 
 n_year_CE_isc_save = n_year_CE_isc
-
-#endif
-
-!-------- Greenland only: Retreat mask due to oceanic forcing --------
-
-#if (defined(GRL) && RETREAT_MASK==1)
-
-n_year_CE_rtr = n_year_CE
-
-if (n_year_CE_rtr > RETREAT_MASK_TIME_MAX) &
-                       n_year_CE_rtr = RETREAT_MASK_TIME_MAX
-
-if (firstcall%boundary) r_mask_retreat = 1.0_dp   ! initialization
-
-if (n_year_CE_rtr < RETREAT_MASK_TIME_MIN) then
-
-   r_mask_retreat = 1.0_dp
-
-else if (n_year_CE_rtr /= n_year_CE_rtr_save) then
-
-   write(ch_year_CE_rtr, '(i0)') n_year_CE_rtr
-
-   filename_rtr = trim(RETREAT_MASK_DIR)//'/'// &
-                  trim(RETREAT_MASK_FILES)// &
-                  trim(ch_year_CE_rtr)//'.nc'
-
-   ios = nf90_open(trim(filename_rtr), NF90_NOWRITE, ncid)
-
-   if (ios /= nf90_noerr) then
-      errormsg = ' >>> boundary: Error when opening the file for the' &
-               //                end_of_line &
-               //'               retreat mask due to oceanic forcing!'
-      call error(errormsg)
-   end if
-
-   call check( nf90_inq_varid(ncid, 'sftgif', ncv), thisroutine )
-   call check( nf90_get_var(ncid, ncv, r_mask_retreat_conv), thisroutine )
-
-   call check( nf90_close(ncid), thisroutine )
-
-   do i=0, IMAX
-   do j=0, JMAX
-      r_mask_retreat(j,i) = max(min(r_mask_retreat_conv(i,j), 1.0_dp), 0.0_dp)
-                                    ! constrain to interval [0,1]
-   end do
-   end do
-
-end if
-
-n_year_CE_rtr_save = n_year_CE_rtr
 
 #endif
 

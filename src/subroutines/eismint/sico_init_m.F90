@@ -1302,6 +1302,11 @@ write(10, fmt=trim(fmt3)) 'ELA     =', ELA
 #endif
 write(10, fmt=trim(fmt1)) ' '
 
+#if (defined(FRONTAL_MELTING))
+write(10, fmt=trim(fmt2)) 'FRONTAL_MELTING = ', FRONTAL_MELTING
+write(10, fmt=trim(fmt1)) ' '
+#endif
+
 write(10, fmt=trim(fmt2)) 'SEA_LEVEL = ', SEA_LEVEL
 #if (SEA_LEVEL==1)
 write(10, fmt=trim(fmt3)) 'Z_SL0 =', Z_SL0

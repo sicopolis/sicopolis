@@ -540,7 +540,19 @@ call calving_underwater_ice()
 
 !-------- Frontal melting --------
 
-frontal_melting = 0.0_dp   ! Initialization
+#if (FRONTAL_MELTING==0)
+
+frontal_melting     = 0.0_dp   ! no frontal melting
+frontal_melting_apl = 0.0_dp   ! no frontal melting
+
+#else
+
+errormsg = ' >>> boundary: ''FRONTAL_MELTING != 0'' not implemented' &
+         //                end_of_line &
+         //'               for domain ''' //trim(ch_domain_short)//'''!'
+call error(errormsg)
+
+#endif
 
 !-------- First-call flag --------
 

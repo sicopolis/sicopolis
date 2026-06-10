@@ -65,7 +65,7 @@ subroutine boundary(time, dtime, dxi, deta)
   use nc_check_m
 
 #if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
-  use calving_m
+  use frontal_ablation_m
 #endif
 
 #if (defined(GRL) && DISC>0)

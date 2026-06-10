@@ -55,7 +55,7 @@ contains
 subroutine boundary(time, dtime, dxi, deta)
 
 #if ((MARGIN==2) && (MARINE_ICE_FORMATION==2) && (MARINE_ICE_CALVING==9))
-  use calving_m
+  use frontal_ablation_m
 #endif
 
   use mask_update_sea_level_m

@@ -144,7 +144,7 @@ subroutine calc_thk_sia_expl(time, dtime, dxi, deta)
 !$ use omp_lib
 
 #if (ICE_SHELF_COLLAPSE_MASK==1)
-  use calving_m
+  use frontal_ablation_m
 #endif
 
 implicit none
@@ -239,7 +239,7 @@ subroutine calc_thk_sia_impl(time, dtime, dxi, deta)
 use sico_maths_m
 
 #if (ICE_SHELF_COLLAPSE_MASK==1)
-  use calving_m
+  use frontal_ablation_m
 #endif
 
 implicit none
@@ -490,7 +490,7 @@ subroutine calc_thk_expl(time, dtime, dxi, deta)
 !$ use omp_lib
 
 #if (ICE_SHELF_COLLAPSE_MASK==1)
-  use calving_m
+  use frontal_ablation_m
 #endif
 
 implicit none

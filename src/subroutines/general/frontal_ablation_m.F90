@@ -1,8 +1,8 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !
-!  Module :  c a l v i n g _ m
+!  Module :  f r o n t a l _ a b l a t i o n _ m
 !
-!! Calving of grounded or floating ice.
+!! Frontal ablation (calving, frontal melting).
 !!
 !!##### Authors
 !!
@@ -28,9 +28,9 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> Calving of grounded or floating ice.
+!> Frontal ablation (calving, frontal melting).
 !-------------------------------------------------------------------------------
-module calving_m
+module frontal_ablation_m
 
   use sico_types_m
   use sico_variables_m
@@ -168,5 +168,5 @@ contains
 
 !-------------------------------------------------------------------------------
 
-end module calving_m
+end module frontal_ablation_m
 !

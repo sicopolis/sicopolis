@@ -5,7 +5,7 @@
 !
 #define       MODEL_SICOPOLIS
 #define       VERSION '26'
-#define       DATE    '2026-06-09'
+#define       DATE    '2026-06-10'
 !
 !! Main program of SICOPOLIS.
 !!
@@ -99,7 +99,7 @@
 #include "subroutines/general/pdd_m.F90"
 
 #if (MARGIN==2 || MARGIN==3)
-#include "subroutines/general/calving_m.F90"
+#include "subroutines/general/frontal_ablation_m.F90"
 #endif
 
 #if (defined(GRL) && DISC>0)

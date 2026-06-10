@@ -98,9 +98,7 @@
 #include "subroutines/general/flag_update_gf_gl_cf_m.F90"
 #include "subroutines/general/pdd_m.F90"
 
-#if (MARGIN==2 || MARGIN==3)
 #include "subroutines/general/frontal_ablation_m.F90"
-#endif
 
 #if (defined(GRL) && DISC>0)
 #include "subroutines/general/discharge_workers_m.F90"

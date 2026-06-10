@@ -2,11 +2,11 @@
 !
 !  Module :  f r o n t a l _ a b l a t i o n _ m
 !
-!! Frontal ablation (calving, frontal melting).
+!! Frontal ablation (frontal melting, calving).
 !!
 !!##### Authors
 !!
-!! Ralf Greve, Thorben Dunse
+!! Ralf Greve, Thorben Dunse, Nicolas Sartore
 !!
 !!##### License
 !!
@@ -28,7 +28,7 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !-------------------------------------------------------------------------------
-!> Frontal ablation (calving, frontal melting).
+!> Frontal ablation (frontal melting, calving).
 !-------------------------------------------------------------------------------
 module frontal_ablation_m
 
@@ -47,6 +47,124 @@ module frontal_ablation_m
 
 contains
 
+#if (FRONTAL_MELTING==1)
+!-------------------------------------------------------------------------------
+!> Frontal melting (at grounded, vertical fronts).
+!-------------------------------------------------------------------------------
+  subroutine frontal_melting_grounded(my_zl, my_z_sl, dxi, deta)
+
+  implicit none
+
+  real(dp), dimension(0:JMAX,0:IMAX), intent(in) :: my_zl, my_z_sl
+  real(dp),                           intent(in) :: dxi, deta
+
+  integer(i4b) :: i, j, ij
+  real(dp)     :: a_fm, b_fm, alpha_fm, beta_fm
+  real(dp)     :: lambda_fm
+
+  real(dp), dimension(0:JMAX,0:IMAX) :: frontal_area_submerged, H_water
+  real(dp), dimension(0:JMAX,0:IMAX) :: sgd_normalized
+
+  character(len=8) :: ch_i
+  character(len=8) :: ch_j
+
+  a_fm     = 3.0e-04_dp
+  b_fm     = 0.15_dp
+  alpha_fm = 0.39_dp
+  beta_fm  = 1.18_dp
+
+#if (defined(LAMBDA_FRONT_MELT))
+  lambda_fm = real(LAMBDA_FRONT_MELT,dp)
+#else
+  lambda_fm = 1.0_dp
+#endif
+
+  do ij=1, (IMAX+1)*(JMAX+1)
+
+     i = n2i(ij)   ! i=0...IMAX
+     j = n2j(ij)   ! j=0...JMAX
+
+     frontal_melting(j,i)        = 0.0_dp
+     frontal_melting_apl(j,i)    = 0.0_dp
+     frontal_area_submerged(j,i) = 0.0_dp
+     sgd_normalized(j,i)         = 0.0_dp
+
+     H_water(j,i) = max(my_z_sl(j,i)-my_zl(j,i), 0.0_dp)
+                    ! water depth (= submerged depth of grounded ice)
+
+  end do
+
+  do ij=1, (IMAX+1)*(JMAX+1)
+
+     i = n2i(ij)   ! i=0...IMAX
+     j = n2j(ij)   ! j=0...JMAX
+
+     if (flag_inner_point(j,i).and.flag_grounded_front_b_1(j,i)) then
+                              ! inner point, marine-terminating grounded front
+
+        if (flag_grounded_front_b_2(j,i+1)) then
+           frontal_area_submerged(j,i) = frontal_area_submerged(j,i) &
+              + (0.5_dp*(H_water(j,i)+H_water(j,i+1))) &
+                   *(deta*sq_g22_sgx(j,i))
+        end if
+
+        if (flag_grounded_front_b_2(j,i-1)) then
+           frontal_area_submerged(j,i) = frontal_area_submerged(j,i) &
+              + (0.5_dp*(H_water(j,i)+H_water(j,i-1))) &
+                   *(deta*sq_g22_sgx(j,i-1))
+        end if
+
+        if (flag_grounded_front_b_2(j+1,i)) then
+           frontal_area_submerged(j,i) = frontal_area_submerged(j,i) &
+              + (0.5_dp*(H_water(j,i)+H_water(j+1,i))) &
+                   *(dxi*sq_g11_sgy(j,i))
+        end if
+
+        if (flag_grounded_front_b_2(j-1,i)) then
+           frontal_area_submerged(j,i) = frontal_area_submerged(j,i) &
+              + (0.5_dp*(H_water(j,i)+H_water(j-1,i))) &
+                   *(dxi*sq_g11_sgy(j-1,i))
+        end if
+
+        if (frontal_area_submerged(j,i) < eps_dp) then
+           write (ch_i, '(i0)') i; ch_i = adjustl(ch_i)
+           write (ch_j, '(i0)') j; ch_j = adjustl(ch_j)
+           errormsg = ' >>> frontal_melting_grounded: ' &
+                    //         end_of_line &
+                    //'        Non-zero area ''frontal_area_submerged(j,i)''' &
+                    //         end_of_line &
+                    //'        could not be determined for (i,j) =' &
+                    //       ' ('//trim(ch_i)//','//trim(ch_j)//')!'
+           call error(errormsg)
+        end if
+
+        sgd_normalized(j,i) = (sgd(j,i)/frontal_area_submerged(j,i)) &
+                                 * day2sec   ! m/s -> m/d
+
+        frontal_melting(j,i) = ( a_fm * H_water(j,i) &
+                                      * sgd_normalized(j,i)**alpha_fm + b_fm ) &
+                               * tf(j,i)**beta_fm
+
+        frontal_melting(j,i) = frontal_melting(j,i) &
+                                  * sec2day * lambda_fm   ! m/d -> m/s, scaling
+
+        frontal_melting(j,i) = frontal_melting(j,i) &
+                                  * (frontal_area_submerged(j,i)/cell_area(j,i))
+                                       ! m/s = m3/(m2*s) per vertical area
+                                       ! -> m/s = m3/(m2*s) per horizontal area
+
+        frontal_melting_apl(j,i) = frontal_melting(j,i)
+                        ! this is preliminary;
+                        ! will be corrected upon applying frontal melting
+ 
+     end if
+
+  end do
+
+  end subroutine frontal_melting_grounded
+
+#endif   /* (FRONTAL_MELTING==1) */
+
 !-------------------------------------------------------------------------------
 !> Calving of grounded "underwater ice".
 !-------------------------------------------------------------------------------
@@ -54,11 +172,12 @@ contains
 
   implicit none
 
-  real(dp)                           :: rhosw_rho_ratio
-  real(dp)                           :: calv_uw_coeff, r1_calv_uw, r2_calv_uw
-  real(dp)                           :: H0_flt
-  real(dp), dimension(0:JMAX,0:IMAX) :: H_sea, calv_uw_ice
-  integer(i4b)                       :: i, j
+  integer(i4b) :: i, j, ij
+  real(dp)     :: rhosw_rho_ratio
+  real(dp)     :: calv_uw_coeff, r1_calv_uw, r2_calv_uw
+  real(dp)     :: H0_flt
+
+  real(dp), dimension(0:JMAX,0:IMAX) :: H_water, calv_uw_ice
 
 !-------- Term abbreviations --------
 
@@ -93,27 +212,26 @@ contains
   H0_flt = 0.0_dp
 #endif
 
-!-------- Sea depth --------
-
-  H_sea = max(z_sl - zl, 0.0_dp)   ! sea depth
-
 !-------- Calving of "underwater ice" --------
 
-  do i=0, IMAX
-  do j=0, JMAX
+  do ij=1, (IMAX+1)*(JMAX+1)
+
+     i = n2i(ij)   ! i=0...IMAX
+     j = n2j(ij)   ! j=0...JMAX
+
+     calv_uw_ice(j,i) = 0.0_dp
+
+     H_water(j,i) = max(z_sl(j,i)-zl(j,i), 0.0_dp)   ! water depth
 
      if ( (mask(j,i) == 0) &
-          .and. (H(j,i) < rhosw_rho_ratio*H_sea(j,i)+H0_flt) ) then
+          .and. (H(j,i) < rhosw_rho_ratio*H_water(j,i)+H0_flt) ) then
         calv_uw_ice(j,i) = calv_uw_coeff &
-                           * H(j,i)**r1_calv_uw * H_sea(j,i)**r2_calv_uw
-     else
-        calv_uw_ice(j,i) = 0.0_dp
+                           * H(j,i)**r1_calv_uw * H_water(j,i)**r2_calv_uw
      end if
 
-  end do
-  end do
+     calving(j,i) = calving(j,i) + calv_uw_ice(j,i)
 
-  calving = calving + calv_uw_ice
+  end do
 
   end subroutine calving_underwater_ice
 

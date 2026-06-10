@@ -1382,6 +1382,12 @@ real(dp) :: year2sec
 real(dp) :: sec2year
    !! 1 second in years
 
+real(dp) :: day2sec
+   !! 1 day (1 d) in seconds
+
+real(dp) :: sec2day
+   !! 1 second in days
+
 real(dp) :: year_zero
    !! SICOPOLIS year zero in astronomical year numbering
    !! [ = signed year CE (AD) ]

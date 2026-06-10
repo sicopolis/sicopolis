@@ -1814,15 +1814,21 @@ if ( firstcall%boundary &
    do j=0, JMAX
 
       sgd(j,i) = sgd_conv(i,j)
+
       if ( (sgd(j,i) > r_no_value_pos_1) &
            .or. &
-           (sgd(j,i) < r_no_value_neg_1) ) &
+           (sgd(j,i) < 0.0_dp) &
+           .or. &
+           isnan(sgd(j,i)) ) &
          sgd(j,i) = 0.0_dp
 
       tf(j,i) = tf_conv(i,j)
+
       if ( (tf(j,i) > r_no_value_pos_1) &
            .or. &
-           (tf(j,i) < r_no_value_neg_1) ) &
+           (tf(j,i) < 0.0_dp) &
+           .or. &
+           isnan(tf(j,i)) ) &
          tf(j,i) = 0.0_dp
 
    end do

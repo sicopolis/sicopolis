@@ -214,6 +214,9 @@ year2sec = 3.1556925445e+07_dp
 
 sec2year = 1.0_dp/year2sec
 
+day2sec = 86400.0_dp
+sec2day = 1.0_dp/day2sec
+
 #if (defined(PARAM_RHO_I))
 RHO_I = real(PARAM_RHO_I,dp)
 #else

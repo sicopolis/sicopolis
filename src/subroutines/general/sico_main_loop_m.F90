@@ -73,6 +73,9 @@ contains
   use calc_dxyz_m
   use calc_gia_m
   use calc_thk_m
+#if (FRONTAL_MELTING==1)
+  use frontal_ablation_m
+#endif
   use calc_temp_aux_m
   use calc_bas_melt_m
   use calc_thk_water_bas_m
@@ -256,9 +259,11 @@ contains
   
   call calc_dxyz(dxi, deta, dzeta_c, dzeta_t)
   
-!-------- Glacial isostatic adjustment and ice topography --------
+!-------- Glacial isostatic adjustment --------
   
   call calc_gia(time, dtime, dxi, deta, itercount, iter_wss)
+  
+!-------- Ice topography --------
   
   call calc_thk_init()
   
@@ -301,6 +306,12 @@ contains
   call account_mb_source(dtime)
 
   call flag_update_gf_gl_cf()
+
+#if (FRONTAL_MELTING==1)
+  call frontal_melting_grounded(zl_new, z_sl, dxi, deta)
+       !!! \!/ So far, the frontal melting rate is only computed,
+       !!!             but not yet applied... \!/
+#endif
 
 !  ------ New values -> old values
   

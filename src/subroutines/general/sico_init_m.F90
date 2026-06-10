@@ -311,6 +311,9 @@ year2sec = 3.1556925445e+07_dp
 
 sec2year = 1.0_dp/year2sec
 
+day2sec = 86400.0_dp
+sec2day = 1.0_dp/day2sec
+
 #if (defined(PARAM_RHO))
 RHO = real(PARAM_RHO,dp)
 #else
@@ -1948,6 +1951,9 @@ write(10, fmt=trim(fmt1)) 'TF_SUBDIR  = '//TF_SUBDIR
 write(10, fmt=trim(fmt1)) 'TF_FILES   = '//TF_FILES
 write(10, fmt=trim(fmt2)) 'SGD_TF_TIME_MIN = ', SGD_TF_TIME_MIN
 write(10, fmt=trim(fmt2)) 'SGD_TF_TIME_MAX = ', SGD_TF_TIME_MAX
+#if (defined(LAMBDA_FRONT_MELT))
+write(10, fmt=trim(fmt3)) 'LAMBDA_FRONT_MELT =', LAMBDA_FRONT_MELT
+#endif
 #endif
 write(10, fmt=trim(fmt1)) ' '
 #endif

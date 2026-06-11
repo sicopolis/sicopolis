@@ -60,7 +60,7 @@ contains
 
   integer(i4b) :: i, j, ij
   real(dp)     :: a_fm, b_fm, alpha_fm, beta_fm
-  real(dp)     :: lambda_fm
+  real(dp)     :: lambda_a_fm, lambda_b_fm
 
   real(dp), dimension(0:JMAX,0:IMAX) :: frontal_area_submerged, H_water
   real(dp), dimension(0:JMAX,0:IMAX) :: sgd_normalized
@@ -73,11 +73,20 @@ contains
   alpha_fm = 0.39_dp
   beta_fm  = 1.18_dp
 
-#if (defined(LAMBDA_FRONT_MELT))
-  lambda_fm = real(LAMBDA_FRONT_MELT,dp)
+#if (defined(LAMBDA_A_FRONT_MELT))
+  lambda_a_fm = real(LAMBDA_A_FRONT_MELT,dp)
 #else
-  lambda_fm = 1.0_dp
+  lambda_a_fm = 1.0_dp
 #endif
+
+#if (defined(LAMBDA_B_FRONT_MELT))
+  lambda_b_fm = real(LAMBDA_B_FRONT_MELT,dp)
+#else
+  lambda_b_fm = 1.0_dp
+#endif
+
+  a_fm = a_fm * lambda_a_fm   ! scaling of the coefficients
+  b_fm = b_fm * lambda_b_fm   ! of the parameterization
 
   do ij=1, (IMAX+1)*(JMAX+1)
 
@@ -145,8 +154,7 @@ contains
                                       * sgd_normalized(j,i)**alpha_fm + b_fm ) &
                                * tf(j,i)**beta_fm
 
-        frontal_melting(j,i) = frontal_melting(j,i) &
-                                  * sec2day * lambda_fm   ! m/d -> m/s, scaling
+        frontal_melting(j,i) = frontal_melting(j,i) * sec2day   ! m/d -> m/s
 
         frontal_melting(j,i) = frontal_melting(j,i) &
                                   * (frontal_area_submerged(j,i)/cell_area(j,i))

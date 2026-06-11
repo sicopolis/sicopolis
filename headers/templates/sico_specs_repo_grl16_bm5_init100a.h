@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2026-06-09'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2026-06-11'
 !                      Date of last change
 
 !-------- Domain --------
@@ -1135,6 +1135,14 @@
 !                       Maximum time of the yearly subglacial discharge
 !                       and ocean thermal forcing (in year CE)
 !                       (for FRONTAL_MELTING==1)
+
+#define LAMBDA_A_FRONT_MELT 1.0d0
+!                       Scaling factor for the coefficient 'a'
+!                       of the ISMIP7 parameterization
+
+#define LAMBDA_B_FRONT_MELT 1.0d0
+!                       Scaling factor for the coefficient 'b'
+!                       of the ISMIP7 parameterization
 
 !-------- Sea level --------
 

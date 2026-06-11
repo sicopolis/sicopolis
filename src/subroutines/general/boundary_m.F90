@@ -1817,18 +1817,14 @@ if ( firstcall%boundary &
 
       if ( (sgd(j,i) > r_no_value_pos_1) &
            .or. &
-           (sgd(j,i) < 0.0_dp) &
-           .or. &
-           isnan(sgd(j,i)) ) &
+           (sgd(j,i) < 0.0_dp) ) &
          sgd(j,i) = 0.0_dp
 
       tf(j,i) = tf_conv(i,j)
 
       if ( (tf(j,i) > r_no_value_pos_1) &
            .or. &
-           (tf(j,i) < 0.0_dp) &
-           .or. &
-           isnan(tf(j,i)) ) &
+           (tf(j,i) < 0.0_dp) ) &
          tf(j,i) = 0.0_dp
 
    end do

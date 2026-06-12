@@ -1815,11 +1815,13 @@ end subroutine ocean_connect
   real(dp), intent(in) :: dtime
 
   integer(i4b) :: i, j, ij
-  real(dp)     :: dtime_inv
+  real(dp)     :: dtime_inv, H_inv
 
   real(dp), dimension(0:JMAX,0:IMAX) :: H_water
 
   dtime_inv = 1.0_dp/dtime
+
+!-------- Apply frontal melting --------
 
   do ij=1, (IMAX+1)*(JMAX+1)
 
@@ -1834,6 +1836,8 @@ end subroutine ocean_connect
      if (flag_inner_point(j,i).and.flag_grounded_front_b_1(j,i)) then
                               ! inner point, marine-terminating grounded front
 
+!  ------ Update 'H_new' for frontal melting
+
         H_new(j,i) = H_new(j,i) - dtime * frontal_melting(j,i)
 
         if (H_new(j,i) < H_water(j,i)) then
@@ -1841,8 +1845,36 @@ end subroutine ocean_connect
                                          - (H_water(j,i)-H_new(j,i))*dtime_inv
            H_new(j,i) = H_water(j,i)
         end if
-        
+
+!  ------ Update 'zs_new'
+
         zs_new(j,i) = zl_new(j,i) + H_new(j,i)
+
+!  ------ Update 'H_c_new', 'H_t_new', 'zm_new'
+
+        if (n_cts(j,i) == 1) then
+           if (H(j,i) > 0.0_dp) then
+              H_inv        = 1.0_dp/H(j,i)
+              H_c_new(j,i) = H_c(j,i) * H_new(j,i)*H_inv
+              H_t_new(j,i) = H_t(j,i) * H_new(j,i)*H_inv
+           else
+              H_c_new(j,i) = 0.99_dp * H_new(j,i)  ! this case should not occur,
+              H_t_new(j,i) = 0.01_dp * H_new(j,i)  ! just for safety
+           end if
+           zm_new(j,i) = zb_new(j,i)+H_t_new(j,i)
+        else
+           H_c_new(j,i) = H_new(j,i)
+           H_t_new(j,i) = 0.0_dp
+           zm_new(j,i)  = zb_new(j,i)
+        end if
+
+!  ------ Update time derivatives
+
+        dzs_dtau(j,i)  = (zs_new(j,i)-zs(j,i))*dtime_inv
+        dzb_dtau(j,i)  = (zb_new(j,i)-zb(j,i))*dtime_inv
+        dzm_dtau(j,i)  = dH_t_dtau(j,i)+dzb_dtau(j,i)
+        dH_dtau(j,i)   = (H_new(j,i)-H(j,i))*dtime_inv
+        dH_c_dtau(j,i) = dzs_dtau(j,i)-dzm_dtau(j,i)
 
      end if
 

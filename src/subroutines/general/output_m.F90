@@ -7074,12 +7074,12 @@ do j=0, JMAX
            .or.(mask(j,i)==3).or.(mask_old(j,i)==3) &
          ) &   ! grounded or floating ice before or after the time step
          Q_b = Q_b + Q_bm(j,i) * cell_area(j,i)
-                                 !!% Also *_apl required (or delete?)
+                                 !%% Also *_apl required (or delete?)
 
       if ( (mask(j,i)==0).or.(mask_old(j,i)==0) &
          ) &   ! grounded ice before or after the time step
          Q_temp = Q_temp + Q_tld(j,i) * cell_area(j,i)
-                                        !!% Also *_apl required (or delete?)
+                                        !%% Also *_apl required (or delete?)
 
    end if
 
@@ -7102,7 +7102,7 @@ do j=0, JMAX
            .or.(mask(j,i)==3).or.(mask_old(j,i)==3) ) then
                ! grounded or floating ice before or after the time step
          dV_dt = dV_dt + (dzs_dtau(j,i)-dzb_dtau(j,i))*cell_area(j,i)
-                 !!% change to more direct, V_tot-based computation?
+                 !%% change to more direct, V_tot-based computation?
       end if
 
       precip_tot = precip_tot + accum_apl(j,i)*cell_area(j,i)
@@ -7228,13 +7228,12 @@ front_melt_tot = front_melt_tot * year2sec
                         ! m3/s ice equiv. -> m3/a ice equiv.
 
 if (precip_tot /= 0.0_dp) then
-   mbp = calv_tot/precip_tot
+   mbp = (calv_tot+front_melt_tot)/precip_tot
 else
    mbp = 0.0_dp
 end if
 
-mb_resid = Q_s + bmb_tot - calv_tot - front_melt_tot - dV_dt
-!!% (previously) mb_resid = MB - dV_dt
+mb_resid = Q_s + bmb_tot - ( calv_tot + front_melt_tot ) - dV_dt
 
 q_gl_tot = q_gl_tot * year2sec
                         ! m3/s ice equiv. -> m3/a ice equiv.

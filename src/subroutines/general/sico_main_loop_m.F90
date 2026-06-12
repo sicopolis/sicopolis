@@ -309,8 +309,9 @@ contains
 
 #if (FRONTAL_MELTING==1)
   call frontal_melting_grounded(zl_new, z_sl, dxi, deta)
-       !!! \!/ So far, the frontal melting rate is only computed,
-       !!!             but not yet applied... \!/
+       ! compute frontal melting rate
+  call apply_frontal_melting_grounded(dtime)
+       ! apply frontal melting rate
 #endif
 
 !  ------ New values -> old values

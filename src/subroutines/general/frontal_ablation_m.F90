@@ -94,7 +94,6 @@ contains
      j = n2j(ij)   ! j=0...JMAX
 
      frontal_melting(j,i)        = 0.0_dp
-     frontal_melting_apl(j,i)    = 0.0_dp
      frontal_area_submerged(j,i) = 0.0_dp
      sgd_normalized(j,i)         = 0.0_dp
 
@@ -160,10 +159,6 @@ contains
                                   * (frontal_area_submerged(j,i)/cell_area(j,i))
                                        ! m/s = m3/(m2*s) per vertical area
                                        ! -> m/s = m3/(m2*s) per horizontal area
-
-        frontal_melting_apl(j,i) = frontal_melting(j,i)
-                        ! this is preliminary;
-                        ! will be corrected upon applying frontal melting
  
      end if
 

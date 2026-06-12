@@ -6,7 +6,7 @@
 !!
 !!##### Authors
 !!
-!! Ralf Greve, Reinhard Calov, Tatsuru Sato
+!! Ralf Greve, Reinhard Calov, Tatsuru Sato, Nicolas Sartore
 !!
 !!##### License
 !!
@@ -1701,7 +1701,7 @@ end subroutine ocean_connect
 !> Determination of the several components of the mass balance:
 !! Accumulation (precipitation), runoff, net SMB, calving, basal melt. 
 !-------------------------------------------------------------------------------
-subroutine account_mb_source(dtime)
+  subroutine account_mb_source(dtime)
 
   implicit none
 
@@ -1803,7 +1803,52 @@ subroutine account_mb_source(dtime)
   end do
   end do
 
-end subroutine account_mb_source
+  end subroutine account_mb_source
+
+!-------------------------------------------------------------------------------
+!> Applying the frontal melting rate (at grounded fronts).
+!-------------------------------------------------------------------------------
+  subroutine apply_frontal_melting_grounded(dtime)
+
+  implicit none
+
+  real(dp), intent(in) :: dtime
+
+  integer(i4b) :: i, j, ij
+  real(dp)     :: dtime_inv
+
+  real(dp), dimension(0:JMAX,0:IMAX) :: H_water
+
+  dtime_inv = 1.0_dp/dtime
+
+  do ij=1, (IMAX+1)*(JMAX+1)
+
+     i = n2i(ij)   ! i=0...IMAX
+     j = n2j(ij)   ! j=0...JMAX
+
+     frontal_melting_apl(j,i) = frontal_melting(j,i)
+
+     H_water(j,i) = max(z_sl(j,i)-zl_new(j,i), 0.0_dp)
+                    ! water depth (= submerged depth of grounded ice)
+
+     if (flag_inner_point(j,i).and.flag_grounded_front_b_1(j,i)) then
+                              ! inner point, marine-terminating grounded front
+
+        H_new(j,i) = H_new(j,i) - dtime * frontal_melting(j,i)
+
+        if (H_new(j,i) < H_water(j,i)) then
+           frontal_melting_apl(j,i) = frontal_melting_apl(j,i) &
+                                         - (H_water(j,i)-H_new(j,i))*dtime_inv
+           H_new(j,i) = H_water(j,i)
+        end if
+        
+        zs_new(j,i) = zl_new(j,i) + H_new(j,i)
+
+     end if
+
+  end do
+
+  end subroutine apply_frontal_melting_grounded
 
 !-------------------------------------------------------------------------------
 

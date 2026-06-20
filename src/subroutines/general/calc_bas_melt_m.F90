@@ -653,7 +653,7 @@ end if
 
 #endif
 
-!  ------ Correction for ISMIP6 LARMIP
+!  ------ Correction for ISMIP6/7 LARMIP
 
 #if (defined(ANT)) /* Antarctic ice sheet */
 
@@ -667,7 +667,7 @@ end if
 end subroutine sub_ice_shelf_melting_param_1
 
 !-------------------------------------------------------------------------------
-!> Non-local sub-ice-shelf melting parameterization by ISMIP6.
+!> Non-local sub-ice-shelf melting parameterization by ISMIP6/7.
 !-------------------------------------------------------------------------------
 subroutine sub_ice_shelf_melting_param_2(time, time_in_years, &
                                          rhow_rho_ratio, z_abyssal, &
@@ -696,6 +696,7 @@ integer(i4b), intent(in) :: n_year_CE
 integer(i4b) :: i, j, n
 
 integer(i4b)       :: ios
+integer(i4b)       :: istat, istat1, istat2
 integer(i4b)       :: n_year_CE_bas_melt
 character(len= 16) :: ch_year_CE
 character(len=256) :: filename_with_path
@@ -785,10 +786,31 @@ if ( firstcall%sub_ice_shelf_melting_param_2 &
          call error(errormsg)
       end if
 
-      call check( nf90_inq_varid(ncid, 'z', ncv) )
+      istat = nf90_inq_varid(ncid, 'z', ncv)
+      if (istat /= nf90_noerr) then
+         errormsg = ' >>> sub_ice_shelf_melting_param_2:' &
+                  //                end_of_line &
+                  //'               Error when inquiring the variable' &
+                  //                end_of_line &
+                  //'               for the vertical coordinate!'
+         call error(errormsg)
+      end if
+
       call check( nf90_get_var(ncid, ncv, z_tf_bm) )
 
-      call check( nf90_inq_varid(ncid, 'thermal_forcing', ncv), thisroutine )
+      istat1 = nf90_inq_varid(ncid, 'thermal_forcing', ncv)
+      if (istat1 /= nf90_noerr) then
+         istat2 = nf90_inq_varid(ncid, 'tf', ncv)
+         if (istat2 /= nf90_noerr) then
+            errormsg = ' >>> sub_ice_shelf_melting_param_2:' &
+                     //                end_of_line &
+                     //'               Error when inquiring the variable' &
+                     //                end_of_line &
+                     //'               for the thermal forcing!'
+            call error(errormsg)
+         end if
+      end if
+
       call check( nf90_get_var(ncid, ncv, tf_bm_aux), thisroutine )
 
       call check( nf90_close(ncid), thisroutine )
@@ -803,11 +825,17 @@ if ( firstcall%sub_ice_shelf_melting_param_2 &
       do i=0, IMAX
       do j=0, JMAX
       do n=0, NZ_TF_BM
-         if (isnan(tf_bm_aux(i,j,n))) then
+
+         tf_bm(n,j,i) = tf_bm_aux(i,j,n)
+
+         if (tf_bm(n,j,i) > r_no_value_pos_1) &
             tf_bm(n,j,i) = r_no_value_neg_2
-         else
-            tf_bm(n,j,i) = tf_bm_aux(i,j,n)
-         end if
+
+         if (isnan(tf_bm(n,j,i))) &
+            tf_bm(n,j,i) = r_no_value_neg_2
+               !%% \!/ 'isnan' checks don't work reliably
+               !%%     when using aggressive maths optimization \!/
+
       end do
       end do
       end do
@@ -1038,7 +1066,7 @@ do j=0, JMAX
 
 #endif
 
-!    ---- Correction for ISMIP6 LARMIP
+!    ---- Correction for ISMIP6/7 LARMIP
 
 #if (defined(ANT)) /* Antarctic ice sheet */
 

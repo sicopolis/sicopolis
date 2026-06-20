@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2025-11-17'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2026-06-20'
 !                      Date of last change
 
 !-------- Domain --------
@@ -1251,7 +1251,7 @@
 !                           thermal forcing, by
 !                           Greve and Galton-Fenzi (doi: 10.5281/zenodo.4766982)
 !                       6 : Sector-wise parameterization as a function of the
-!                           thermal forcing, by ISMIP6-Antarctica
+!                           thermal forcing, by ISMIP6/7-Antarctica
 
 #define QBM_FLOAT_1 2.0d0
 !                       Basal melting rate for the continental shelf,
@@ -1350,7 +1350,7 @@
 !                       Depth spacing of the thermal forcing data, in m
 !                       (for FLOATING_ICE_BASAL_MELTING==6)
 
-!  ------ Special ISMIP6 InitMIP setting
+!  ------ Special ISMIP6 InitMIP and ISMIP6/7 LARMIP settings
 
 #define INITMIP_BMB_ANOM_FILE 'basal_melt_anomaly_64km_ISMIP6.nc'
 !                       Name of the file containing the
@@ -1360,7 +1360,7 @@
 
 #define LARMIP_REGIONS_FILE 'none'
 !                       Name of the file containing the
-!                       regions for ISMIP6 LARMIP
+!                       regions for ISMIP6/7 LARMIP
 !                       (for FLOATING_ICE_BASAL_MELTING==4,5,6;
 !                        'none' if not used)
 

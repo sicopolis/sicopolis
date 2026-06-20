@@ -109,7 +109,7 @@ real(dp),     intent(out) :: dxi, deta, dzeta_c, dzeta_t, dzeta_r
 
 integer(i4b) :: i, j, kc, kt, kr, m, n, ir, jr, n1, n2
 integer(i4b) :: ios, ios1, ios2, ios3, ios4
-integer(i4b) :: istat, ierr
+integer(i4b) :: istat, istat1, istat2, ierr
 integer(i4b) :: n_q_geo_mod
 integer(i4b) :: itercount
 real(dp) :: dtime0, dtime_temp0, dtime_wss0, dtime_out0, dtime_ser0
@@ -2593,10 +2593,33 @@ if (ios /= nf90_noerr) then
    call error(errormsg)
 end if
 
-call check( nf90_inq_varid(ncid, 'z', ncv) )
+istat = nf90_inq_varid(ncid, 'z', ncv)
+if (istat /= nf90_noerr) then
+   errormsg = ' >>> sico_init: Error when inquiring the variable' &
+            //                 end_of_line &
+            //'                for the vertical coordinate' &
+            //                 end_of_line &
+            //'                for the present-day thermal forcing' &
+            //                 end_of_line &
+            //'                of the ocean!'
+   call error(errormsg)
+end if
+
 call check( nf90_get_var(ncid, ncv, z_tf_bm_present) )
 
-call check( nf90_inq_varid(ncid, 'thermal_forcing', ncv) )
+istat1 = nf90_inq_varid(ncid, 'thermal_forcing', ncv)
+if (istat1 /= nf90_noerr) then
+   istat2 = nf90_inq_varid(ncid, 'tf', ncv)
+   if (istat2 /= nf90_noerr) then
+      errormsg = ' >>> sico_init: Error when inquiring the variable' &
+               //                 end_of_line &
+               //'                for the present-day thermal forcing' &
+            //                    end_of_line &
+            //'                   of the ocean!'
+      call error(errormsg)
+   end if
+end if
+
 call check( nf90_get_var(ncid, ncv, tf_bm_present_aux) )
 
 call check( nf90_close(ncid) )
@@ -2607,12 +2630,18 @@ if ( (z_tf_bm_present(0) < eps_dp).and.(z_tf_bm_present(NZ_TF_BM) < eps_dp) ) &
 do i=0, IMAX
 do j=0, JMAX
 do n=0, NZ_TF_BM
-   if (isnan(tf_bm_present_aux(i,j,n))) then
+
+   tf_bm_present(n,j,i) = tf_bm_present_aux(i,j,n)
+                          ! swap indices -> SICOPOLIS standard
+
+   if (tf_bm_present(n,j,i) > r_no_value_pos_1) &
       tf_bm_present(n,j,i) = r_no_value_neg_2
-   else
-      tf_bm_present(n,j,i) = tf_bm_present_aux(i,j,n)
-                             ! swap indices -> SICOPOLIS standard
-   end if
+
+   if (isnan(tf_bm_present(n,j,i))) &
+      tf_bm_present(n,j,i) = r_no_value_neg_2
+         !%% \!/ 'isnan' checks don't work reliably
+         !%%     when using aggressive maths optimization \!/
+
 end do
 end do
 end do

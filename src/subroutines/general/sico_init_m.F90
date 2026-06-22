@@ -2575,6 +2575,38 @@ call read_2d_input(filename_with_path, &
 
 n_bm_region = nint(field2d_aux)
 
+if ( .not.((minval(n_bm_region)==1) &
+           .and. &
+           (maxval(n_bm_region)==N_BM_REGIONS)) ) then
+
+   if ( (minval(n_bm_region)==0) &
+        .and. &
+        (maxval(n_bm_region)==(N_BM_REGIONS-1)) ) then
+
+      n_bm_region = n_bm_region + 1
+
+      warningmsg = ' >>> sico_init:' &
+                 //         end_of_line &
+                 //'        Region numbers in ''n_bm_region'' run from' &
+                 //         end_of_line &
+                 //'        0 to (N_BM_REGIONS-1).' &
+                 //         end_of_line &
+                 //'        Corrected to interval [1, N_BM_REGIONS].'
+      call warning(warningmsg)
+
+   else
+
+      errormsg = ' >>> sico_init:' &
+               //         end_of_line &
+               //'        Range of region numbers in ''n_bm_region'' wrong.' &
+               //         end_of_line &
+               //'        Must be between 1 and N_BM_REGIONS!'
+      call error(errormsg)
+
+   end if
+
+end if
+
 #endif
 
 !  ------ Read file with the present-day thermal forcing data of the ocean

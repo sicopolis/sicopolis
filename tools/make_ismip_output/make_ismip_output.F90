@@ -30,13 +30,13 @@
 
 !-------- Settings --------
 
-#define TIME_UNIT 2
+#define TIME_UNIT 1
 !                     Time unit of ISMIP7 output to be generated:
 !                      1 - days for time itself, seconds for other
 !                          time-dependent variables (ISMIP7 default)
 !                      2 - years
 
-#define YEAR_REF 1990
+#define YEAR_REF 1850
 !                     Reference year for the day count (for TIME_UNIT==1)
 
 !-------- Inclusion of specification header --------
@@ -1559,23 +1559,38 @@ end if
 buffer = 'ISMIP7 output of simulation '//trim(run_name)
 call check( nf90_put_att(ncid, NF90_GLOBAL, 'title', trim(buffer)) )
 
-call set_ch_institution(buffer)
-call check( nf90_put_att(ncid, NF90_GLOBAL, 'institution', trim(buffer)) )
+buffer = 'ILTS'
+call check( nf90_put_att(ncid, NF90_GLOBAL, 'group', trim(buffer)) )
 
-buffer = 'SICOPOLIS'
-call check( nf90_put_att(ncid, NF90_GLOBAL, 'source', trim(buffer)) )
+buffer = 'SICOPOLIS v26'
+call check( nf90_put_att(ncid, NF90_GLOBAL, 'model', trim(buffer)) )
+
+buffer = 'Ralf Greve'
+call check( nf90_put_att(ncid, NF90_GLOBAL, 'contact_name', trim(buffer)) )
+
+buffer = 'greve@lowtem.hokudai.ac.jp'
+call check( nf90_put_att(ncid, NF90_GLOBAL, 'contact_email', trim(buffer)) )
+
+if (run_name(1:3) == 'ant') then
+   buffer = 'epsg:3031'
+   call check( nf90_put_att(ncid, NF90_GLOBAL, 'crs', trim(buffer)) )
+else if (run_name(1:3) == 'grl') then
+   buffer = 'epsg:3413'
+   call check( nf90_put_att(ncid, NF90_GLOBAL, 'crs', trim(buffer)) )
+else
+   ch_msg = ' >>> init_ismip_netcdf:' &
+          //         end_of_line &
+          //'        Domain (AIS vs. GrIS) could not be detected' &
+          //         end_of_line &
+          //'        from the name of the simulation!'
+   call write_message(ch_msg, 'error')
+end if
 
 call date_and_time(ch_date, ch_time, ch_zone)
 buffer = ch_date(1:4)//'-'//ch_date(5:6)//'-'//ch_date(7:8)//' '// &
          ch_time(1:2)//':'//ch_time(3:4)//':'//ch_time(5:6)//' '// &
          ch_zone(1:3)//':'//ch_zone(4:5)//' - Data produced'
 call check( nf90_put_att(ncid, NF90_GLOBAL, 'history', trim(buffer)) )
-
-call set_ch_website(buffer)
-call check( nf90_put_att(ncid, NF90_GLOBAL, 'references', trim(buffer)) )
-
-buffer = 'NetCDF Climate and Forecast (CF) Metadata Conventions'
-call check( nf90_put_att(ncid, NF90_GLOBAL, 'Conventions', trim(buffer)) )
 
 !-------- Definition of the dimensions --------
 
@@ -1656,7 +1671,7 @@ call check( nf90_def_var(ncid, 'time', NF90_FLOAT, nc1d, ncv) )
 if (n_variable_type == 2) &
    call check( nf90_put_att(ncid, ncv, 'bounds', 'time_bnds') )
 #if (TIME_UNIT==1)
-buffer = 'days since '//trim(adjustl(ch_year_ref))//'-1-1'
+buffer = 'days since '//trim(adjustl(ch_year_ref))//'-01-01'
 #elif (TIME_UNIT==2)
 buffer = 'a'
 #endif
@@ -1671,6 +1686,9 @@ call check( nf90_put_att(ncid, ncv, 'calendar', trim(buffer)) )
 #endif
 call check( nf90_put_att(ncid, ncv, 'axis', 'T') )
 
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+
 !  ------ Time_bnds
 
 if (n_variable_type == 2) then
@@ -1684,6 +1702,9 @@ if (n_variable_type == 2) then
 #else
    call check( nf90_def_var(ncid, 'time_bnds', NF90_FLOAT, nc2d, ncv) )
 #endif
+
+   call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+   call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 
 end if
 
@@ -1705,6 +1726,9 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Year'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+
 !  ------ Projection coordinates
 
 if (n_variable_dim == 1) then
@@ -1723,6 +1747,9 @@ buffer = 'x-coordinate of the grid point i'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 call check( nf90_put_att(ncid, ncv, 'axis', 'X') )
 
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+
 !    ---- y
 
 call check( nf90_inq_dimid(ncid, 'y', nc1d) )
@@ -1736,6 +1763,9 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'y-coordinate of the grid point j'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 call check( nf90_put_att(ncid, ncv, 'axis', 'Y') )
+
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 
 !    ---- lon
 
@@ -1756,6 +1786,9 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Geographical longitude'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+
 !    ---- lat
 
 call check( nf90_inq_dimid(ncid, 'x', nc2d(1)) )
@@ -1774,6 +1807,9 @@ buffer = 'latitude'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Geographical latitude'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 
 end if
 
@@ -1803,6 +1839,9 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Total ice mass'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+
 !      -- limnsw
 
 call check( nf90_inq_dimid(ncid, 'time', nc1d) )
@@ -1820,6 +1859,9 @@ buffer = 'land_ice_mass_not_displacing_sea_water'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Mass above floatation'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 
 !      -- iareagr
 
@@ -1839,6 +1881,9 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Grounded ice area'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+
 !      -- iareafl
 
 call check( nf90_inq_dimid(ncid, 'time', nc1d) )
@@ -1856,6 +1901,9 @@ buffer = 'floating_ice_shelf_area'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Floating ice area'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 
 !    ---- Flux variables
 
@@ -1879,6 +1927,9 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Total ice mass change'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+
 !      -- tendacabf
 
 call check( nf90_inq_dimid(ncid, 'time', nc1d) )
@@ -1896,6 +1947,9 @@ buffer = 'tendency_of_land_ice_mass_due_to_surface_mass_balance'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Total SMB flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 
 !      -- tendlibmassbf
 
@@ -1915,6 +1969,9 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Total BMB flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+
 !      -- tendlibmassbfgr
 
 call check( nf90_inq_dimid(ncid, 'time', nc1d) )
@@ -1932,6 +1989,9 @@ buffer = 'tendency_of_grounded_ice_sheet_mass_due_to_basal_mass_balance'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Total BMB flux for grounded ice'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 
 !      -- tendlibmassbffl
 
@@ -1951,6 +2011,9 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Total BMB flux for floating ice'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+
 !      -- tendlicalvf
 
 call check( nf90_inq_dimid(ncid, 'time', nc1d) )
@@ -1968,6 +2031,9 @@ buffer = 'tendency_of_land_ice_mass_due_to_calving'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Total calving flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 
 !      -- tendlifmassbf
 
@@ -1987,6 +2053,9 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Total frontal melting'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+
 !      -- tendligroundf
 
 call check( nf90_inq_dimid(ncid, 'time', nc1d) )
@@ -2004,6 +2073,9 @@ buffer = 'tendency_of_grounded_ice_mass_due_to_flux_at_grounding_line'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Total grounding line flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 
 end if
 
@@ -2036,9 +2108,10 @@ buffer = 'land_ice_thickness'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Ice thickness'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- orog
 
@@ -2059,9 +2132,10 @@ buffer = 'surface_altitude'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Surface elevation'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- base
 
@@ -2082,9 +2156,10 @@ buffer = 'base_altitude'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Ice base elevation'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- topg
 
@@ -2105,9 +2180,10 @@ buffer = 'bedrock_altitude'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Bedrock elevation'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- xvelsurf
 
@@ -2128,9 +2204,10 @@ buffer = 'land_ice_surface_x_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Surface velocity in x'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- yvelsurf
 
@@ -2151,9 +2228,10 @@ buffer = 'land_ice_surface_y_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Surface velocity in y'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- zvelsurf
 
@@ -2174,9 +2252,10 @@ buffer = 'land_ice_surface_upward_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Surface velocity in z'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- horvelsurf
 
@@ -2197,9 +2276,10 @@ buffer = 'land_ice_surface_horizontal_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Horizontal surface velocity'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- xvelbase
 
@@ -2220,9 +2300,10 @@ buffer = 'land_ice_basal_x_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal velocity in x'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- yvelbase
 
@@ -2243,9 +2324,10 @@ buffer = 'land_ice_basal_y_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal velocity in y'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- zvelbase
 
@@ -2266,9 +2348,10 @@ buffer = 'land_ice_basal_upward_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal velocity in z'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- horvelbase
 
@@ -2289,9 +2372,10 @@ buffer = 'land_ice_basal_horizontal_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Horizontal basal velocity'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- xvelmean
 
@@ -2312,9 +2396,10 @@ buffer = 'land_ice_vertical_mean_x_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Mean velocity in x'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- yvelmean
 
@@ -2335,9 +2420,10 @@ buffer = 'land_ice_vertical_mean_y_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Mean velocity in y'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- horvelmean
 
@@ -2358,9 +2444,10 @@ buffer = 'land_ice_vertical_mean_horizontal_velocity'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Horizontal mean velocity'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- litemptop
 
@@ -2381,9 +2468,10 @@ buffer = 'temperature_at_top_of_ice_sheet'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Surface temperature'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- litempavg
 
@@ -2404,9 +2492,10 @@ buffer = 'land_ice_vertical_mean_temperature'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Vertical mean (depth-averaged) temperature'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- litempbot
 
@@ -2427,9 +2516,10 @@ buffer = 'temperature_at_base_of_ice_sheet'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal temperature'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- litempbotgr
 
@@ -2450,9 +2540,10 @@ buffer = 'temperature_at_base_of_grounded_ice_sheet'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal temperature for grounded ice'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- litempbotfl
 
@@ -2473,9 +2564,10 @@ buffer = 'temperature_at_base_of_floating_ice_shelf'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal temperature for floating ice'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- litempgrad
 
@@ -2496,9 +2588,10 @@ buffer = 'vertical_temperature_gradient_at_base_of_ice_sheet'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Vertical temperature gradient at the ice base'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- litempgradgr
 
@@ -2519,9 +2612,10 @@ buffer = 'vertical_temperature_gradient_at_base_of_grounded_ice_sheet'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Vertical temperature gradient at the grounded ice base'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- litempgradfl
 
@@ -2542,9 +2636,10 @@ buffer = 'vertical_temperature_gradient_at_base_of_floating_ice_shelf'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Vertical temperature gradient at the floating ice base'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- strbasemag
 
@@ -2565,9 +2660,10 @@ buffer = 'land_ice_basal_drag'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal drag'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- sftgif
 
@@ -2588,9 +2684,10 @@ buffer = 'land_ice_area_fraction'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Land ice area fraction'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- sftgrf
 
@@ -2611,9 +2708,10 @@ buffer = 'grounded_ice_sheet_area_fraction'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Grounded ice sheet area fraction'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- sftflf
 
@@ -2634,9 +2732,10 @@ buffer = 'floating_ice_shelf_area_fraction'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Floating ice sheet area fraction'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !    ---- Flux variables
 
@@ -2661,9 +2760,10 @@ buffer = 'land_ice_surface_specific_mass_balance_flux'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Surface mass balance flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- libmassbf
 
@@ -2684,9 +2784,10 @@ buffer = 'land_ice_basal_specific_mass_balance_flux'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal mass balance flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- libmassbfgr
 
@@ -2707,9 +2808,10 @@ buffer = 'grounded_ice_sheet_basal_specific_mass_balance_flux'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal mass balance flux for grounded ice'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- libmassbffl
 
@@ -2730,9 +2832,10 @@ buffer = 'floating_ice_shelf_basal_specific_mass_balance_flux'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Basal mass balance flux for floating ice'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- hfgeoubed
 
@@ -2753,9 +2856,10 @@ buffer = 'upward_geothermal_heat_flux_in_land_ice'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Geothermal heat flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- dlithkdt
 
@@ -2776,9 +2880,10 @@ buffer = 'tendency_of_land_ice_thickness'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Ice thickness change'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- licalvf
 
@@ -2799,9 +2904,10 @@ buffer = 'land_ice_specific_mass_flux_due_to_calving'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Calving flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- lifmassbf
 
@@ -2822,9 +2928,10 @@ buffer = 'land_ice_specific_mass_flux_due_to_ice_front_melting'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Frontal melting'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 !      -- ligroundf
 
@@ -2845,9 +2952,10 @@ buffer = 'land_ice_specific_mass_flux_at_grounding_line'
 call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'Grounding line flux'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
+
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
-call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 
 end if
 

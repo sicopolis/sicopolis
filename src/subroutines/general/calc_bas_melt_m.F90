@@ -751,6 +751,13 @@ call myfloor(time_in_years, i_time_in_years)
 
 !-------- Read file with the thermal forcing data of the ocean --------
 
+if (TF_BM_TIME_MIN > TF_BM_TIME_MAX) then
+   errormsg = ' >>> sub_ice_shelf_melting_param_2:' &
+            //         end_of_line &
+            //'        TF_BM_TIME_MIN > TF_BM_TIME_MAX!'
+   call error(errormsg)
+end if
+
 n_year_CE_bas_melt = n_year_CE
 
 if (n_year_CE_bas_melt < TF_BM_TIME_MIN) then

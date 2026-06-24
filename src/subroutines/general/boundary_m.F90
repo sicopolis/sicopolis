@@ -324,6 +324,13 @@ end if
 
 #elif (TSURFACE==6 && ACCSURFACE==6 && ABLSURFACE==6)
 
+if (TEMP_SMB_ANOM_TIME_MIN > TEMP_SMB_ANOM_TIME_MAX) then
+   errormsg = ' >>> boundary:' &
+            //         end_of_line &
+            //'        TEMP_SMB_ANOM_TIME_MIN > TEMP_SMB_ANOM_TIME_MAX!'
+   call error(errormsg)
+end if
+
 n_year_CE_surf_clim = n_year_CE
 
 if (n_year_CE_surf_clim < TEMP_SMB_ANOM_TIME_MIN) then
@@ -1715,6 +1722,13 @@ frontal_melting_apl = 0.0_dp   ! no frontal melting
 
 #elif (FRONTAL_MELTING==1)
 
+if (SGD_TF_TIME_MIN > SGD_TF_TIME_MAX) then
+   errormsg = ' >>> boundary:' &
+            //         end_of_line &
+            //'        SGD_TF_TIME_MIN > SGD_TF_TIME_MAX!'
+   call error(errormsg)
+end if
+
 n_year_CE_front_melt = n_year_CE
 
 if (n_year_CE_front_melt < SGD_TF_TIME_MIN) then
@@ -1846,6 +1860,14 @@ call error(errormsg)
 !-------- Antarctica only: Ice-shelf collapse mask --------
 
 #if (defined(ANT) && ICE_SHELF_COLLAPSE_MASK==1)
+
+if (ICE_SHELF_COLLAPSE_MASK_TIME_MIN > ICE_SHELF_COLLAPSE_MASK_TIME_MAX) then
+   errormsg = ' >>> boundary:' &
+            //         end_of_line &
+            //'        ICE_SHELF_COLLAPSE_MASK_TIME_MIN' &
+            //     ' > ICE_SHELF_COLLAPSE_MASK_TIME_MAX!'
+   call error(errormsg)
+end if
 
 n_year_CE_isc = n_year_CE
 

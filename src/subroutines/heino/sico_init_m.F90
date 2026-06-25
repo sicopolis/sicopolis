@@ -99,16 +99,21 @@ logical            :: flag_init_output, flag_3d_output
 real(dp), dimension(0:JMAX,0:IMAX) :: field2d_aux
 
 integer(i4b) :: n_slide_regions
-#if (!defined(N_SLIDE_REGIONS) || N_SLIDE_REGIONS<=1)
+#if (!defined(N_SLIDE_REGIONS) || N_SLIDE_REGIONS<=1 || SLIDE_LAW==0)
 real(dp) :: p_weert_aux(1)
 real(dp) :: q_weert_aux(1)
 real(dp) :: c_slide_aux(1)
 real(dp) :: gamma_slide_aux(1)
-#else
+#elif (N_SLIDE_REGIONS<9999)
 real(dp) :: p_weert_aux(N_SLIDE_REGIONS)
 real(dp) :: q_weert_aux(N_SLIDE_REGIONS)
 real(dp) :: c_slide_aux(N_SLIDE_REGIONS)
 real(dp) :: gamma_slide_aux(N_SLIDE_REGIONS)
+#else
+real(dp) :: p_weert_aux(1)
+real(dp) :: q_weert_aux(1)
+real(dp) :: c_slide_aux(1)
+real(dp) :: gamma_slide_aux(1)
 #endif
 
 character(len=64), parameter :: fmt1 = '(a)', &
@@ -1028,6 +1033,7 @@ write(10, fmt=trim(fmt2)) 'BASAL_HYDROLOGY = ', BASAL_HYDROLOGY
 #if (BASAL_HYDROLOGY==1 && defined(MELT_DRAIN))
 write(10, fmt=trim(fmt3)) 'MELT_DRAIN =', real(MELT_DRAIN,dp)
 #endif
+write(10, fmt=trim(fmt1)) ' '
 #endif
 
 write(10, fmt=trim(fmt2)) 'SLIDE_LAW = ', SLIDE_LAW
@@ -1036,21 +1042,26 @@ write(10, fmt=trim(fmt2)) 'SLIDE_LAW = ', SLIDE_LAW
 
 #if (defined(N_SLIDE_REGIONS))
 write(10, fmt=trim(fmt2)) 'N_SLIDE_REGIONS = ', N_SLIDE_REGIONS
-#if (N_SLIDE_REGIONS>1)
+#if (N_SLIDE_REGIONS>1 && N_SLIDE_REGIONS<9999)
 write(10, fmt=trim(fmt1)) 'SLIDE_REGIONS_FILE = '//SLIDE_REGIONS_FILE
 #endif
 #endif
 
 #if (!defined(N_SLIDE_REGIONS) || N_SLIDE_REGIONS<=1)
 n_slide_regions = 1
-#else
+#elif (N_SLIDE_REGIONS<9999)
 n_slide_regions = N_SLIDE_REGIONS
+#else
+n_slide_regions = 1
 #endif
 
 #if (defined(BASAL_WATER_PRESSURE))
 write(10, fmt=trim(fmt2)) 'BASAL_WATER_PRESSURE = ', BASAL_WATER_PRESSURE
 #endif
 
+#if (N_SLIDE_REGIONS>=9999)
+c_slide_aux = r_no_value_pos_1   ! dummy value
+#else
 #if (defined(C_SLIDE_DIMLESS))
 c_slide_aux = C_SLIDE_DIMLESS
 #elif (defined(C_SLIDE))
@@ -1061,9 +1072,25 @@ errormsg = ' >>> sico_init: Either ''C_SLIDE_DIMLESS'' or ''C_SLIDE'' ' &
          //'                must be defined in the run-specs header!'
 call error(errormsg)
 #endif
+#endif
+
 gamma_slide_aux = GAMMA_SLIDE
 p_weert_aux = real(P_WEERT,dp)
 q_weert_aux = real(Q_WEERT,dp)
+
+#if (N_SLIDE_REGIONS>=9999)
+
+#if (defined(C_SLIDE_DIMLESS_FILE))
+write(10, fmt=trim(fmt1)) 'C_SLIDE_DIMLESS_FILE = ' &
+                          // trim(C_SLIDE_DIMLESS_FILE)
+#else
+errormsg = ' >>> sico_init: ''C_SLIDE_DIMLESS_FILE'' ' &
+         //                 end_of_line &
+         //'                must be defined in the run-specs header!'
+call error(errormsg)
+#endif
+
+#else
 
 #if (defined(C_SLIDE_DIMLESS))
 write(10, fmt=trim(fmt3)) 'C_SLIDE_DIMLESS =', c_slide_aux(1)
@@ -1081,22 +1108,24 @@ end do
 #endif
 #endif
 
+#endif
+
 write(10, fmt=trim(fmt3)) 'GAMMA_SLIDE =', gamma_slide_aux(1)
-#if (N_SLIDE_REGIONS>1)
+#if (N_SLIDE_REGIONS>1 && N_SLIDE_REGIONS<9999)
 do n=2, n_slide_regions
    write(10, fmt=trim(fmt3)) '             ', gamma_slide_aux(n)
 end do
 #endif
 
 write(10, fmt=trim(fmt3)) 'P_WEERT =', p_weert_aux(1)
-#if (N_SLIDE_REGIONS>1)
+#if (N_SLIDE_REGIONS>1 && N_SLIDE_REGIONS<9999)
 do n=2, n_slide_regions
    write(10, fmt=trim(fmt3)) '         ', p_weert_aux(n)
 end do
 #endif
 
 write(10, fmt=trim(fmt3)) 'Q_WEERT =', q_weert_aux(1)
-#if (N_SLIDE_REGIONS>1)
+#if (N_SLIDE_REGIONS>1 && N_SLIDE_REGIONS<9999)
 do n=2, n_slide_regions
    write(10, fmt=trim(fmt3)) '         ', q_weert_aux(n)
 end do
@@ -1399,7 +1428,7 @@ mean_accum = MEAN_ACCUM*(1.0e-03_dp*sec2year)*(RHO_W/RHO)
 
 !-------- Read file defining the regions for the sliding laws --------
 
-#if (!defined(N_SLIDE_REGIONS) || N_SLIDE_REGIONS<=1)
+#if (!defined(N_SLIDE_REGIONS) || N_SLIDE_REGIONS<=1 || N_SLIDE_REGIONS>=9999)
 
 n_slide_region = 1
 

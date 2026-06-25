@@ -55,28 +55,40 @@ contains
 !-------------------------------------------------------------------------------
 subroutine calc_vxy_b_init()
 
+use read_m, only : read_2d_input
+
 implicit none
 
 integer(i4b) :: i, j, m, n
 integer(i4b) :: n_slide_regions
 integer(i4b) :: i_f, j_f, n_filter
 
-#if (!defined(N_SLIDE_REGIONS) || N_SLIDE_REGIONS<=1)
+#if (!defined(N_SLIDE_REGIONS) || N_SLIDE_REGIONS<=1 || SLIDE_LAW==0)
 real(dp) :: p_weert_aux(1)
 real(dp) :: q_weert_aux(1)
 real(dp) :: c_slide_aux(1)
 real(dp) :: gamma_slide_aux(1)
 real(dp) :: gamma_slide_inv_aux(1)
-#else
+#elif (N_SLIDE_REGIONS<9999)
 real(dp) :: p_weert_aux(N_SLIDE_REGIONS)
 real(dp) :: q_weert_aux(N_SLIDE_REGIONS)
 real(dp) :: c_slide_aux(N_SLIDE_REGIONS)
 real(dp) :: gamma_slide_aux(N_SLIDE_REGIONS)
 real(dp) :: gamma_slide_inv_aux(N_SLIDE_REGIONS)
+#else
+real(dp) :: p_weert_aux(1)
+real(dp) :: q_weert_aux(1)
+real(dp) :: c_slide_aux(1)
+real(dp) :: gamma_slide_aux(1)
+real(dp) :: gamma_slide_inv_aux(1)
 #endif
 
+real(dp) :: c_slide_aux_2d(0:JMAX,0:IMAX)
+
+character(len=256) :: filename_with_path
+
 real(dp) :: tau_b_scale, N_b_scale, v_b_scale
-logical  :: flag_c_slide_dimless
+logical  :: flag_c_slide_dimless, flag_c_slide_dimless_file
 
 real(dp) :: dx
 real(dp) :: filter_width, sigma_filter
@@ -85,24 +97,69 @@ real(dp), dimension(0:JMAX,0:IMAX) :: c_slide_smoothed
 
 !-------- Sliding-law coefficients --------
 
-#if (!defined(N_SLIDE_REGIONS) || N_SLIDE_REGIONS<=1)
+#if (!defined(N_SLIDE_REGIONS) || N_SLIDE_REGIONS<=1 || SLIDE_LAW==0)
 n_slide_regions = 1
-#else
+#elif (N_SLIDE_REGIONS<9999)
 n_slide_regions = N_SLIDE_REGIONS
+#else
+n_slide_regions = 1
 #endif
 
 #if (SLIDE_LAW==0)
+
+flag_c_slide_dimless      = .false.
+flag_c_slide_dimless_file = .false.
 
 p_weert_aux = 1.0_dp
 q_weert_aux = 0.0_dp
 c_slide_aux = 0.0_dp   ! no-slip
 gamma_slide_aux = 1.0_dp
-flag_c_slide_dimless = .false.
 tau_b_scale = 1.0_dp   ! dummy value
 N_b_scale   = 1.0_dp   ! dummy value
 v_b_scale   = 1.0_dp   ! dummy value
 
+c_slide_aux_2d = r_no_value_pos_1  ! dummy value
+
 #elif (SLIDE_LAW==1)
+
+#if (N_SLIDE_REGIONS>=9999)
+   flag_c_slide_dimless      = .true.
+   flag_c_slide_dimless_file = .true.
+   c_slide_aux = r_no_value_pos_1  ! dummy value
+#else
+   flag_c_slide_dimless_file = .false.
+#if (defined(C_SLIDE_DIMLESS))
+   flag_c_slide_dimless = .true.
+   c_slide_aux    = C_SLIDE_DIMLESS
+   c_slide_aux_2d = r_no_value_pos_1  ! dummy value
+#elif (defined(C_SLIDE))
+   flag_c_slide_dimless = .false.
+   c_slide_aux    = C_SLIDE
+   c_slide_aux_2d = r_no_value_pos_1  ! dummy value
+#else
+   errormsg = ' >>> calc_vxy_b_init:' &
+            //         end_of_line &
+            //'        Neither ''C_SLIDE_DIMLESS'' nor ''C_SLIDE'' defined!'
+   call error(errormsg)
+#endif
+#endif
+
+if (flag_c_slide_dimless_file) then
+
+#if (defined(C_SLIDE_DIMLESS_FILE))
+   filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                        trim(C_SLIDE_DIMLESS_FILE)
+#else
+   errormsg = ' >>> calc_vxy_b_init: ''C_SLIDE_DIMLESS_FILE'' not defined!'
+   call error(errormsg)
+#endif
+
+   call read_2d_input(filename_with_path, &
+                      ch_var_name='c_slide_dimless', &
+                      n_var_type=1, n_ascii_header=6, &
+                      field2d_r=c_slide_aux_2d)
+
+end if
 
 p_weert_aux = real(P_WEERT,dp)
 q_weert_aux = real(Q_WEERT,dp)
@@ -111,14 +168,6 @@ do n=1, n_slide_regions
    if (p_weert_aux(n) < eps) p_weert_aux(n) = eps
    if (q_weert_aux(n) < eps) q_weert_aux(n) = 0.0_dp
 end do
-
-#if (defined(C_SLIDE_DIMLESS))
-   flag_c_slide_dimless = .true.
-   c_slide_aux = C_SLIDE_DIMLESS
-#elif (defined(C_SLIDE))
-   flag_c_slide_dimless = .false.
-   c_slide_aux = C_SLIDE
-#endif
 
 gamma_slide_aux = GAMMA_SLIDE
 
@@ -143,12 +192,29 @@ else
 end if
 
 if (flag_c_slide_dimless) then
-   do n=1, n_slide_regions
-      c_slide_aux(n) = c_slide_aux(n) &
-                       * ( v_b_scale &
-                           * N_b_scale**q_weert_aux(n) &
-                           / tau_b_scale**p_weert_aux(n) )
-   end do
+
+   if (flag_c_slide_dimless_file) then
+
+      do i=0, IMAX
+      do j=0, JMAX
+         c_slide_aux_2d(j,i) = c_slide_aux_2d(j,i) &
+                               * ( v_b_scale &
+                                   * N_b_scale**q_weert_aux(1) &
+                                   / tau_b_scale**p_weert_aux(1) )
+      end do
+      end do
+
+   else
+
+      do n=1, n_slide_regions
+         c_slide_aux(n) = c_slide_aux(n) &
+                          * ( v_b_scale &
+                              * N_b_scale**q_weert_aux(n) &
+                              / tau_b_scale**p_weert_aux(n) )
+      end do
+
+   end if
+
 end if
 
 #else
@@ -166,23 +232,39 @@ do n=1, n_slide_regions
    gamma_slide_inv_aux(n) = 1.0_dp/max(gamma_slide_aux(n), eps)
 end do
 
-do i=0, IMAX
-do j=0, JMAX
-   if ( (n_slide_region(j,i) >= 1) &
-        .and. &
-        (n_slide_region(j,i) <= n_slide_regions) ) then
-      p_weert(j,i)         = p_weert_aux(n_slide_region(j,i))
-      q_weert(j,i)         = q_weert_aux(n_slide_region(j,i))
-      c_slide_init(j,i)    = c_slide_aux(n_slide_region(j,i))*sec2year
-      gamma_slide_inv(j,i) = gamma_slide_inv_aux(n_slide_region(j,i))
-      sub_melt_flag(j,i)   = (gamma_slide_aux(n_slide_region(j,i)) >= eps)
-   else
-      errormsg = ' >>> calc_vxy_b_init: ' &
-                    //'Region number out of allowed range!'
-      call error(errormsg)
-   end if
-end do
-end do
+if (flag_c_slide_dimless_file) then
+
+   do i=0, IMAX
+   do j=0, JMAX
+      p_weert(j,i)         = p_weert_aux(1)
+      q_weert(j,i)         = q_weert_aux(1)
+      c_slide_init(j,i)    = c_slide_aux_2d(j,i)*sec2year
+      gamma_slide_inv(j,i) = gamma_slide_inv_aux(1)
+      sub_melt_flag(j,i)   = (gamma_slide_aux(1) >= eps)
+   end do
+   end do
+
+else
+
+   do i=0, IMAX
+   do j=0, JMAX
+      if ( (n_slide_region(j,i) >= 1) &
+           .and. &
+           (n_slide_region(j,i) <= n_slide_regions) ) then
+         p_weert(j,i)         = p_weert_aux(n_slide_region(j,i))
+         q_weert(j,i)         = q_weert_aux(n_slide_region(j,i))
+         c_slide_init(j,i)    = c_slide_aux(n_slide_region(j,i))*sec2year
+         gamma_slide_inv(j,i) = gamma_slide_inv_aux(n_slide_region(j,i))
+         sub_melt_flag(j,i)   = (gamma_slide_aux(n_slide_region(j,i)) >= eps)
+      else
+         errormsg = ' >>> calc_vxy_b_init: ' &
+                       //'Region number out of allowed range!'
+         call error(errormsg)
+      end if
+   end do
+   end do
+
+end if
 
 do i=0, IMAX
 do j=0, JMAX

@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2025-11-17'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2026-06-25'
 !                      Date of last change
 
 !-------- Domain --------
@@ -725,11 +725,13 @@
 !                       1 : Weertman-Budd sliding law (v_b ~ tau_b^p/N_b^q)
 
 #define N_SLIDE_REGIONS 3
-!                       Number of regions with different sliding laws
+!                       Number of regions with different sliding laws.
+!                       If set to 9999, the dimensionless sliding coefficient
+!                       will be read from the file 'C_SLIDE_DIMLESS_FILE'.
 
 #define SLIDE_REGIONS_FILE 'heino50_mask_sedi.dat'
 !                       File defining the regions for the sliding laws
-!                       (only for N_SLIDE_REGIONS > 1)
+!                       (only for 1 < N_SLIDE_REGIONS < 9999)
 
 #define BASAL_WATER_PRESSURE 0
 !                       Basal water pressure:
@@ -739,7 +741,8 @@
 
 #define C_SLIDE_DIMLESS [ 1.12d0, 1.12d0, 56.0d0 ]
 !                       Sliding coefficient (dimensionless)
-!                       (N_SLIDE_REGIONS separate values).
+!                       (N_SLIDE_REGIONS separate values,
+!                        only for N_SLIDE_REGIONS < 9999).
 
 !                       [If needed, the underlying scaling can be defined by the
 !                       parameters TAU_BAS_SCALE, N_BAS_SCALE and V_BAS_SCALE
@@ -747,6 +750,10 @@
 !                       and sliding velocity (m/a), respectively.
 !                       However, if they are undefined, default values
 !                       for the scaling are used, which are usually fine.]
+
+#define C_SLIDE_DIMLESS_FILE 'none'
+!                       File containing the dimensionless sliding coefficient
+!                       (only for N_SLIDE_REGIONS==9999)
 
 #define C_SLIDE_FILTER_WIDTH 0.0d0
 !                       Filtering width (spatial smoothing by Gaussian filter)

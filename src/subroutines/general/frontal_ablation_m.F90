@@ -51,18 +51,18 @@ contains
 !-------------------------------------------------------------------------------
 !> Frontal melting (at grounded, vertical fronts).
 !-------------------------------------------------------------------------------
-  subroutine frontal_melting_grounded(my_zl, my_z_sl, dxi, deta)
+  subroutine frontal_melting_grounded(my_zb, my_z_sl, dxi, deta)
 
   implicit none
 
-  real(dp), dimension(0:JMAX,0:IMAX), intent(in) :: my_zl, my_z_sl
+  real(dp), dimension(0:JMAX,0:IMAX), intent(in) :: my_zb, my_z_sl
   real(dp),                           intent(in) :: dxi, deta
 
   integer(i4b) :: i, j, ij
   real(dp)     :: a_fm, b_fm, alpha_fm, beta_fm
   real(dp)     :: lambda_a_fm, lambda_b_fm
 
-  real(dp), dimension(0:JMAX,0:IMAX) :: frontal_area_submerged, H_water
+  real(dp), dimension(0:JMAX,0:IMAX) :: frontal_area_submerged, H_submerged
   real(dp), dimension(0:JMAX,0:IMAX) :: sgd_normalized
   real(dp), dimension(0:JMAX,0:IMAX) :: frontal_melting_horizontal
   real(dp), dimension(0:JMAX,0:IMAX) :: area_ratio
@@ -99,8 +99,8 @@ contains
      frontal_area_submerged(j,i) = 0.0_dp
      sgd_normalized(j,i)         = 0.0_dp
 
-     H_water(j,i) = max(my_z_sl(j,i)-my_zl(j,i), 0.0_dp)
-                    ! water depth (= submerged depth of grounded ice)
+     H_submerged(j,i) = my_z_sl(j,i)-my_zb(j,i)
+                        ! submerged ice depth (if positive)
 
   end do
 
@@ -109,31 +109,35 @@ contains
      i = n2i(ij)   ! i=0...IMAX
      j = n2j(ij)   ! j=0...JMAX
 
-     if (flag_inner_point(j,i).and.flag_grounded_front_b_1(j,i)) then
-                              ! inner point, marine-terminating grounded front
+     if ( flag_inner_point(j,i) &
+          .and. &
+          flag_grounded_front_b_1(j,i) &
+          .and. &
+          H_submerged(j,i) > 0.0_dp ) then
+                             ! inner point, marine-terminating grounded front
 
         if (flag_grounded_front_b_2(j,i+1)) then
-           frontal_area_submerged(j,i) = frontal_area_submerged(j,i) &
-              + (0.5_dp*(H_water(j,i)+H_water(j,i+1))) &
-                   *(deta*sq_g22_sgx(j,i))
+           frontal_area_submerged(j,i) &
+                = frontal_area_submerged(j,i) &
+                       + H_submerged(j,i)*(deta*sq_g22_sgx(j,i))
         end if
 
         if (flag_grounded_front_b_2(j,i-1)) then
-           frontal_area_submerged(j,i) = frontal_area_submerged(j,i) &
-              + (0.5_dp*(H_water(j,i)+H_water(j,i-1))) &
-                   *(deta*sq_g22_sgx(j,i-1))
+           frontal_area_submerged(j,i) &
+                = frontal_area_submerged(j,i) &
+                       + H_submerged(j,i)*(deta*sq_g22_sgx(j,i-1))
         end if
 
         if (flag_grounded_front_b_2(j+1,i)) then
-           frontal_area_submerged(j,i) = frontal_area_submerged(j,i) &
-              + (0.5_dp*(H_water(j,i)+H_water(j+1,i))) &
-                   *(dxi*sq_g11_sgy(j,i))
+           frontal_area_submerged(j,i) &
+                = frontal_area_submerged(j,i) &
+                       + H_submerged(j,i)*(dxi*sq_g11_sgy(j,i))
         end if
 
         if (flag_grounded_front_b_2(j-1,i)) then
-           frontal_area_submerged(j,i) = frontal_area_submerged(j,i) &
-              + (0.5_dp*(H_water(j,i)+H_water(j-1,i))) &
-                   *(dxi*sq_g11_sgy(j-1,i))
+           frontal_area_submerged(j,i) &
+                = frontal_area_submerged(j,i) &
+                       + H_submerged(j,i)*(dxi*sq_g11_sgy(j-1,i))
         end if
 
         if (frontal_area_submerged(j,i) < eps_dp) then
@@ -152,7 +156,7 @@ contains
                               * day2sec   ! m/s -> m/d
 
         frontal_melting_horizontal(j,i) &
-             = ( a_fm * H_water(j,i) &
+             = ( a_fm * H_submerged(j,i) &
                       * sgd_normalized(j,i)**alpha_fm + b_fm ) &
                * tf(j,i)**beta_fm   ! m/d
 

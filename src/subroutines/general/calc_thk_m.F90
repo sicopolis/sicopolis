@@ -1817,7 +1817,7 @@ end subroutine ocean_connect
   integer(i4b) :: i, j, ij
   real(dp)     :: dtime_inv, H_inv
 
-  real(dp), dimension(0:JMAX,0:IMAX) :: H_water
+  real(dp), dimension(0:JMAX,0:IMAX) :: H_submerged
 
   dtime_inv = 1.0_dp/dtime
 
@@ -1830,25 +1830,30 @@ end subroutine ocean_connect
 
      frontal_melting_apl(j,i) = frontal_melting(j,i)
 
-     H_water(j,i) = max(z_sl(j,i)-zl_new(j,i), 0.0_dp)
-                    ! water depth (= submerged depth of grounded ice)
+     H_submerged(j,i) = z_sl(j,i)-zb_new(j,i)
+                        ! submerged ice depth (if positive)
 
-     if (flag_inner_point(j,i).and.flag_grounded_front_b_1(j,i)) then
-                              ! inner point, marine-terminating grounded front
+     if ( flag_inner_point(j,i) &
+          .and. &
+          flag_grounded_front_b_1(j,i) &
+          .and. &
+          H_submerged(j,i) > 0.0_dp ) then
+                             ! inner point, marine-terminating grounded front
 
 !  ------ Update 'H_new' for frontal melting
 
         H_new(j,i) = H_new(j,i) - dtime * frontal_melting(j,i)
 
-        if (H_new(j,i) < H_water(j,i)) then
-           frontal_melting_apl(j,i) = frontal_melting_apl(j,i) &
-                                         - (H_water(j,i)-H_new(j,i))*dtime_inv
-           H_new(j,i) = H_water(j,i)
+        if (H_new(j,i) < H_submerged(j,i)) then
+           frontal_melting_apl(j,i) &
+                = frontal_melting_apl(j,i) &
+                       - (H_submerged(j,i)-H_new(j,i))*dtime_inv
+           H_new(j,i) = H_submerged(j,i)
         end if
 
 !  ------ Update 'zs_new'
 
-        zs_new(j,i) = zl_new(j,i) + H_new(j,i)
+        zs_new(j,i) = zb_new(j,i) + H_new(j,i)
 
 !  ------ Update 'H_c_new', 'H_t_new', 'zm_new'
 

@@ -64,6 +64,8 @@ contains
 
   real(dp), dimension(0:JMAX,0:IMAX) :: frontal_area_submerged, H_water
   real(dp), dimension(0:JMAX,0:IMAX) :: sgd_normalized
+  real(dp), dimension(0:JMAX,0:IMAX) :: frontal_melting_horizontal
+  real(dp), dimension(0:JMAX,0:IMAX) :: area_ratio
 
   character(len=8) :: ch_i
   character(len=8) :: ch_j
@@ -147,18 +149,19 @@ contains
         end if
 
         sgd_normalized(j,i) = (sgd(j,i)/frontal_area_submerged(j,i)) &
-                                 * day2sec   ! m/s -> m/d
+                              * day2sec   ! m/s -> m/d
 
-        frontal_melting(j,i) = ( a_fm * H_water(j,i) &
-                                      * sgd_normalized(j,i)**alpha_fm + b_fm ) &
-                               * tf(j,i)**beta_fm
+        frontal_melting_horizontal(j,i) &
+             = ( a_fm * H_water(j,i) &
+                      * sgd_normalized(j,i)**alpha_fm + b_fm ) &
+               * tf(j,i)**beta_fm   ! m/d
 
-        frontal_melting(j,i) = frontal_melting(j,i) * sec2day   ! m/d -> m/s
+        area_ratio(j,i) = frontal_area_submerged(j,i)/cell_area(j,i)
 
-        frontal_melting(j,i) = frontal_melting(j,i) &
-                                  * (frontal_area_submerged(j,i)/cell_area(j,i))
-                                       ! m/s = m3/(m2*s) per vertical area
-                                       ! -> m/s = m3/(m2*s) per horizontal area
+        frontal_melting(j,i) &
+             = (frontal_melting_horizontal(j,i)*area_ratio(j,i)) &
+               * sec2day  !    m/d = m3/d/(m2 vertical area)
+                          ! -> m/s = m3/s/(m2 horizontal area)
  
      end if
 

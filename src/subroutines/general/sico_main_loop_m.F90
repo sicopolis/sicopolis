@@ -73,7 +73,7 @@ contains
   use calc_dxyz_m
   use calc_gia_m
   use calc_thk_m
-#if (FRONTAL_MELTING==1)
+#if (FRONTAL_MELTING==1 || MARGIN==3)
   use frontal_ablation_m
 #endif
   use calc_temp_aux_m
@@ -312,6 +312,13 @@ contains
        ! compute frontal melting rate
   call apply_frontal_melting_grounded(dtime)
        ! apply frontal melting rate
+#endif
+
+#if (MARGIN==3)
+  call detect_icebergs(mask)
+       ! detect detached icebergs
+  call apply_iceberg_kill(dtime)
+       ! kill detached icebergs (counted as calving)
 #endif
 
 !  ------ New values -> old values

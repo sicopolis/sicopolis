@@ -176,6 +176,114 @@ contains
 #endif   /* (FRONTAL_MELTING==1) */
 
 !-------------------------------------------------------------------------------
+!> Detection of detached icebergs (floating ice), which are flagged
+!! and interpreted as unresolved calving events to be corrected.
+!-------------------------------------------------------------------------------
+  subroutine detect_icebergs(my_mask)
+
+  implicit none
+
+  integer(i4b), dimension(0:JMAX,0:IMAX), intent(in) :: my_mask
+
+  ! Local arrays for tracking
+  logical :: visited(0:JMAX,0:IMAX)
+
+  ! Queue for breadth-first search (BFS) flood-fill
+  ! Max possible size in worst case is the total number of grid points
+  integer(i4b) :: queue_i((IMAX+1)*(JMAX+1)), queue_j((IMAX+1)*(JMAX+1))
+  integer(i4b) :: q_head, q_tail
+
+  ! Temporary component storage
+  integer(i4b) :: comp_i((IMAX+1)*(JMAX+1)), comp_j((IMAX+1)*(JMAX+1))
+  integer(i4b) :: comp_count
+
+  ! Loop and neighbour indices
+  integer(i4b) :: i, j, ij, ni, nj, k
+  integer(i4b) :: cur_i, cur_j
+  logical :: touches_grounded
+
+  ! Direction offsets for 4-way connectivity (up, down, left, right)
+  integer(i4b), dimension(4), parameter :: di = (/ 1, -1,  0,  0 /)
+  integer(i4b), dimension(4), parameter :: dj = (/ 0,  0,  1, -1 /)
+
+  ! Initialize outputs and tracking arrays
+  flag_iceberg = .false.
+  visited      = .false.
+
+  ! Loop through the entire grid to find unvisited floating ice
+  do ij=1, (IMAX+1)*(JMAX+1)
+
+     i = n2i(ij)   ! i=0...IMAX
+     j = n2j(ij)   ! j=0...JMAX
+
+     if (my_mask(j,i)==3 .and. .not. visited(j,i)) then
+
+        ! Start a new flood-fill component
+        comp_count = 0
+        touches_grounded = .false.
+
+        ! Initialize queue
+        q_head = 1
+        q_tail = 1
+        queue_i(q_tail) = i
+        queue_j(q_tail) = j
+        visited(j,i)    = .true.
+
+        ! BFS loop
+        do while (q_head <= q_tail)
+           ! Pop from queue
+           cur_i = queue_i(q_head)
+           cur_j = queue_j(q_head)
+           q_head = q_head + 1
+
+           ! Add to the current ice component list
+           comp_count = comp_count + 1
+           comp_i(comp_count) = cur_i
+           comp_j(comp_count) = cur_j
+
+           ! Check 4 neighbours
+           do k=1, 4
+
+              ni = cur_i + di(k)
+              nj = cur_j + dj(k)
+
+              ! Ensure neighbour is within domain boundaries
+              if (ni >= 0 .and. ni <= IMAX .and. nj >= 0 .and. nj <= JMAX) then
+
+                 if (my_mask(nj,ni) == 0) then
+                    ! If it hits grounded ice, this whole cluster is a shelf,
+                    ! not an iceberg
+                    touches_grounded = .true.
+                 end if
+
+                 if (my_mask(nj,ni) == 3 .and. .not. visited(nj,ni)) then
+                    ! Queue the connected floating ice point
+                    q_tail = q_tail + 1
+                    queue_i(q_tail) = ni
+                    queue_j(q_tail) = nj
+                    visited(nj,ni)  = .true.
+                 end if
+
+              end if
+
+           end do
+
+        end do
+
+        ! If the components never touched grounded ice, it's a detached iceberg
+        if (.not. touches_grounded) then
+           do k=1, comp_count
+              flag_iceberg(comp_j(k), comp_i(k)) = .true.
+           end do
+        end if
+
+     end if
+
+  end do
+
+  end subroutine detect_icebergs
+
+!-------------------------------------------------------------------------------
 !> Calving of grounded "underwater ice".
 !-------------------------------------------------------------------------------
   subroutine calving_underwater_ice()

@@ -74,12 +74,6 @@ integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_region
    !!  2: WAIS,
    !!  3: AP
 
-logical :: flag_calc_temp
-   !! Flag for computation of the temperature, water content,
-   !! age and flow enhancement factor during an integration step:
-   !!   .true.: temperature etc. computed,
-   !!  .false.: temperature etc. not computed
-
 logical, dimension(0:JMAX,0:IMAX) :: flag_inner_point
    !! Inner-point flag:
    !!   .true.: inner point,
@@ -183,6 +177,12 @@ logical, dimension(0:JMAX,0:IMAX) :: flag_shelfy_stream
    !!   .true.: grounded ice,
    !!           and at least one neighbour on the
    !!           staggered grid is a shelfy stream point,
+   !!  .false.: otherwise
+
+logical, dimension(0:JMAX,0:IMAX) :: flag_iceberg
+   !! Detached iceberg flag:
+   !!   .true.: detached icebergs,
+   !!           interpreted as unresolved calving events,
    !!  .false.: otherwise
 
 real(dp), dimension(0:IMAX) :: xi
@@ -1400,6 +1400,12 @@ character(len=64) :: ch_domain_long
 
 character(len=16) :: ch_domain_short
    !! Short name of the computational domain
+
+logical :: flag_calc_temp
+   !! Flag for computation of the temperature, water content,
+   !! age and flow enhancement factor during an integration step:
+   !!   .true.: temperature etc. computed,
+   !!  .false.: temperature etc. not computed
 
 integer(i4b) :: forcing_flag
    !! Flag for the forcing type:

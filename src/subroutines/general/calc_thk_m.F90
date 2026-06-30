@@ -1888,6 +1888,64 @@ end subroutine ocean_connect
   end subroutine apply_frontal_melting_grounded
 
 !-------------------------------------------------------------------------------
+!> Applying the killing of detached icebergs (floating ice), interpreted as
+!! unresolved calving events to be corrected.
+!-------------------------------------------------------------------------------
+  subroutine apply_iceberg_kill(dtime)
+
+  implicit none
+
+  real(dp), intent(in) :: dtime
+
+  integer(i4b) :: i, j, ij
+  real(dp)     :: dtime_inv
+
+  dtime_inv = 1.0_dp/dtime
+
+!-------- Apply iceberg kill --------
+
+  do ij=1, (IMAX+1)*(JMAX+1)
+
+     i = n2i(ij)   ! i=0...IMAX
+     j = n2j(ij)   ! j=0...JMAX
+
+     if (flag_iceberg(j,i)) then
+
+!  ------ Update 'H_new' for iceberg kill
+
+        calving_apl(j,i) = calving_apl(j,i) + H_new(j,i)*dtime_inv
+
+        H_new(j,i) = 0.0_dp
+
+!  ------ Update 'mask', 'zs_new', 'zb_new'
+
+        mask(j,i) = 2   ! change floating ice to ocean
+
+        zs_new(j,i) = z_sl(j,i)
+        zb_new(j,i) = z_sl(j,i)
+
+!  ------ Update 'H_c_new', 'H_t_new', 'zm_new'
+
+        H_c_new(j,i) = 0.0_dp
+        H_t_new(j,i) = 0.0_dp
+
+        zm_new(j,i) = z_sl(j,i)
+
+!  ------ Update time derivatives
+
+        dzs_dtau(j,i)  = (zs_new(j,i)-zs(j,i))*dtime_inv
+        dzb_dtau(j,i)  = (zb_new(j,i)-zb(j,i))*dtime_inv
+        dzm_dtau(j,i)  = dH_t_dtau(j,i)+dzb_dtau(j,i)
+        dH_dtau(j,i)   = (H_new(j,i)-H(j,i))*dtime_inv
+        dH_c_dtau(j,i) = dzs_dtau(j,i)-dzm_dtau(j,i)
+
+     end if
+
+  end do
+
+  end subroutine apply_iceberg_kill
+
+!-------------------------------------------------------------------------------
 
 end module calc_thk_m
 !

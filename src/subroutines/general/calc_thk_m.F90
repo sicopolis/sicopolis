@@ -884,13 +884,15 @@ end if
 !  ------ Enforce connectivity of the ocean
 
 #if (!defined(OCEAN_CONNECTIVITY) || OCEAN_CONNECTIVITY==1)
-   call ocean_connect()
+   call ocean_connect(n_connectivity=8)
+#elif (OCEAN_CONNECTIVITY==2)
+   call ocean_connect(n_connectivity=4)
 #elif (OCEAN_CONNECTIVITY==0)
    !%% continue
 #else
    errormsg = ' >>> calc_thk_mask_update:' &
             //         end_of_line &
-            //'        OCEAN_CONNECTIVITY must be either 0 or 1!'
+            //'        OCEAN_CONNECTIVITY must be either 0, 1, or 2!'
    call error(errormsg)
 #endif
 
@@ -1618,14 +1620,32 @@ end subroutine limit_thickness_isolated_ice
 !-------------------------------------------------------------------------------
 !> Enforce connectivity of the ocean.
 !-------------------------------------------------------------------------------
-subroutine ocean_connect()
+subroutine ocean_connect(n_connectivity)
 
 implicit none
 
-integer(i4b)                           :: i, j, ij
+integer(i4b), intent(in) :: n_connectivity
+
+integer(i4b)               :: i, j, ij, n, ni, nj
+integer(i4b), dimension(8) :: di, dj
+
 integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_connect
 integer(i4b), dimension(0:JMAX,0:IMAX) :: mask_connect_save, mask_connect_diff
 logical                                :: flag_change
+
+!-------- Define connectivity --------
+
+if (n_connectivity==4) then  ! 4-connectivity (via edges only)
+   di = [ 1, -1,  0,  0,  9999,  9999,  9999,  9999 ]
+   dj = [ 0,  0,  1, -1,  9999,  9999,  9999,  9999 ]
+else if (n_connectivity==8) then  ! 8-connectivity (via edges and corners)
+   di = [ 1, -1,  0,  0,  1, -1,  1, -1 ]
+   dj = [ 0,  0,  1, -1,  1,  1, -1, -1 ]
+else
+  errormsg = ' >>> ocean_connect: ' &
+                   // '''n_connectivity'' must be equal to either 4 or 8!'
+  call error(errormsg)
+end if
 
 !-------- Determine connected area allowed to be ocean --------
 
@@ -1656,14 +1676,13 @@ do while (flag_change)
       if (flag_inner_point(j,i)) then   ! inner point
 
          if (mask_connect_save(j,i) == 1) then
-            if (mask(j  ,i+1) >= 2) mask_connect(j  ,i+1) = 1
-            if (mask(j  ,i-1) >= 2) mask_connect(j  ,i-1) = 1
-            if (mask(j+1,i  ) >= 2) mask_connect(j+1,i  ) = 1
-            if (mask(j-1,i  ) >= 2) mask_connect(j-1,i  ) = 1
-            if (mask(j+1,i+1) >= 2) mask_connect(j+1,i+1) = 1
-            if (mask(j+1,i-1) >= 2) mask_connect(j+1,i-1) = 1
-            if (mask(j-1,i+1) >= 2) mask_connect(j-1,i+1) = 1
-            if (mask(j-1,i-1) >= 2) mask_connect(j-1,i-1) = 1
+
+            do n=1, n_connectivity
+               ni = i+di(n)
+               nj = j+dj(n)
+               if (mask(nj,ni) >= 2) mask_connect(nj,ni) = 1
+            end do
+
          end if
 
       end if

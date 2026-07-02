@@ -865,7 +865,8 @@
 #define N_SLIDE_REGIONS 1
 !                       Number of regions with different sliding laws.
 !                       If set to 9999, the dimensionless sliding coefficient
-!                       will be read from the file 'C_SLIDE_DIMLESS_FILE'.
+!                       will be read as a 2D array from the file
+!                       'C_SLIDE_DIMLESS_FILE'.
 
 #define SLIDE_REGIONS_FILE 'none'
 !                       File defining the regions for the sliding laws
@@ -891,7 +892,7 @@
 
 #define C_SLIDE_DIMLESS_FILE 'none'
 !                       File containing the dimensionless sliding coefficient
-!                       (only for N_SLIDE_REGIONS==9999)
+!                       as a 2D array (only for N_SLIDE_REGIONS==9999)
 
 #define C_SLIDE_FILTER_WIDTH 0.0d0
 !                       Filtering width (spatial smoothing by Gaussian filter)

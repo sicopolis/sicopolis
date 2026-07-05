@@ -7,7 +7,7 @@ Copy an entry for C_SLIDE_DIMLESS in a SICOPOLIS run-specs header
 to a different (existing) header.
 
 Execution of the script from the main SICOPOLIS directory:
-  python3.11 ./tools/diverse/copy_c_slide.py <run_name_1> <run_name_2>
+  python3.11 ./tools/diverse/copy_c_slide_dimless.py <run_name_1> <run_name_2>
 (A newer version of Python will also do.)
 
 Run-specs headers must be in the standard directory './headers';
@@ -23,7 +23,7 @@ Last update: 2026-07-05
 
 if len(sys.argv) < 3:
     print('Error: Missing <run_name> arguments.')
-    print('Usage: python copy_c_slide.py <run_name_1> <run_name_2>.')
+    print('Usage: python copy_c_slide_dimless.py <run_name_1> <run_name_2>.')
     sys.exit(1)  # Stop the script immediately
 
 run1 = sys.argv[1]

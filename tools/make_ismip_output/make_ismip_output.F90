@@ -33,8 +33,13 @@
 #define TIME_UNIT 1
 !                     Time unit of ISMIP7 output to be generated:
 !                      1 - days for time itself, seconds for other
-!                          time-dependent variables (ISMIP7 default)
+!                          time-dependent variables (ISMIP6/7 default)
 !                      2 - years
+
+#define CALENDAR 2
+!                     Calendar (for TIME_UNIT==1):
+!                      1 - 360_day (used for SICOPOLIS ISMIP6 simulations)
+!                      2 - 365_day (ISMIP7)
 
 #define YEAR_REF 1850
 !                     Reference year for the day count (for TIME_UNIT==1)
@@ -419,7 +424,7 @@ character(len=64), intent(out) :: mapping_grid_mapping_name_r
 character(len=64), intent(out) :: mapping_ellipsoid_r
 
 integer(i4b)       :: i, j
-real(dp)           :: year_to_year_or_sec
+real(dp)           :: year_to_year_or_sec, year2day
 character(len=256) :: filename, filename_with_path
 character(len=256) :: ch_msg
 character, parameter :: end_of_line = char(10)
@@ -471,7 +476,16 @@ character(len=64) :: ch_aux
 real(dp), parameter :: T0  = 273.15_dp
 real(dp), parameter :: rho = 910.0_dp
 
-real(dp), parameter :: year2day = 360.0_dp   ! 360_day calendar used
+!-------- Year-to-day conversion --------
+
+#if (CALENDAR==1)
+year2day = 360.0_dp   ! 360_day calendar
+#elif (CALENDAR==2)
+year2day = 365.0_dp   ! 365_day calendar
+#else
+ch_msg = ' >>> read_nc: ''CALENDAR'' must be equal to either ''1'' or ''2''!'
+call write_message(ch_msg, 'error')
+#endif
 
 !-------- Name of file --------
 
@@ -1681,7 +1695,11 @@ call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
 buffer = 'time'
 call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 #if (TIME_UNIT==1)
+#if (CALENDAR==1)
 buffer = '360_day'
+#elif (CALENDAR==2)
+buffer = '365_day'
+#endif
 call check( nf90_put_att(ncid, ncv, 'calendar', trim(buffer)) )
 #endif
 call check( nf90_put_att(ncid, ncv, 'axis', 'T') )

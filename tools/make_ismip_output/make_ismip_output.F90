@@ -36,13 +36,14 @@
 !                          time-dependent variables (ISMIP6/7 default)
 !                      2 - years
 
-#define CALENDAR 2
+#define CALENDAR 3
 !                     Calendar (for TIME_UNIT==1):
 !                      1 - 360_day (used for SICOPOLIS ISMIP6 simulations)
-!                      2 - 365_day (ISMIP7)
+!                      2 - 365_day
+!                      3 - standard (Gregorian) (ISMIP7)
 
-#define YEAR_REF 1850
-!                     Reference year for the day count (for TIME_UNIT==1)
+#define YEAR_BASE 1850
+!                     Base year for the day count (for TIME_UNIT==1)
 
 !-------- Inclusion of specification header --------
 
@@ -53,17 +54,80 @@
 !-------------------------------------------------------------------------------
 module make_ismip_output_common
 
-integer, parameter :: i4b = selected_int_kind(9)   ! 4-byte integers
-integer, parameter :: sp  = kind(1.0)              ! single-precision reals
-integer, parameter :: dp  = kind(1.0d0)            ! double-precision reals
+  integer, parameter :: i4b = selected_int_kind(9)   ! 4-byte integers
+  integer, parameter :: sp  = kind(1.0)              ! single-precision reals
+  integer, parameter :: dp  = kind(1.0d0)            ! double-precision reals
 
-integer(i4b)            :: ndat = 0
-integer(i4b), parameter :: ndat_max = 9999
+  integer(i4b)            :: ndat = 0
+  integer(i4b), parameter :: ndat_max = 9999
 
-real(dp), parameter :: r_no_value_neg_dp = -9999.0_dp
-real(dp), parameter :: eps_dp = 1.0e-05_dp
+  real(dp), parameter :: r_no_value_neg_dp = -9999.0_dp
+  real(dp), parameter :: eps_dp = 1.0e-05_dp
 
 end module make_ismip_output_common
+
+!-------------------------------------------------------------------------------
+!> Date conversion for the Gregorian calendar.
+!-------------------------------------------------------------------------------
+module date_conversion
+
+  use make_ismip_output_common
+
+contains
+
+  pure elemental function days_since_base_year(year_ce) result(days)
+
+    implicit none
+
+    real(dp), intent(in) :: year_ce
+    real(dp)             :: days
+    integer(i4b)         :: y, base_year
+    real(dp)             :: frac, days_year
+
+    base_year = YEAR_BASE
+    y = floor(year_ce)
+    frac = year_ce - real(y, dp)
+
+    ! Notice the _dp suffix for the literal constants
+    days = real(y - base_year, dp) * 365.0_dp &
+         + real(count_leaps(y) - count_leaps(base_year), dp)
+
+    if (is_leap(y)) then
+       days_year = 366.0_dp
+    else
+       days_year = 365.0_dp
+    end if
+
+    days = days + (frac * days_year)
+
+  end function days_since_base_year
+
+  pure elemental function is_leap(year) result(leap)
+
+    implicit none
+
+    integer(i4b), intent(in) :: year
+    logical                  :: leap
+
+    leap = (mod(year, 4) == 0 .and. mod(year, 100) /= 0) &
+                              .or. (mod(year, 400) == 0)
+
+  end function is_leap
+
+  pure elemental function count_leaps(year) result(leaps)
+
+    implicit none
+
+    integer(i4b), intent(in) :: year
+    integer(i4b)             :: leaps
+    integer(i4b)             :: y
+
+    y = year - 1
+    leaps = (y / 4) - (y / 100) + (y / 400)
+
+  end function count_leaps
+
+end module date_conversion
 
 !-------------------------------------------------------------------------------
 !> Main program:
@@ -73,6 +137,7 @@ end module make_ismip_output_common
 program make_ismip_output
 
 use make_ismip_output_common
+use date_conversion
 
 implicit none
 
@@ -479,11 +544,13 @@ real(dp), parameter :: rho = 910.0_dp
 !-------- Year-to-day conversion --------
 
 #if (CALENDAR==1)
-year2day = 360.0_dp   ! 360_day calendar
+year2day = 360.0_dp  ! 360_day calendar
 #elif (CALENDAR==2)
-year2day = 365.0_dp   ! 365_day calendar
+year2day = 365.0_dp  ! 365_day calendar
+#elif (CALENDAR==3)
+year2day = 365.2425_dp  ! Gregorian calendar
 #else
-ch_msg = ' >>> read_nc: ''CALENDAR'' must be equal to either ''1'' or ''2''!'
+ch_msg = ' >>> read_nc: ''CALENDAR'' must be between ''1'' and ''3''!'
 call write_message(ch_msg, 'error')
 #endif
 
@@ -1244,16 +1311,30 @@ end if
 #endif
 
 #if (TIME_UNIT==1)
-   time_r         = (year_r-real(YEAR_REF,dp))     * year2day
+
+#if (CALENDAR==1 || CALENDAR==2)
+   time_r         = (year_r-real(YEAR_BASE,dp))     * year2day
                                  ! year CE -> days since reference datum
-   time_bnds_r(1) = (year_aux_1-real(YEAR_REF,dp)) * year2day
+   time_bnds_r(1) = (year_aux_1-real(YEAR_BASE,dp)) * year2day
                                  ! year CE -> days since reference datum
-   time_bnds_r(2) = (year_aux_2-real(YEAR_REF,dp)) * year2day
+   time_bnds_r(2) = (year_aux_2-real(YEAR_BASE,dp)) * year2day
                                  ! year CE -> days since reference datum
+#elif (CALENDAR==3)
+
+   time_r         = days_since_base_year(year_r)
+                                 ! year CE -> days since reference datum
+   time_bnds_r(1) = days_since_base_year(year_aux_1)
+                                 ! year CE -> days since reference datum
+   time_bnds_r(2) = days_since_base_year(year_aux_2)
+                                 ! year CE -> days since reference datum
+#endif
+
 #elif (TIME_UNIT==2)
+
    time_r         = time_erg     ! a
    time_bnds_r(1) = time_aux_1   ! a
    time_bnds_r(2) = time_aux_2   ! a
+
 #endif
 
 if (n_variable_dim == 1) then
@@ -1516,7 +1597,7 @@ integer(i4b) :: nc1cnt(1), nc2cnt(2), nc3cnt(3)
 !     nc2cnt(2): Count of a 2-d array
 !     nc3cnt(3): Count of a 3-d array
 character(len= 16) :: ch_date, ch_time, ch_zone
-character(len= 16) :: ch_year_ref
+character(len= 16) :: ch_year_base
 character(len=256) :: filename, filename_with_path, buffer
 character(len=256) :: ch_msg
 character, parameter :: end_of_line = char(10)
@@ -1671,7 +1752,7 @@ call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 
 !  ------ Time
 
-write(ch_year_ref, '(i0)') YEAR_REF
+write(ch_year_base, '(i0)') YEAR_BASE
 
 call check( nf90_inq_dimid(ncid, 'time', nc1d) )
 
@@ -1685,7 +1766,7 @@ call check( nf90_def_var(ncid, 'time', NF90_FLOAT, nc1d, ncv) )
 if (n_variable_type == 2) &
    call check( nf90_put_att(ncid, ncv, 'bounds', 'time_bnds') )
 #if (TIME_UNIT==1)
-buffer = 'days since '//trim(adjustl(ch_year_ref))//'-01-01'
+buffer = 'days since '//trim(adjustl(ch_year_base))//'-01-01'
 #elif (TIME_UNIT==2)
 buffer = 'a'
 #endif
@@ -1699,6 +1780,8 @@ call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 buffer = '360_day'
 #elif (CALENDAR==2)
 buffer = '365_day'
+#elif (CALENDAR==3)
+buffer = 'standard'
 #endif
 call check( nf90_put_att(ncid, ncv, 'calendar', trim(buffer)) )
 #endif

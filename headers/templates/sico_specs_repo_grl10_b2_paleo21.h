@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2026-07-01'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2026-07-08'
 !                      Date of last change
 
 !-------- Domain --------
@@ -1105,6 +1105,15 @@
 !                       1 : Parameterization as a function of the
 !                           subglacial discharge and the ocean thermal forcing,
 !                           by ISMIP7-Greenland
+
+#define N_SGD_REGIONS 1
+!                       Number of subglacial-discharge regions (basins)
+!                       (for FRONTAL_MELTING==1)
+
+#define SGD_REGIONS_FILE 'none'
+!                       File defining the regions (basins)
+!                       (only for N_SGD_REGIONS > 1,
+!                        for FRONTAL_MELTING==1)
 
 #define SGD_TF_DIR 'none'
 !                       Directory for the

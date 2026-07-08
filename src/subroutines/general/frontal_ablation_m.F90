@@ -58,17 +58,19 @@ contains
   real(dp), dimension(0:JMAX,0:IMAX), intent(in) :: my_zb, my_z_sl
   real(dp),                           intent(in) :: dxi, deta
 
-  integer(i4b) :: i, j, ij
+  integer(i4b) :: i, j, ij, n
   real(dp)     :: a_fm, b_fm, alpha_fm, beta_fm
   real(dp)     :: lambda_a_fm, lambda_b_fm
 
-  real(dp), dimension(0:JMAX,0:IMAX) :: frontal_area_submerged, H_submerged
+  real(dp), dimension(0:JMAX,0:IMAX) :: H_submerged
+  real(dp), dimension(0:JMAX,0:IMAX) :: frontal_area_submerged
   real(dp), dimension(0:JMAX,0:IMAX) :: sgd_normalized
-  real(dp), dimension(0:JMAX,0:IMAX) :: frontal_melting_horizontal
-  real(dp), dimension(0:JMAX,0:IMAX) :: area_ratio
 
-  character(len=8) :: ch_i
-  character(len=8) :: ch_j
+  real(dp), dimension(N_SGD_REGIONS) :: frontal_area_submerged_region
+
+  real(dp) :: frontal_melting_horizontal, area_ratio
+
+  character(len=8) :: ch_i, ch_j, ch_n
 
   a_fm     = 3.0e-04_dp
   b_fm     = 0.15_dp
@@ -95,14 +97,16 @@ contains
      i = n2i(ij)   ! i=0...IMAX
      j = n2j(ij)   ! j=0...JMAX
 
+     H_submerged(j,i) = my_z_sl(j,i)-my_zb(j,i)
+                        ! submerged ice depth (if positive)
+
      frontal_melting(j,i)        = 0.0_dp
      frontal_area_submerged(j,i) = 0.0_dp
      sgd_normalized(j,i)         = 0.0_dp
 
-     H_submerged(j,i) = my_z_sl(j,i)-my_zb(j,i)
-                        ! submerged ice depth (if positive)
-
   end do
+
+  frontal_area_submerged_region = 0.0_dp
 
   do ij=1, (IMAX+1)*(JMAX+1)
 
@@ -152,18 +156,57 @@ contains
            call error(errormsg)
         end if
 
-        sgd_normalized(j,i) = (sgd(j,i)/frontal_area_submerged(j,i)) &
-                              * day2sec   ! m/s -> m/d
+        n = n_sgd_region(j,i)
 
-        frontal_melting_horizontal(j,i) &
+        frontal_area_submerged_region(n) = frontal_area_submerged_region(n) &
+                                              + frontal_area_submerged(j,i)
+
+     end if
+
+  end do
+
+  do ij=1, (IMAX+1)*(JMAX+1)
+
+     i = n2i(ij)   ! i=0...IMAX
+     j = n2j(ij)   ! j=0...JMAX
+
+     if ( flag_inner_point(j,i) &
+          .and. &
+          flag_grounded_front_b_1(j,i) &
+          .and. &
+          H_submerged(j,i) > 0.0_dp ) then
+                             ! inner point, marine-terminating grounded front
+
+        n = n_sgd_region(j,i)
+
+        if (frontal_area_submerged_region(n) >= eps_dp) then
+
+           sgd_normalized(j,i) = (sgd(j,i)/frontal_area_submerged_region(n)) &
+                                 * day2sec   ! m/s -> m/d
+
+        else
+
+           write (ch_n, '(i0)') n; ch_n = adjustl(ch_n)
+           errormsg = ' >>> frontal_melting_grounded: ' &
+                    //         end_of_line &
+                    //'        Non-zero area' &
+                    //       ' ''frontal_area_submerged_region(n)''' &
+                    //         end_of_line &
+                    //'        could not be determined for n = ' &
+                    //         trim(ch_n) // ' !'
+           call error(errormsg)
+
+        end if
+
+        frontal_melting_horizontal &
              = ( a_fm * H_submerged(j,i) &
                       * sgd_normalized(j,i)**alpha_fm + b_fm ) &
                * tf(j,i)**beta_fm   ! m/d
 
-        area_ratio(j,i) = frontal_area_submerged(j,i)/cell_area(j,i)
+        area_ratio = frontal_area_submerged(j,i)/cell_area(j,i)
 
         frontal_melting(j,i) &
-             = (frontal_melting_horizontal(j,i)*area_ratio(j,i)) &
+             = (frontal_melting_horizontal*area_ratio) &
                * sec2day  !    m/d = m3/d/(m2 vertical area)
                           ! -> m/s = m3/s/(m2 horizontal area)
  

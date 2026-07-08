@@ -80,15 +80,15 @@ contains
     implicit none
 
     real(dp), intent(in) :: year_ce
-    real(dp)             :: days
-    integer(i4b)         :: y, base_year
-    real(dp)             :: frac, days_year
+
+    integer(i4b) :: y, base_year
+    real(dp)     :: days
+    real(dp)     :: frac, days_year
 
     base_year = YEAR_BASE
     y = floor(year_ce)
     frac = year_ce - real(y, dp)
 
-    ! Notice the _dp suffix for the literal constants
     days = real(y - base_year, dp) * 365.0_dp &
          + real(count_leaps(y) - count_leaps(base_year), dp)
 
@@ -107,7 +107,8 @@ contains
     implicit none
 
     integer(i4b), intent(in) :: year
-    logical                  :: leap
+
+    logical :: leap
 
     leap = (mod(year, 4) == 0 .and. mod(year, 100) /= 0) &
                               .or. (mod(year, 400) == 0)
@@ -119,8 +120,9 @@ contains
     implicit none
 
     integer(i4b), intent(in) :: year
-    integer(i4b)             :: leaps
-    integer(i4b)             :: y
+
+    integer(i4b) :: leaps
+    integer(i4b) :: y
 
     y = year - 1
     leaps = (y / 4) - (y / 100) + (y / 400)

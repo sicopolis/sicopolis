@@ -1949,6 +1949,8 @@ write(10, fmt=trim(fmt1)) ' '
 #if (defined(FRONTAL_MELTING))
 write(10, fmt=trim(fmt2)) 'FRONTAL_MELTING = ', FRONTAL_MELTING
 #if (FRONTAL_MELTING==1)
+write(10, fmt=trim(fmt2)) 'N_SGD_REGIONS = ', N_SGD_REGIONS
+write(10, fmt=trim(fmt1)) 'SGD_REGIONS_FILE = '//SGD_REGIONS_FILE
 write(10, fmt=trim(fmt1)) 'SGD_TF_DIR = '//SGD_TF_DIR
 write(10, fmt=trim(fmt1)) 'SGD_SUBDIR = '//SGD_SUBDIR
 write(10, fmt=trim(fmt1)) 'SGD_FILES  = '//SGD_FILES
@@ -2727,6 +2729,65 @@ if (.not.(approx_equal(z_tf_bm_present(NZ_TF_BM)-z_tf_bm_present(0), &
 end if
 
 #endif   /* (FLOATING_ICE_BASAL_MELTING==6) */
+
+!-------- Frontal melting --------
+
+n_sgd_region = 0   ! initialization
+
+#if (FRONTAL_MELTING==1)
+
+!  ------ Read file defining the regions for subglacial discharge
+
+#if (!defined(N_SGD_REGIONS) || N_SGD_REGIONS<=1)
+
+n_sgd_region = 1
+
+#else
+
+filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                     trim(SGD_REGIONS_FILE)
+
+call read_2d_input(filename_with_path, &
+                   ch_var_name='n_sgd_region', n_var_type=2, n_ascii_header=6, &
+                   field2d_r=field2d_aux)
+
+n_sgd_region = nint(field2d_aux)
+
+if ( .not.((minval(n_sgd_region)==1) &
+           .and. &
+           (maxval(n_sgd_region)==N_SGD_REGIONS)) ) then
+
+   if ( (minval(n_sgd_region)==0) &
+        .and. &
+        (maxval(n_sgd_region)==(N_SGD_REGIONS-1)) ) then
+
+      n_sgd_region = n_sgd_region + 1
+
+      warningmsg = ' >>> sico_init:' &
+                 //         end_of_line &
+                 //'        Region numbers in ''n_sgd_region'' run from' &
+                 //         end_of_line &
+                 //'        0 to (N_SGD_REGIONS-1).' &
+                 //         end_of_line &
+                 //'        Corrected to interval [1, N_SGD_REGIONS].'
+      call warning(warningmsg)
+
+   else
+
+      errormsg = ' >>> sico_init:' &
+               //         end_of_line &
+               //'        Range of region numbers in ''n_sgd_region'' wrong.' &
+               //         end_of_line &
+               //'        Must be between 1 and N_SGD_REGIONS!'
+      call error(errormsg)
+
+   end if
+
+end if
+
+#endif
+
+#endif   /* (FRONTAL_MELTING==1) */
 
 !-------- Reading of the prescribed target topography --------
 

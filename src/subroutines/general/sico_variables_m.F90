@@ -392,6 +392,9 @@ integer(i4b), dimension(0:JMAX,0:IMAX) :: n_slide_region
 integer(i4b), dimension(0:JMAX,0:IMAX) :: n_bm_region
    !! Regions for ice shelf basal melting
 
+integer(i4b), dimension(0:JMAX,0:IMAX) :: n_sgd_region
+   !! Regions for subglacial discharge
+
 real(dp), dimension(0:JMAX,0:IMAX) :: p_weert
    !! Weertman exponent for the basal shear stress
 

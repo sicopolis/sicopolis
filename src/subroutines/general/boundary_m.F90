@@ -91,7 +91,7 @@ integer(i4b) :: i_gr, i_kl
 integer(i4b) :: n_year_CE
 integer(i4b) :: n_hemisphere
 integer(i4b) :: ios
-integer(i4b) :: istat1, istat2
+integer(i4b) :: istat1, istat2, istat3
 real(dp), dimension(0:JMAX,0:IMAX) :: z_sl_old
 real(dp) :: z_sl_old_mean
 real(dp) :: z_sl_min, t1, t2, t3, t4, t5, t6
@@ -369,10 +369,13 @@ if ( firstcall%boundary &
       if (istat1 /= nf90_noerr) then
          istat2 = nf90_inq_varid(ncid, 'tas-anomaly', ncv)
          if (istat2 /= nf90_noerr) then
-            errormsg = ' >>> boundary: Error when inquiring the variable' &
-                     //                end_of_line &
-                     //'               for the surface-temperature anomaly!'
-            call error(errormsg)
+            istat3 = nf90_inq_varid(ncid, 'tas', ncv)
+            if (istat3 /= nf90_noerr) then
+               errormsg = ' >>> boundary: Error when inquiring the variable' &
+                        //                end_of_line &
+                        //'               for the surface-temperature anomaly!'
+               call error(errormsg)
+            end if
          end if
       end if
 
@@ -409,18 +412,23 @@ if ( firstcall%boundary &
          if (ios /= nf90_noerr) then
             errormsg = ' >>> boundary: Error when opening the file' &
                      //                end_of_line &
-                     //'        for the surface-temperature vertical gradient!'
+                     //'               for the surface-temperature' &
+                     //              ' vertical gradient!'
             call error(errormsg)
          end if
 
          istat1 = nf90_inq_varid(ncid, 'dSTdz', ncv)
          if (istat1 /= nf90_noerr) then
-            istat2 = nf90_inq_varid(ncid, 'dtsdz', ncv)
+            istat2 = nf90_inq_varid(ncid, 'dtasdz', ncv)
             if (istat2 /= nf90_noerr) then
-               errormsg = ' >>> boundary: Error when inquiring the variable' &
-                        //                end_of_line &
-                        //'     for the surface-temperature vertical gradient!'
-               call error(errormsg)
+               istat3 = nf90_inq_varid(ncid, 'dtsdz', ncv)
+               if (istat3 /= nf90_noerr) then
+                  errormsg = ' >>> boundary: Error when inquiring the variable' &
+                           //                end_of_line &
+                           //'               for the surface-temperature' &
+                           //              ' vertical gradient!'
+                  call error(errormsg)
+               end if
             end if
          end if
 
@@ -467,10 +475,13 @@ if ( firstcall%boundary &
       if (istat1 /= nf90_noerr) then
          istat2 = nf90_inq_varid(ncid, 'acabf-anomaly', ncv)
          if (istat2 /= nf90_noerr) then
-            errormsg = ' >>> boundary: Error when inquiring the variable' &
-                     //                end_of_line &
-                     //'               for the SMB anomaly!'
-            call error(errormsg)
+            istat3 = nf90_inq_varid(ncid, 'acabf', ncv)
+            if (istat3 /= nf90_noerr) then
+               errormsg = ' >>> boundary: Error when inquiring the variable' &
+                        //                end_of_line &
+                        //'               for the SMB anomaly!'
+               call error(errormsg)
+            end if
          end if
       end if
 

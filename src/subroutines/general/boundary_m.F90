@@ -91,7 +91,7 @@ integer(i4b) :: i_gr, i_kl
 integer(i4b) :: n_year_CE
 integer(i4b) :: n_hemisphere
 integer(i4b) :: ios
-integer(i4b) :: istat1, istat2, istat3
+integer(i4b), dimension(16) :: istat
 real(dp), dimension(0:JMAX,0:IMAX) :: z_sl_old
 real(dp) :: z_sl_old_mean
 real(dp) :: z_sl_min, t1, t2, t3, t4, t5, t6
@@ -212,6 +212,8 @@ glac_index = 0.0_dp
 z_sl       = 0.0_dp
 dzsl_dtau  = 0.0_dp
 z_mar      = 0.0_dp
+
+istat = 0
 
 !-------- Surface-temperature deviation from present values --------
 
@@ -365,17 +367,24 @@ if ( firstcall%boundary &
          call error(errormsg)
       end if
 
-      istat1 = nf90_inq_varid(ncid, 'aST', ncv)
-      if (istat1 /= nf90_noerr) then
-         istat2 = nf90_inq_varid(ncid, 'tas-anomaly', ncv)
-         if (istat2 /= nf90_noerr) then
-            istat3 = nf90_inq_varid(ncid, 'tas', ncv)
-            if (istat3 /= nf90_noerr) then
-               errormsg = ' >>> boundary: Error when inquiring' &
-                        //              ' the variable' &
-                        //                end_of_line &
-                        //'               for the surface-temperature anomaly!'
-               call error(errormsg)
+      istat(1) = nf90_inq_varid(ncid, 'aST', ncv)
+      if (istat(1) /= nf90_noerr) then
+         istat(2) = nf90_inq_varid(ncid, 'tas-anomaly', ncv)
+         if (istat(2) /= nf90_noerr) then
+            istat(3) = nf90_inq_varid(ncid, 'ts-anomaly', ncv)
+            if (istat(3) /= nf90_noerr) then
+               istat(4) = nf90_inq_varid(ncid, 'tas', ncv)
+               if (istat(4) /= nf90_noerr) then
+                  istat(5) = nf90_inq_varid(ncid, 'ts', ncv)
+                  if (istat(5) /= nf90_noerr) then
+                     errormsg = ' >>> boundary: Error when inquiring' &
+                              //              ' the variable' &
+                              //                end_of_line &
+                              //'               for the surface-temperature' &
+                              //              ' anomaly!'
+                     call error(errormsg)
+                  end if
+               end if
             end if
          end if
       end if
@@ -418,12 +427,12 @@ if ( firstcall%boundary &
             call error(errormsg)
          end if
 
-         istat1 = nf90_inq_varid(ncid, 'dSTdz', ncv)
-         if (istat1 /= nf90_noerr) then
-            istat2 = nf90_inq_varid(ncid, 'dtasdz', ncv)
-            if (istat2 /= nf90_noerr) then
-               istat3 = nf90_inq_varid(ncid, 'dtsdz', ncv)
-               if (istat3 /= nf90_noerr) then
+         istat(1) = nf90_inq_varid(ncid, 'dSTdz', ncv)
+         if (istat(1) /= nf90_noerr) then
+            istat(2) = nf90_inq_varid(ncid, 'dtasdz', ncv)
+            if (istat(2) /= nf90_noerr) then
+               istat(3) = nf90_inq_varid(ncid, 'dtsdz', ncv)
+               if (istat(3) /= nf90_noerr) then
                   errormsg = ' >>> boundary: Error when inquiring' &
                            //              ' the variable' &
                            //                end_of_line &
@@ -473,12 +482,12 @@ if ( firstcall%boundary &
          call error(errormsg)
       end if
 
-      istat1 = nf90_inq_varid(ncid, 'aSMB', ncv)
-      if (istat1 /= nf90_noerr) then
-         istat2 = nf90_inq_varid(ncid, 'acabf-anomaly', ncv)
-         if (istat2 /= nf90_noerr) then
-            istat3 = nf90_inq_varid(ncid, 'acabf', ncv)
-            if (istat3 /= nf90_noerr) then
+      istat(1) = nf90_inq_varid(ncid, 'aSMB', ncv)
+      if (istat(1) /= nf90_noerr) then
+         istat(2) = nf90_inq_varid(ncid, 'acabf-anomaly', ncv)
+         if (istat(2) /= nf90_noerr) then
+            istat(3) = nf90_inq_varid(ncid, 'acabf', ncv)
+            if (istat(3) /= nf90_noerr) then
                errormsg = ' >>> boundary: Error when inquiring' &
                         //              ' the variable' &
                         //                end_of_line &
@@ -540,12 +549,12 @@ if ( firstcall%boundary &
             call error(errormsg)
          end if
 
-         istat1 = nf90_inq_varid(ncid, 'dSMBdz', ncv)
-         if (istat1 /= nf90_noerr) then
-            istat2 = nf90_inq_varid(ncid, 'dacabfdz', ncv)
-            if (istat2 /= nf90_noerr) then
-               istat3 = nf90_inq_varid(ncid, 'dmrrodz', ncv)
-               if (istat3 /= nf90_noerr) then
+         istat(1) = nf90_inq_varid(ncid, 'dSMBdz', ncv)
+         if (istat(1) /= nf90_noerr) then
+            istat(2) = nf90_inq_varid(ncid, 'dacabfdz', ncv)
+            if (istat(2) /= nf90_noerr) then
+               istat(3) = nf90_inq_varid(ncid, 'dmrrodz', ncv)
+               if (istat(3) /= nf90_noerr) then
                   errormsg = ' >>> boundary: Error when inquiring' &
                            //              ' the variable' &
                            //                end_of_line &
@@ -1781,9 +1790,9 @@ if ( firstcall%boundary &
          call error(errormsg)
       end if
 
-      istat1 = nf90_inq_varid(ncid, 'sgd', ncv)
+      istat(1) = nf90_inq_varid(ncid, 'sgd', ncv)
 
-      if (istat1 /= nf90_noerr) then
+      if (istat(1) /= nf90_noerr) then
          errormsg = ' >>> boundary: Error when inquiring' &
                   //              ' the variable' &
                   //                end_of_line &
@@ -1822,9 +1831,9 @@ if ( firstcall%boundary &
          call error(errormsg)
       end if
 
-      istat1 = nf90_inq_varid(ncid, 'tf', ncv)
+      istat(1) = nf90_inq_varid(ncid, 'tf', ncv)
 
-      if (istat1 /= nf90_noerr) then
+      if (istat(1) /= nf90_noerr) then
          errormsg = ' >>> boundary: Error when inquiring' &
                   //              ' the variable' &
                   //                end_of_line &

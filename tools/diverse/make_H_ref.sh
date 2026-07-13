@@ -81,7 +81,9 @@ ncks -O -F -v mapping,x,y,lon,lat,H ${filename3} ${filename4}
 
 #-------- End of script --------
 
-echo "Done." ;
+echo " "
+echo "make_H_ref.sh - done."
+echo " "
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #

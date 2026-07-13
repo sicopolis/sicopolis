@@ -72,7 +72,9 @@ with open(f'./headers/{header_file_2}', 'w', encoding='ascii') as header2:
 
 #-------- End of script --------
 
-print('Done.')
+print()
+print('copy_c_slide_dimless.py - done.')
+print()
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #

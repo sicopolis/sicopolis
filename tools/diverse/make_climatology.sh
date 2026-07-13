@@ -104,7 +104,9 @@ ncrename -v zs,surf_elev_ref ${filename4}
 
 #-------- End of script --------
 
-echo "Done." ;
+echo " "
+echo "make_climatology.sh - done."
+echo " "
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #

@@ -81,7 +81,9 @@ ncrename -v smb_corr,DSMB ${filename4}
 
 #-------- End of script --------
 
-echo "Done."
+echo " "
+echo "make_smb_corr.sh - done."
+echo " "
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #

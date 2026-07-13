@@ -27,7 +27,7 @@
 # sico_in/ant/ (for Antarctica) or sico_in/grl/ (for Greenland).
 
 # Author: Ralf Greve
-# Date:   2026-07-03
+# Date:   2026-07-13
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #-------- Flags --------
@@ -55,7 +55,8 @@ filename4="${dir2}/${filename2}"
 #-------- Computing c_slide_dimless from SICOPOLIS output file --------
 
 ncks -O -F -v mapping,x,y,c_slide ${filename3} c_slide_tmp1.nc
-ncap2 -O -F -s "c_slide_dimless=c_slide/${c_slide_scale}f" c_slide_tmp1.nc c_slide_tmp2.nc
+ncap2 -O -F -s "c_slide_dimless=c_slide/float(${c_slide_scale})" \
+               c_slide_tmp1.nc c_slide_tmp2.nc
 ncks -O -F -x -v c_slide c_slide_tmp2.nc ${filename4}
 ncatted -O -a units,c_slide_dimless,d,, ${filename4}
 ncatted -O -a source,global,d,, ${filename4}
@@ -69,7 +70,9 @@ $RM -f c_slide_tmp*.nc
 
 #-------- End of script --------
 
-echo "Done." ;
+echo " "
+echo "make_c_slide_dimless.sh - done."
+echo " "
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #

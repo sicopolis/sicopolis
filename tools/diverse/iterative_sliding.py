@@ -7,6 +7,12 @@ from matplotlib import pyplot as plt
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 '''
+--------------------
+iterative_sliding.py
+--------------------
+
+Description
+-----------
 This script will start a chain of simulations with the objective
 of iteratively finding suitable sliding coefficients. It is
 using the same method found in the technical report Greve et
@@ -47,12 +53,14 @@ SICOPOLIS output must be in the standard directory './sico_out';
 otherwise, the script won't work!
 
 Created by Tom Dangleterre
-Last update: 2026-05-22 by Ralf Greve
+Last update: 2026-07-15 by Ralf Greve
 '''
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #-------- VARIABLES TO FILL --------
+
+print()
 
 dx = '16'  # Resolution (string)
 
@@ -346,7 +354,11 @@ while k <= kmax:
 
 #-------- END OF SCRIPT --------
 
-print(f'kmax = {kmax}, thus iteration {k} will not be carried out. Job done.')
+print(f'kmax = {kmax}, thus iteration {k} will not be carried out.')
+
+print()
+print('iterative_sliding.py - done.')
+print()
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #

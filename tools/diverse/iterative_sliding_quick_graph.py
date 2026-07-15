@@ -12,6 +12,12 @@ import numpy as np
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 '''
+--------------------------------
+iterative_sliding_quick_graph.py
+--------------------------------
+
+Description
+-----------
 This script will produce some graphs in order to take a quick look at
 the results from the iterative_sliding.py script (for now produces
 some results as a .txt file).
@@ -35,12 +41,14 @@ the command pip install netcdf4.
 Will save the files in the results folder created during the iterative script.
 
 Created by Tom Dangleterre
-Last update: 2026-06-02 by Ralf Greve
+Last update: 2026-07-15 by Ralf Greve
 '''
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #-------- Variables to fill --------
+
+print()
 
 domain = 'grl'
 # Name of the computational domain
@@ -321,7 +329,9 @@ plt.close('all')
 
 #-------- End of script --------
 
-print('Job done.\n')
+print()
+print('iterative_sliding_quick_graph.py - done.')
+print()
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #

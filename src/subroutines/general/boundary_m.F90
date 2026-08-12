@@ -92,6 +92,7 @@ integer(i4b) :: n_year_CE
 integer(i4b) :: n_hemisphere
 integer(i4b) :: ios
 integer(i4b), dimension(16) :: istat
+integer(i4b) :: n_sign_dsmb_dz
 real(dp), dimension(0:JMAX,0:IMAX) :: z_sl_old
 real(dp) :: z_sl_old_mean
 real(dp) :: z_sl_min, t1, t2, t3, t4, t5, t6
@@ -512,7 +513,7 @@ if ( firstcall%boundary &
                                        ! m/a ice equiv. -> m/s ice equiv.
       else
          errormsg = ' >>> boundary: ' &
-                       //'Unit of smb_anom_conv could not be determined!'
+                       //'Unit of ''smb_anom_conv'' could not be determined!'
          call error(errormsg)
       end if
 
@@ -523,6 +524,8 @@ if ( firstcall%boundary &
    end if
 
 !  ------ SMB vertical gradient
+
+   n_sign_dsmb_dz = 0   ! initialization
 
    if ( (trim(adjustl(dSMBdz_FILES)) /= 'none') &
         .and. &
@@ -550,11 +553,17 @@ if ( firstcall%boundary &
          end if
 
          istat(1) = nf90_inq_varid(ncid, 'dSMBdz', ncv)
-         if (istat(1) /= nf90_noerr) then
+         if (istat(1) == nf90_noerr) then
+            n_sign_dsmb_dz = 1   ! mass gain counted as positive
+         else
             istat(2) = nf90_inq_varid(ncid, 'dacabfdz', ncv)
-            if (istat(2) /= nf90_noerr) then
+            if (istat(2) == nf90_noerr) then
+               n_sign_dsmb_dz = 1   ! mass gain counted as positive
+            else
                istat(3) = nf90_inq_varid(ncid, 'dmrrodz', ncv)
-               if (istat(3) /= nf90_noerr) then
+               if (istat(3) == nf90_noerr) then
+                  n_sign_dsmb_dz = -1   ! mass loss counted as positive
+               else
                   errormsg = ' >>> boundary: Error when inquiring' &
                            //              ' the variable' &
                            //                end_of_line &
@@ -587,7 +596,15 @@ if ( firstcall%boundary &
                                       ! [m/a ice equiv.]/m -> [m/s ice equiv.]/m
          else
             errormsg = ' >>> boundary: ' &
-                          //'Unit of dsmb_dz_conv could not be determined!'
+                          //'Unit of ''dsmb_dz_conv'' could not be determined!'
+            call error(errormsg)
+         end if
+
+         if ((n_sign_dsmb_dz == 1).or.(n_sign_dsmb_dz == -1)) then
+            dsmb_dz_conv = dsmb_dz_conv * real(n_sign_dsmb_dz,dp)
+         else
+            errormsg = ' >>> boundary: ' &
+                          //'Sign of ''dsmb_dz_conv'' not defined!'
             call error(errormsg)
          end if
 

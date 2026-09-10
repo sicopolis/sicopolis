@@ -190,8 +190,13 @@ character(len=64) :: ch_initmip_bmb_anom_file
 character(len=64) :: ch_larmip_regions_file
 #endif
 
-#if (FLOATING_ICE_BASAL_MELTING==6)
+#if (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7)
 real(dp), dimension(0:IMAX,0:JMAX,0:NZ_TF_BM) :: tf_bm_present_aux
+#if (FLOATING_ICE_BASAL_MELTING==7)
+real(dp), parameter :: so_bm_default = 34.7_dp
+                                   ! Default value of the oceanic salinity (PSU)
+real(dp), dimension(0:IMAX,0:JMAX,0:NZ_SO_BM) :: so_bm_present_aux
+#endif
 #endif
 
 #if (defined(ANT) && ICE_SHELF_COLLAPSE_MASK==1)
@@ -2149,7 +2154,12 @@ write(10, fmt=trim(fmt3)) 'ALPHA_QBM  =', ALPHA_QBM
 write(10, fmt=trim(fmt3)) 'H_W_0 =', H_W_0
 write(10, fmt=trim(fmt1)) ' '
 
-#if (FLOATING_ICE_BASAL_MELTING==6)
+#if (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7)
+
+#if (defined(PARAM_LOCAL_SEMILOCAL))
+write(10, fmt=trim(fmt2)) 'PARAM_LOCAL_SEMILOCAL = ', PARAM_LOCAL_SEMILOCAL
+#endif
+
 write(10, fmt=trim(fmt2)) 'N_BM_REGIONS = ', N_BM_REGIONS
 write(10, fmt=trim(fmt1)) 'BM_REGIONS_FILE = '//BM_REGIONS_FILE
 gamma0_bm_aux   = GAMMA0_BM
@@ -2162,6 +2172,13 @@ write(10, fmt=trim(fmt3)) 'DELTA_TF_BM =', delta_tf_bm_aux(1)
 do n=2, N_BM_REGIONS
    write(10, fmt=trim(fmt3)) '             ', delta_tf_bm_aux(n)
 end do
+
+#if (FLOATING_ICE_BASAL_MELTING==7)
+#if (defined(SLOPE_MEAN_ICE_DRAFT))
+write(10, fmt=trim(fmt3)) 'SLOPE_MEAN_ICE_DRAFT =', SLOPE_MEAN_ICE_DRAFT
+#endif
+#endif
+
 write(10, fmt=trim(fmt1)) 'TF_BM_PRESENT_FILE = '//TF_BM_PRESENT_FILE
 write(10, fmt=trim(fmt1)) 'TF_BM_DIR   = '//TF_BM_DIR
 write(10, fmt=trim(fmt1)) 'TF_BM_FILES = '//TF_BM_FILES
@@ -2170,7 +2187,19 @@ write(10, fmt=trim(fmt2)) 'TF_BM_TIME_MAX = ', TF_BM_TIME_MAX
 write(10, fmt=trim(fmt3)) 'ZMIN_TF_BM =',  ZMIN_TF_BM
 write(10, fmt=trim(fmt2)) 'NZ_TF_BM   = ', NZ_TF_BM
 write(10, fmt=trim(fmt3)) 'DZ_TF_BM   =',  DZ_TF_BM
+
+#if (FLOATING_ICE_BASAL_MELTING==7)
+write(10, fmt=trim(fmt1)) 'SO_BM_PRESENT_FILE = '//SO_BM_PRESENT_FILE
+write(10, fmt=trim(fmt1)) 'SO_BM_DIR   = '//SO_BM_DIR
+write(10, fmt=trim(fmt1)) 'SO_BM_FILES = '//SO_BM_FILES
+write(10, fmt=trim(fmt2)) 'SO_BM_TIME_MIN = ', SO_BM_TIME_MIN
+write(10, fmt=trim(fmt2)) 'SO_BM_TIME_MAX = ', SO_BM_TIME_MAX
+write(10, fmt=trim(fmt3)) 'ZMIN_SO_BM =',  ZMIN_SO_BM
+write(10, fmt=trim(fmt2)) 'NZ_SO_BM   = ', NZ_SO_BM
+write(10, fmt=trim(fmt3)) 'DZ_SO_BM   =',  DZ_SO_BM
+#endif
 write(10, fmt=trim(fmt1)) ' '
+
 #endif
 
 #if (defined(ANT) && defined(INITMIP_BMB_ANOM_FILE))
@@ -2587,7 +2616,7 @@ n_slide_region = nint(field2d_aux)
 
 n_bm_region = 0   ! initialization
 
-#if (FLOATING_ICE_BASAL_MELTING==6)
+#if (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7)
 
 !  ------ Read file defining the regions for ice shelf basal melting
 
@@ -2728,7 +2757,97 @@ if (.not.(approx_equal(z_tf_bm_present(NZ_TF_BM)-z_tf_bm_present(0), &
    call error(errormsg)
 end if
 
-#endif   /* (FLOATING_ICE_BASAL_MELTING==6) */
+!  ------ Read file with the present-day salinity data of the ocean
+
+#if (FLOATING_ICE_BASAL_MELTING==7)
+
+filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)//'/'// &
+                     trim(SO_BM_PRESENT_FILE)
+
+ios = nf90_open(trim(filename_with_path), NF90_NOWRITE, ncid)
+
+if (ios /= nf90_noerr) then
+   errormsg = ' >>> sico_init: Error when opening the file' &
+            //                 end_of_line &
+            //'                for the present-day salinity data' &
+            //                 end_of_line &
+            //'                of the ocean!'
+   call error(errormsg)
+end if
+
+istat = nf90_inq_varid(ncid, 'z', ncv)
+if (istat /= nf90_noerr) then
+   errormsg = ' >>> sico_init: Error when inquiring the variable' &
+            //                 end_of_line &
+            //'                for the vertical coordinate' &
+            //                 end_of_line &
+            //'                for the present-day salinity' &
+            //                 end_of_line &
+            //'                of the ocean!'
+   call error(errormsg)
+end if
+
+call check( nf90_get_var(ncid, ncv, z_so_bm_present) )
+
+istat1 = nf90_inq_varid(ncid, 'salinity', ncv)
+if (istat1 /= nf90_noerr) then
+   istat2 = nf90_inq_varid(ncid, 'so', ncv)
+   if (istat2 /= nf90_noerr) then
+      errormsg = ' >>> sico_init: Error when inquiring the variable' &
+               //                 end_of_line &
+               //'                for the present-day salinity' &
+            //                    end_of_line &
+            //'                   of the ocean!'
+      call error(errormsg)
+   end if
+end if
+
+call check( nf90_get_var(ncid, ncv, so_bm_present_aux) )
+
+call check( nf90_close(ncid) )
+
+if ( (z_so_bm_present(0) < eps_dp).and.(z_so_bm_present(NZ_SO_BM) < eps_dp) ) &
+   z_so_bm_present = -z_so_bm_present   ! ensure positive depth values
+
+do i=0, IMAX
+do j=0, JMAX
+do n=0, NZ_SO_BM
+
+   so_bm_present(n,j,i) = so_bm_present_aux(i,j,n)
+                          ! swap indices -> SICOPOLIS standard
+
+   if ( (so_bm_present(n,j,i) > r_no_value_pos_2) &
+        .or. &
+        (so_bm_present(n,j,i) < 0.0_dp) ) then
+      so_bm_present(n,j,i) = so_bm_default
+   end if
+
+end do
+end do
+end do
+
+if (.not.(approx_equal(z_so_bm_present(0), ZMIN_SO_BM, eps_sp_dp))) then
+   errormsg = ' >>> sico_init: Inconsistency between' &
+            //         end_of_line &
+            //'        read z_so_bm data' &
+            //         end_of_line &
+            //'        and parameter ZMIN_SO_BM!'
+   call error(errormsg)
+end if
+
+if (.not.(approx_equal(z_so_bm_present(NZ_SO_BM)-z_so_bm_present(0), &
+                       NZ_SO_BM*DZ_SO_BM, eps_sp_dp))) then
+   errormsg = ' >>> sico_init: Inconsistency between' &
+            //         end_of_line &
+            //'        read z_so_bm data' &
+            //         end_of_line &
+            //'        and parameters NZ_SO_BM, DZ_SO_BM!'
+   call error(errormsg)
+end if
+
+#endif   /* (FLOATING_ICE_BASAL_MELTING==7) */
+
+#endif   /* (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7) */
 
 !-------- Frontal melting --------
 

@@ -1209,7 +1209,7 @@ real(dp), dimension(0:7) :: ab_anom_larmip
 !-------- ISMIP6/7-type ocean thermal forcing
 !         (for ice-shelf basal melting) --------
 
-#if (FLOATING_ICE_BASAL_MELTING==6)
+#if (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7)
 
 real(dp), dimension(0:NZ_TF_BM) :: z_tf_bm_present
    !! Equidistant depth points of the present-day ocean thermal forcing
@@ -1222,6 +1222,22 @@ real(dp), dimension(0:NZ_TF_BM) :: z_tf_bm
 
 real(dp), dimension(0:NZ_TF_BM,0:JMAX,0:IMAX) :: tf_bm
    !! Ocean thermal forcing
+
+#if (FLOATING_ICE_BASAL_MELTING==7)
+
+real(dp), dimension(0:NZ_SO_BM) :: z_so_bm_present
+   !! Equidistant depth points of the present-day ocean salinity
+
+real(dp), dimension(0:NZ_SO_BM,0:JMAX,0:IMAX) :: so_bm_present
+   !! Present-day ocean salinity
+
+real(dp), dimension(0:NZ_SO_BM) :: z_so_bm
+   !! Equidistant depth points of the ocean salinity
+
+real(dp), dimension(0:NZ_SO_BM,0:JMAX,0:IMAX) :: so_bm
+   !! Ocean salinity
+
+#endif
 
 #endif
 
@@ -1553,9 +1569,13 @@ type(flag_firstcall) :: firstcall
 integer(i4b) :: n_year_CE_surf_clim_save = -9999
    !! Time (in years CE) for ISMIP6/7-type surface climate forcing data
 
-integer(i4b) :: n_year_CE_bas_melt_save = -9999
+integer(i4b) :: n_year_CE_tf_bm_save = -9999
    !! Time (in years CE) for the thermal forcing data of the ocean
-   !! for the ISMIP6/7 non-local sub-ice-shelf melting parameterization
+   !! for the ISMIP6/7 sub-ice-shelf melting parameterization
+
+integer(i4b) :: n_year_CE_so_bm_save = -9999
+   !! Time (in years CE) for the salinity data of the ocean
+   !! for the ISMIP6/7 sub-ice-shelf melting parameterization
 
 integer(i4b) :: n_year_CE_front_melt_save = -9999
    !! Time (in years CE) for the ISMIP7 frontal melting parameterization

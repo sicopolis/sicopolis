@@ -310,7 +310,7 @@ do j=1, JMAX-1
                                  ! m/a water equiv. -> m/s ice equiv.
       end if
 
-#elif (FLOATING_ICE_BASAL_MELTING==6)
+#elif (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7)
 
       !%% continue
       !%% (will be computed below by subroutine sub_ice_shelf_melting_param_2)
@@ -318,7 +318,7 @@ do j=1, JMAX-1
 #else
       errormsg = ' >>> calc_qbm: FLOATING_ICE_BASAL_MELTING' &
                //                end_of_line &
-               //'               must be 1, 4, 5 or 6!'
+               //'               must be 1, 4, 5, 6 or 7!'
       call error(errormsg)
 #endif
 
@@ -332,7 +332,7 @@ do j=1, JMAX-1
 end do
 end do
 
-#if (FLOATING_ICE_BASAL_MELTING==6)
+#if (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7)
 
 call sub_ice_shelf_melting_param_2(time, time_in_years, &
                                    rhow_rho_ratio, z_abyssal, &
@@ -667,7 +667,7 @@ end if
 end subroutine sub_ice_shelf_melting_param_1
 
 !-------------------------------------------------------------------------------
-!> Non-local sub-ice-shelf melting parameterization by ISMIP6/7.
+!> Local or semi-local sub-ice-shelf melting parameterization by ISMIP6/7.
 !-------------------------------------------------------------------------------
 subroutine sub_ice_shelf_melting_param_2(time, time_in_years, &
                                          rhow_rho_ratio, z_abyssal, &
@@ -691,16 +691,22 @@ real(dp)    , intent(in) :: time_in_years
 real(dp)    , intent(in) :: rhow_rho_ratio, z_abyssal
 integer(i4b), intent(in) :: n_year_CE
 
-#if (defined(ANT) && FLOATING_ICE_BASAL_MELTING==6)
+#if (defined(ANT) && FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7)
 
 integer(i4b) :: i, j, n
 
 integer(i4b)       :: ios
 integer(i4b)       :: istat, istat1, istat2
-integer(i4b)       :: n_year_CE_bas_melt
+integer(i4b)       :: n_year_CE_tf_bm
 character(len= 16) :: ch_year_CE
 character(len=256) :: filename_with_path
+logical            :: flag_param_semilocal
 real(dp), dimension(0:IMAX,0:JMAX,0:NZ_TF_BM) :: tf_bm_aux
+
+#if (FLOATING_ICE_BASAL_MELTING==7)
+integer(i4b)       :: n_year_CE_so_bm
+real(dp), dimension(0:IMAX,0:JMAX,0:NZ_SO_BM) :: so_bm_aux
+#endif
 
 character(len=64), parameter :: thisroutine = 'sub_ice_shelf_melting_param_2'
 
@@ -710,11 +716,13 @@ integer(i4b) :: ncv
 !     ncv:       Variable ID
 
 integer(i4b) :: ninf, nsup, n_bm_regions
-real(dp)     :: dz_inv, tf_bm_no_value_neg
+real(dp)     :: dz_tf_inv, tf_bm_no_value_neg
+real(dp)     :: slope_mean
 real(dp)     :: cst_bm
 real(dp)     :: weigh
 real(dp)     :: draft
 real(dp)     :: real_n
+real(dp)     :: tf_bm_help
 
 #if defined(ALLOW_TAPENADE) /* Tapenade */
 integer(i4b) :: i_time_in_years
@@ -734,8 +742,19 @@ real(dp) :: sum_weigh(N_BM_REGIONS)
 
 real(dp), dimension(0:JMAX,0:IMAX) :: gamma0_bm, delta_tf_bm, tf_bm_local
 
-real(dp), parameter :: rhoi_bm  = 918.0_dp
+#if (FLOATING_ICE_BASAL_MELTING==7)
+real(dp) :: dz_so_inv
+real(dp), dimension(0:JMAX,0:IMAX) :: so_bm_local
+#endif
+
+#if (FLOATING_ICE_BASAL_MELTING==6)
+real(dp), parameter :: rhoi_bm = 918.0_dp
                                   ! Ice density (kg/m3)
+#elif (FLOATING_ICE_BASAL_MELTING==7)
+real(dp), parameter :: rhoi_bm = 917.0_dp
+                                  ! Ice density (kg/m3)
+#endif
+
 real(dp), parameter :: rhosw_bm = 1028.0_dp
                                   ! Sea water density (kg/m3)
 real(dp), parameter :: rhofw_bm = 1000.0_dp
@@ -745,9 +764,41 @@ real(dp), parameter :: Lf_bm    = 3.34e+05_dp
 real(dp), parameter :: cpw_bm   = 3974.0_dp
                                   ! Specific heat of sea water (J/kg/K)
 
+#if (FLOATING_ICE_BASAL_MELTING==7)
+real(dp), parameter :: beta_s_bm = 7.86e-04_dp
+                                   ! Salt contraction ocefficient (1/PSU)
+real(dp), parameter :: coriolis_par_bm = -1.4e-04_dp
+                                         ! Coriolis parameter (1/s)
+real(dp), parameter :: so_bm_default = 34.7_dp
+                                   ! Default value of the oceanic salinity (PSU)
+#endif
+
 #if defined(ALLOW_TAPENADE) /* Tapenade */
 call myfloor(time_in_years, i_time_in_years)
 #endif /* Tapenade */
+
+!-------- Determine local vs. semi-local parameterization --------
+
+#if (FLOATING_ICE_BASAL_MELTING==6)
+flag_param_semilocal = .true.
+                      ! default is semi-local for the ISMIP6 parameterization
+#elif (FLOATING_ICE_BASAL_MELTING==7)
+flag_param_semilocal = .false.
+                      ! default is local for the ISMIP7 parameterization
+#endif
+
+#if (defined(PARAM_LOCAL_SEMILOCAL))
+#if (PARAM_LOCAL_SEMILOCAL==1)
+   flag_param_semilocal = .false.  ! local
+#elif (PARAM_LOCAL_SEMILOCAL==2)
+   flag_param_semilocal = .true.   ! semi-local
+#else
+   errormsg = ' >>> sub_ice_shelf_melting_param_2:' &
+            //         end_of_line &
+            //'        PARAM_LOCAL_SEMILOCAL must be either 1 or 2!'
+   call error(errormsg)
+#endif
+#endif
 
 !-------- Read file with the thermal forcing data of the ocean --------
 
@@ -758,18 +809,18 @@ if (TF_BM_TIME_MIN > TF_BM_TIME_MAX) then
    call error(errormsg)
 end if
 
-n_year_CE_bas_melt = n_year_CE
+n_year_CE_tf_bm = n_year_CE
 
-if (n_year_CE_bas_melt < TF_BM_TIME_MIN) then
-   n_year_CE_bas_melt = TF_BM_TIME_MIN
-else if (n_year_CE_bas_melt > TF_BM_TIME_MAX) then
-   n_year_CE_bas_melt = TF_BM_TIME_MAX
+if (n_year_CE_tf_bm < TF_BM_TIME_MIN) then
+   n_year_CE_tf_bm = TF_BM_TIME_MIN
+else if (n_year_CE_tf_bm > TF_BM_TIME_MAX) then
+   n_year_CE_tf_bm = TF_BM_TIME_MAX
 end if
 
 if ( firstcall%sub_ice_shelf_melting_param_2 &
-     .or.(n_year_CE_bas_melt /= n_year_CE_bas_melt_save) ) then
+     .or.(n_year_CE_tf_bm /= n_year_CE_tf_bm_save) ) then
 
-   write(ch_year_CE, '(i0)') n_year_CE_bas_melt
+   write(ch_year_CE, '(i0)') n_year_CE_tf_bm
 
    if ( (trim(adjustl(TF_BM_FILES)) /= 'none') &
         .and. &
@@ -888,13 +939,175 @@ if ( firstcall%sub_ice_shelf_melting_param_2 &
 
 end if
 
-!  ------ Save value of n_year_CE_bas_melt
+!  ------ Save value of n_year_CE_tf_bm
 
-n_year_CE_bas_melt_save = n_year_CE_bas_melt
+n_year_CE_tf_bm_save = n_year_CE_tf_bm
+
+!-------- Read file with the salinity data of the ocean --------
+
+#if (FLOATING_ICE_BASAL_MELTING==7)
+
+if (SO_BM_TIME_MIN > SO_BM_TIME_MAX) then
+   errormsg = ' >>> sub_ice_shelf_melting_param_2:' &
+            //         end_of_line &
+            //'        SO_BM_TIME_MIN > SO_BM_TIME_MAX!'
+   call error(errormsg)
+end if
+
+n_year_CE_so_bm = n_year_CE
+
+if (n_year_CE_so_bm < SO_BM_TIME_MIN) then
+   n_year_CE_so_bm = SO_BM_TIME_MIN
+else if (n_year_CE_so_bm > SO_BM_TIME_MAX) then
+   n_year_CE_so_bm = SO_BM_TIME_MAX
+end if
+
+if ( firstcall%sub_ice_shelf_melting_param_2 &
+     .or.(n_year_CE_so_bm /= n_year_CE_so_bm_save) ) then
+
+   write(ch_year_CE, '(i0)') n_year_CE_so_bm
+
+   if ( (trim(adjustl(SO_BM_FILES)) /= 'none') &
+        .and. &
+        (trim(adjustl(SO_BM_FILES)) /= 'None') &
+        .and. &
+        (trim(adjustl(SO_BM_FILES)) /= 'NONE') ) then
+
+!  ------ Read data from file
+
+      filename_with_path = trim(SO_BM_DIR)//'/'// &
+                           trim(SO_BM_FILES)//trim(ch_year_CE)//'.nc'
+
+      ios = nf90_open(trim(filename_with_path), NF90_NOWRITE, ncid)
+
+      if (ios /= nf90_noerr) then
+         errormsg = ' >>> sub_ice_shelf_melting_param_2:' &
+                  //                end_of_line &
+                  //'               Error when opening the file' &
+                  //                end_of_line &
+                  //'               for the salinity of the ocean!'
+         call error(errormsg)
+      end if
+
+      istat = nf90_inq_varid(ncid, 'z', ncv)
+      if (istat /= nf90_noerr) then
+         errormsg = ' >>> sub_ice_shelf_melting_param_2:' &
+                  //                end_of_line &
+                  //'               Error when inquiring the variable' &
+                  //                end_of_line &
+                  //'               for the vertical coordinate!'
+         call error(errormsg)
+      end if
+
+      call check( nf90_get_var(ncid, ncv, z_so_bm) )
+
+      istat1 = nf90_inq_varid(ncid, 'salinity', ncv)
+      if (istat1 /= nf90_noerr) then
+         istat2 = nf90_inq_varid(ncid, 'so', ncv)
+         if (istat2 /= nf90_noerr) then
+            errormsg = ' >>> sub_ice_shelf_melting_param_2:' &
+                     //                end_of_line &
+                     //'               Error when inquiring the variable' &
+                     //                end_of_line &
+                     //'               for the salinity!'
+            call error(errormsg)
+         end if
+      end if
+
+      call check( nf90_get_var(ncid, ncv, so_bm_aux), thisroutine )
+
+      call check( nf90_close(ncid), thisroutine )
+
+!  ------ Ensure positive depth values
+
+      if ( (z_so_bm(0) < eps_dp).and.(z_so_bm(NZ_SO_BM) < eps_dp) ) &
+         z_so_bm = -z_so_bm
+
+!  ------ Swap indices -> SICOPOLIS standard
+
+      do i=0, IMAX
+      do j=0, JMAX
+      do n=0, NZ_SO_BM
+
+         so_bm(n,j,i) = so_bm_aux(i,j,n)
+
+         if ( (so_bm(n,j,i) > r_no_value_pos_2) &
+              .or. &
+              (so_bm(n,j,i) < 0.0_dp) ) then
+            so_bm(n,j,i) = so_bm_default
+         end if
+
+      end do
+      end do
+      end do
+
+!  ------ Check consistency of the depth (z_so_bm) data
+
+#if !defined(ALLOW_TAPENADE) /* Normal */
+
+      if (.not.(approx_equal(z_so_bm(0), ZMIN_SO_BM, eps_sp_dp))) then
+         errormsg = ' >>> sub_ice_shelf_melting_param_2:' &
+                  //         end_of_line &
+                  //'        Inconsistency between' &
+                  //         end_of_line &
+                  //'        read z_so_bm data' &
+                  //         end_of_line &
+                  //'        and parameter ZMIN_SO_BM!'
+         call error(errormsg)
+      end if
+
+      if (.not.(approx_equal(z_so_bm(NZ_SO_BM)-z_so_bm(0), &
+                             NZ_SO_BM*DZ_SO_BM, eps_sp_dp))) then
+         errormsg = ' >>> sub_ice_shelf_melting_param_2:' &
+                  //         end_of_line &
+                  //'        Inconsistency between' &
+                  //         end_of_line &
+                  //'        read z_so_bm data' &
+                  //         end_of_line &
+                  //'        and parameters NZ_SO_BM, DZ_SO_BM!'
+         call error(errormsg)
+      end if
+
+#endif /* Normal */
+
+   else   ! ( trim(adjustl(SO_BM_FILES)) == 'none' or 'None' or 'NONE' )
+
+!  ------ Use present-day data
+
+      so_bm_aux = 0.0_dp
+      so_bm     = so_bm_present
+      z_so_bm   = z_so_bm_present
+
+   end if
+
+end if
+
+!  ------ Save value of n_year_CE_so_bm
+
+n_year_CE_so_bm_save = n_year_CE_so_bm
+
+#endif
 
 !-------- Parameters for the parameterization --------
 
-cst_bm = ((rhosw_bm*cpw_bm)/(rhoi_bm*Lf_bm))**2   ! (1/K2)
+#if (FLOATING_ICE_BASAL_MELTING==6)
+slope_mean = 0.0_dp   ! dummy value
+#elif (FLOATING_ICE_BASAL_MELTING==7)
+#if (defined(SLOPE_MEAN_ICE_DRAFT))
+slope_mean = SLOPE_MEAN_ICE_DRAFT
+#else
+errormsg = ' >>> sub_ice_shelf_melting_param_2:' &
+         //         end_of_line &
+         //'        SLOPE_MEAN_ICE_DRAFT must be defined!'
+#endif
+#endif
+
+#if (FLOATING_ICE_BASAL_MELTING==6)
+cst_bm = ((rhosw_bm*cpw_bm)/(rhoi_bm*Lf_bm))**2   ! 1/K2
+#elif (FLOATING_ICE_BASAL_MELTING==7)
+cst_bm = (rhosw_bm/rhoi_bm)*(cpw_bm/Lf_bm)**2     ! 1/K2
+cst_bm = cst_bm * (0.5_dp*G/abs(coriolis_par_bm)) ! (m/s)/K2
+#endif
 
 #if (!defined(N_BM_REGIONS) || N_BM_REGIONS<=1)
 n_bm_regions = 1
@@ -903,9 +1116,13 @@ n_bm_regions = N_BM_REGIONS
 #endif
 
 #if (defined(GAMMA0_BM))
+#if (FLOATING_ICE_BASAL_MELTING==6)
   gamma0_bm_aux = GAMMA0_BM
   gamma0_bm_aux = gamma0_bm_aux *sec2year*(rhofw_bm/rhoi_bm)
                                 ! m/a water equiv. -> m/s ice equiv.
+#elif (FLOATING_ICE_BASAL_MELTING==7)
+  gamma0_bm_aux = GAMMA0_BM     ! dimensionless parameter
+#endif
 #else
   errormsg = ' >>> sub_ice_shelf_melting_param_2: GAMMA0_BM must be defined!'
   call error(errormsg)
@@ -937,7 +1154,7 @@ end do
 
 !-------- Local thermal forcing --------
 
-dz_inv = 1.0_dp/DZ_TF_BM
+dz_tf_inv = 1.0_dp/DZ_TF_BM
 
 tf_bm_no_value_neg = 0.999_dp*r_no_value_neg_2
 
@@ -957,7 +1174,7 @@ do j=0, JMAX
             draft = max((z_sl(j,i)-zb(j,i)), 0.0_dp)
          end if
 
-         real_n = (draft-ZMIN_TF_BM)*dz_inv
+         real_n = (draft-ZMIN_TF_BM)*dz_tf_inv
          ninf   = floor(real_n)
          nsup   = ninf+1
 
@@ -969,7 +1186,7 @@ do j=0, JMAX
                  (tf_bm(nsup,j,i) > tf_bm_no_value_neg) &
                ) &
                tf_bm_local(j,i) = tf_bm(ninf,j,i) &
-                                    + ((draft-z_tf_bm(ninf))*dz_inv) &
+                                    + ((draft-z_tf_bm(ninf))*dz_tf_inv) &
                                       *(tf_bm(nsup,j,i)-tf_bm(ninf,j,i))
 
          else if (ninf < 0) then
@@ -1000,31 +1217,88 @@ end do
 tf_bm_ave = 0.0_dp   ! initialization
 sum_weigh = 0.0_dp   ! initialization
 
+if (flag_param_semilocal) then
+
+   do i=0, IMAX
+   do j=0, JMAX
+
+      if (mask(j,i)==3) then   ! floating ice
+
+         n = n_bm_region(j,i)
+
+         weigh        = cell_area(j,i)
+         tf_bm_ave(n) = tf_bm_ave(n) + weigh*tf_bm_local(j,i)
+         sum_weigh(n) = sum_weigh(n) + weigh
+
+      end if
+
+   end do
+   end do
+
+   do n=1, n_bm_regions
+
+      if (sum_weigh(n) > eps_dp) then
+         tf_bm_ave(n) = tf_bm_ave(n)/sum_weigh(n)
+      else
+         tf_bm_ave(n) = 1.0_dp   ! default value
+      end if
+
+   end do
+
+end if
+
+!-------- Local salinity --------
+
+#if (FLOATING_ICE_BASAL_MELTING==7)
+
+dz_so_inv = 1.0_dp/DZ_SO_BM
+
+so_bm_local = so_bm_default   ! initialization by default value
+
 do i=0, IMAX
 do j=0, JMAX
 
-   if (mask(j,i)==3) then   ! floating ice
+   if ( (mask(j,i)==2).or.(mask(j,i)==3) ) then
+                                                ! floating ice or ocean
 
-      n = n_bm_region(j,i)
+      if ( zl(j,i) > z_abyssal ) then   ! continental shelf
 
-      weigh        = cell_area(j,i)
-      tf_bm_ave(n) = tf_bm_ave(n) + weigh*tf_bm_local(j,i)
-      sum_weigh(n) = sum_weigh(n) + weigh
+         if (mask(j,i)==2) then   ! ocean
+            draft = 0.0_dp
+         else if (mask(j,i)==3) then   ! floating ice
+            draft = max((z_sl(j,i)-zb(j,i)), 0.0_dp)
+         end if
+
+         real_n = (draft-ZMIN_SO_BM)*dz_so_inv
+         ninf   = floor(real_n)
+         nsup   = ninf+1
+
+         if ((ninf >= 0).and.(nsup <= NZ_SO_BM)) then
+
+            so_bm_local(j,i) = so_bm(ninf,j,i) &
+                                 + ((draft-z_so_bm(ninf))*dz_so_inv) &
+                                   *(so_bm(nsup,j,i)-so_bm(ninf,j,i))
+
+         else if (ninf < 0) then
+
+            ninf = 0
+            so_bm_local(j,i) = so_bm(ninf,j,i)
+
+         else   ! nsup > NZ_SO_BM
+
+            nsup = NZ_SO_BM
+            so_bm_local(j,i) = so_bm(nsup,j,i)
+
+         end if
+
+      end if
 
    end if
 
 end do
 end do
 
-do n=1, n_bm_regions
-
-   if (sum_weigh(n) > eps_dp) then
-      tf_bm_ave(n) = tf_bm_ave(n)/sum_weigh(n)
-   else
-      tf_bm_ave(n) = 1.0_dp   ! default value
-   end if
-
-end do
+#endif
 
 !-------- Computation of the sub-ice-shelf melting rate --------
 
@@ -1040,9 +1314,26 @@ do j=0, JMAX
 
          n = n_bm_region(j,i)
 
+         if (flag_param_semilocal) then
+            tf_bm_help = tf_bm_ave(n)
+         else
+            tf_bm_help = tf_bm_local(j,i)
+         end if
+
+#if (FLOATING_ICE_BASAL_MELTING==6)
+
          Q_bm(j,i) = gamma0_bm(j,i)*cst_bm &
                         *(tf_bm_local(j,i)+delta_tf_bm(j,i)) &
-                        *abs(tf_bm_ave(n)+delta_tf_bm(j,i))
+                        *abs(tf_bm_help+delta_tf_bm(j,i))
+
+#elif (FLOATING_ICE_BASAL_MELTING==7)
+
+         Q_bm(j,i) = (gamma0_bm(j,i)*sin(slope_mean)*cst_bm) &
+                        *(beta_s_bm*so_bm_local(j,i)) &
+                        *(tf_bm_local(j,i)+delta_tf_bm(j,i)) &
+                        *abs(tf_bm_help+delta_tf_bm(j,i))
+
+#endif
 
          if ((mask(j,i)==2).and.(Q_bm(j,i) < 0.0_dp)) Q_bm(j,i) = 0.0_dp
                                      ! avoid negative values for the open ocean
@@ -1101,13 +1392,13 @@ end do
 if (firstcall%sub_ice_shelf_melting_param_2) &
     firstcall%sub_ice_shelf_melting_param_2 = .false.
 
-#else   /* not (defined(ANT) && FLOATING_ICE_BASAL_MELTING==6) */
+#else   /* not (defined(ANT) && FLOATING_ICE_BASAL_MELTING==6 or 7) */
 
 errormsg = ' >>> sub_ice_shelf_melting_param_2:' &
          //          end_of_line &
          //'         Routine only valid for Antarctica' &
          //          end_of_line &
-         //'         and FLOATING_ICE_BASAL_MELTING==6!'
+         //'         and FLOATING_ICE_BASAL_MELTING==6 or 7!'
 call error(errormsg)
 
 #endif

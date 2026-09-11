@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2026-07-01'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2026-09-10'
 !                      Date of last change
 
 !-------- Domain --------
@@ -1261,8 +1261,10 @@
 !                       5 : Sector-wise parameterization as a function of the
 !                           thermal forcing, by
 !                           Greve and Galton-Fenzi (doi: 10.5281/zenodo.4766982)
-!                       6 : Sector-wise parameterization as a function of the
-!                           thermal forcing, by ISMIP6/7-Antarctica
+!                       6 : Sector-wise quadratic parameterization as a function
+!                           of the thermal forcing, by ISMIP6-Antarctica
+!                       7 : Sector-wise quadratic parameterization as a function
+!                           of the thermal forcing, by ISMIP7-Antarctica
 
 #define QBM_FLOAT_1 2.0d0
 !                       Basal melting rate for the continental shelf,
@@ -1295,71 +1297,125 @@
 !                       Exponent alpha of the thermal forcing
 !                       (for FLOATING_ICE_BASAL_MELTING==4)
 
+#define PARAM_LOCAL_SEMILOCAL 1
+!                       1 : Quadratic local parameterization
+!                       2 : Quadratic semi-local parameterization
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
+
 #define N_BM_REGIONS 16
 !                       Number of basal-melting regions
-!                       (for FLOATING_ICE_BASAL_MELTING==6)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
 
-#define BM_REGIONS_FILE 'ismip6_imbie2_basin_numbers_64km.dat'
+#define BM_REGIONS_FILE 'ismip7_imbie_basins_AIS_obs_ocean_v3_64km.nc'
 !                       File defining the regions
 !                       (only for N_BM_REGIONS > 1,
-!                        for FLOATING_ICE_BASAL_MELTING==6)
+!                        for FLOATING_ICE_BASAL_MELTING==6, 7)
 
-#define GAMMA0_BM 1.4477d+04
-!                       Basal melting coefficient,
-!                       in m/a water equiv.
-!                       (N_BM_REGIONS separate values,
-!                        for FLOATING_ICE_BASAL_MELTING==6)
+#define GAMMA0_BM 8.5d-05
+!                       Basal melting coefficient
+!                       (a single value, or N_BM_REGIONS separate values;
+!                        for FLOATING_ICE_BASAL_MELTING==6
+!                                                 -> in m/a water equiv.,
+!                        or for FLOATING_ICE_BASAL_MELTING==7
+!                                                 -> dimensionless)
 
-#define DELTA_TF_BM [ -0.1592d0,  0.5716d0,  0.1316d0,  0.5141d0,  0.6999d0, \
-                       0.2711d0,  0.0760d0, -0.1193d0,  0.4328d0,  1.0665d0, \
-                      -0.0054d0, -0.6644d0, -0.0553d0, -0.1235d0, -0.0588d0, \
-                       0.1001d0 ]
+#define DELTA_TF_BM [ -0.76d0, -0.08d0, -0.04d0,  0.20d0, -0.80d0, \
+                      -0.36d0, -0.72d0, -0.20d0,  0.28d0,  0.96d0, \
+                      -0.16d0, -0.80d0, -0.28d0, -0.08d0, -0.12d0, \
+                       0.12d0 ]
 !                       Thermal forcing offset, in K
 !                       (N_BM_REGIONS separate values,
-!                        for FLOATING_ICE_BASAL_MELTING==6)
+!                        for FLOATING_ICE_BASAL_MELTING==6, 7)
 
-#define TF_BM_PRESENT_FILE 'ismip6_obs_thermal_forcing_1995-2017_64km_60m.nc'
+#define SLOPE_MEAN_ICE_DRAFT 5.11173d-03
+!                       Mean slope of the ice-shelf draft
+!                       (for FLOATING_ICE_BASAL_MELTING==7)
+
+#define TF_BM_PRESENT_FILE 'ismip7_tf_AIS_obs_ocean_climatology_zhou_annual_06_nov_v3_1972-2024_64km_60m.nc'
 !                       Name of the file containing the
 !                       present-day thermal forcing data of the ocean
-!                       (for FLOATING_ICE_BASAL_MELTING==6)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
 
 #define TF_BM_DIR 'none'
 !                       Directory for the
 !                       yearly thermal forcing data of the ocean
-!                       (for FLOATING_ICE_BASAL_MELTING==6)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
 
 #define TF_BM_FILES  'none'
 !                       NetCDF files containing the
 !                       yearly thermal forcing data of the ocean
 !                       (without final year number and .nc extension)
 !                       ('none' if no such files are to be specified)
-!                       (for FLOATING_ICE_BASAL_MELTING==6)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
 
 #define TF_BM_TIME_MIN -9999
 !                       Minimum time of the yearly thermal forcing data
 !                       of the ocean (in year CE)
-!                       (for FLOATING_ICE_BASAL_MELTING==6)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
 
 #define TF_BM_TIME_MAX 9999
 !                       Maximum time of the yearly thermal forcing data
 !                       of the ocean (in year CE)
-!                       (for FLOATING_ICE_BASAL_MELTING==6)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
 
 #define ZMIN_TF_BM 30.0d0
 !                       Minimum depth (positive downward) of the
 !                       thermal forcing data, in m
-!                       (for FLOATING_ICE_BASAL_MELTING==6)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
 
 #define NZ_TF_BM 29
 !                       NZ_TF_BM+1:
 !                       number of equidistant depth points of the
 !                       thermal forcing data
 !                       (index count 0...NZ_TF_BM)
-!                       (for FLOATING_ICE_BASAL_MELTING==6)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
 
 #define DZ_TF_BM 60.0d0
 !                       Depth spacing of the thermal forcing data, in m
-!                       (for FLOATING_ICE_BASAL_MELTING==6)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
+
+#define SO_BM_PRESENT_FILE 'ismip7_so_AIS_obs_ocean_climatology_zhou_annual_06_nov_v4_1972-2024_64km_60m.nc'
+!                       Name of the file containing the
+!                       present-day salinity data of the ocean
+!                       (for FLOATING_ICE_BASAL_MELTING==7)
+
+#define SO_BM_DIR 'none'
+!                       Directory for the
+!                       yearly salinity data of the ocean
+!                       (for FLOATING_ICE_BASAL_MELTING==7)
+
+#define SO_BM_FILES 'none'
+!                       NetCDF files containing the
+!                       yearly salinity data of the ocean
+!                       (without final year number and .nc extension)
+!                       ('none' if no such files are to be specified)
+!                       (for FLOATING_ICE_BASAL_MELTING==7)
+
+#define SO_BM_TIME_MIN -9999
+!                       Minimum time of the yearly salinity data
+!                       of the ocean (in year CE)
+!                       (for FLOATING_ICE_BASAL_MELTING==7)
+
+#define SO_BM_TIME_MAX 9999
+!                       Maximum time of the yearly salinity data
+!                       of the ocean (in year CE)
+!                       (for FLOATING_ICE_BASAL_MELTING==7)
+
+#define ZMIN_SO_BM 30.0d0
+!                       Minimum depth (positive downward) of the
+!                       salinity data, in m
+!                       (for FLOATING_ICE_BASAL_MELTING==7)
+
+#define NZ_SO_BM 29
+!                       NZ_SO_BM+1:
+!                       number of equidistant depth points of the
+!                       salinity data
+!                       (index count 0...NZ_SO_BM)
+!                       (for FLOATING_ICE_BASAL_MELTING==7)
+
+#define DZ_SO_BM 60.0d0
+!                       Depth spacing of the salinity data, in m
+!                       (for FLOATING_ICE_BASAL_MELTING==7)
 
 !  ------ Special ISMIP6 InitMIP and ISMIP6/7 LARMIP settings
 

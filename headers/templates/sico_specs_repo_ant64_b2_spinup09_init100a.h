@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2026-09-10'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2026-09-18'
 !                      Date of last change
 
 !-------- Domain --------
@@ -1060,8 +1060,13 @@
 !-------- Ice-shelf collapse masks --------
 
 #define ICE_SHELF_COLLAPSE_MASK 0
-!                         0 : No ice-shelf collapse masks provided
-!                         1 : Ice-shelf collapse masks provided
+!                       0 : No ice-shelf collapse masks provided
+!                       1 : Ice-shelf collapse masks provided
+
+#define ICE_SHELF_COLLAPSE_LOCATION 1
+!                       1 : Ice-shelf collapse applied everywhere
+!                       2 : Ice-shelf collapse applied only at the calving front
+!                       (for ICE_SHELF_COLLAPSE_MASK==1)
 
 #define ICE_SHELF_COLLAPSE_MASK_DIR 'none'
 !                       Directory for the

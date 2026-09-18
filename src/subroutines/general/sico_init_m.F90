@@ -1937,6 +1937,10 @@ end if
 #if (defined(ANT) && defined(ICE_SHELF_COLLAPSE_MASK))
 write(10, fmt=trim(fmt2)) 'ICE_SHELF_COLLAPSE_MASK = ', ICE_SHELF_COLLAPSE_MASK
 #if (ICE_SHELF_COLLAPSE_MASK==1)
+#if (defined(ICE_SHELF_COLLAPSE_LOCATION))
+write(10, fmt=trim(fmt2)) 'ICE_SHELF_COLLAPSE_LOCATION = ', &
+                             ICE_SHELF_COLLAPSE_LOCATION
+#endif
 write(10, fmt=trim(fmt1)) 'ICE_SHELF_COLLAPSE_MASK_DIR   = ' &
                              //ICE_SHELF_COLLAPSE_MASK_DIR
 write(10, fmt=trim(fmt1)) 'ICE_SHELF_COLLAPSE_MASK_FILES = ' &

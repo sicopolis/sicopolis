@@ -425,12 +425,47 @@ contains
 
   dHdt_retreat = 0.0_dp   ! initialization
 
-  if ((H_new(j,i) > 0.0_dp).and.(mask(j,i)==3)) then
+  if (H_new(j,i) > 0.0_dp) then
 
-     dHdt_retreat = -(1.0_dp-r_mask_retreat(j,i))*H_ref_retreat(j,i) &
-                                                 *dtime_1year_inv
+#if (!defined(ICE_SHELF_COLLAPSE_LOCATION))
 
-     H_new(j,i) = max((H_new(j,i) + dHdt_retreat*dtime), 0.0_dp)
+     if (mask(j,i)==3) then  ! floating ice point
+
+#else
+
+#if (ICE_SHELF_COLLAPSE_LOCATION==1)
+
+     if (mask(j,i)==3) then  ! floating ice point
+
+#elif (ICE_SHELF_COLLAPSE_LOCATION==2)
+
+     if ( (mask(j,i)==3) &   ! floating ice point
+          .and. &
+            (    (mask(j,i+1)==2)   &   ! with one
+             .or.(mask(j,i-1)==2)   &   ! neighbouring
+             .or.(mask(j+1,i)==2)   &   ! ocean point
+             .or.(mask(j-1,i)==2) ) &   ! -> calving front
+        ) then
+
+#else
+
+     errormsg = ' >>> calving_retreat_mask: ' &
+              //         end_of_line &
+              //'        Parameter ''ICE_SHELF_COLLAPSE_LOCATION''' &
+              //         end_of_line &
+              //'        must be equal to 1 or 2!'
+     call error(errormsg)
+
+#endif
+
+#endif
+
+        dHdt_retreat = -(1.0_dp-r_mask_retreat(j,i))*H_ref_retreat(j,i) &
+                                                    *dtime_1year_inv
+
+        H_new(j,i) = max((H_new(j,i) + dHdt_retreat*dtime), 0.0_dp)
+
+     end if
 
   end if
 

@@ -408,14 +408,11 @@ contains
   integer(i4b), intent(in) :: i, j
   real(dp)    , intent(in) :: time, dtime
 
-  real(dp) :: H_new_tmp, dHdt_retreat
+  real(dp) :: H_new_tmp
   real(dp) :: calv_retreat_mask
   real(dp) :: dtime_inv
-  real(dp) :: dtime_1year, dtime_1year_inv
 
-  dtime_inv       = 1.0_dp/dtime
-  dtime_1year     = year2sec   ! 1 year (in seconds)
-  dtime_1year_inv = 1.0_dp/dtime_1year
+  dtime_inv = 1.0_dp/dtime
 
 !-------- Saving computed H_new before any adjustments --------
 
@@ -423,9 +420,7 @@ contains
 
 !-------- Adjustment due to the retreat mask --------
 
-  dHdt_retreat = 0.0_dp   ! initialization
-
-  if (H_new(j,i) > 0.0_dp) then
+  if ( (H_new(j,i) > 0.0_dp).and.(r_mask_retreat(j,i) > 0.9_dp) ) then
 
 #if (!defined(ICE_SHELF_COLLAPSE_LOCATION))
 
@@ -460,10 +455,7 @@ contains
 
 #endif
 
-        dHdt_retreat = -(1.0_dp-r_mask_retreat(j,i))*H_ref_retreat(j,i) &
-                                                    *dtime_1year_inv
-
-        H_new(j,i) = max((H_new(j,i) + dHdt_retreat*dtime), 0.0_dp)
+        H_new(j,i) = 0.0_dp
 
      end if
 

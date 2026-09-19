@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2026-09-18'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2026-09-19'
 !                      Date of last change
 
 !-------- Domain --------
@@ -1063,7 +1063,7 @@
 !                       0 : No ice-shelf collapse masks provided
 !                       1 : Ice-shelf collapse masks provided
 
-#define ICE_SHELF_COLLAPSE_LOCATION 1
+#define ICE_SHELF_COLLAPSE_LOCATION 2
 !                       1 : Ice-shelf collapse applied everywhere
 !                       2 : Ice-shelf collapse applied only at the calving front
 !                       (for ICE_SHELF_COLLAPSE_MASK==1)
@@ -1077,12 +1077,6 @@
 !                       NetCDF files containing the
 !                       yearly ice-shelf collapse masks
 !                       (without final year number and .nc extension)
-!                       (for ICE_SHELF_COLLAPSE_MASK==1)
-
-#define ICE_SHELF_COLLAPSE_MASK_H_REF_FILE 'none'
-!                       NetCDF file containing the
-!                       reference ice thickness for the
-!                       yearly ice-shelf collapse masks
 !                       (for ICE_SHELF_COLLAPSE_MASK==1)
 
 #define ICE_SHELF_COLLAPSE_MASK_TIME_MIN -9999

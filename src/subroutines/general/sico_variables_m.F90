@@ -1258,9 +1258,6 @@ real(dp), dimension(0:JMAX,0:IMAX) :: sgd
 
 #if (defined(ANT) && ICE_SHELF_COLLAPSE_MASK==1) /* Antarctica */
 
-real(dp), dimension(0:JMAX,0:IMAX) :: H_ref_retreat
-   !! Reference ice thickness for the ice-shelf collapse mask
-
 real(dp), dimension(0:JMAX,0:IMAX) :: r_mask_retreat
    !! Ice-shelf collapse mask
 

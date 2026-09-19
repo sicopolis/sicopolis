@@ -1920,11 +1920,11 @@ n_year_CE_isc = n_year_CE
 if (n_year_CE_isc > ICE_SHELF_COLLAPSE_MASK_TIME_MAX) &
                        n_year_CE_isc = ICE_SHELF_COLLAPSE_MASK_TIME_MAX
 
-if (firstcall%boundary) r_mask_retreat = 1.0_dp   ! initialization
+if (firstcall%boundary) r_mask_retreat = 0.0_dp   ! initialization
 
 if (n_year_CE_isc < ICE_SHELF_COLLAPSE_MASK_TIME_MIN) then
 
-   r_mask_retreat = 1.0_dp
+   r_mask_retreat = 0.0_dp
 
 else if (n_year_CE_isc /= n_year_CE_isc_save) then
 
@@ -1950,10 +1950,8 @@ else if (n_year_CE_isc /= n_year_CE_isc_save) then
 
    do i=0, IMAX
    do j=0, JMAX
-      r_mask_retreat(j,i) = 1.0_dp - r_mask_retreat_conv(i,j)
-                                    ! swap 0 <-> 1
-      r_mask_retreat(j,i) = max(min(r_mask_retreat(j,i), 1.0_dp), 0.0_dp)
-                                    ! constrain to interval [0,1]
+      r_mask_retreat(j,i) = max(min(r_mask_retreat_conv(i,j), 1.0_dp), 0.0_dp)
+                            ! constrain to interval [0,1]
    end do
    end do
 

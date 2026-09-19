@@ -199,10 +199,6 @@ real(dp), dimension(0:IMAX,0:JMAX,0:NZ_SO_BM) :: so_bm_present_aux
 #endif
 #endif
 
-#if (defined(ANT) && ICE_SHELF_COLLAPSE_MASK==1)
-real(dp), dimension(0:IMAX,0:JMAX) :: H_ref_retreat_conv
-#endif
-
 integer(i4b) :: dimid, ncid, ncv
 !   dimid:       Dimension ID
 !    ncid:       File ID
@@ -1945,8 +1941,6 @@ write(10, fmt=trim(fmt1)) 'ICE_SHELF_COLLAPSE_MASK_DIR   = ' &
                              //ICE_SHELF_COLLAPSE_MASK_DIR
 write(10, fmt=trim(fmt1)) 'ICE_SHELF_COLLAPSE_MASK_FILES = ' &
                              //ICE_SHELF_COLLAPSE_MASK_FILES
-write(10, fmt=trim(fmt1)) 'ICE_SHELF_COLLAPSE_MASK_H_REF_FILE = ' &
-                             //ICE_SHELF_COLLAPSE_MASK_H_REF_FILE
 write(10, fmt=trim(fmt2)) 'ICE_SHELF_COLLAPSE_MASK_TIME_MIN = ', &
                              ICE_SHELF_COLLAPSE_MASK_TIME_MIN
 write(10, fmt=trim(fmt2)) 'ICE_SHELF_COLLAPSE_MASK_TIME_MAX = ', &
@@ -3427,39 +3421,6 @@ flex_rig_lith = field2d_aux
 #elif (REBOUND==0 || REBOUND==1)
 
 flex_rig_lith = 0.0_dp   ! dummy values
-
-#endif
-
-!-------- Antarctica only:
-!         Reading of the reference ice thickness for the
-!                                  ice-shelf collapse masks --------
-
-#if (defined(ANT) && ICE_SHELF_COLLAPSE_MASK==1)
-
-filename_with_path = trim(IN_PATH)//'/'//trim(ch_domain_short)// &
-                                   '/'//trim(ICE_SHELF_COLLAPSE_MASK_H_REF_FILE)
-
-ios = nf90_open(trim(filename_with_path), NF90_NOWRITE, ncid)
-
-if (ios /= nf90_noerr) then
-   errormsg = ' >>> sico_init: Error when opening the file' &
-            //                 end_of_line &
-            //'                for the reference ice thickness' &
-            //                 end_of_line &
-            //'                for the ice-shelf collapse masks!'
-   call error(errormsg)
-end if
-
-call check( nf90_inq_varid(ncid, 'H', ncv) )
-call check( nf90_get_var(ncid, ncv, H_ref_retreat_conv) )
-
-call check( nf90_close(ncid) )
-
-do i=0, IMAX
-do j=0, JMAX
-   H_ref_retreat(j,i) = max(H_ref_retreat_conv(i,j), 0.0_dp)
-end do
-end do
 
 #endif
 

@@ -257,9 +257,9 @@ do n_variable_type = 1, 2
 
 #if (OUTPUT==1 || OUTPUT==3)
       if (flag_init_output) then
-         ndat = floor((TIME_END0-TIME_INIT0)/DTIME_OUT0+eps_dp)+1
+         ndat = floor(((TIME_END0)-(TIME_INIT0))/(DTIME_OUT0)+eps_dp)+1
       else
-         ndat = floor((TIME_END0-TIME_INIT0)/DTIME_OUT0+eps_dp)
+         ndat = floor(((TIME_END0)-(TIME_INIT0))/(DTIME_OUT0)+eps_dp)
       end if
 #elif (OUTPUT==2)
       ndat = N_OUTPUT
@@ -271,9 +271,9 @@ do n_variable_type = 1, 2
    else if (n_variable_dim == 2) then
 
       if (flag_init_output) then
-         ndat = floor((TIME_END0-TIME_INIT0)/DTIME_SER0+eps_dp)+1
+         ndat = floor(((TIME_END0)-(TIME_INIT0))/(DTIME_SER0)+eps_dp)+1
       else
-         ndat = floor((TIME_END0-TIME_INIT0)/DTIME_SER0+eps_dp)
+         ndat = floor(((TIME_END0)-(TIME_INIT0))/(DTIME_SER0)+eps_dp)
       end if
 
    else

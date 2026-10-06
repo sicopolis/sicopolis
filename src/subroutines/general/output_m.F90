@@ -6190,10 +6190,10 @@ do n=0, maxval(mask_region)   ! n=0: entire ice sheet, n>0: defined regions
       buffer = 'm SLE'
       call check( nf90_put_att(ncid(n), ncv, 'units', trim(buffer)), &
                   thisroutine )
-      buffer = 'land_ice_volume_sle'
+      buffer = 'land_ice_volume_not_displacing_sea_water_sle'
       call check( nf90_put_att(ncid(n), ncv, 'standard_name', trim(buffer)), &
                   thisroutine )
-      buffer = 'Ice volume in SLE'
+      buffer = 'Ice volume above flotation in SLE'
       call check( nf90_put_att(ncid(n), ncv, 'long_name', trim(buffer)), &
                   thisroutine )
 

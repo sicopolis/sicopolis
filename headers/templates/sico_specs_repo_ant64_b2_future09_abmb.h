@@ -4,7 +4,7 @@
 
 !-------- Basic settings --------
 
-#define RUN_SPECS_HEADER_LAST_CHANGED '2026-09-19'
+#define RUN_SPECS_HEADER_LAST_CHANGED '2026-10-03'
 !                      Date of last change
 
 !-------- Domain --------
@@ -1264,6 +1264,9 @@
 !                           of the thermal forcing, by ISMIP6-Antarctica
 !                       7 : Sector-wise quadratic parameterization as a function
 !                           of the thermal forcing, by ISMIP7-Antarctica
+!                       8 : Sector-wise power relationship,
+!                             Q_bm = lambda*Gamma*TF^alpha,
+!                           by Galton-Fenzi (2026, Sci Adv, submitted)
 
 #define QBM_FLOAT_1 2.0d0
 !                       Basal melting rate for the continental shelf,
@@ -1333,45 +1336,45 @@
 #define TF_BM_PRESENT_FILE 'ismip7_tf_AIS_obs_ocean_climatology_zhou_annual_06_nov_v3_1972-2024_64km_60m.nc'
 !                       Name of the file containing the
 !                       present-day thermal forcing data of the ocean
-!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7, 8)
 
 #define TF_BM_DIR 'none'
 !                       Directory for the
 !                       yearly thermal forcing data of the ocean
-!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7, 8)
 
 #define TF_BM_FILES  'none'
 !                       NetCDF files containing the
 !                       yearly thermal forcing data of the ocean
 !                       (without final year number and .nc extension)
 !                       ('none' if no such files are to be specified)
-!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7, 8)
 
 #define TF_BM_TIME_MIN -9999
 !                       Minimum time of the yearly thermal forcing data
 !                       of the ocean (in year CE)
-!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7, 8)
 
 #define TF_BM_TIME_MAX 9999
 !                       Maximum time of the yearly thermal forcing data
 !                       of the ocean (in year CE)
-!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7, 8)
 
 #define ZMIN_TF_BM 30.0d0
 !                       Minimum depth (positive downward) of the
 !                       thermal forcing data, in m
-!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7, 8)
 
 #define NZ_TF_BM 29
 !                       NZ_TF_BM+1:
 !                       number of equidistant depth points of the
 !                       thermal forcing data
 !                       (index count 0...NZ_TF_BM)
-!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7, 8)
 
 #define DZ_TF_BM 60.0d0
 !                       Depth spacing of the thermal forcing data, in m
-!                       (for FLOATING_ICE_BASAL_MELTING==6, 7)
+!                       (for FLOATING_ICE_BASAL_MELTING==6, 7, 8)
 
 #define SO_BM_PRESENT_FILE 'ismip7_so_AIS_obs_ocean_climatology_zhou_annual_06_nov_v4_1972-2024_64km_60m.nc'
 !                       Name of the file containing the
@@ -1421,21 +1424,20 @@
 #define INITMIP_BMB_ANOM_FILE 'basal_melt_anomaly_64km_ISMIP6.nc'
 !                       Name of the file containing the
 !                       ice-shelf basal melting anomaly for ISMIP6 InitMIP
-!                       (for FLOATING_ICE_BASAL_MELTING==4,5,6;
+!                       (for FLOATING_ICE_BASAL_MELTING>=4;
 !                        'none' if not used)
 
 #define LARMIP_REGIONS_FILE 'none'
 !                       Name of the file containing the
 !                       regions for ISMIP6/7 LARMIP
-!                       (for FLOATING_ICE_BASAL_MELTING==4,5,6;
+!                       (for FLOATING_ICE_BASAL_MELTING>=4;
 !                        'none' if not used)
 
 #define LARMIP_QBM_ANOM [ 0.0d0, 0.0d0, 0.0d0, 0.0d0, 0.0d0 ]
 !                       Ice-shelf basal melting rate anomaly
-!                       for LARMIP regions 1-5
-!                       (EAIS, Ross, Amundsen, Weddell, Peninsula),
+!                       for LARMIP regions 1-5,
 !                       in m/a ice equiv.
-!                       (for FLOATING_ICE_BASAL_MELTING==4,5,6)
+!                       (for FLOATING_ICE_BASAL_MELTING>=4)
 
 !-------- Data output --------
 

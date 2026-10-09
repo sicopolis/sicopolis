@@ -190,7 +190,7 @@ character(len=64) :: ch_initmip_bmb_anom_file
 character(len=64) :: ch_larmip_regions_file
 #endif
 
-#if (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7)
+#if (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7 || FLOATING_ICE_BASAL_MELTING==8)
 real(dp), dimension(0:IMAX,0:JMAX,0:NZ_TF_BM) :: tf_bm_present_aux
 #if (FLOATING_ICE_BASAL_MELTING==7)
 real(dp), parameter :: so_bm_default = 34.7_dp
@@ -2152,6 +2152,8 @@ write(10, fmt=trim(fmt3)) 'ALPHA_QBM  =', ALPHA_QBM
 write(10, fmt=trim(fmt3)) 'H_W_0 =', H_W_0
 write(10, fmt=trim(fmt1)) ' '
 
+#if (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7 || FLOATING_ICE_BASAL_MELTING==8)
+
 #if (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7)
 
 #if (defined(PARAM_LOCAL_SEMILOCAL))
@@ -2170,6 +2172,8 @@ write(10, fmt=trim(fmt3)) 'DELTA_TF_BM =', delta_tf_bm_aux(1)
 do n=2, N_BM_REGIONS
    write(10, fmt=trim(fmt3)) '             ', delta_tf_bm_aux(n)
 end do
+
+#endif
 
 #if (FLOATING_ICE_BASAL_MELTING==7)
 #if (defined(SLOPE_MEAN_ICE_DRAFT))
@@ -2614,9 +2618,11 @@ n_slide_region = nint(field2d_aux)
 
 n_bm_region = 0   ! initialization
 
-#if (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7)
+#if (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7 || FLOATING_ICE_BASAL_MELTING==8)
 
 !  ------ Read file defining the regions for ice shelf basal melting
+
+#if (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7)
 
 #if (!defined(N_BM_REGIONS) || N_BM_REGIONS<=1)
 
@@ -2666,6 +2672,8 @@ if ( .not.((minval(n_bm_region)==1) &
 end if
 
 #endif
+
+#endif  /* (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7) */
 
 !  ------ Read file with the present-day thermal forcing data of the ocean
 
@@ -2845,7 +2853,7 @@ end if
 
 #endif   /* (FLOATING_ICE_BASAL_MELTING==7) */
 
-#endif   /* (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7) */
+#endif   /* (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7 || FLOATING_ICE_BASAL_MELTING==8) */
 
 !-------- Frontal melting --------
 

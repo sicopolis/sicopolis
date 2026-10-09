@@ -1209,7 +1209,7 @@ real(dp), dimension(0:7) :: ab_anom_larmip
 !-------- ISMIP6/7-type ocean thermal forcing
 !         (for ice-shelf basal melting) --------
 
-#if (FLOATING_ICE_BASAL_MELTING==6 || FLOATING_ICE_BASAL_MELTING==7)
+#if (FLOATING_ICE_BASAL_MELTING>=6 && FLOATING_ICE_BASAL_MELTING<=8)
 
 real(dp), dimension(0:NZ_TF_BM) :: z_tf_bm_present
    !! Equidistant depth points of the present-day ocean thermal forcing

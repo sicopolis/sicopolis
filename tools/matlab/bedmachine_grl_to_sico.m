@@ -8,7 +8,7 @@
 %   writing them on NetCDF files in the format required by SICOPOLIS.
 %
 % Author: Ralf Greve
-% Date:   2026-03-30
+% Date:   2026-10-19
 %==========================================================================
 
 clear variables
@@ -16,7 +16,7 @@ close all
 
 %-------- Parameter settings --------
 
-bm_version = '6';   % Version number of BedMachine data (string)
+bm_version = '7';   % Version number of BedMachine data (string)
 
 inpath   = ['/uchi/greve/sicopolis/data/grl_bedmachine/v' bm_version];
 filename = ['BedMachineGreenland-v' bm_version '_compressed.nc'];

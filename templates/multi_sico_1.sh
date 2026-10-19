@@ -10,7 +10,7 @@ LANG=C
 #
 #  Author: Ralf Greve
 #
-#  Date: 2026-05-24
+#  Date: 2026-10-19
 #
 ################################################################################
 
@@ -134,20 +134,20 @@ function run()
                  ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_102.dat 2>&1
 
-   (./sico.sh -m repo_grl16_bm5_ss25ka \
+   (./sico.sh -m repo_grl16_bm7_ss25ka \
                  ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_103.dat 2>&1
 
-   (./sico.sh -m repo_grl16_bm5_init100a \
+   (./sico.sh -m repo_grl16_bm7_init100a \
                  ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_104.dat 2>&1
 
-   (./sico.sh -m repo_grl16_bm5_ss25ka_nudged \
+   (./sico.sh -m repo_grl16_bm7_ss25ka_nudged \
                  ${MULTI_OPTIONS_1} \
-              -t ${MULTI_OUTDIR}/repo_grl16_bm5_init100a) \
+              -t ${MULTI_OUTDIR}/repo_grl16_bm7_init100a) \
               >${SICO_SH_OUT_DIR}/out_multi_105.dat 2>&1
 
-   (./sico.sh -m repo_ant64_bm3_ss25ka \
+   (./sico.sh -m repo_ant64_bm4p1_ss25ka \
                  ${MULTI_OPTIONS_1}) \
               >${SICO_SH_OUT_DIR}/out_multi_106.dat 2>&1
 

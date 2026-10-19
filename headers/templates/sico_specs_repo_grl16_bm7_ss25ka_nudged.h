@@ -168,10 +168,10 @@
 
 !!!!! NOTE: All time quantities below refer to the SICOPOLIS calendar. !!!!!
 
-#define TIME_INIT0 -100.0d0
+#define TIME_INIT0 0.0d0
 !                       Initial time of simulation (in a)
 
-#define TIME_END0 0.0d0
+#define TIME_END0 25000.0d0
 !                       Final time of simulation (in a)
 
 #define DTIME0 5.0d0
@@ -284,7 +284,7 @@
 
 !-------- Ice sheet thermodynamics --------
 
-#define CALCMOD -1
+#define CALCMOD 1
 !                        -1 : ISOT: isothermal method,
 !                                   constant temperature and age
 !                         0 : COLD: cold-ice method, resetting of temperatures
@@ -436,7 +436,7 @@
 
 !-------- Flow enhancement factor --------
 
-#define ENHMOD 1
+#define ENHMOD 2
 !                         1 : Flow enhancement factor enh=ENH_FACT everywhere
 !                             in grounded ice
 !                         2 : enh=ENH_INTG for ice younger than AGE_TRANS_0
@@ -459,7 +459,7 @@
 !                             between ENH_COMPR (for compression) and
 !                             ENH_SHEAR (for shear)
 
-#define ENH_FACT 1.0d0
+#define ENH_FACT 3.0d0
 !                         Flow enhancement factor (only for ENHMOD==1, 2, 3)
 
 #define ENH_INTG 1.0d0
@@ -509,28 +509,28 @@
 !                         3 : Initial values from previous
 !                             simulation
 
-#define ZS_PRESENT_FILE 'grl_bm5_16_topo.nc'
+#define ZS_PRESENT_FILE 'grl_bm7_16_topo.nc'
 !                         Name of the file containing the present-day
 !                         ice-surface topography
 
-#define ZB_PRESENT_FILE 'grl_bm5_16_topo.nc'
+#define ZB_PRESENT_FILE 'grl_bm7_16_topo.nc'
 !                         Name of the file containing the present-day
 !                         ice-base topography
 !                         (only for ANF_DAT==1;
 !                          if 'none' or undefined, zb=zl will be assumed)
 
-#define ZL_PRESENT_FILE 'grl_bm5_16_topo.nc'
+#define ZL_PRESENT_FILE 'grl_bm7_16_topo.nc'
 !                         Name of the file containing the present-day
 !                         lithosphere-surface topography
 !                         (only for ANF_DAT==1)
 
-#define ZL0_FILE 'grl_bm5_16_zl0_llra.nc'
+#define ZL0_FILE 'grl_bm7_16_zl0_llra.nc'
 !                         Name of the file containing the topography
 !                         of the relaxed lithosphere surface
 !                         (for ANF_DAT==3, can be set to 'none' if
 !                          topography is to be kept from previous simulation)
 
-#define MASK_PRESENT_FILE 'grl_bm5_16_topo.nc'
+#define MASK_PRESENT_FILE 'grl_bm7_16_topo.nc'
 !                         Name of the file containing the present-day
 !                         ice-land-ocean mask
 
@@ -538,7 +538,7 @@
 !                         Name of the file containing the region mask
 !                         ('none' if no file is to be defined)
 
-#define TEMP_INIT 1
+#define TEMP_INIT 4
 !                         Initial ice temperature conditions
 !                         (only for ANF_DAT==1):
 !                         1 : Constant value in the entire ice sheet
@@ -613,7 +613,7 @@
 
 !-------- Evolution of the ice thickness --------
 
-#define THK_EVOL 1
+#define THK_EVOL 2
 !                         0 : No evolution of the ice thickness, kept fixed on
 !                             the initial thickness
 !                         1 : Evolution of the ice thickness
@@ -645,7 +645,7 @@
 !                         3 : zl (lithosphere surface) only
 !                         (only for THK_EVOL==2, 3)
 
-#define TARGET_TOPO_TAU0_FILE 'none'
+#define TARGET_TOPO_TAU0_FILE 'target_topo_tau_ss25ka.dat'
 !                         Name of the file containing the time-dependent
 !                         relaxation time for
 !                         nudging towards target topography
@@ -658,12 +658,12 @@
 !                          only for THK_EVOL==3,
 !                          or for ACCSURFACE==7 and ABLSURFACE==7)
 
-#define TARGET_TOPO_DAT_NAME 'none'
+#define TARGET_TOPO_DAT_NAME 'repo_grl16_bm7_init100a0001.nc'
 !                         Target-topography file
 !                         (only for THK_EVOL==2, 3,
 !                          or for ACCSURFACE==7 and ABLSURFACE==7)
 
-#define MASK_MAXEXTENT_FILE 'grl_bm5_16_topo.nc'
+#define MASK_MAXEXTENT_FILE 'none'
 !                         Maximum ice extent mask file (only for THK_EVOL>=1)
 !                         ('none' if no file is to be defined)
 
@@ -865,13 +865,13 @@
 !                       PRECIP_PRESENT_FILE will be used,
 !                       while PRECIP_MA_PRESENT_FILE will be ignored.]
 
-#define PRECIP_ZS_REF_FILE 'grl_bm5_16_topo.nc'
+#define PRECIP_ZS_REF_FILE 'grl_bm7_16_topo.nc'
 !                       Name of the file containing the reference topography
 !                       for the data in
 !                       PRECIP_PRESENT_FILE or PRECIP_MA_PRESENT_FILE
 !                       (for ACCSURFACE<=5)
 
-#define ACCFACT 0.0d0
+#define ACCFACT 1.0d0
 !                       Constant ratio between actual and present
 !                       precipitation (only for ACCSURFACE==1)
 
@@ -924,7 +924,7 @@
 
 !-------- Surface ablation --------
 
-#define ABLSURFACE 3
+#define ABLSURFACE 2
 !                       1 : Ablation parameterized
 !                           by positive-degree-day (PDD) method.
 !                           Rainfall assumed to run off instantaneously.
@@ -962,7 +962,7 @@
 !                       Firn-warming correction
 !                       (in (d*degC)/(mm WE), for ABLSURFACE==1 or 2)
 
-#define LAMBDA_LTI 0.0d0
+#define LAMBDA_LTI 500.0d0
 !                       Melting coefficient for the LTI method
 !                       (in (mm WE)/(a*degC), for ABLSURFACE==3)
 
@@ -1189,7 +1189,7 @@
 
 !-------- Basal sliding --------
 
-#define SLIDE_LAW 0
+#define SLIDE_LAW 1
 !                       0 : No-slip
 !                       1 : Weertman-Budd sliding law (v_b ~ tau_b^p/N_b^q)
 
@@ -1209,7 +1209,7 @@
 !                       1 : Ocean pressure without cut-off (can become negative)
 !                       2 : Ocean pressure with cut-off
 
-#define C_SLIDE_DIMLESS 0.0d0
+#define C_SLIDE_DIMLESS 0.672d0
 !                       Sliding coefficient (dimensionless)
 !                       (N_SLIDE_REGIONS separate values,
 !                        only for N_SLIDE_REGIONS < 9999).
@@ -1240,18 +1240,18 @@
 !                       to allow basal sliding everywhere,
 !                       irrespective of the basal temperature.
 
-#define P_WEERT 1
+#define P_WEERT 3
 !                       Weertman-Budd exponent p (real or integer)
 !                       for the basal shear stress
 !                       (N_SLIDE_REGIONS separate values)
 
-#define Q_WEERT 0
+#define Q_WEERT 2
 !                       Weertman-Budd exponent q (real or integer)
 !                       for the basal pressure
 !                       (N_SLIDE_REGIONS separate values;
 !                        set to 0.0d0 or 0 for pure Weertman sliding)
 
-#define TIME_RAMP_UP_SLIDE 0.0d0
+#define TIME_RAMP_UP_SLIDE 5000.0d0
 !                       Ramp-up time (in a) for basal sliding:
 !                       Sliding starts gradually between the inital time
 !                       (TIME_INIT0) and the initial time plus the ramp-up time
@@ -1407,7 +1407,7 @@
 !                              time-slice output with all 3-d fields for
 !                              OUTPUT==3, in which case snapshots are written)
 
-#define DTIME_SER0 5.0d0
+#define DTIME_SER0 10.0d0
 !                         Time step (in a) for writing of data to
 !                         the time-series files (scalar variables)
 
@@ -1415,12 +1415,12 @@
 !                         Time step (in a) for writing of
 !                         time-slice data (only for OUTPUT==1,3)
 
-#define N_OUTPUT 1
+#define N_OUTPUT 3
 !                         Number of specified times for writing of
 !                         time-slice data (only for OUTPUT==2,3,
 !                         not more than 100)
 
-#define TIME_OUT0 0.0d0
+#define TIME_OUT0 [ 0.0d0, 10000.0d0, 25000.0d0 ]
 !                         Times (in a) for writing of time-slice
 !                         data (only for OUTPUT==2,3, in increasing
 !                         order from #1 to #N_OUTPUT)

@@ -168,6 +168,8 @@ real(dp)           :: y_val(0:JMAX)
 real(dp)           :: lon_val(0:IMAX,0:JMAX)
 real(dp)           :: lat_val(0:IMAX,0:JMAX)
 real(dp)           :: lim_val
+real(dp)           :: limgr_val
+real(dp)           :: limfl_val
 real(dp)           :: limnsw_val
 real(dp)           :: iareagr_val
 real(dp)           :: iareafl_val
@@ -192,14 +194,14 @@ real(dp)           :: dlithkdt_val(0:IMAX,0:JMAX)
 real(dp)           :: xvelsurf_val(0:IMAX,0:JMAX)
 real(dp)           :: yvelsurf_val(0:IMAX,0:JMAX)
 real(dp)           :: zvelsurf_val(0:IMAX,0:JMAX)
-real(dp)           :: horvelsurf_val(0:IMAX,0:JMAX)
+real(dp)           :: hvelsurf_val(0:IMAX,0:JMAX)
 real(dp)           :: xvelbase_val(0:IMAX,0:JMAX)
 real(dp)           :: yvelbase_val(0:IMAX,0:JMAX)
 real(dp)           :: zvelbase_val(0:IMAX,0:JMAX)
-real(dp)           :: horvelbase_val(0:IMAX,0:JMAX)
+real(dp)           :: hvelbase_val(0:IMAX,0:JMAX)
 real(dp)           :: xvelmean_val(0:IMAX,0:JMAX)
 real(dp)           :: yvelmean_val(0:IMAX,0:JMAX)
-real(dp)           :: horvelmean_val(0:IMAX,0:JMAX)
+real(dp)           :: hvelmean_val(0:IMAX,0:JMAX)
 real(dp)           :: litemptop_val(0:IMAX,0:JMAX)
 real(dp)           :: litempavg_val(0:IMAX,0:JMAX)
 real(dp)           :: litempbot_val(0:IMAX,0:JMAX)
@@ -306,7 +308,8 @@ do n_variable_type = 1, 2
                 year2sec_val, &
                 time_val, year_val, time_bnds_val, x_val, y_val, &
                 lon_val, lat_val, &
-                lim_val, limnsw_val, iareagr_val, iareafl_val, &
+                lim_val, limgr_val, limfl_val, limnsw_val, &
+                iareagr_val, iareafl_val, &
                 dlimdt_val, tendacabf_val, &
                 tendlibmassbf_val, tendlibmassbfgr_val, tendlibmassbffl_val, &
                 tendlicalvf_val, tendlifmassbf_val, &
@@ -316,9 +319,9 @@ do n_variable_type = 1, 2
                 libmassbf_val, libmassbfgr_val, libmassbffl_val, &
                 hfgeoubed_val, &
                 dlithkdt_val, &
-                xvelsurf_val, yvelsurf_val, zvelsurf_val, horvelsurf_val, &
-                xvelbase_val, yvelbase_val, zvelbase_val, horvelbase_val, &
-                xvelmean_val, yvelmean_val, horvelmean_val, &
+                xvelsurf_val, yvelsurf_val, zvelsurf_val, hvelsurf_val, &
+                xvelbase_val, yvelbase_val, zvelbase_val, hvelbase_val, &
+                xvelmean_val, yvelmean_val, hvelmean_val, &
                 litemptop_val, litempavg_val, &
                 litempbot_val, litempbotgr_val, litempbotfl_val, &
                 litempgrad_val, litempgradgr_val, litempgradfl_val, &
@@ -346,7 +349,8 @@ do n_variable_type = 1, 2
                     year2sec_val, &
                     time_val, year_val, time_bnds_val, x_val, y_val, &
                     lon_val, lat_val, &
-                    lim_val, limnsw_val, iareagr_val, iareafl_val, &
+                    lim_val, limgr_val, limfl_val, limnsw_val, &
+                    iareagr_val, iareafl_val, &
                     dlimdt_val, tendacabf_val, &
                     tendlibmassbf_val, tendlibmassbfgr_val, tendlibmassbffl_val, &
                     tendlicalvf_val, tendlifmassbf_val, &
@@ -356,9 +360,9 @@ do n_variable_type = 1, 2
                     libmassbf_val, libmassbfgr_val, libmassbffl_val, &
                     hfgeoubed_val, &
                     dlithkdt_val, &
-                    xvelsurf_val, yvelsurf_val, zvelsurf_val, horvelsurf_val, &
-                    xvelbase_val, yvelbase_val, zvelbase_val, horvelbase_val, &
-                    xvelmean_val, yvelmean_val, horvelmean_val, &
+                    xvelsurf_val, yvelsurf_val, zvelsurf_val, hvelsurf_val, &
+                    xvelbase_val, yvelbase_val, zvelbase_val, hvelbase_val, &
+                    xvelmean_val, yvelmean_val, hvelmean_val, &
                     litemptop_val, litempavg_val, &
                     litempbot_val, litempbotgr_val, litempbotfl_val, &
                     litempgrad_val, litempgradgr_val, litempgradfl_val, &
@@ -394,7 +398,8 @@ subroutine read_nc(run_name, n_variable_dim, n_variable_type, ergnum, n, &
                    year2sec_r, &
                    time_r, year_r, time_bnds_r, x_r, y_r, &
                    lon_r, lat_r, &
-                   lim_r, limnsw_r, iareagr_r, iareafl_r, &
+                   lim_r, limgr_r, limfl_r, limnsw_r, &
+                   iareagr_r, iareafl_r, &
                    dlimdt_r, tendacabf_r, &
                    tendlibmassbf_r, tendlibmassbfgr_r, tendlibmassbffl_r, &
                    tendlicalvf_r, tendlifmassbf_r, &
@@ -404,9 +409,9 @@ subroutine read_nc(run_name, n_variable_dim, n_variable_type, ergnum, n, &
                    libmassbf_r, libmassbfgr_r, libmassbffl_r, &
                    hfgeoubed_r, &
                    dlithkdt_r, &
-                   xvelsurf_r, yvelsurf_r, zvelsurf_r, horvelsurf_r, &
-                   xvelbase_r, yvelbase_r, zvelbase_r, horvelbase_r, &
-                   xvelmean_r, yvelmean_r, horvelmean_r, &
+                   xvelsurf_r, yvelsurf_r, zvelsurf_r, hvelsurf_r, &
+                   xvelbase_r, yvelbase_r, zvelbase_r, hvelbase_r, &
+                   xvelmean_r, yvelmean_r, hvelmean_r, &
                    litemptop_r, litempavg_r, &
                    litempbot_r, litempbotgr_r, litempbotfl_r, &
                    litempgrad_r, litempgradgr_r, litempgradfl_r, &
@@ -440,6 +445,8 @@ real(dp),          intent(out) :: y_r(0:JMAX)
 real(dp),          intent(out) :: lon_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: lat_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: lim_r
+real(dp),          intent(out) :: limgr_r
+real(dp),          intent(out) :: limfl_r
 real(dp),          intent(out) :: limnsw_r
 real(dp),          intent(out) :: iareagr_r
 real(dp),          intent(out) :: iareafl_r
@@ -464,14 +471,14 @@ real(dp),          intent(out) :: dlithkdt_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: xvelsurf_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: yvelsurf_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: zvelsurf_r(0:IMAX,0:JMAX)
-real(dp),          intent(out) :: horvelsurf_r(0:IMAX,0:JMAX)
+real(dp),          intent(out) :: hvelsurf_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: xvelbase_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: yvelbase_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: zvelbase_r(0:IMAX,0:JMAX)
-real(dp),          intent(out) :: horvelbase_r(0:IMAX,0:JMAX)
+real(dp),          intent(out) :: hvelbase_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: xvelmean_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: yvelmean_r(0:IMAX,0:JMAX)
-real(dp),          intent(out) :: horvelmean_r(0:IMAX,0:JMAX)
+real(dp),          intent(out) :: hvelmean_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: litemptop_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: litempavg_r(0:IMAX,0:JMAX)
 real(dp),          intent(out) :: litempbot_r(0:IMAX,0:JMAX)
@@ -499,7 +506,8 @@ character, parameter :: end_of_line = char(10)
 
 integer(i4b), dimension(0:IMAX,0:JMAX) :: mask_erg
 real(dp) :: year2sec_erg=0.0_dp, time_erg=0.0_dp, &
-            V_tot_erg=0.0_dp, V_af_erg=0.0_dp, &
+            V_tot_erg=0.0_dp, V_grounded_erg=0.0_dp, V_floating_erg=0.0_dp, &
+            V_af_erg=0.0_dp, &
             A_grounded_erg=0.0_dp, A_floating_erg=0.0_dp, &
             dV_dt_erg=0.0_dp, Q_s_erg=0.0_dp, &
             bmb_tot_erg=0.0_dp, &
@@ -1132,6 +1140,26 @@ else
    call write_message(ch_msg, 'error')
 end if
 
+istat = nf90_inq_varid(ncid, 'V_grounded', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, V_grounded_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''V_grounded'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
+
+istat = nf90_inq_varid(ncid, 'V_floating', ncv)
+if (istat == nf90_noerr) then
+   call check( nf90_get_var(ncid, ncv, V_floating_erg, start=nc1cor) )
+else
+   ch_msg = ' >>> read_nc: Variable ''V_floating'' ' &
+          //               end_of_line &
+          //'              not available in read nc file!'
+   call write_message(ch_msg, 'error')
+end if
+
 istat = nf90_inq_varid(ncid, 'V_af', ncv)
 if (istat == nf90_noerr) then
    call check( nf90_get_var(ncid, ncv, V_af_erg, start=nc1cor) )
@@ -1342,6 +1370,8 @@ end if
 if (n_variable_dim == 1) then
 
 lim_r             = real(NF90_FILL_FLOAT,dp)
+limgr_r           = real(NF90_FILL_FLOAT,dp)
+limfl_r           = real(NF90_FILL_FLOAT,dp)
 limnsw_r          = real(NF90_FILL_FLOAT,dp)
 iareagr_r         = real(NF90_FILL_FLOAT,dp)
 iareafl_r         = real(NF90_FILL_FLOAT,dp)
@@ -1397,22 +1427,22 @@ do j=0, JMAX
 
    hfgeoubed_r(i,j)  = q_geo_erg(i,j)   ! W/m2
 
-   dlithkdt_r(i,j)   = dH_dtau_erg(i,j) / year_to_year_or_sec   ! m/a | m/s
-   xvelsurf_r(i,j)   = vx_s_g_erg(i,j)  / year_to_year_or_sec   ! m/a | m/s
-   yvelsurf_r(i,j)   = vy_s_g_erg(i,j)  / year_to_year_or_sec   ! m/a | m/s
-   zvelsurf_r(i,j)   = vz_s_erg(i,j)    / year_to_year_or_sec   ! m/a | m/s
-   horvelsurf_r(i,j) = vh_s_erg(i,j)    / year_to_year_or_sec   ! m/a | m/s
-   xvelbase_r(i,j)   = vx_b_g_erg(i,j)  / year_to_year_or_sec   ! m/a | m/s
-   yvelbase_r(i,j)   = vy_b_g_erg(i,j)  / year_to_year_or_sec   ! m/a | m/s
-   zvelbase_r(i,j)   = vz_b_erg(i,j)    / year_to_year_or_sec   ! m/a | m/s
-   horvelbase_r(i,j) = vh_b_erg(i,j)    / year_to_year_or_sec   ! m/a | m/s
-   xvelmean_r(i,j)   = vx_m_g_erg(i,j)  / year_to_year_or_sec   ! m/a | m/s
-   yvelmean_r(i,j)   = vy_m_g_erg(i,j)  / year_to_year_or_sec   ! m/a | m/s
-   horvelmean_r(i,j) = vh_m_erg(i,j)    / year_to_year_or_sec   ! m/a | m/s
+   dlithkdt_r(i,j) = dH_dtau_erg(i,j) / year_to_year_or_sec   ! m/a | m/s
+   xvelsurf_r(i,j) = vx_s_g_erg(i,j)  / year_to_year_or_sec   ! m/a | m/s
+   yvelsurf_r(i,j) = vy_s_g_erg(i,j)  / year_to_year_or_sec   ! m/a | m/s
+   zvelsurf_r(i,j) = vz_s_erg(i,j)    / year_to_year_or_sec   ! m/a | m/s
+   hvelsurf_r(i,j) = vh_s_erg(i,j)    / year_to_year_or_sec   ! m/a | m/s
+   xvelbase_r(i,j) = vx_b_g_erg(i,j)  / year_to_year_or_sec   ! m/a | m/s
+   yvelbase_r(i,j) = vy_b_g_erg(i,j)  / year_to_year_or_sec   ! m/a | m/s
+   zvelbase_r(i,j) = vz_b_erg(i,j)    / year_to_year_or_sec   ! m/a | m/s
+   hvelbase_r(i,j) = vh_b_erg(i,j)    / year_to_year_or_sec   ! m/a | m/s
+   xvelmean_r(i,j) = vx_m_g_erg(i,j)  / year_to_year_or_sec   ! m/a | m/s
+   yvelmean_r(i,j) = vy_m_g_erg(i,j)  / year_to_year_or_sec   ! m/a | m/s
+   hvelmean_r(i,j) = vh_m_erg(i,j)    / year_to_year_or_sec   ! m/a | m/s
 
-   litemptop_r(i,j)  = temp_s_erg(i,j)    + T0   ! C -> K
-   litempavg_r(i,j)  = temp_mean_erg(i,j) + T0   ! C -> K
-   litempbot_r(i,j)  = temp_b_erg(i,j)    + T0   ! C -> K
+   litemptop_r(i,j) = temp_s_erg(i,j)    + T0   ! C -> K
+   litempavg_r(i,j) = temp_mean_erg(i,j) + T0   ! C -> K
+   litempbot_r(i,j) = temp_b_erg(i,j)    + T0   ! C -> K
 
    litempgrad_r(i,j) = dtemp_dz_b_erg(i,j)
 
@@ -1472,6 +1502,8 @@ end do
 else if (n_variable_dim == 2) then
 
 lim_r             = V_tot_erg * rho   ! m3 -> kg
+limgr_r           = V_grounded_erg * rho   ! m3 -> kg
+limfl_r           = V_floating_erg * rho   ! m3 -> kg
 limnsw_r          = V_af_erg  * rho   ! m3 -> kg
 iareagr_r         = A_grounded_erg    ! m2
 iareafl_r         = A_floating_erg    ! m2
@@ -1511,14 +1543,14 @@ dlithkdt_r     = real(NF90_FILL_FLOAT,dp)
 xvelsurf_r     = real(NF90_FILL_FLOAT,dp)
 yvelsurf_r     = real(NF90_FILL_FLOAT,dp)
 zvelsurf_r     = real(NF90_FILL_FLOAT,dp)
-horvelsurf_r   = real(NF90_FILL_FLOAT,dp)
+hvelsurf_r     = real(NF90_FILL_FLOAT,dp)
 xvelbase_r     = real(NF90_FILL_FLOAT,dp)
 yvelbase_r     = real(NF90_FILL_FLOAT,dp)
 zvelbase_r     = real(NF90_FILL_FLOAT,dp)
-horvelbase_r   = real(NF90_FILL_FLOAT,dp)
+hvelbase_r     = real(NF90_FILL_FLOAT,dp)
 xvelmean_r     = real(NF90_FILL_FLOAT,dp)
 yvelmean_r     = real(NF90_FILL_FLOAT,dp)
-horvelmean_r   = real(NF90_FILL_FLOAT,dp)
+hvelmean_r     = real(NF90_FILL_FLOAT,dp)
 litemptop_r    = real(NF90_FILL_FLOAT,dp)
 litempavg_r    = real(NF90_FILL_FLOAT,dp)
 litempbot_r    = real(NF90_FILL_FLOAT,dp)
@@ -1945,6 +1977,48 @@ call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 
+!      -- limgr
+
+call check( nf90_inq_dimid(ncid, 'time', nc1d) )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'limgr', NF90_FLOAT, nc1d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle) )
+#else
+call check( nf90_def_var(ncid, 'limgr', NF90_FLOAT, nc1d, ncv) )
+#endif
+
+buffer = 'kg'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
+buffer = 'land_ice_mass_grounded'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
+buffer = 'Grounded ice mass'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+
+!      -- limfl
+
+call check( nf90_inq_dimid(ncid, 'time', nc1d) )
+
+#if (NETCDF4_ENABLED==1)
+call check( nf90_def_var(ncid, 'limfl', NF90_FLOAT, nc1d, ncv, &
+            deflate_level=n_deflate_level, shuffle=flag_shuffle) )
+#else
+call check( nf90_def_var(ncid, 'limfl', NF90_FLOAT, nc1d, ncv) )
+#endif
+
+buffer = 'kg'
+call check( nf90_put_att(ncid, ncv, 'units', trim(buffer)) )
+buffer = 'land_ice_mass_floating'
+call check( nf90_put_att(ncid, ncv, 'standard_name', trim(buffer)) )
+buffer = 'Floating ice mass'
+call check( nf90_put_att(ncid, ncv, 'long_name', trim(buffer)) )
+
+call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
+call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
+
 !      -- limnsw
 
 call check( nf90_inq_dimid(ncid, 'time', nc1d) )
@@ -2360,17 +2434,17 @@ call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 
-!      -- horvelsurf
+!      -- hvelsurf
 
 call check( nf90_inq_dimid(ncid, 'x', nc3d(1)) )
 call check( nf90_inq_dimid(ncid, 'y', nc3d(2)) )
 call check( nf90_inq_dimid(ncid, 'time', nc3d(3)) )
 
 #if (NETCDF4_ENABLED==1)
-call check( nf90_def_var(ncid, 'horvelsurf', NF90_FLOAT, nc3d, ncv, &
+call check( nf90_def_var(ncid, 'hvelsurf', NF90_FLOAT, nc3d, ncv, &
             deflate_level=n_deflate_level, shuffle=flag_shuffle) )
 #else
-call check( nf90_def_var(ncid, 'horvelsurf', NF90_FLOAT, nc3d, ncv) )
+call check( nf90_def_var(ncid, 'hvelsurf', NF90_FLOAT, nc3d, ncv) )
 #endif
 
 buffer = 'm '//ch_time_unit//'-1'
@@ -2456,17 +2530,17 @@ call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 
-!      -- horvelbase
+!      -- hvelbase
 
 call check( nf90_inq_dimid(ncid, 'x', nc3d(1)) )
 call check( nf90_inq_dimid(ncid, 'y', nc3d(2)) )
 call check( nf90_inq_dimid(ncid, 'time', nc3d(3)) )
 
 #if (NETCDF4_ENABLED==1)
-call check( nf90_def_var(ncid, 'horvelbase', NF90_FLOAT, nc3d, ncv, &
+call check( nf90_def_var(ncid, 'hvelbase', NF90_FLOAT, nc3d, ncv, &
             deflate_level=n_deflate_level, shuffle=flag_shuffle) )
 #else
-call check( nf90_def_var(ncid, 'horvelbase', NF90_FLOAT, nc3d, ncv) )
+call check( nf90_def_var(ncid, 'hvelbase', NF90_FLOAT, nc3d, ncv) )
 #endif
 
 buffer = 'm '//ch_time_unit//'-1'
@@ -2528,17 +2602,17 @@ call check( nf90_put_att(ncid, ncv, 'grid_mapping', 'mapping') )
 call check( nf90_put_att(ncid, ncv, '_FillValue', NF90_FILL_FLOAT) )
 call check( nf90_put_att(ncid, ncv, 'missing_value', NF90_FILL_FLOAT) )
 
-!      -- horvelmean
+!      -- hvelmean
 
 call check( nf90_inq_dimid(ncid, 'x', nc3d(1)) )
 call check( nf90_inq_dimid(ncid, 'y', nc3d(2)) )
 call check( nf90_inq_dimid(ncid, 'time', nc3d(3)) )
 
 #if (NETCDF4_ENABLED==1)
-call check( nf90_def_var(ncid, 'horvelmean', NF90_FLOAT, nc3d, ncv, &
+call check( nf90_def_var(ncid, 'hvelmean', NF90_FLOAT, nc3d, ncv, &
             deflate_level=n_deflate_level, shuffle=flag_shuffle) )
 #else
-call check( nf90_def_var(ncid, 'horvelmean', NF90_FLOAT, nc3d, ncv) )
+call check( nf90_def_var(ncid, 'hvelmean', NF90_FLOAT, nc3d, ncv) )
 #endif
 
 buffer = 'm '//ch_time_unit//'-1'
@@ -3078,7 +3152,8 @@ subroutine write_ismip_netcdf(run_name, n_variable_dim, n_variable_type, &
                     year2sec_aux, &
                     time_aux, year_aux, time_bnds_val, x_val, y_val, &
                     lon_val, lat_val, &
-                    lim_aux, limnsw_aux, iareagr_aux, iareafl_aux, &
+                    lim_aux, limgr_aux, limfl_aux, limnsw_aux, &
+                    iareagr_aux, iareafl_aux, &
                     dlimdt_aux, tendacabf_aux, &
                     tendlibmassbf_aux, &
                     tendlibmassbfgr_aux, tendlibmassbffl_aux, &
@@ -3089,9 +3164,9 @@ subroutine write_ismip_netcdf(run_name, n_variable_dim, n_variable_type, &
                     libmassbf_val, libmassbfgr_val, libmassbffl_val, &
                     hfgeoubed_val, &
                     dlithkdt_val, &
-                    xvelsurf_val, yvelsurf_val, zvelsurf_val, horvelsurf_val, &
-                    xvelbase_val, yvelbase_val, zvelbase_val, horvelbase_val, &
-                    xvelmean_val, yvelmean_val, horvelmean_val, &
+                    xvelsurf_val, yvelsurf_val, zvelsurf_val, hvelsurf_val, &
+                    xvelbase_val, yvelbase_val, zvelbase_val, hvelbase_val, &
+                    xvelmean_val, yvelmean_val, hvelmean_val, &
                     litemptop_val, litempavg_val, &
                     litempbot_val, litempbotgr_val, litempbotfl_val, &
                     litempgrad_val, litempgradgr_val, litempgradfl_val, &
@@ -3116,6 +3191,8 @@ real(dp),           intent(in) :: y_val(0:JMAX)
 real(dp),           intent(in) :: lon_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: lat_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: lim_aux
+real(dp),           intent(in) :: limgr_aux
+real(dp),           intent(in) :: limfl_aux
 real(dp),           intent(in) :: limnsw_aux
 real(dp),           intent(in) :: iareagr_aux
 real(dp),           intent(in) :: iareafl_aux
@@ -3140,14 +3217,14 @@ real(dp),           intent(in) :: dlithkdt_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: xvelsurf_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: yvelsurf_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: zvelsurf_val(0:IMAX,0:JMAX)
-real(dp),           intent(in) :: horvelsurf_val(0:IMAX,0:JMAX)
+real(dp),           intent(in) :: hvelsurf_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: xvelbase_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: yvelbase_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: zvelbase_val(0:IMAX,0:JMAX)
-real(dp),           intent(in) :: horvelbase_val(0:IMAX,0:JMAX)
+real(dp),           intent(in) :: hvelbase_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: xvelmean_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: yvelmean_val(0:IMAX,0:JMAX)
-real(dp),           intent(in) :: horvelmean_val(0:IMAX,0:JMAX)
+real(dp),           intent(in) :: hvelmean_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: litemptop_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: litempavg_val(0:IMAX,0:JMAX)
 real(dp),           intent(in) :: litempbot_val(0:IMAX,0:JMAX)
@@ -3191,6 +3268,8 @@ integer(i4b) :: mapping_val(1)
 real(dp)     :: year2sec_val(1)
 real(dp)     :: time_val(1), year_val(1)
 real(dp)     :: lim_val(1)
+real(dp)     :: limgr_val(1)
+real(dp)     :: limfl_val(1)
 real(dp)     :: limnsw_val(1)
 real(dp)     :: iareagr_val(1)
 real(dp)     :: iareafl_val(1)
@@ -3208,6 +3287,8 @@ year2sec_val(1)        = year2sec_aux
 time_val(1)            = time_aux
 year_val(1)            = year_aux
 lim_val(1)             = lim_aux
+limgr_val(1)           = limgr_aux
+limfl_val(1)           = limfl_aux
 limnsw_val(1)          = limnsw_aux
 iareagr_val(1)         = iareagr_aux
 iareafl_val(1)         = iareafl_aux
@@ -3307,6 +3388,16 @@ call check( nf90_inq_varid(ncid, 'lim', ncv) )
 nc1cor(1) = n
 nc1cnt(1) = 1
 call check( nf90_put_var(ncid, ncv, lim_val, start=nc1cor, count=nc1cnt) )
+
+call check( nf90_inq_varid(ncid, 'limgr', ncv) )
+nc1cor(1) = n
+nc1cnt(1) = 1
+call check( nf90_put_var(ncid, ncv, limgr_val, start=nc1cor, count=nc1cnt) )
+
+call check( nf90_inq_varid(ncid, 'limfl', ncv) )
+nc1cor(1) = n
+nc1cnt(1) = 1
+call check( nf90_put_var(ncid, ncv, limfl_val, start=nc1cor, count=nc1cnt) )
 
 call check( nf90_inq_varid(ncid, 'limnsw', ncv) )
 nc1cor(1) = n
@@ -3442,14 +3533,14 @@ nc3cnt(2) = JMAX + 1
 nc3cnt(3) = 1
 call check( nf90_put_var(ncid, ncv, zvelsurf_val, start=nc3cor, count=nc3cnt) )
 
-call check( nf90_inq_varid(ncid, 'horvelsurf', ncv) )
+call check( nf90_inq_varid(ncid, 'hvelsurf', ncv) )
 nc3cor(1) = 1
 nc3cor(2) = 1
 nc3cor(3) = n
 nc3cnt(1) = IMAX + 1
 nc3cnt(2) = JMAX + 1
 nc3cnt(3) = 1
-call check( nf90_put_var(ncid, ncv, horvelsurf_val, start=nc3cor, count=nc3cnt) )
+call check( nf90_put_var(ncid, ncv, hvelsurf_val, start=nc3cor, count=nc3cnt) )
 
 call check( nf90_inq_varid(ncid, 'xvelbase', ncv) )
 nc3cor(1) = 1
@@ -3478,14 +3569,14 @@ nc3cnt(2) = JMAX + 1
 nc3cnt(3) = 1
 call check( nf90_put_var(ncid, ncv, zvelbase_val, start=nc3cor, count=nc3cnt) )
 
-call check( nf90_inq_varid(ncid, 'horvelbase', ncv) )
+call check( nf90_inq_varid(ncid, 'hvelbase', ncv) )
 nc3cor(1) = 1
 nc3cor(2) = 1
 nc3cor(3) = n
 nc3cnt(1) = IMAX + 1
 nc3cnt(2) = JMAX + 1
 nc3cnt(3) = 1
-call check( nf90_put_var(ncid, ncv, horvelbase_val, start=nc3cor, count=nc3cnt) )
+call check( nf90_put_var(ncid, ncv, hvelbase_val, start=nc3cor, count=nc3cnt) )
 
 call check( nf90_inq_varid(ncid, 'xvelmean', ncv) )
 nc3cor(1) = 1
@@ -3505,14 +3596,14 @@ nc3cnt(2) = JMAX + 1
 nc3cnt(3) = 1
 call check( nf90_put_var(ncid, ncv, yvelmean_val, start=nc3cor, count=nc3cnt) )
 
-call check( nf90_inq_varid(ncid, 'horvelmean', ncv) )
+call check( nf90_inq_varid(ncid, 'hvelmean', ncv) )
 nc3cor(1) = 1
 nc3cor(2) = 1
 nc3cor(3) = n
 nc3cnt(1) = IMAX + 1
 nc3cnt(2) = JMAX + 1
 nc3cnt(3) = 1
-call check( nf90_put_var(ncid, ncv, horvelmean_val, start=nc3cor, count=nc3cnt) )
+call check( nf90_put_var(ncid, ncv, hvelmean_val, start=nc3cor, count=nc3cnt) )
 
 call check( nf90_inq_varid(ncid, 'litemptop', ncv) )
 nc3cor(1) = 1
